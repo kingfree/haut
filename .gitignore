@@ -1,3 +1,12 @@
+# TeX files
+*.aux
+*.toc
+*.idx
+
+# Log files
+*.log
+*.tmp
+
 # Object files
 *.o
 
