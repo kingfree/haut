@@ -1,0 +1,34 @@
+\rm Roman
+\sl Slanted
+\it Italic
+\tt Typewriter
+\bf Bold
+
+\rm
+{\it There\/} is no more goods.
+
+`{\bf f}'
+`{\bf f\/}'
+
+\def\ic#1{\setbox0=\hbox{#1\/}\dimen0=\wd0
+\setbox0=\hbox{#1}\advance\dimen0 by -\wd0}
+
+this {\it char\ic c} {\ic char} puts what
+
+this {\it char} {\ic char} puts what
+
+this {\it char\/} {\ic char} puts what
+
+\font\ninerm=cmr9
+\tenrm good \ninerm good %\eightrm good
+\sevenrm good %\sixrm good
+\fiverm good
+
+\tenrm
+\font\mg=cmr5 at 10pt
+Ten point type is different from {\mg magnified five-point type}.
+
+\font\kg=cmr5 scaled 2000
+\font\bg=cmr10 scaled\magstep2
+this is {\kg nothing} and some {\bg big one}.
+

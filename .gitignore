@@ -3,6 +3,10 @@
 *.toc
 *.idx
 
+# Documents with complex format
+*.dvi
+*.pdf
+
 # Log files
 *.log
 *.tmp
@@ -14,7 +18,7 @@
 *.lib
 *.a
 
-# Shared objects (inc. Windows DLLs)
+# Shared objects
 *.dll
 *.so
 *.so.*
@@ -24,3 +28,5 @@
 *.exe
 *.out
 *.app
+
+
