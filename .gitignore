@@ -1,7 +1,36 @@
 # TeX files
+*.acn
+*.acr
+*.alg
 *.aux
-*.toc
+*.bbl
+*.blg
+*.dvi
+*.fdb_latexmk
+*.glg
+*.glo
+*.gls
 *.idx
+*.ilg
+*.ind
+*.ist
+*.lof
+*.log
+*.lot
+*.maf
+*.mtc
+*.mtc0
+*.nav
+*.nlo
+*.out
+*.pdfsync
+*.ps
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+*.xdy
+*.tdo
 
 # Documents with complex format
 *.dvi
@@ -11,7 +40,9 @@
 *.log
 *.tmp
 
-# Object files
+# Compiled Object files
+*.slo
+*.lo
 *.o
 
 # Libraries
@@ -29,4 +60,44 @@
 *.out
 *.app
 
+## Python about
+*.py[cod]
+
+# Django
+*.log
+*.pot
+*.pyc
+local_settings.py
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
 
