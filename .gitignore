@@ -101,3 +101,8 @@ nosetests.xml
 .project
 .pydevproject
 
+# Vim temp.
+*.swp
+*.*~
+
+

@@ -1,0 +1,32 @@
+\documentclass{cweb}
+\usepackage[nofonts,nopunct,noindent,space]{ctex}
+%\usepackage[text={0.83\paperwidth,0.88\paperheight},vmargin=0.06\paperheight,left=0.1\paperwidth,headsep=1em,footskip=2em]{geometry}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}
+\setCJKsansfont[BoldFont={*}]{Microsoft YaHei}
+\setCJKmonofont{KFKai}
+
+\begin{document}
+
+\title{测试 XeLa\TeX\ 和 {\tt CWEB}}
+\author{王者自由}
+\maketitle
+
+
+@ 打印 ``hello, world''
+@c
+@<系统运行库@>@;
+int main() {
+    @<打印相关字符@>;
+    return 0;
+}
+@ 标准输入输出(I/O)@^IO@>需要使用 |stdio.h| 库。
+@<系统运行库@>=
+#include <stdio.h>@;
+@ 然后才能调用 |printf()| 函数。
+@<打印...@>=
+printf("hello, world");
+@
+
+
+\end{document}
+
