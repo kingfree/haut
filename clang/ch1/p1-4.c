@@ -1,9 +1,9 @@
-#include <stdio.h>
+ï»¿#include <stdio.h>
 int main(void) {
     int n;
     int isprime(int n);
     scanf("%d", &n);
-    printf("%d %sËØÊı¡£\n", n, isprime(n) ? "ÊÇ" : "²»ÊÇ");
+    printf("%d %sç´ æ•°ã€‚\n", n, isprime(n) ? "æ˜¯" : "ä¸æ˜¯");
     return 0;
 }
 int isprime(int n) {
