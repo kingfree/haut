@@ -14,10 +14,10 @@ int main() {
     int n, m, *l;
     int a[N], b[N], c[N];
     scanf("%d%d", &n, &m);
-    for(int i = 0; i< n; i++)
+    for(int i = 0; i < n; i++)
         scanf("%d", a + i);
     sort(a, a + n);
-    for(int i = 0; i< m; i++)
+    for(int i = 0; i < m; i++)
         scanf("%d", b + i);
     sort(b, b + m);
     // pf(a, a + n), pf(b, b + m);
