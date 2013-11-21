@@ -1,0 +1,92 @@
+
+.aliceblue  {background-color:#F0F8FF;} /* けいおん */
+.azure  {background-color:#F0FFFF;} /*氷菓 */
+.antiquewhite   {background-color:#FAEBD7;} /* 夏色キセキ */
+.aquamarine {background-color:#7FFFD4;} /* バカテス */
+.aqua   {background-color:#00FFFF;} /* ミルキィ */
+.burlywood  {background-color:#DEB887;} /* 境ホラ */
+.chartreuse {background-color:#7FFF00;} /* ひぐらし */
+.coral  {background-color:#FF7F50;} /* Aちゃんねる */
+.cornflower {background-color:#6495ED;} /* IS */
+.darkorange {background-color:#FF8C00;} /* たまゆら */
+.darkkhaki  {background-color:#BDB76B;} /* モーパイ */
+.darksalmon {background-color:#E9967A;} /* ロウきゅーぶ */
+.darkseagreen   {background-color:#8FBC8F;} /* アクエリオン */
+.deepskyblue    {background-color:#00BFFF;} /* 男子高校生の日常 */
+.dodgerblue {background-color:#1E90FF;} /* まよチキ */
+.feldsper   {background-color:#D19275;} /* ニャル子 */
+.gold   {background-color:#FFD700;}     /* 咲 */
+.greenyellow    {background-color:#ADFF2F;} /* さんかれあ */
+.hotpink    {background-color:#FF69B4;} /* ひだまり */
+.khaki  {background-color:#F0E68C;} /* アイマス */
+.indianred  {background-color:#CD5C5C;} /* シャナ */
+.lawngreen  {background-color:#7CFC00;} /* Fate */
+.lavenderblush  {background-color:#FFF0F5;} /* パパ聞き */
+.lemonchiffon   {background-color:#FFFACD;} /* キルミー */
+.lightcoral {background-color:#F08080;}     /* はがない */
+.lightgoldenrodyellow   {background-color:#FAFAD2;} /* あの夏 */
+.lightgreen {background-color:#90EE90;} /* アクセル・ワールド */
+.lightgrey  {background-color:#D3D3D3;} /* これゾン */
+.lightpink  {background-color:#FFB6C1;} /* HDD */
+.lightseagreen  {background-color:#20B2AA;} /* ペルソナ */
+.lightskyblue   {background-color:#87CEFA;} /* プリキュア */
+.lightsteelblue {background-color:#B0C4DE;} /* イカ娘 */
+.lime   {background-color:#00FF00;} /* 偽物語 */
+.limegreen  {background-color:#32CD32;} /* 神のみ */
+.mediumaquamarine   {background-color:#66CDAA;} /* 日常 */
+.mediumpurple   {background-color:#9370DB;} /* ましろ色 */
+.mediumspringgreen  {background-color:#00FA9A;} /* その他 */
+.mistyrose  {background-color:#FFE4E1;}　/*ゼロの使い魔*/
+.moccasin   {background-color:#FFE4B5;} /* WORKING */
+.orange {background-color:#FFA500;} /* とらドラ */
+.orchid {background-color:#DA70D6;} /* ハヤテ */
+.orangered  {background-color:#FF4500;} /* 緋弾のアリア */
+.pink   {background-color:#FFC0CB;} /* クロワーゼ */
+.plum   {background-color:#DDA0DD;} /* シュタゲ */
+.sandybrown {background-color:#F4A460;} /* ゆるゆり */
+.tan    {background-color:#D2B48C;} /* いろは */
+.thistle    {background-color:#D8BFD8;} /* 妖狐×僕 */
+.tomato {background-color:#FF6347;}     /* Another */
+.turquoise  {background-color:#40E0D0;} /* その他 */
+.violet {background-color:#EE82EE;}     /* アマガミ */
+.yellow {background-color:#FFFF00;}     /* ストパン */
+
+.goldenrod{background-color:#DAA520;}
+
+
+
+table#tfinale{
+    width:2048px;
+    border-collapse:collapse;
+}
+
+#tfinale td{
+    border:1px solid #000000;
+    padding:3px 2px;
+    vertical-align:middle;
+    text-align:center;
+    font-size:14px;
+}
+
+#tfinale th{
+    border-width:1px;
+    border-color:#000000;
+    border-style:solid;
+    padding:3px;
+    text-align:center;
+    color:#000000;
+    background-color:#afeeee;
+    vertical-align:middle;
+}
+
+
+.co {
+    font-size: small;
+    text-align: left;
+    border: 1px solid white;
+}
+
+.cv {
+    border: 0;
+    background-color: white;
+}
