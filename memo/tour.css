@@ -60,7 +60,7 @@ table#tfinale{
     border-collapse:collapse;
 }
 
-#tfinale td{
+td {
     border:1px solid #000000;
     padding:3px 2px;
     vertical-align:middle;
@@ -68,7 +68,7 @@ table#tfinale{
     font-size:14px;
 }
 
-#tfinale th{
+th {
     border-width:1px;
     border-color:#000000;
     border-style:solid;
@@ -89,4 +89,49 @@ table#tfinale{
 .cv {
     border: 0;
     background-color: white;
+}
+
+p {
+    font-family: "MS PMincho";
+    margin: 0px 10px 0px 10px;
+    padding: 3px;
+}
+h1 {
+    font-family: "MS PGothic";
+    font-size: 28px;
+    line-height: 30px;
+    font-weight: bold;
+    padding: 10px 10px 10px 10px;
+    margin: 8px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #FF69B4;
+    background-color: #FFC0CB;
+    color: black;
+}
+h2 {
+    font-family: "MS PGothic";
+    font-size: 24px;
+    line-height: 26px;
+    font-weight: bold;
+    padding: 10px 10px 10px 10px;
+    margin: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #FFD700;
+    background-color: #FAFAD2;
+    color: black;
+}
+h3 {
+    font-family: "MS PGothic";
+    font-size: 20px;
+    line-height: 25px;
+    font-weight: bold;
+    color: black;
+    border-style: solid;
+    border-width: 1px;
+    border-color: LightSteelBlue;
+    background-color: AliceBlue;
+    margin: 10px;
+    padding: 2px 10px 2px 10px;
 }
