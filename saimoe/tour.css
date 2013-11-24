@@ -91,13 +91,37 @@ th {
     background-color: white;
 }
 
+.mark {
+    border: 0;
+    background-color: #FFE0EB;
+}
+
+.pinyin {
+    font-family: "华文黑体", "Arial";
+}
+
+.quote {
+    font-style: italic;
+}
+
 p {
-    font-family: "MS PMincho";
+    font-family: "Times New Roman", "宋体", "文泉驿微米黑";
     margin: 0px 10px 0px 10px;
     padding: 3px;
 }
+
+em {
+    color: DarkSlateGray;
+    font-family: "Times New Roman", "KFKai", "楷体", "楷体_GB2312";
+    font-style: normal;
+}
+
+strong {
+    font-family: "MS PMincho";
+}
+
 h1 {
-    font-family: "MS PGothic";
+    font-family: "微软雅黑";
     font-size: 28px;
     line-height: 30px;
     font-weight: bold;
@@ -110,7 +134,7 @@ h1 {
     color: black;
 }
 h2 {
-    font-family: "MS PGothic";
+    font-family: "黑体";
     font-size: 24px;
     line-height: 26px;
     font-weight: bold;
@@ -123,7 +147,7 @@ h2 {
     color: black;
 }
 h3 {
-    font-family: "MS PGothic";
+    font-family: "方正粗圆";
     font-size: 20px;
     line-height: 25px;
     font-weight: bold;
