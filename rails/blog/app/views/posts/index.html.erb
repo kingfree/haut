@@ -1,0 +1,33 @@
+<h1>博文列表</h1>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>标题</th>
+      <th>状态</th>
+      <th>正文</th>
+      <th>创建时间</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @posts.each do |post| %>
+      <tr>
+        <td><%= post.title %></td>
+        <td><%= post.state %></td>
+        <td><%= post.text %></td>
+        <td><%= post.created_at %></td>
+        <td><%= link_to '查看', post %></td>
+        <td><%= link_to '编辑', edit_post_path(post) %></td>
+        <td><%= link_to '删除', post, method: :delete, data: { confirm: "你确定删除 #{post.title} 这篇博文？" } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to '撰写新博文', new_post_path, class: "btn btn-primary" %>

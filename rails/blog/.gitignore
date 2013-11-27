@@ -1,0 +1,15 @@
+.DS_Store
+.idea
+.project
+
+/.bundle
+/db/*.sqlite3
+/db/*.sqlite3-journal
+/log/*.log
+/tmp
+
+/public/assets
+/doc
+
+*.swp
+*~
