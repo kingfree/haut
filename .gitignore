@@ -108,3 +108,7 @@ nosetests.xml
 
 # Thumbs.db
 Thumbs.db
+
+# Java
+*.class
+
