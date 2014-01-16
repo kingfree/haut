@@ -1,7 +1,7 @@
 package main
 import (
     . "fmt"
-    . "strconv"
+    "strconv"
 )
 
 type Element interface{}
@@ -13,7 +13,7 @@ type Person struct {
 }
 
 func (p Person) String() string {
-    return "(姓名: " + p.name + " - 年龄: " + Itoa(p.age) + " 岁)"
+    return "(姓名: " + p.name + " - 年龄: " + strconv.Itoa(p.age) + " 岁)"
 }
 
 func main() {

@@ -8,7 +8,7 @@ type Human struct {
 }
 
 type Student struct {
-    Human //类继承（匿名字段）
+    Human // 类继承（匿名字段）
     school string
     loan float32
 }
@@ -27,12 +27,12 @@ func (h Human) Sing(lyrics string) {
     fmt.Println("せ～の　", lyrics)
 }
 
-type Men interface { //接口
-    SayHi() //鸭子类型
+type Men interface { // 接口
+    SayHi() // 鸭子类型
     Sing(lyrics string)
 }
 
-func (e Employee) SayHi() { //方法重载
+func (e Employee) SayHi() { // 方法重载
     fmt.Printf("你好，我是 %s ，在 %s 工作，请拨打 %s 联系我。\n",
         e.name, e.company, e.phone)
 }
