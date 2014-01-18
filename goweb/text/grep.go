@@ -9,6 +9,12 @@ import (
 )
 
 func main() {
+	网页抓取()
+	正则应用()
+	展开()
+}
+
+func 网页抓取() {
 	Println("网页抓取")
 
 	resp, err := http.Get("http://cojs.tk/cogs/")
@@ -39,10 +45,6 @@ func main() {
 	src = re.ReplaceAllString(src, "\n")
 
 	Println(strings.TrimSpace(src))
-
-	正则应用()
-
-	展开()
 }
 
 func 展开() {
