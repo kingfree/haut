@@ -5,7 +5,10 @@
 <title>Using Conditional Statements</title>
 <link href="../_css/site.css" rel="stylesheet">
 <script>
-
+do {
+  var 幸运数字 = prompt('你的幸运数字是多少？', '');
+  幸运数字 = parseInt(幸运数字, 10);
+} while (isNaN(幸运数字));
 </script>
 </head>
 
@@ -20,8 +23,14 @@
     <div class="main">
       <h1>Using Conditional Statements</h1>
       <script>
-		
-	  </script> 
+      if (幸运数字 == 8) {
+        document.write("<p>哈，我的幸运数字也是 8！</p>");
+      } else if (幸运数字 == 4 || 幸运数字 == 13 ) {
+        document.write("<p>呃，" + 幸运数字 + " 可不是个幸运数字！</p>");
+      } else {
+        document.write("<p>哟，" + 幸运数字 + " 可以为你带来好运！</p>");
+      }
+      </script>
     </div>
   </div>
   <div class="footer">

@@ -5,7 +5,24 @@
 <title>A Simple Quiz</title>
 <link href="../_css/site.css" rel="stylesheet">
 <script>
-
+var score = 0;
+var questions = [
+  ['地球有几颗卫星？', 1],
+  ['土星有几颗卫星？', 31],
+  ['金星有几颗卫星？', 0]
+];
+function askQustion(question) {
+  var answer = prompt(question[0], '');
+  if (answer == question[1]) {
+    alert('回答正确！');
+    score++;
+  } else {
+    alert('回答错误！正确答案是：' + question[1]);
+  }
+}
+for (var i = 0; i < questions.length; i++) {
+  askQustion(questions[i]);
+}
 </script>
 </head>
 
@@ -20,8 +37,10 @@
     <div class="main">
       <h1>A Simple Quiz</h1>
       <script>
-		
-		</script>
+		  var message = '你的得分：' + score;
+      message += ' ，总分：' + questions.length;
+      document.write('<p>' + message + '</p>');
+		  </script>
       </div>
   </div>
   <div class="footer">
