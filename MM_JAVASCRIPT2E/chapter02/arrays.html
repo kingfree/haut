@@ -5,7 +5,7 @@
 <title>Creating and Using Arrays</title>
 <link href="../_css/site.css" rel="stylesheet">
 <script>
-
+var authors = ['小林 立', '五十嵐 あぐり', '木吉 紗', '大和田 秀樹'];
 </script>
 </head>
 
@@ -20,8 +20,14 @@
     <div class="main">
       <h1>Creating and Using Arrays</h1>
       <script>
-		
-	  </script>
+      document.write('<p>第一作者是 <strong>');
+      document.write(authors[0] + '</strong></p>');
+      document.write('<p>最后作者是 <strong>');
+      document.write(authors[authors.length-1] + '</strong></p>');
+      authors.unshift('小野 学');
+      document.write('<p>我差点忘了 <strong>');
+      document.write(authors[0] + '</strong></p>');
+	    </script>
      </div>
   </div>
   <div class="footer">
