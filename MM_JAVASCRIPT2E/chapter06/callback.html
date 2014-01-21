@@ -12,13 +12,13 @@
 }
 
 #caption {
-	position: absolute;
-	width: 	340px;
-	background-color: black;
-	bottom: 10px;
-	left: 24px;
-	padding: 5px;
-	border: 1px solid white;
+  position: absolute;
+  width:  340px;
+  background-color: black;
+  bottom: 10px;
+  left: 24px;
+  padding: 5px;
+  border: 1px solid white;
 }
 </style>
 <script src="../_js/jquery-1.7.2.min.js"></script>
@@ -27,17 +27,17 @@ $(document).ready(function() {
 $('#photo').width(0).height(0).css('opacity',0);
 $('#caption').hide();
 $('html').click(function() {
-	$('#photo').animate(
-	   {
-		  width: '400px',
-		  height: '300px',
-		  opacity: 1
-	   },
-	   1000, 
-	   function() {
-		  $('#caption').fadeIn(1000);
-	   }
-	); // end animate
+  $('#photo').animate(
+     {
+      width: '400px',
+      height: '300px',
+      opacity: 1
+     },
+     1000, 
+     function() {
+      $('#caption').fadeIn(1000);
+     }
+  ); // end animate
 }); // end click
 });
 </script>
@@ -45,15 +45,15 @@ $('html').click(function() {
 <body>
 <div class="wrapper">
 <div class="header">
-	<p class="logo">JavaScript <i>&</i> jQuery <i class="mm">The<br>Missing<br>Manual</i></p>
+  <p class="logo">JavaScript <i>&</i> jQuery <i class="mm">The<br>Missing<br>Manual</i></p>
 </div>
 <div class="content">
-	<div class="main">
+  <div class="main">
 <h1>Using a Callback Function with animate()</h1>
-<p>Click anywhere to start the animation</p>
+<p>点击任意处启动动画</p>
 <div id="figure"><img src="../_images/pencils.jpg" width="400" height="300" alt="pencils" id="photo">
-<p id="caption">Pencils!!!!!!</p></div>
-	</div>
+<p id="caption">铅笔!!!!!!</p></div>
+  </div>
 </div>
 <div class="footer">
 <p>JavaScript &amp; jQuery: The Missing Manual, by <a href="http://sawmac.com/">David McFarland</a>. Published by <a href="http://oreilly.com/">O'Reilly Media, Inc</a>.</p>
