@@ -15,7 +15,7 @@ $('.main a[href^="http://"]').each(function() {
 }); // end each
 
 if (biblioText) {
-  bibHTML = '<div id="bib"><p>Websites referenced in this document:</p></div>';
+  bibHTML = '<div id="bib"><p>文档中的网址引用：</p></div>';
   $(bibHTML).append(biblioText).appendTo($('.main'));
 }
 
