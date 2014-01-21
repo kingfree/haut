@@ -4,7 +4,21 @@
 <meta charset="UTF-8">
 <title>Introducing Events</title>
 <link href="../_css/site.css" rel="stylesheet">
-
+<script src="../_js/jquery-1.6.3.min.js"></script>
+<script>
+$(document).ready(function() {
+  $('html').dblclick(function() {
+    alert('嗷');
+  }); // end dblclick
+  $('a').mouseover(function() {
+    var message = "<p>划过链接</p>";
+    $('.main').append(message);
+  }); // end mouseover
+  $('#button').click(function() {
+    $(this).val("停下来！");
+  }); // end click
+}); // end ready
+</script>
 </head>
 <body>
 <div class="wrapper">
