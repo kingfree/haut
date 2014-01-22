@@ -64,12 +64,18 @@ class Contest
   def find(name, grp = "")
     # 不指定无效票认为是有效票，查找之
     # TODO: 顺序查找效率较低，需要改善算法
-    @groups.each_index do |i|
-      next if @groups[i].name == MUKOU and grp == ""
-      res = @groups[i].charas.find_index { |f| f.name == name }
-      return i, res if res # 是有效票则返回
+    if grp == MUKOU
+      i = @groups.find_index { |x| x.name == MUKOU }
+      j = @groups[i].charas.find_index { |f| f.name == name }
+      return i, j if j # 是已经存在的无效票则返回
+      return add_mukou(name) # 添加一个无效票
+    else
+      @groups.each_index do |i|
+        next if @groups[i].name == MUKOU
+        j = @groups[i].charas.find_index { |f| f.name == name }
+        return i, j if j # 是有效票则返回
+      end
     end
-    return add_mukou(name) if grp == MUKOU # 添加一个无效票
     return nil, nil
   end
 
@@ -84,6 +90,7 @@ class Contest
   def add(name, grp = "")
     a, b = find(name, grp) # 尝试查找
     return false if a == nil and b == nil # 找不到返回假
+    # $stderr.puts @groups[a].name if grp == MUKOU
     @groups[a].charas[b].add # 找到了，计数
     return true
   end
@@ -161,9 +168,11 @@ class Posts
   end
 
   def mukou(t)
+    # $stderr.puts t.date, @comp.time_e
     return true if t.date > @comp.time_e or t.date < @comp.time_b
     # 超过比赛时间
     return true if @posts.find_index { |x| x.aid == t.aid }
+    # $stderr.printf "[%d/%d]", l, @posts.length
     # 已经投过票
     return false
     # TODO: 需要添加白名单和黑名单过滤
@@ -172,7 +181,7 @@ class Posts
   def tryadd(votes)
     i = 0
     votes.each do |m|
-      return i if comp.add(m) # 返回第一个合法值的下标
+      return i if @comp.add(m) # 返回第一个合法值的下标
       i += 1
     end
     return nil
@@ -180,10 +189,13 @@ class Posts
 
   def count(t, tpl)
     t.text.scan(tpl) { |m| t.votes.push(m.to_s) } # 把票放进数组里
+    # $stderr.printf "%d-", t.votes.length
     unless mukou(t) # 如果投票者合法
       i = tryadd(t.votes) # 尝试把投票记录下来
+      # $stderr.printf "(%d)", i.to_i
       t.votes.delete_at(i) if i != nil # 如果投票合法就删掉
     end
+    # $stderr.printf "=>%d\n", t.votes.length
     t.votes.each { |m| @comp.add(m, MUKOU) } # 剩下的全是无效票
   end
 
@@ -197,7 +209,6 @@ class Posts
         info['content']['date'],
         post.css('.d_post_content')[0].content
       )
-      @posts.push(t)
       if t.floor == 1
         @comp.lz = t.author # 运营
       end
@@ -226,6 +237,7 @@ class Posts
       else
         count(t, /<<.+?>>/)
       end
+      @posts.push(t)
     end
   end
 
