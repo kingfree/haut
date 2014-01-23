@@ -8,11 +8,12 @@ TIMEFMT = "%Y年%m月%d日 %H:%M:%S"
 MUKOU = "无效"
 
 class Contest
-  attr_accessor :title, :time_b, :time_e, :vote_limit, :lz, :groups, :nums, :ima
+  attr_accessor :title, :time_b, :time_e, :vote_limit, :banmul, :lz, :groups, :nums, :ima, :blacklist, :whitelist
 
-  def initialize()
+  def initialize(blackfile, whitefile)
     @title = ""
     @vote_limit = 1
+    @banmul = true # 多次投票Ban掉
     @lz = ""
     @time_b = nil
     @time_e = nil
@@ -20,6 +21,38 @@ class Contest
     @groups = Array.new
     @ima = Time.now
     @ghash = Hash.new
+    @blacklist = Array.new
+    buildblacklist(blackfile) if blackfile != ""
+    @whitelist = Array.new
+    buildwhitelist(whitefile) if whitefile != ""
+  end
+
+  def buildblacklist(file)
+    $stderr.printf "加载黑名单%s...", file
+    f = open(file)
+    while u = f.gets and u != nil
+      @blacklist.push(u.force_encoding(Encoding::UTF_8).strip)
+    end
+    @blacklist.sort!
+  end
+
+  def buildwhitelist(file)
+    $stderr.printf "加载白名单%s...", file
+    f = open(file)
+    while u = f.gets and u != nil
+      @whitelist.push(u.force_encoding(Encoding::UTF_8).strip)
+    end
+    @whitelist.sort!
+  end
+
+  def inblack?(user)
+    # return @blacklist.bsearch { |x| x == user }
+    return @blacklist.find_index { |x| x == user }
+  end
+
+  def inwhite?(user)
+    # return @whitelist.bsearch { |x| x == user }
+    return @whitelist.find_index { |x| x == user }
   end
 
   def settime!(s, t)
@@ -65,33 +98,28 @@ class Contest
     # 不指定无效票认为是有效票，查找之
     # TODO: 顺序查找效率较低，需要改善算法
     if grp == MUKOU
+          # $stderr.printf "(%s)Y ", name
       i = @groups.find_index { |x| x.name == MUKOU }
       j = @groups[i].charas.find_index { |f| f.name == name }
       return i, j if j # 是已经存在的无效票则返回
-      return add_mukou(name) # 添加一个无效票
+      n = Character.new(name) # 添加一个无效票
+      @groups[i].charas.push(n)
+      return i, @groups[i].charas.length - 1
     else
+          # $stderr.printf "(%s)N ", name
       @groups.each_index do |i|
         next if @groups[i].name == MUKOU
         j = @groups[i].charas.find_index { |f| f.name == name }
         return i, j if j # 是有效票则返回
       end
     end
+          # $stderr.printf "(%s)O ", name
     return nil, nil
   end
 
-  def add_mukou(name)
-    # 添加新的无效票
-    i = @groups.find_index { |x| x.name == MUKOU }
-    n = Character.new(name)
-    @groups[i].charas.push(n)
-    return i, @groups[i].charas.length - 1
-  end
-
-  def add(name, grp = "")
-    a, b = find(name, grp) # 尝试查找
-    return false if a == nil and b == nil # 找不到返回假
-    # $stderr.puts @groups[a].name if grp == MUKOU
-    @groups[a].charas[b].add # 找到了，计数
+  def add_index(a, b)
+    return false if a == nil or b == nil
+    @groups[a].charas[b].add # 计数
     return true
   end
 end
@@ -139,7 +167,7 @@ class Post
 
   def initialize(aid, author, floor, date, text)
     @aid = aid.to_i
-    @author = author
+    @author = author.to_s.force_encoding(Encoding::UTF_8).strip
     @floor = floor.to_i
     l = date.scanf("%d-%d-%d %d:%d")
     @date = Time.new(l[0], l[1], l[2], l[3], l[4], 00)
@@ -147,9 +175,10 @@ class Post
     @votes = Array.new
   end
 
-  def output
-    puts "#{@author}(#{@aid}) #{@floor}楼 #{@date}"
-    puts "  #{@text}"
+  def output(file = STDOUT)
+    file.puts "#{@author}(#{@aid}) #{@floor}楼 #{@date}"
+    # @votes.each { |t| printf "[%s]", t }
+    file.puts "#{@text}"
   end
 
 end
@@ -160,43 +189,62 @@ class Posts
   def initialize(limit = 0)
     @posts = Array.new
     @limit = limit.to_i
-    @comp = Contest.new
+    @comp = Contest.new('blacklist.txt', 'whitelist.txt')
   end
 
-  def output()
+  def output
     @posts.each { |t| t.output }
   end
 
   def mukou(t)
-    # $stderr.puts t.date, @comp.time_e
     return true if t.date > @comp.time_e or t.date < @comp.time_b
     # 超过比赛时间
     return true if @posts.find_index { |x| x.aid == t.aid }
-    # $stderr.printf "[%d/%d]", l, @posts.length
     # 已经投过票
-    return false
-    # TODO: 需要添加白名单和黑名单过滤
+    return true if @comp.inblack?(t.author)
+    return false if @comp.inwhite?(t.author)
+    # 白名单和黑名单过滤
+    return true
   end
 
-  def tryadd(votes)
-    i = 0
-    votes.each do |m|
-      return i if @comp.add(m) # 返回第一个合法值的下标
-      i += 1
+  def ticket(t)
+    l = Array.new
+    k = 0
+    loop do
+      return l if l.length >= t.votes.length or k >= t.votes.length
+      i, j = @comp.find(t.votes[k])
+      l.push([k, i, j]) if i != nil and j != nil
+      k += 1
     end
-    return nil
   end
 
   def count(t, tpl)
     t.text.scan(tpl) { |m| t.votes.push(m.to_s) } # 把票放进数组里
-    # $stderr.printf "%d-", t.votes.length
-    unless mukou(t) # 如果投票者合法
-      i = tryadd(t.votes) # 尝试把投票记录下来
-      # $stderr.printf "(%d)", i.to_i
-      t.votes.delete_at(i) if i != nil # 如果投票合法就删掉
+    l = Array.new
+    l = ticket(t) if not mukou(t) # 如果投票者合法
+    if @comp.banmul and l.length > @comp.vote_limit
+      for k in 0..t.votes.length - 1 # 剩下的无效票
+        i, j = @comp.find(t.votes[k], MUKOU)
+        @comp.add_index(i, j) # 记录无效票
+      end
+      return true # 已投票
+    else
+      flag = false
+      k = 0
+      l.each do |v|
+        break if k >= @comp.vote_limit
+        @comp.add_index(v[1], v[2])
+        t.votes[k] = nil
+        k += 1
+      end
+      flag = true if k == @comp.vote_limit # 已投有效票
+      t.votes.each do |v|
+        next if v == nil
+        i, j = @comp.find(v, MUKOU)
+        @comp.add_index(i, j) # 记录无效票
+      end
+      return flag
     end
-    # $stderr.printf "=>%d\n", t.votes.length
-    t.votes.each { |m| @comp.add(m, MUKOU) } # 剩下的全是无效票
   end
 
   def parse(page)
@@ -248,14 +296,12 @@ class Posts
     $stderr.puts url
     page = Nokogiri::HTML(open(url))
 
-    comp.title = page.css('.core_title_txt')[0].attr('title')
+    @comp.title = page.css('.core_title_txt')[0].attr('title')
 
-    pager = page.css('.l_pager')[0]
-    pages = pager.css('a').select { |link| link.text == "尾页" }
-    lastl = pages[0].attr('href')
-    lastpn = lastl.match(/\?pn=([0-9]+)/)[1].to_i
-    $stderr.puts "共有 #{lastpn} 页"
-    $stderr.print "正在处理页面 [1]"
+    pager = page.css('.l_posts_num').css('.l_reply_num')[0].text
+    lastpn = pager.match(/共\s*([0-9]+?)\s*页/)[1].to_i
+    $stderr.print "共#{lastpn}页 "
+    $stderr.print "正在处理 [1]"
     parse(page)
     lastpn = @limit if @limit > 0
     for pn in 2..lastpn
@@ -275,9 +321,9 @@ if $0 == __FILE__
   while line = $stdin.gets.to_i and line > 0
     pid.push(line)
   end
-  pid.each do |p|
+  pid.each do |pt|
     tie = Posts.new(max)
-    tie.fetch(p)
+    tie.fetch(pt)
     tie.comp.output
     # tie.output
   end
