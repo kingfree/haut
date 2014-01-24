@@ -13,7 +13,7 @@ class Contest
   def initialize(blackfile, whitefile)
     @title = ""
     @vote_limit = 1
-    @banmul = true # 多次投票Ban掉
+    @banmul = false # 多次投票Ban掉
     @lz = ""
     @time_b = nil
     @time_e = nil
@@ -72,10 +72,11 @@ class Contest
     printf "当前时间：%s  有效票数：%d票\n", @ima.strftime(TIMEFMT), @nums
     @groups.each do |e|
       printf "\n%s 共%d票\n", e.name, e.nums
-      i = 0
+      i, j = 0, 0
       e.charas.each do |f|
         i += 1
-        printf "%2d位 %3d票 %s\n", i, f.nums, f.name
+        j = i if i < 2 or e.charas[i - 2].nums != f.nums
+        printf "%2d位 %3d票 %s\n", j, f.nums, f.name
       end
     end
   end
@@ -291,7 +292,7 @@ class Posts
 
   def fetch(pid = 0, url = "http://tieba.baidu.com/p/")
     return if pid == 0
-    puts
+    puts ""
     url = "#{url}#{pid}"
     $stderr.puts url
     page = Nokogiri::HTML(open(url))
