@@ -198,6 +198,7 @@ class Posts
   end
 
   def mukou(t)
+    # return false
     return true if t.date > @comp.time_e or t.date < @comp.time_b
     # 超过比赛时间
     return true if @posts.find_index { |x| x.aid == t.aid }
