@@ -131,7 +131,7 @@ p , li, legend , form{
 fieldset {
   padding: 10px;
   border: 1px solid white;
-  margin: 25px 0; 
+  margin: 20px 0; 
 }
 
 .nav {
@@ -380,7 +380,7 @@ background-color:#FFC;
 }
 
 form#order div, form#signup div{
-  padding-bottom: 10px; 
+  padding-bottom: 4px; 
 }
 
 form#order .label, form#signup .label {
@@ -409,7 +409,7 @@ form#signup .label {
 
 form#order select, form#signup select {
   display: inline-block;
-  margin-top: 8px;  
+  margin-top: 6px;  
 }
 
 form#order input[type="radio"], form#signup input[type="radio"], form#signup input[type="checkbox"] {
