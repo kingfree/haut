@@ -1,65 +1,93 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
 <title>Tooltips</title>
 <link href="../_css/site.css" rel="stylesheet">
 <style>
 .trigger {
-	cursor : help;
-	border-bottom: 1px dashed white;	
+  cursor : help;
+  border-bottom: 1px dashed white;  
 }
 .trigger:hover {
-	color: rgb(255,0,0);
+  color: rgb(255,0,0);
 }
 
 .tooltip {
-	width: 25%;
-	padding: 5px;
-	background-color: white;
-	border: 3px solid rgb(195,151,51);
-	border-radius : 5px;
+  width: 25%;
+  padding: 5px;
+  background-color: white;
+  border: 3px solid rgb(195,151,51);
+  border-radius : 5px;
 }
 
 .tooltip h2 {
-	
+  
 }
 .tooltip p {
-	color: black !important;	
+  color: black !important;  
 }
 
 </style>
 <script src="../_js/jquery-1.7.2.min.js"></script>
 <script>
 $(document).ready(function(e) { 
-	
+  $('.tooltip').hide();
+  $('.trigger').mouseover(function() {
+    var
+      ttLeft,
+      ttTop,
+      $this = $(this),
+      $tip = $($this.attr('data-tooltip')),
+      triggerPos = $this.offset(),
+      triggerH = $this.outerHeight(),
+      triggerW = $this.outerWidth(),
+      tipW = $tip.outerWidth(),
+      tipH = $tip.outerHeight(),
+      screenW = $(window).width(),
+      scrollTop = $(document).scrollTop;
+    if (triggerPos.top - tipH - scrollTop > 0) {
+      ttTop = triggerPos.top - tipH - 10;
+    } else {
+      ttTop = triggerPos.top + triggerH + 10;
+    }
+    var overFlowRight = (triggerPos.left + tipW) - screenW;
+    if (overFlowRight > 0) {
+      ttLeft = triggerPos.left - overFlowRight - 10;
+    } else {
+      ttLeft = triggerPos.top;
+    }
+    $tip.css({
+      left: ttLeft,
+      top: ttTop,
+      position: 'absolute'
+    }).fadeIn(200);
+  }); // end mouseover
+  $('.trigger').mouseout(function() {
+    $('.tooltip').fadeOut(200);
+  }); // end mouseout
 }); // end ready
 </script>
 </head>
 <body>
 <div class="wrapper">
-  <div class="header">
-    <p class="logo">JavaScript <i>&</i> jQuery <i class="mm">The<br>Missing<br>Manual</i></p>
-  </div>
   <div class="content">
     <div class="main">
       <h1>Tooltips</h1>
-      <p>At vero eos et  odio dignissimos accusamus et iusto ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. </p>
-      <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.</p>
-      <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium  voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. </p>
-      <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.</p>
-      <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.</p>
-      <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium  voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. </p>
-      <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.</p>
-      <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium  voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. </p>
+      <p>At vero eos et  odio dignissimos accusamus et iusto ducimus qui <span class="trigger" data-tooltip="#tip1">blanditiis</span> praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. </p>
+      <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium  voluptatum deleniti atque <span class="trigger" data-tooltip="#tip2">corrupti quos dolores</span> et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. </p>
     </div>
  
   </div>
-  <div class="footer">
-    <p>JavaScript &amp; jQuery: The Missing Manual, by <a href="http://sawmac.com/">David McFarland</a>. Published by <a href="http://oreilly.com/">O'Reilly Media, Inc</a>.</p>
-  </div>
 </div>
 </div>
-
+<div class="tooltip" id="tip1">
+  <h2>New SPARKS!</h2>
+  <p>もう一歩踏み出せる<br>　私待ってたよ<br>絶対ゆずれない<br>　この時を待ってたよ</p>
+</div>
+<div class="tooltip" id="tip2">
+  <h2>TURE GATE</h2>
+  <p><img src="../_images/small/yellow_h.jpg" alt="yellow" width="60" height="60" class="imgRight">
+  明日への扉<br>　開きかけてるよ<br>明日への道ともに走るよ<br>　だがら　One more chance!</p>
+</div>
 </body>
 </html>

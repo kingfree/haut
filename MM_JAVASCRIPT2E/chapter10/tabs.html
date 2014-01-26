@@ -6,66 +6,76 @@
 <link href="../_css/site.css" rel="stylesheet">
 <style>
 .tabs {
-	margin: 0;
-	padding: 0;	
-	zoom : 1;
+  margin: 0;
+  padding: 0;  
+  zoom : 1;
 }
 .tabs li {
-	float: left;
-	list-style: none;
-	padding: 0;
-	margin: 0;
+  float: left;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 .tabs a {
-	display: block;
-	text-decoration: none;
-	padding: 3px 5px;
-	background-color: rgb(110,138,195);
-	margin-right: 10px;
-	border: 1px solid rgb(153,153,153);
-	margin-bottom: -1px;
+  display: block;
+  text-decoration: none;
+  padding: 3px 5px;
+  background-color: rgb(110,138,195);
+  margin-right: 10px;
+  border: 1px solid rgb(153,153,153);
+  margin-bottom: -1px;
 }
 .tabs .active {
-	border-bottom: 1px solid white;
-	background-color: white;
-	color: rgb(51,72,115);
-	position: relative;
+  border-bottom: 1px solid white;
+  background-color: white;
+  color: rgb(51,72,115);
+  position: relative;
 }
 
 .panelContainer {
-	clear: both;
-	margin-bottom: 25px;	
-	border: 1px solid rgb(153,153,153);	
-	background-color: white;
-	padding: 10px;
+  clear: both;
+  margin-bottom: 25px;  
+  border: 1px solid rgb(153,153,153);  
+  background-color: white;
+  padding: 10px;
 }
 
 .panel h2 {
-	color: rgb(57,78,121);
-	text-shadow: none;		
+  color: rgb(57,78,121);
+  text-shadow: none;    
 }
 .panel p {
-	color: black;	
+  color: black;  
 }
 </style>
 <script src="../_js/jquery-1.7.2.min.js"></script>
 <script>
 $(document).ready(function() {
-	
+  $('.tabs a').click(function() {
+    var $this = $(this);
+    $('.panel').hide();
+    $('.tabs a.active').removeClass('active');
+    $this.addClass('active').blur();
+    // blur() 清除链接焦点
+    var panel = $this.attr('href');
+    $(panel).fadeIn(250);
+    return false;
+  }); // end click
+  $('.tabs li:first a').click();
 }); // end ready
 </script>
 </head>
 <body>
 <div class="wrapper">
-	<div class="header">
-		
-		<p class="logo">JavaScript <i>&</i> jQuery <i class="mm">The<br>Missing<br>Manual</i></p>
-	</div>
-	<div class="content">
-		<div class="main">
-			<h1>Tabbed Panels</h1>
-		  <div class="tabbedPanels">
-			<ul class="tabs">
+  <div class="header">
+    
+    <p class="logo">JavaScript <i>&</i> jQuery <i class="mm">The<br>Missing<br>Manual</i></p>
+  </div>
+  <div class="content">
+    <div class="main">
+      <h1>Tabbed Panels</h1>
+      <div class="tabbedPanels">
+      <ul class="tabs">
   <li><a href="#panel1" tabindex="1">Tab 1</a></li>
   <li><a href="#panel2" tabindex="2">Tab 2</a></li>
   <li><a href="#panel3" tabindex="3">Tab 3</a></li>
@@ -88,11 +98,11 @@ $(document).ready(function() {
 </div>
 </div>
 <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.</p>
-		</div>
-	</div>
-	<div class="footer">
-		<p>JavaScript &amp; jQuery: The Missing Manual, by <a href="http://sawmac.com/">David McFarland</a>. Published by <a href="http://oreilly.com/">O'Reilly Media, Inc</a>.</p>
-	</div>
+    </div>
+  </div>
+  <div class="footer">
+    <p>JavaScript &amp; jQuery: The Missing Manual, by <a href="http://sawmac.com/">David McFarland</a>. Published by <a href="http://oreilly.com/">O'Reilly Media, Inc</a>.</p>
+  </div>
 </div>
 </body>
 </html>
