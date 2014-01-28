@@ -6,6 +6,7 @@ require "scanf"
 
 TIMEFMT = "%Y年%m月%d日 %H:%M:%S"
 MUKOU = "无效"
+NISE = "无资格票" # 伪票
 
 class Contest
   attr_accessor :title, :time_b, :time_e, :vote_limit, :banmul, :lz, :groups, :nums, :ima, :blacklist, :whitelist
@@ -72,6 +73,7 @@ class Contest
     printf "当前时间：%s  有效票数：%d票\n", @ima.strftime(TIMEFMT), @nums
     @groups.each do |e|
       printf "\n%s 共%d票\n", e.name, e.nums
+      next if e.name == NISE
       i, j = 0, 0
       e.charas.each do |f|
         i += 1
@@ -86,7 +88,7 @@ class Contest
     @groups.each do |e|
       e.sort!
       e.count!
-      @nums += e.nums if e.name != MUKOU
+      @nums += e.nums if e.name != MUKOU and e.name != NISE
     end
     @groups.sort_by! { |x| - x.nums }
   end
@@ -98,23 +100,27 @@ class Contest
   def find(name, grp = "")
     # 不指定无效票认为是有效票，查找之
     # TODO: 顺序查找效率较低，需要改善算法
-    if grp == MUKOU
-          # $stderr.printf "(%s)Y ", name
+    if grp == MUKOU # 无效票
       i = @groups.find_index { |x| x.name == MUKOU }
       j = @groups[i].charas.find_index { |f| f.name == name }
       return i, j if j # 是已经存在的无效票则返回
       n = Character.new(name) # 添加一个无效票
       @groups[i].charas.push(n)
       return i, @groups[i].charas.length - 1
-    else
-          # $stderr.printf "(%s)N ", name
+    elsif grp == NISE # 伪票
+      i = @groups.find_index { |x| x.name == NISE }
+      j = @groups[i].charas.find_index { |f| f.name == name }
+      return i, j if j
+      n = Character.new(name)
+      @groups[i].charas.push(n)
+      return i, @groups[i].charas.length - 1
+    else # 真票、有效票
       @groups.each_index do |i|
         next if @groups[i].name == MUKOU
         j = @groups[i].charas.find_index { |f| f.name == name }
         return i, j if j # 是有效票则返回
       end
     end
-          # $stderr.printf "(%s)O ", name
     return nil, nil
   end
 
@@ -164,7 +170,7 @@ class Character
 end
 
 class Post
-  attr_accessor :aid, :author, :floor, :date, :text, :votes
+  attr_accessor :aid, :author, :floor, :date, :text, :votes, :real
 
   def initialize(aid, author, floor, date, text)
     @aid = aid.to_i
@@ -174,6 +180,7 @@ class Post
     @date = Time.new(l[0], l[1], l[2], l[3], l[4], 00)
     @text = text
     @votes = Array.new
+    @real = 0
   end
 
   def output(file = STDOUT)
@@ -201,7 +208,7 @@ class Posts
     # return false
     return true if t.date > @comp.time_e or t.date < @comp.time_b
     # 超过比赛时间
-    return true if @posts.find_index { |x| x.aid == t.aid }
+    # return true if @posts.find_index { |x| x.aid == t.aid}
     # 已经投过票
     return true if @comp.inblack?(t.author)
     return false if @comp.inwhite?(t.author)
@@ -223,31 +230,40 @@ class Posts
   def count(t, tpl)
     t.text.scan(tpl) { |m| t.votes.push(m.to_s) } # 把票放进数组里
     l = Array.new
-    l = ticket(t) if not mukou(t) # 如果投票者合法
-    if @comp.banmul and l.length > @comp.vote_limit
-      for k in 0..t.votes.length - 1 # 剩下的无效票
-        i, j = @comp.find(t.votes[k], MUKOU)
-        @comp.add_index(i, j) # 记录无效票
-        $stderr.printf "(%s %s) ", t.author, t.votes[k]
+    if mukou(t) # 如果投票者非法，即投的是伪票
+      for k in 0..t.votes.length - 1
+        i, j = @comp.find(t.votes[k], NISE)
+        @comp.add_index(i, j)
+        $stderr.printf "{%s %s} ", t.author, t.votes[k]
       end
-      return true # 已投票
-    else
-      flag = false
-      k = 0
-      l.each do |v|
-        break if k >= @comp.vote_limit
-        @comp.add_index(v[1], v[2])
-        t.votes[k] = nil
-        k += 1
+      return false
+    else # 投票者合法
+      l = ticket(t) 
+      if @comp.banmul and l.length > @comp.vote_limit # 多投Ban掉
+        for k in 0..t.votes.length - 1
+          i, j = @comp.find(t.votes[k], MUKOU)
+          @comp.add_index(i, j) # 记录无效票
+          $stderr.printf "(%s %s) ", t.author, t.votes[k]
+        end
+        return true # 已投票
+      else # 未限制多投或投票数符合要求
+        flag = false
+        k = 0
+        l.each do |v|
+          break if k >= @comp.vote_limit
+          @comp.add_index(v[1], v[2])
+          t.votes[k] = nil
+          k += 1
+        end
+        flag = true if k == @comp.vote_limit # 已投有效票
+        t.votes.each do |v|
+          next if v == nil
+          i, j = @comp.find(v, MUKOU)
+          @comp.add_index(i, j) # 记录无效票
+          $stderr.printf "(%s %s) ", t.author, v 
+        end
+        return flag
       end
-      flag = true if k == @comp.vote_limit # 已投有效票
-      t.votes.each do |v|
-        next if v == nil
-        i, j = @comp.find(v, MUKOU)
-        @comp.add_index(i, j) # 记录无效票
-        $stderr.printf "(%s %s) ", t.author, v 
-      end
-      return flag
     end
   end
 
@@ -261,9 +277,7 @@ class Posts
         info['content']['date'],
         post.css('.d_post_content')[0].content
       )
-      if t.floor == 1
-        @comp.lz = t.author # 运营
-      end
+      @comp.lz = t.author if t.floor == 1 # 运营
       if t.author == @comp.lz # 运营发布的消息
         if @comp.time_b == nil
           @comp.settime!(
@@ -285,6 +299,7 @@ class Posts
             end
           end
           @comp.addgroup(g)
+          @comp.addgroup(Group.new(NISE)) # 伪票组
         end
       else
         count(t, /<<.+?>>/)
