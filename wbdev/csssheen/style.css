@@ -1,0 +1,40 @@
+
+header {
+  margin: 0 auto;
+  width: 150px;
+  height: 150px;
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+header img.logo {
+  float: left;
+  padding: 10px;
+  height: 130px;
+}
+
+header .sheen {
+  height: 200px;
+  width: 15px;
+  background: rgba(255, 255, 255, 0.5);
+  float: left;
+  -moz-transform:     rotate(-30deg);
+  -webkit-transform:  rotate(-30deg);
+  -o-transform:       rotate(-30deg);
+  position: absolute;
+  left: -100px;
+  top: -25px;
+  -moz-box-shadow:    0 0 20px #FFF;
+  -webkit-box-shadow: 0 0 20px #FFF;
+  box-shadow:         0 0 20px #FFF;
+
+  -moz-transition:    all 2s ease-in-out;
+  -webkit-transition: all 2s ease-in-out;
+  -o-transition:      all 2s ease-in-out;
+  transition:         all 2s ease-in-out;
+}
+
+header.loaded .sheen {
+  left: 900px;
+}

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>我的站点闪闪发光</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js">
+    </script>
+  </head>
+  <body>
+    <header>
+      <div class="sheen"></div>
+      <img src="cogs.png" class="logo">
+    </header>
+    <script>
+      $(function() {
+        $("header").addClass("loaded");
+      });
+    </script>
+  </body>
+</html>
