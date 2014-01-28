@@ -228,6 +228,7 @@ class Posts
       for k in 0..t.votes.length - 1 # 剩下的无效票
         i, j = @comp.find(t.votes[k], MUKOU)
         @comp.add_index(i, j) # 记录无效票
+        $stderr.printf "(%s %s) ", t.author, t.votes[k]
       end
       return true # 已投票
     else
@@ -244,6 +245,7 @@ class Posts
         next if v == nil
         i, j = @comp.find(v, MUKOU)
         @comp.add_index(i, j) # 记录无效票
+        $stderr.printf "(%s %s) ", t.author, v 
       end
       return flag
     end
