@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Debugging Programs</title>
 <link href="../_css/site.css" rel="stylesheet">
-<script src="_js/jquery-1.6.3.min.js"></script>
+<script src="../_js/jquery-1.6.3.min.js"></script>
 <script>
 $(document).ready(function() {
 var score = 0;
@@ -12,7 +12,7 @@ var quiz = [
   ['How many moons does Earth have?',1,[0,1,2,3]],
   ['How many moons does Saturn have?',31,[0,14,31,160]],
   ['How many moons does Venus have?',1,[0,1,11,15]]
-;
+];
 //get total number of questions
 var totalQuestion=quiz.length;
 
@@ -43,7 +43,7 @@ function askQuestion() {
 function buildAnswers(answers) {
   var answerHTML='';
   // loop through each item in array answers
-  for (i=0;i<=answers.length;i++) {
+  for (i=0;i<answers.length;i++) {
     //build radio button
     answerHTML+=' <input name="quiz" type="radio" value="';
     answerHTML+=answers[i] + '">' + answers[i];
@@ -66,7 +66,7 @@ $('#next').click(function() {
     $(this).val('Show results');
   }
   if (quiz.length>0) {
-    askQuestions();
+    askQuestion();
   } else {
     giveResults();
   }

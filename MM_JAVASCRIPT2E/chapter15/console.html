@@ -6,7 +6,17 @@
 <link href="../_css/site.css" rel="stylesheet">
 <script src="../_js/jquery-1.7.2.min.js"></script>
 <script>
-
+  $(document).ready(function() {
+    console.log('就绪');
+    $('#comments').keyup(function() {
+      console.log('事件: keyup');
+      var text = $(this).val();
+      console.log('正文: %s', text);
+      var chars = text.length;
+      console.log('长度: %d', chars);
+      $('#count').text(chars + " 个字符");
+    }); // end keyup
+  }); // end ready
 </script>
 </head>
 <body>
