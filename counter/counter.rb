@@ -29,7 +29,7 @@ class Contest
   end
 
   def buildblacklist(file)
-    $stderr.printf "加载黑名单%s...", file
+    # $stderr.printf "加载%s ", file
     f = open(file)
     while u = f.gets and u != nil
       @blacklist.push(u.force_encoding(Encoding::UTF_8).strip)
@@ -38,7 +38,7 @@ class Contest
   end
 
   def buildwhitelist(file)
-    $stderr.printf "加载白名单%s...", file
+    # $stderr.printf "加载%s ", file
     f = open(file)
     while u = f.gets and u != nil
       @whitelist.push(u.force_encoding(Encoding::UTF_8).strip)
@@ -308,27 +308,47 @@ class Posts
     end
   end
 
+  def pageurl(url, pid, pn)
+    return "#{url}#{pid}?pn=#{pn}"
+  end
+
+  def cache(url, pid, pn)
+    Dir.mkdir("tmp") unless Dir.exist?("tmp")
+    tmp = "tmp/#{pid}?#{pn}"
+    unless File.exist?(tmp)
+      data = open(pageurl(url, pid, pn)) { |f| f.read }
+      open(tmp, "wb") { |f| f.write(data) }
+    end
+    return tmp
+  end
+
   def fetch(pid = 0, url = "http://tieba.baidu.com/p/")
     return if pid == 0
     puts ""
-    url = "#{url}#{pid}"
-    $stderr.puts url
-    page = Nokogiri::HTML(open(url))
+    page = Nokogiri::HTML(open("#{url}#{pid}"))
 
     @comp.title = page.css('.core_title_txt')[0].attr('title')
+    $stderr.printf "%s ", @comp.title
 
     pager = page.css('.l_posts_num').css('.l_reply_num')[0].text
     lastpn = pager.match(/共\s*([0-9]+?)\s*页/)[1].to_i
     $stderr.print "共#{lastpn}页 "
+
     $stderr.print "正在处理 [1]"
     parse(page)
+
     lastpn = @limit if @limit > 0
-    for pn in 2..lastpn
+    for pn in 2..lastpn - 1
       $stderr.print "[#{pn}]"
-      page = Nokogiri::HTML(open("#{url}?pn=#{pn}"))
+      page = Nokogiri::HTML(open(cache(url, pid, pn)))
       parse(page)
       # TODO: 有必要缓存页面或解析结果的前 lastpn - 1 页内容
     end
+
+    $stderr.print "[#{lastpn}]"
+    page = Nokogiri::HTML(open(pageurl(url, pid, lastpn)))
+    parse(page)
+
     $stderr.puts " 完成"
   end
 end
