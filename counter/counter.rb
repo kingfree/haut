@@ -390,14 +390,6 @@ class Posts
     return "tmp/#{pid}?#{pn}"
   end
 
-  def cached?(url, pid, pn) # 判断并读取缓存
-    #unless File.exist?(tmp)
-    #  data = open(pageurl(url, pid, pn)) { |f| f.read }
-    #  open(tmp, "wb") { |f| f.write(data) }
-    #end
-    #return tmp
-  end
-
   def fetch(pid = 0, url = "http://tieba.baidu.com/p/")
     return if pid == 0
     puts ""
@@ -410,14 +402,10 @@ class Posts
     lastpn = pager.match(/共\s*([0-9]+?)\s*页/)[1].to_i
     $stderr.print "共#{lastpn}页 "
 
-    $stderr.print "正在处理 [1]"
-    parse(page)
-
     lastpn = @limit if @limit > 0
-    for pn in 2..lastpn - 1
+    for pn in 1..lastpn - 1
       $stderr.print "[#{pn}]"
       parseit(url, pid, pn)
-      # TODO: 有必要缓存解析结果的前 lastpn - 1 页内容
     end
 
     $stderr.print "[#{lastpn}]"
