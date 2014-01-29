@@ -8,6 +8,17 @@ TIMEFMT = "%Y年%m月%d日 %H:%M:%S"
 MUKOU = "无效"
 NISE = "无资格票" # 伪票
 
+class Array
+  def find_lgn(ele)
+    res = bsearch { |x| x >= ele }
+    if res == ele
+      return true
+    else
+      return false
+    end
+  end
+end
+
 class Contest
   attr_accessor :title, :time_b, :time_e, :vote_limit, :banmul, :lz, :groups, :nums, :ima, :blacklist, :whitelist
 
@@ -26,6 +37,16 @@ class Contest
     buildblacklist(blackfile) if blackfile != ""
     @whitelist = Array.new
     buildwhitelist(whitefile) if whitefile != ""
+  end
+
+  def clear
+    @title = ""
+    @lz = ""
+    @time_b = nil
+    @time_e = nil
+    @nums = 0
+    @groups.clear
+    @ima = Time.now
   end
 
   def buildblacklist(file)
@@ -47,13 +68,13 @@ class Contest
   end
 
   def inblack?(user)
-    # return @blacklist.bsearch { |x| x == user }
-    return @blacklist.find_index { |x| x == user }
+    return @blacklist.find_lgn(user)
+    # return @blacklist.find_index { |x| x == user }
   end
 
   def inwhite?(user)
-    # return @whitelist.bsearch { |x| x == user }
-    return @whitelist.find_index { |x| x == user }
+    return @whitelist.find_lgn(user)
+    # return @whitelist.find_index { |x| x == user }
   end
 
   def settime!(s, t)
@@ -188,7 +209,6 @@ class Post
     # @votes.each { |t| printf "[%s]", t }
     file.puts "#{@text}"
   end
-
 end
 
 class Posts
@@ -198,6 +218,11 @@ class Posts
     @posts = Array.new
     @limit = limit.to_i
     @comp = Contest.new('blacklist.txt', 'whitelist.txt')
+  end
+
+  def clear
+    @posts.clear
+    @comp.clear
   end
 
   def output
@@ -267,7 +292,41 @@ class Posts
     end
   end
 
+  def writecache(pid, pn, op, ed)
+    a = Array.new
+    for i in op..ed do
+      t = @posts[i]
+      c = {
+        :aid => t.aid,
+        :author => t.author,
+        :floor => t.floor,
+        :date => t.date,
+        :text => t.text
+      }
+      a.push(c)
+    end
+    open(cachefile(pid, pn), "w") { |f| f.write(JSON.generate(a)) }
+  end
+
+  def readcache(pid, pn)
+    return false unless File.exist?(cachefile(pid, pn))
+    a = open(cachefile(pid, pn)) { |f| f.read }
+    a = JSON.parse(a)
+    a.each do |post|
+      t = Post.new(
+        post["aid"],
+        post["author"],
+        post["floor"],
+        post["date"],
+        post["text"]
+      )
+      record!(t)
+    end
+    return true
+  end
+
   def parse(page)
+    op = @posts.length
     page.css('.l_post').each do |post|
       info = JSON.parse(post.attr('data-field'))
       t = Post.new(
@@ -277,34 +336,48 @@ class Posts
         info['content']['date'],
         post.css('.d_post_content')[0].content
       )
-      @comp.lz = t.author if t.floor == 1 # 运营
-      if t.author == @comp.lz # 运营发布的消息
-        if @comp.time_b == nil
-          @comp.settime!(
-            t.text.match(/开始时间：([0-9]+月[0-9]+日[0-9]+:[0-9]{,2})/)[1],
-            t.text.match(/结束时间：([0-9]+月[0-9]+日[0-9]+:[0-9]{,2})/)[1]
-          )
-        end
-        if t.text.match('出场阵容')
-          g = Group.new(MUKOU) # 无效票组
-          t.text.scan(/(<<.+?>>|[^><]+?（.+?场）)/) do |uu|
-            u = uu[0].to_s
-            if u.match('<<')
-              k = Character.new(u)
-              g.addcharas(k) # 规定的有效票
-            elsif u.match('场）')
-              # 如果是“场”单字会匹配“战场原黑仪”，稳妥起见放在第二分支
-              @comp.addgroup(g)
-              g = Group.new(u)
-            end
-          end
-          @comp.addgroup(g)
-          @comp.addgroup(Group.new(NISE)) # 伪票组
-        end
-      else
-        count(t, /<<.+?>>/)
+      record!(t)
+    end
+    ed = @posts.length - 1
+    return op, ed
+  end
+
+  def record!(t)
+    @comp.lz = t.author if t.floor == 1 # 运营
+    if t.author == @comp.lz # 运营发布的消息
+      if @comp.time_b == nil
+        @comp.settime!(
+          t.text.match(/开始时间：([0-9]+月[0-9]+日[0-9]+:[0-9]{,2})/)[1],
+          t.text.match(/结束时间：([0-9]+月[0-9]+日[0-9]+:[0-9]{,2})/)[1]
+        )
       end
-      @posts.push(t)
+      if t.text.include?('出场阵容')
+        g = Group.new(MUKOU) # 无效票组
+        t.text.scan(/(<<.+?>>|[^><]+?（.+?场）)/) do |uu|
+          u = uu[0].to_s
+          if u.include?('<<')
+            k = Character.new(u)
+            g.addcharas(k) # 规定的有效票
+          elsif u.include?('（')
+            # 如果是“场”单字会匹配“战场原黑仪”，稳妥起见放在第二分支
+            @comp.addgroup(g)
+            g = Group.new(u)
+          end
+        end
+        @comp.addgroup(g)
+        @comp.addgroup(Group.new(NISE)) # 伪票组
+      end
+    else
+      count(t, /<<.+?>>/)
+    end
+    @posts.push(t)
+  end
+
+  def parseit(url, pid, pn)
+    unless readcache(pid, pn)
+      page = Nokogiri::HTML(open(pageurl(url, pid, pn)))
+      bg, ed = parse(page)
+      writecache(pid, pn, bg, ed)
     end
   end
 
@@ -312,14 +385,17 @@ class Posts
     return "#{url}#{pid}?pn=#{pn}"
   end
 
-  def cache(url, pid, pn)
+  def cachefile(pid, pn)
     Dir.mkdir("tmp") unless Dir.exist?("tmp")
-    tmp = "tmp/#{pid}?#{pn}"
-    unless File.exist?(tmp)
-      data = open(pageurl(url, pid, pn)) { |f| f.read }
-      open(tmp, "wb") { |f| f.write(data) }
-    end
-    return tmp
+    return "tmp/#{pid}?#{pn}"
+  end
+
+  def cached?(url, pid, pn) # 判断并读取缓存
+    #unless File.exist?(tmp)
+    #  data = open(pageurl(url, pid, pn)) { |f| f.read }
+    #  open(tmp, "wb") { |f| f.write(data) }
+    #end
+    #return tmp
   end
 
   def fetch(pid = 0, url = "http://tieba.baidu.com/p/")
@@ -340,9 +416,8 @@ class Posts
     lastpn = @limit if @limit > 0
     for pn in 2..lastpn - 1
       $stderr.print "[#{pn}]"
-      page = Nokogiri::HTML(open(cache(url, pid, pn)))
-      parse(page)
-      # TODO: 有必要缓存页面或解析结果的前 lastpn - 1 页内容
+      parseit(url, pid, pn)
+      # TODO: 有必要缓存解析结果的前 lastpn - 1 页内容
     end
 
     $stderr.print "[#{lastpn}]"
@@ -360,8 +435,9 @@ if $0 == __FILE__
   while line = $stdin.gets.to_i and line > 0
     pid.push(line)
   end
+  tie = Posts.new(max)
   pid.each do |pt|
-    tie = Posts.new(max)
+    tie.clear
     tie.fetch(pt)
     tie.comp.output
     # tie.output
