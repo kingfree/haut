@@ -1,6 +1,5 @@
 #include <stdio.h>
 int C[16] = {0};
-int d[16] = {0};
 void push(int k, int v) {
     C[k] = (C[k] << 1) + v;
 }
@@ -30,4 +29,5 @@ int main() {
     for(i = 0; i < 16; i++) {
         printf("%X ", C[i]);
     }
+    return 0;
 }
