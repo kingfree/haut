@@ -10,6 +10,7 @@ void prove(int n) {
         printf("因此可以说“P(%d)是成立的”。\n", k + 1);
         k = k + 1;
     }
+    printf("证明结束。\n");
 }
 int main() {
     int n;
