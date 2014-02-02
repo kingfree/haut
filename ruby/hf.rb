@@ -1,6 +1,6 @@
 # 统计单词个数
 
-class HashFold1 # 单线程
+class HashFold # 单线程
   def start(inputs)
     hash = {}
     inputs.each do |input|
@@ -16,7 +16,7 @@ class HashFold1 # 单线程
   end
 end
 
-class HashFold # 多线程
+class HashFold_m # 多线程, Linux only
   def hash_merge(hash, k, v)
     if hash.key?(k)
       hash[k] = self.fold(hash[k], v)
@@ -27,7 +27,7 @@ class HashFold # 多线程
 
   def start(inputs)
     hash = nil
-    inputs.map do
+    inputs.map do |input|
       p, c = IO.pipe
       fork do
         p.close
