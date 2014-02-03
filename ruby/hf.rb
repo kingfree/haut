@@ -16,7 +16,7 @@ class HashFold # 单线程
   end
 end
 
-class HashFold1 # 多线程 1, Linux only
+class HashFold2 # 多线程，Linux only
   def hash_merge(hash, k, v)
     if hash.key?(k)
       hash[k] = self.fold(hash[k], v)
@@ -53,9 +53,9 @@ class HashFold1 # 多线程 1, Linux only
   end
 end
 
-class HashFold2
+class HashFold3 # 进程池，Linux only
   class Pool
-    def initalize(hf, n)
+    def initialize(hf, n)
       pool = n.times.map {
         c0, p0 = IO.pipe
         p1, c1 = IO.pipe
@@ -121,7 +121,7 @@ class HashFold2
     end
   end
 
-  def initalize(n = 2)
+  def initialize(n = 2)
     @pool = Pool.new(self, n)
   end
 
@@ -135,7 +135,7 @@ class HashFold2
 
   def start(inputs)
     inputs.each do |input|
-      @pool.push input
+      @pool.push(input)
     end
     hash = {}
     inputs.each do |input|
@@ -143,6 +143,7 @@ class HashFold2
         hash_merge(hash, k, v)
       end
     end
+    hash
   end
 end
 
@@ -170,5 +171,4 @@ end
 WordCount.new.start(ARGV).sort_by{|x| x[1]}.reverse.take(20).each do |k, v|
   print k, ": ", v, "\n"
 end
-
 
