@@ -206,7 +206,6 @@ class Post
 
   def output(file = STDOUT)
     file.puts "#{@author}(#{@aid}) #{@floor}楼 #{@date}"
-    # @votes.each { |t| printf "[%s]", t }
     file.puts "#{@text}"
   end
 end
@@ -261,7 +260,6 @@ class Posts
         @comp.add_index(i, j)
         $stderr.printf "{%s %s} ", t.author, t.votes[k]
       end
-      return false
     else # 投票者合法
       l = ticket(t) 
       if @comp.banmul and l.length > @comp.vote_limit # 多投Ban掉
@@ -270,9 +268,7 @@ class Posts
           @comp.add_index(i, j) # 记录无效票
           $stderr.printf "(%s %s) ", t.author, t.votes[k]
         end
-        return true # 已投票
       else # 未限制多投或投票数符合要求
-        flag = false
         k = 0
         l.each do |v|
           break if k >= @comp.vote_limit
@@ -280,14 +276,12 @@ class Posts
           t.votes[k] = nil
           k += 1
         end
-        flag = true if k == @comp.vote_limit # 已投有效票
         t.votes.each do |v|
           next if v == nil
           i, j = @comp.find(v, MUKOU)
           @comp.add_index(i, j) # 记录无效票
           $stderr.printf "(%s %s) ", t.author, v 
         end
-        return flag
       end
     end
   end
@@ -301,17 +295,17 @@ class Posts
         :author => t.author,
         :floor => t.floor,
         :date => t.date,
-        :text => t.text
+        :text => t.text,
       }
       a.push(c)
     end
-    open(cachefile(pid, pn), "w") { |f| f.write(JSON.generate(a)) }
+    open(cachefile(pid, pn), "w") { |f| f.write(JSON.generate(a).force_encoding("utf-8")) }
   end
 
   def readcache(pid, pn)
     return false unless File.exist?(cachefile(pid, pn))
     a = open(cachefile(pid, pn)) { |f| f.read }
-    a = JSON.parse(a)
+    a = JSON.parse(a.force_encoding("utf-8"))
     a.each do |post|
       t = Post.new(
         post["aid"],
@@ -368,13 +362,13 @@ class Posts
         @comp.addgroup(Group.new(NISE)) # 伪票组
       end
     else
-      count(t, /<<.+?>>/)
+      count(t, /<+.+?>+/)
     end
     @posts.push(t)
   end
 
-  def parseit(url, pid, pn)
-    unless readcache(pid, pn)
+  def parseit(url, pid, pn, readnew = false)
+    unless readnew or readcache(pid, pn)
       page = Nokogiri::HTML(open(pageurl(url, pid, pn)))
       bg, ed = parse(page)
       writecache(pid, pn, bg, ed)
@@ -387,7 +381,7 @@ class Posts
 
   def cachefile(pid, pn)
     Dir.mkdir("tmp") unless Dir.exist?("tmp")
-    return "tmp/#{pid}?#{pn}"
+    return "tmp/#{pid}_#{pn}"
   end
 
   def fetch(pid = 0, url = "http://tieba.baidu.com/p/")
@@ -403,14 +397,10 @@ class Posts
     $stderr.print "共#{lastpn}页 "
 
     lastpn = @limit if @limit > 0
-    for pn in 1..lastpn - 1
+    for pn in 1..lastpn
       $stderr.print "[#{pn}]"
-      parseit(url, pid, pn)
+      parseit(url, pid, pn, pn == lastpn)
     end
-
-    $stderr.print "[#{lastpn}]"
-    page = Nokogiri::HTML(open(pageurl(url, pid, lastpn)))
-    parse(page)
 
     $stderr.puts " 完成"
   end
@@ -428,7 +418,7 @@ if $0 == __FILE__
     tie.clear
     tie.fetch(pt)
     tie.comp.output
-    # tie.output
+    #tie.output
   end
 end
 
