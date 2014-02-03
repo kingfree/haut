@@ -69,12 +69,10 @@ class Contest
 
   def inblack?(user)
     return @blacklist.find_lgn(user)
-    # return @blacklist.find_index { |x| x == user }
   end
 
   def inwhite?(user)
     return @whitelist.find_lgn(user)
-    # return @whitelist.find_index { |x| x == user }
   end
 
   def settime!(s, t)
@@ -111,7 +109,7 @@ class Contest
       e.count!
       @nums += e.nums if e.name != MUKOU and e.name != NISE
     end
-    @groups.sort_by! { |x| - x.nums }
+    @groups.sort_by! { |x| -x.nums }
   end
 
   def addgroup(group)
@@ -166,7 +164,7 @@ class Group
   end
 
   def sort!
-    @charas.sort_by! { |x| - x.nums }
+    @charas.sort_by! { |x| [-x.nums, x.name.gsub(/[<>+-=]/, "")] }
   end
 
   def count!
@@ -273,7 +271,7 @@ class Posts
         l.each do |v|
           break if k >= @comp.vote_limit
           @comp.add_index(v[1], v[2])
-          t.votes[k] = nil
+          t.votes[v[0]] = nil
           k += 1
         end
         t.votes.each do |v|
