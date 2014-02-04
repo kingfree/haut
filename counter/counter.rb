@@ -21,6 +21,7 @@ CONTFORM = {
     :need_suf => '',
     :banmul => false,
     :vote_limit => 1,
+    :level_limit => 8,
     :blacklist => 'blacklist.txt',
     :whitelist => 'whitelist.txt'
   },
@@ -37,6 +38,7 @@ CONTFORM = {
     :need_suf => '',
     :banmul => false,
     :vote_limit => 1,
+    :level_limit => 8,
     :blacklist => '',
     :whitelist => ''
   }
@@ -226,9 +228,9 @@ class Character
 end
 
 class Post
-  attr_accessor :aid, :author, :floor, :date, :text, :votes, :real
+  attr_accessor :aid, :author, :floor, :date, :text, :votes, :real, :level
 
-  def initialize(aid, author, floor, t, text)
+  def initialize(aid, author, floor, t, text, level)
     @aid = aid.to_i
     @author = author.to_s.force_encoding(Encoding::UTF_8).strip
     @floor = floor.to_i
@@ -236,6 +238,7 @@ class Post
     @text = text
     @votes = Array.new
     @real = 0
+    @level = level.to_i
   end
 
   def output(file = STDOUT)
@@ -264,6 +267,8 @@ class Posts
   end
 
   def mukou(t) # 返回真记为无效票
+    return true if t.level < @rules[:level_limit]
+    # 等级不够
     return true if t.date > @comp.time_e or t.date < @comp.time_b
     # 超过比赛时间
     return true unless t.text.include?(@rules[:need_pre])
@@ -333,6 +338,7 @@ class Posts
         :floor => t.floor,
         :date => t.date,
         :text => t.text,
+        :level => t.level
       }
       a.push(c)
     end
@@ -349,7 +355,8 @@ class Posts
         post["author"],
         post["floor"],
         post["date"],
-        post["text"]
+        post["text"],
+        post["level"]
       )
       record!(t)
     end
@@ -365,7 +372,8 @@ class Posts
         info['author']['name'],
         info['content']['floor'],
         info['content']['date'],
-        post.css('.d_post_content')[0].content
+        post.css('.d_post_content')[0].content,
+        info['author']['grade_level']
       )
       record!(t)
     end
