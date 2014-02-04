@@ -5,8 +5,42 @@ require "json"
 require "scanf"
 
 TIMEFMT = "%Y年%m月%d日 %H:%M:%S"
-MUKOU = "无效"
-NISE = "无资格票" # 伪票
+MUKOU = "无效票"
+NISE = "非法票" # 伪票
+CONTFORM = {
+  "联赛" => {
+    :begin_time => /开始时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
+    :end_time => /结束时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
+    :time_inc => '开始时间',
+    :deban_inc => '出场阵容',
+    :item_name => /(<<.+?>>|[^><]+?（.+?场）)/,
+    :group_inc => '场）',
+    :chara_inc => '<<',
+    :ticket_name => /<+.+?>+/,
+    :need_pre => '',
+    :need_suf => '',
+    :banmul => false,
+    :vote_limit => 1,
+    :blacklist => 'blacklist.txt',
+    :whitelist => 'whitelist.txt'
+  },
+  "歌赏" => {
+    :begin_time => /有效时间：(?<year>[0-9]+)\.(?<month>[0-9]+)\.(?<day>[0-9]+)\s+(?<hour>[0-9]+)：(?<min>[0-9]{,2})\s*[-~]/,
+    :end_time => /有效时间：.*[-~]\s*(?<year>[0-9]+)[\.\s]*(?<month>[0-9]+)[\.\s]*(?<day>[0-9]+)\s+(?<hour>[0-9]+)：(?<min>[0-9]{,2})/,
+    :time_inc => '有效时间',
+    :deban_inc => '比赛曲目',
+    :item_name => /(【[0-9]+\..+?】|[^【】]+?曲目：)/,
+    :group_inc => '曲目',
+    :chara_inc => '【',
+    :ticket_name => /【[0-9]+\..+?】/,
+    :need_pre => '【投票】',
+    :need_suf => '',
+    :banmul => false,
+    :vote_limit => 1,
+    :blacklist => '',
+    :whitelist => ''
+  }
+}
 
 class Array
   def find_lgn(ele)
@@ -19,13 +53,16 @@ class Array
   end
 end
 
-class Contest
-  attr_accessor :title, :time_b, :time_e, :vote_limit, :banmul, :lz, :groups, :nums, :ima, :blacklist, :whitelist
+def match_to_time(t, sc = 00)
+  year = t.names.include?("year") ? t[:year].to_i : Time.now.year
+  return Time.new(year, t[:month].to_i, t[:day].to_i, t[:hour].to_i, t[:min].to_i, sc)
+end
 
-  def initialize(blackfile, whitefile)
+class Contest
+  attr_accessor :title, :time_b, :time_e, :lz, :groups, :nums, :ima, :blacklist, :whitelist
+
+  def initialize(blackfile = "", whitefile = "")
     @title = ""
-    @vote_limit = 1
-    @banmul = false # 多次投票Ban掉
     @lz = ""
     @time_b = nil
     @time_e = nil
@@ -34,9 +71,7 @@ class Contest
     @ima = Time.now
     @ghash = Hash.new
     @blacklist = Array.new
-    buildblacklist(blackfile) if blackfile != ""
     @whitelist = Array.new
-    buildwhitelist(whitefile) if whitefile != ""
   end
 
   def clear
@@ -47,40 +82,43 @@ class Contest
     @nums = 0
     @groups.clear
     @ima = Time.now
+    @blacklist.clear
+    @whitelist.clear
   end
 
   def buildblacklist(file)
-    # $stderr.printf "加载%s ", file
+    $stderr.printf "加载%s ", file
     f = open(file)
     while u = f.gets and u != nil
       @blacklist.push(u.force_encoding(Encoding::UTF_8).strip)
     end
+    f.close
     @blacklist.sort!
   end
 
   def buildwhitelist(file)
-    # $stderr.printf "加载%s ", file
+    $stderr.printf "加载%s ", file
     f = open(file)
     while u = f.gets and u != nil
       @whitelist.push(u.force_encoding(Encoding::UTF_8).strip)
     end
+    f.close
     @whitelist.sort!
   end
 
   def inblack?(user)
+    return false if @blacklist.empty?
     return @blacklist.find_lgn(user)
   end
 
   def inwhite?(user)
+    return true if @whitelist.empty?
     return @whitelist.find_lgn(user)
   end
 
   def settime!(s, t)
-    year = Time.now.year
-    l = s.scanf("%d月%d日%d:%d")
-    @time_b = Time.new(year, l[0], l[1], l[2], l[3], 00)
-    l = t.scanf("%d月%d日%d:%d")
-    @time_e = Time.new(year, l[0], l[1], l[2], l[3], 59)
+    @time_b = match_to_time(s)
+    @time_e = match_to_time(t)
   end
 
   def output
@@ -88,7 +126,6 @@ class Contest
     printf "%s\n", @title
     # puts "运营：#{@lz}"
     printf "开始时间：%s  结束时间：%s\n", @time_b.strftime(TIMEFMT), @time_e.strftime(TIMEFMT)
-    # puts "单人投票限制：#{@vote_limit}票"
     printf "当前时间：%s  有效票数：%d票\n", @ima.strftime(TIMEFMT), @nums
     @groups.each do |e|
       printf "\n%s 共%d票\n", e.name, e.nums
@@ -191,12 +228,11 @@ end
 class Post
   attr_accessor :aid, :author, :floor, :date, :text, :votes, :real
 
-  def initialize(aid, author, floor, date, text)
+  def initialize(aid, author, floor, t, text)
     @aid = aid.to_i
     @author = author.to_s.force_encoding(Encoding::UTF_8).strip
     @floor = floor.to_i
-    l = date.scanf("%d-%d-%d %d:%d")
-    @date = Time.new(l[0], l[1], l[2], l[3], l[4], 00)
+    @date = match_to_time(t.match(/(?<year>[0-9]+)-(?<month>[0-9]+)-(?<day>[0-9]+)\s+(?<hour>[0-9]+):(?<min>[0-9]{,2})/))
     @text = text
     @votes = Array.new
     @real = 0
@@ -214,7 +250,8 @@ class Posts
   def initialize(limit = 0)
     @posts = Array.new
     @limit = limit.to_i
-    @comp = Contest.new('blacklist.txt', 'whitelist.txt')
+    @rules = Hash.new
+    @comp = Contest.new
   end
 
   def clear
@@ -226,16 +263,18 @@ class Posts
     @posts.each { |t| t.output }
   end
 
-  def mukou(t)
-    # return false
+  def mukou(t) # 返回真记为无效票
     return true if t.date > @comp.time_e or t.date < @comp.time_b
     # 超过比赛时间
+    return true unless t.text.include?(@rules[:need_pre])
+    return true unless t.text.include?(@rules[:need_suf])
+    # 需要投票格式
     # return true if @posts.find_index { |x| x.aid == t.aid}
     # 已经投过票
     return true if @comp.inblack?(t.author)
-    return false if @comp.inwhite?(t.author)
+    return true unless @comp.inwhite?(t.author)
     # 白名单和黑名单过滤
-    return true
+    return false
   end
 
   def ticket(t)
@@ -260,7 +299,7 @@ class Posts
       end
     else # 投票者合法
       l = ticket(t) 
-      if @comp.banmul and l.length > @comp.vote_limit # 多投Ban掉
+      if @rules[:banmul] and l.length > @rules[:vote_limit] # 多投Ban掉
         for k in 0..t.votes.length - 1
           i, j = @comp.find(t.votes[k], MUKOU)
           @comp.add_index(i, j) # 记录无效票
@@ -269,7 +308,7 @@ class Posts
       else # 未限制多投或投票数符合要求
         k = 0
         l.each do |v|
-          break if k >= @comp.vote_limit
+          break if k >= @rules[:vote_limit]
           @comp.add_index(v[1], v[2])
           t.votes[v[0]] = nil
           k += 1
@@ -337,21 +376,18 @@ class Posts
   def record!(t)
     @comp.lz = t.author if t.floor == 1 # 运营
     if t.author == @comp.lz # 运营发布的消息
-      if @comp.time_b == nil
-        @comp.settime!(
-          t.text.match(/开始时间：([0-9]+月[0-9]+日[0-9]+:[0-9]{,2})/)[1],
-          t.text.match(/结束时间：([0-9]+月[0-9]+日[0-9]+:[0-9]{,2})/)[1]
-        )
+      if @comp.time_b == @comp.time_e and t.text.include?(@rules[:time_inc])
+        @comp.settime!(t.text.match(@rules[:begin_time]),
+          t.text.match(@rules[:end_time]))
       end
-      if t.text.include?('出场阵容')
+      if t.text.include?(@rules[:deban_inc])
         g = Group.new(MUKOU) # 无效票组
-        t.text.scan(/(<<.+?>>|[^><]+?（.+?场）)/) do |uu|
+        t.text.scan(@rules[:item_name]) do |uu|
           u = uu[0].to_s
-          if u.include?('<<')
+          if u.include?(@rules[:chara_inc])
             k = Character.new(u)
             g.addcharas(k) # 规定的有效票
-          elsif u.include?('（')
-            # 如果是“场”单字会匹配“战场原黑仪”，稳妥起见放在第二分支
+          elsif u.include?(@rules[:group_inc])
             @comp.addgroup(g)
             g = Group.new(u)
           end
@@ -360,7 +396,7 @@ class Posts
         @comp.addgroup(Group.new(NISE)) # 伪票组
       end
     else
-      count(t, /<+.+?>+/)
+      count(t, @rules[:ticket_name])
     end
     @posts.push(t)
   end
@@ -388,6 +424,14 @@ class Posts
     page = Nokogiri::HTML(open("#{url}#{pid}"))
 
     @comp.title = page.css('.core_title_txt')[0].attr('title')
+    CONTFORM.each do |k, v|
+      if @comp.title.include?(k)
+        @comp.buildblacklist(v[:blacklist]) unless v[:blacklist] == ""
+        @comp.buildwhitelist(v[:whitelist]) unless v[:whitelist] == ""
+        @rules = v
+        break
+      end
+    end
     $stderr.printf "%s ", @comp.title
 
     pager = page.css('.l_posts_num').css('.l_reply_num')[0].text
@@ -406,17 +450,15 @@ end
 
 if $0 == __FILE__
   max = ARGV[0].to_i
-  $stderr.puts "输入帖子编号(负数或0结束)："
+  ls = Posts.new(max)
   pid = Array.new
-  while line = $stdin.gets.to_i and line > 0
-    pid.push(line)
+  while line = $stdin.gets and line[0] != '0'
+    pid.push(line.to_i)
   end
-  tie = Posts.new(max)
   pid.each do |pt|
-    tie.clear
-    tie.fetch(pt)
-    tie.comp.output
-    #tie.output
+    ls.clear
+    ls.fetch(pt)
+    ls.comp.output
   end
 end
 
