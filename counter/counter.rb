@@ -158,18 +158,11 @@ class Contest
   def find(name, grp = "")
     # 不指定无效票认为是有效票，查找之
     # TODO: 顺序查找效率较低，需要改善算法
-    if grp == MUKOU # 无效票
-      i = @groups.find_index { |x| x.name == MUKOU }
+    if grp == MUKOU or grp == NISE # 无效票、伪票
+      i = @groups.find_index { |x| x.name == grp }
       j = @groups[i].charas.find_index { |f| f.name == name }
       return i, j if j # 是已经存在的无效票则返回
       n = Character.new(name) # 添加一个无效票
-      @groups[i].charas.push(n)
-      return i, @groups[i].charas.length - 1
-    elsif grp == NISE # 伪票
-      i = @groups.find_index { |x| x.name == NISE }
-      j = @groups[i].charas.find_index { |f| f.name == name }
-      return i, j if j
-      n = Character.new(name)
       @groups[i].charas.push(n)
       return i, @groups[i].charas.length - 1
     else # 真票、有效票
