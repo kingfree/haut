@@ -290,10 +290,10 @@ class Posts
     t.text.scan(tpl) { |m| t.votes.push(m.to_s) } # 把票放进数组里
     l = Array.new
     if mukou(t) # 如果投票者非法，即投的是伪票
+      $stderr.printf "{%s} ", t.author
       for k in 0..t.votes.length - 1
         i, j = @comp.find(t.votes[k], NISE)
         @comp.add_index(i, j)
-        $stderr.printf "{%s %s} ", t.author, t.votes[k]
       end
     else # 投票者合法
       l = ticket(t) 
@@ -403,7 +403,7 @@ class Posts
   end
 
   def parseit(url, pid, pn, readnew = false)
-    unless readnew or readcache(pid, pn)
+    if readnew or not readcache(pid, pn)
       page = Nokogiri::HTML(open(pageurl(url, pid, pn)))
       bg, ed = parse(page)
       writecache(pid, pn, bg, ed)
