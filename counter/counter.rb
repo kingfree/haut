@@ -7,6 +7,7 @@ require "scanf"
 TIMEFMT = "%Y年%m月%d日 %H:%M:%S"
 MUKOU = "无效票"
 NISE = "非法票" # 伪票
+
 ESCAPECHARS = /[<>【】]/
 CONTFORM = {
   "联赛" => {
@@ -65,6 +66,7 @@ class Contest
     @time_b = nil
     @time_e = nil
     @nums = 0
+    @people = 0
     @groups = Array.new
     @ima = Time.now
     @ghash = Hash.new
@@ -78,10 +80,15 @@ class Contest
     @time_b = nil
     @time_e = nil
     @nums = 0
+    @people = 0
     @groups.clear
     @ima = Time.now
     @blacklist.clear
     @whitelist.clear
+  end
+
+  def addpeople
+    @people += 1
   end
 
   def buildblacklist(file)
@@ -121,22 +128,25 @@ class Contest
     @time_e = match_to_time(t)
   end
 
-  def output
+  def output(file = STDOUT)
     sort!
-    printf "%s\n", @title
-    # puts "运营：#{@lz}"
-    printf "开始时间：%s  结束时间：%s\n", @time_b.strftime(TIMEFMT), @time_e.strftime(TIMEFMT)
-    printf "当前时间：%s  有效票数：%d票\n", @ima.strftime(TIMEFMT), @nums
+    file.printf "%s\n", @title
+    # file.puts "运营：#{@lz}"
+    file.printf "开始时间：%s  结束时间：%s\n", @time_b.strftime(TIMEFMT), @time_e.strftime(TIMEFMT)
+    file.printf "当前时间：%s  有效投票：%d票 / %d人\n", @ima.strftime(TIMEFMT), @nums, @people
+    tmp = Hash.new
     @groups.each do |e|
-      printf "\n%s 共%d票\n", e.name, e.nums
-      next if e.name == NISE
+      tmp[e.name] = ""
+      tmp[e.name] += sprintf("\n%s 共%d票\n", e.name, e.nums)
       i, j = 0, 0
       e.charas.each do |f|
         i += 1
         j = i if i < 2 or e.charas[i - 2].nums != f.nums
-        printf "%2d位 %3d票 %s\n", j, f.nums, f.name.gsub(ESCAPECHARS, "") # 输出时也不需要特殊标记，去掉
+        tmp[e.name] += sprintf("%2d位 %3d票 %s\n", j, f.nums, f.name.gsub(ESCAPECHARS, "")) # 输出时也不需要特殊标记，去掉
       end
+      file.write(tmp[e.name]) unless e.name == NISE or e.name == MUKOU
     end
+    file.write(tmp[MUKOU])
   end
 
   def sort!
@@ -146,7 +156,7 @@ class Contest
       e.count!
       @nums += e.nums if e.name != MUKOU and e.name != NISE
     end
-    @groups.sort_by! {|x| -x.nums }
+    # @groups.sort_by! {|x| -x.nums }
   end
 
   def addgroup(group)
@@ -276,18 +286,19 @@ class Posts
   end
 
   def mukou(t) # 返回真记为无效票
-    return true if t.date > @comp.time_e or t.date < @comp.time_b
+    # return false
+    return "时" if t.date > @comp.time_e or t.date < @comp.time_b
     # 超过比赛时间
-    return true if @comp.inblack?(t.author)
-    return true unless @comp.inwhite?(t.author)
+    return "黑" if @comp.inblack?(t.author)
+    return "白" unless @comp.inwhite?(t.author)
     # 白名单和黑名单过滤
-    return true if t.level < @rules[:level_limit]
+    return "级" if t.level < @rules[:level_limit]
     # 等级不够
-    return true unless t.text.include?(@rules[:need_pre])
-    return true unless t.text.include?(@rules[:need_suf])
+    return "前" unless t.text.include?(@rules[:need_pre])
+    return "后" unless t.text.include?(@rules[:need_suf])
     # 需要投票格式
-    return true if did?(t.author)
-    # 已经投过票
+    return "重" if did?(t.author)
+    # 已经投过票，多重
     return false
   end
 
@@ -297,7 +308,7 @@ class Posts
     loop do
       return l if l.length >= t.votes.length or k >= t.votes.length
       i, j = @comp.find(t.votes[k])
-      l.push([k, i, j]) if i != nil and j != nil
+      l.push([k, i, j]) if !i.nil? and !j.nil?
       k += 1
     end
   end
@@ -306,12 +317,13 @@ class Posts
     flag = 0
     t.text.scan(tpl) {|m| t.votes.push(m.to_s) } # 把票放进数组里
     l = Array.new
-    if mukou(t) # 如果投票者非法，即投的是伪票
-      $stderr.printf("{%s} ", t.author) if !t.votes.empty?
+    if x = mukou(t) # 如果投票者非法，即投的是伪票
+      $stderr.printf("{%s[%s]} ", t.author, x) if !t.votes.empty?
       t.votes.each do |v|
         i, j = @comp.find(v, NISE)
         @comp.add_index(i, j)
       end
+      t.votes.each {|v| $stderr.printf "%s ", v }
     else # 投票者合法
       l = ticket(t) 
       if @rules[:banmul] and l.length > @rules[:vote_limit] # 多投Ban掉
@@ -337,6 +349,7 @@ class Posts
         t.votes.each {|v| $stderr.printf "%s ", v }
       end
     end
+    @comp.addpeople if flag != 0
     return flag
   end
 
@@ -354,7 +367,9 @@ class Posts
       }
       a.push(c)
     end
-    open(cachefile(pid, pn), "w") {|f| f.write(JSON.generate(a).force_encoding("utf-8")) }
+    of = cachefile(pid, pn)
+    File.delete(of) if File.exist?(of)
+    open(of, "w") {|f| f.write(JSON.generate(a).force_encoding("utf-8")) }
   end
 
   def readcache(pid, pn)
@@ -422,7 +437,8 @@ class Posts
   end
 
   def parseit(url, pid, pn, readnew = false)
-    if readnew or not readcache(pid, pn)
+    if readnew or !readcache(pid, pn)
+      $stderr.print "[新]"
       page = Nokogiri::HTML(open(pageurl(url, pid, pn)))
       bg, ed = parse(page)
       writecache(pid, pn, bg, ed)
