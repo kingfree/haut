@@ -7,6 +7,7 @@ require "scanf"
 TIMEFMT = "%Y年%m月%d日 %H:%M:%S"
 MUKOU = "无效票"
 NISE = "非法票" # 伪票
+ESCAPECHARS = /[<>【】]/
 CONTFORM = {
   "联赛" => {
     :begin_time => /开始时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
@@ -46,12 +47,7 @@ CONTFORM = {
 
 class Array
   def find_lgn(ele)
-    res = bsearch { |x| x >= ele }
-    if res == ele
-      return true
-    else
-      return false
-    end
+    ele == bsearch {|x| x >= ele }
   end
 end
 
@@ -89,9 +85,10 @@ class Contest
   end
 
   def buildblacklist(file)
+    return if !File.exist?(file)
     $stderr.printf "加载%s ", file
     f = open(file)
-    while u = f.gets and u != nil
+    while u = f.gets and !u.nil?
       @blacklist.push(u.force_encoding(Encoding::UTF_8).strip)
     end
     f.close
@@ -99,9 +96,10 @@ class Contest
   end
 
   def buildwhitelist(file)
+    return if !File.exist?(file)
     $stderr.printf "加载%s ", file
     f = open(file)
-    while u = f.gets and u != nil
+    while u = f.gets and !u.nil?
       @whitelist.push(u.force_encoding(Encoding::UTF_8).strip)
     end
     f.close
@@ -136,7 +134,7 @@ class Contest
       e.charas.each do |f|
         i += 1
         j = i if i < 2 or e.charas[i - 2].nums != f.nums
-        printf "%2d位 %3d票 %s\n", j, f.nums, f.name
+        printf "%2d位 %3d票 %s\n", j, f.nums, f.name.gsub(ESCAPECHARS, "") # 输出时也不需要特殊标记，去掉
       end
     end
   end
@@ -148,7 +146,7 @@ class Contest
       e.count!
       @nums += e.nums if e.name != MUKOU and e.name != NISE
     end
-    @groups.sort_by! { |x| -x.nums }
+    @groups.sort_by! {|x| -x.nums }
   end
 
   def addgroup(group)
@@ -159,8 +157,9 @@ class Contest
     # 不指定无效票认为是有效票，查找之
     # TODO: 顺序查找效率较低，需要改善算法
     if grp == MUKOU or grp == NISE # 无效票、伪票
-      i = @groups.find_index { |x| x.name == grp }
-      j = @groups[i].charas.find_index { |f| f.name == name }
+      name.gsub!(ESCAPECHARS, "") # 这些票不需要特殊标记来验证，可以去掉
+      i = @groups.find_index {|x| x.name == grp }
+      j = @groups[i].charas.find_index {|f| f.name == name }
       return i, j if j # 是已经存在的无效票则返回
       n = Character.new(name) # 添加一个无效票
       @groups[i].charas.push(n)
@@ -168,7 +167,7 @@ class Contest
     else # 真票、有效票
       @groups.each_index do |i|
         next if @groups[i].name == MUKOU
-        j = @groups[i].charas.find_index { |f| f.name == name }
+        j = @groups[i].charas.find_index {|f| f.name == name }
         return i, j if j # 是有效票则返回
       end
     end
@@ -176,7 +175,7 @@ class Contest
   end
 
   def add_index(a, b)
-    return false if a == nil or b == nil
+    return false if a.nil? or b.nil?
     @groups[a].charas[b].add # 计数
     return true
   end
@@ -196,12 +195,12 @@ class Group
   end
 
   def sort!
-    @charas.sort_by! { |x| [-x.nums, x.name.gsub(/[<>+-=]/, "")] }
+    @charas.sort_by! {|x| [-x.nums, x.name] }
   end
 
   def count!
     @nums = 0
-    @charas.each { |e| @nums += e.nums }
+    @charas.each {|e| @nums += e.nums }
     @nums
   end
 end
@@ -248,30 +247,47 @@ class Posts
     @limit = limit.to_i
     @rules = Hash.new
     @comp = Contest.new
+    @did = Hash.new
   end
 
   def clear
     @posts.clear
     @comp.clear
+    @did.clear
   end
 
-  def output
-    @posts.each { |t| t.output }
+  def output(file = STDOUT)
+    @posts.each {|t| t.output(file) }
+  end
+
+  def did?(name)
+    if @did.key?(name)
+      return @did[name] == 0 ? false : true
+    end
+    return false
+  end
+
+  def kiroku(name, v = 0)
+    if @did.key?(name)
+      @did[name] += v
+    else
+      @did[name] = v
+    end
   end
 
   def mukou(t) # 返回真记为无效票
-    return true if t.level < @rules[:level_limit]
-    # 等级不够
     return true if t.date > @comp.time_e or t.date < @comp.time_b
     # 超过比赛时间
-    return true unless t.text.include?(@rules[:need_pre])
-    return true unless t.text.include?(@rules[:need_suf])
-    # 需要投票格式
-    # return true if @posts.find_index { |x| x.aid == t.aid}
-    # 已经投过票
     return true if @comp.inblack?(t.author)
     return true unless @comp.inwhite?(t.author)
     # 白名单和黑名单过滤
+    return true if t.level < @rules[:level_limit]
+    # 等级不够
+    return true unless t.text.include?(@rules[:need_pre])
+    return true unless t.text.include?(@rules[:need_suf])
+    # 需要投票格式
+    return true if did?(t.author)
+    # 已经投过票
     return false
   end
 
@@ -287,38 +303,41 @@ class Posts
   end
 
   def count(t, tpl)
-    t.text.scan(tpl) { |m| t.votes.push(m.to_s) } # 把票放进数组里
+    flag = 0
+    t.text.scan(tpl) {|m| t.votes.push(m.to_s) } # 把票放进数组里
     l = Array.new
     if mukou(t) # 如果投票者非法，即投的是伪票
-      $stderr.printf "{%s} ", t.author
-      for k in 0..t.votes.length - 1
-        i, j = @comp.find(t.votes[k], NISE)
+      $stderr.printf("{%s} ", t.author) if !t.votes.empty?
+      t.votes.each do |v|
+        i, j = @comp.find(v, NISE)
         @comp.add_index(i, j)
       end
     else # 投票者合法
       l = ticket(t) 
       if @rules[:banmul] and l.length > @rules[:vote_limit] # 多投Ban掉
-        for k in 0..t.votes.length - 1
-          i, j = @comp.find(t.votes[k], MUKOU)
-          @comp.add_index(i, j) # 记录无效票
-          $stderr.printf "(%s %s) ", t.author, t.votes[k]
-        end
-      else # 未限制多投或投票数符合要求
-        k = 0
-        l.each do |v|
-          break if k >= @rules[:vote_limit]
-          @comp.add_index(v[1], v[2])
-          t.votes[v[0]] = nil
-          k += 1
-        end
         t.votes.each do |v|
-          next if v == nil
           i, j = @comp.find(v, MUKOU)
           @comp.add_index(i, j) # 记录无效票
-          $stderr.printf "(%s %s) ", t.author, v 
+        end
+      else # 未限制多投或投票数符合要求
+        l.each do |v|
+          break if flag >= @rules[:vote_limit]
+          @comp.add_index(v[1], v[2])
+          t.votes[v[0]] = nil
+          flag += 1
+        end
+        t.votes.delete(nil)
+        t.votes.each do |v|
+          i, j = @comp.find(v, MUKOU)
+          @comp.add_index(i, j) # 记录无效票
         end
       end
+      if !t.votes.empty?
+        $stderr.printf "(%s)", t.author
+        t.votes.each {|v| $stderr.printf "%s ", v }
+      end
     end
+    return flag
   end
 
   def writecache(pid, pn, op, ed)
@@ -335,12 +354,12 @@ class Posts
       }
       a.push(c)
     end
-    open(cachefile(pid, pn), "w") { |f| f.write(JSON.generate(a).force_encoding("utf-8")) }
+    open(cachefile(pid, pn), "w") {|f| f.write(JSON.generate(a).force_encoding("utf-8")) }
   end
 
   def readcache(pid, pn)
     return false unless File.exist?(cachefile(pid, pn))
-    a = open(cachefile(pid, pn)) { |f| f.read }
+    a = open(cachefile(pid, pn)) {|f| f.read }
     a = JSON.parse(a.force_encoding("utf-8"))
     a.each do |post|
       t = Post.new(
@@ -397,7 +416,7 @@ class Posts
         @comp.addgroup(Group.new(NISE)) # 伪票组
       end
     else
-      count(t, @rules[:ticket_name])
+      kiroku(t.author, count(t, @rules[:ticket_name]))
     end
     @posts.push(t)
   end
@@ -427,8 +446,8 @@ class Posts
     @comp.title = page.css('.core_title_txt')[0].attr('title')
     CONTFORM.each do |k, v|
       if @comp.title.include?(k)
-        @comp.buildblacklist(v[:blacklist]) unless v[:blacklist] == ""
-        @comp.buildwhitelist(v[:whitelist]) unless v[:whitelist] == ""
+        @comp.buildblacklist(v[:blacklist])
+        @comp.buildwhitelist(v[:whitelist])
         @rules = v
         break
       end
