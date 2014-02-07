@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'nokogiri'
 require "open-uri"
 require "json"
@@ -477,7 +476,8 @@ end
 if $0 == __FILE__
   out = ARGV[0] ? open(ARGV[0], "w") : STDOUT # 输出比赛结果
   inf = ARGV[1] ? open(ARGV[1], "w") : STDERR # 输出无效票详情
-  cha = ARGV[2] ? open(ARGV[2], "w") : "<<真红>>" # 真红13骑士
+  cha = ARGV[2] ? "<<#{ARGV[2]}>>" : "<<真红>>" # 真红13骑士
+  char = cha.force_encoding(Encoding::UTF_8)
   ls = Posts.new(inf)
   pid = Array.new
   while line = $stdin.gets and line[0] != '0'
