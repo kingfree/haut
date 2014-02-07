@@ -4,9 +4,9 @@ require "open-uri"
 require "json"
 require "scanf"
 
-TIMEFMT = "%Y年%m月%d日 %H:%M:%S"
+TIMEFMT = "%m月%d日 %H:%M"
 MUKOU = "无效票"
-NISE = "非法票" # 伪票
+NISE = "伪票"
 
 ESCAPECHARS = /[<>【】]/
 CONTFORM = {
@@ -76,6 +76,7 @@ class Contest
     @nums = 0
     @people = 0
     @groups.clear
+    @ghash.clear
     @ima = Time.now
   end
 
@@ -119,105 +120,98 @@ class Contest
   end
 
   def output(file = STDOUT)
-    sort!
+    count
     file.printf "\n%s\n", @title
     # file.puts "运营：#{@lz}"
     file.printf "开始时间：%s  结束时间：%s\n", @time_b.strftime(TIMEFMT), @time_e.strftime(TIMEFMT)
     file.printf "当前时间：%s  有效投票：%d票 / %d人\n", @ima.strftime(TIMEFMT), @nums, @people
     tmp = Hash.new
-    @groups.each do |e|
-      tmp[e.name] = ""
-      tmp[e.name] += sprintf("\n%s 共%d票\n", e.name, e.nums)
+    @ghash.each do |k, e|
+      tmp[k] = sprintf("\n%s 共%d票\n", e.name, e.nums)
       i, j = 0, 0
-      e.charas.each do |f|
+      a = e.sort
+      a.each do |kk, f|
+        f.count
         i += 1
-        j = i if i < 2 or e.charas[i - 2].nums != f.nums
-        tmp[e.name] += sprintf("%2d位 %3d票 %s\n", j, f.nums, f.name.gsub(ESCAPECHARS, "")) # 输出时也不需要特殊标记，去掉
+        j = i if i <= 1 or f.nums != a[i - 2][1].nums
+        tmp[k] += sprintf("%2d位 %3d票 %s\n", j, f.nums, f.name.gsub(ESCAPECHARS, "")) # 输出时也不需要特殊标记，去掉
       end
-      file.write(tmp[e.name]) unless e.name == NISE or e.name == MUKOU
+      file.write(tmp[k]) unless k == NISE or k == MUKOU
     end
     file.write(tmp[MUKOU])
     # file.write(tmp[NISE])
   end
 
   def info(chara, file = STDOUT)
-    a, b = find(chara)
-    @groups[a].charas[b].output(file) if a and b
-  end
-
-  def sort!
-    @nums = 0
-    @groups.each do |e|
-      e.sort!
-      e.count
-      @nums += e.nums if e.name != MUKOU and e.name != NISE
-    end
-    # @groups.sort_by! {|x| -x.nums }
-  end
-
-  def addgroup(group)
-    @groups.push(group)
-  end
-
-  def find(name, grp = "")
-    # 不指定无效票认为是有效票，查找之
-    # TODO: 顺序查找效率较低，需要改善算法
-    if grp == MUKOU or grp == NISE # 无效票、伪票
-      name.gsub!(ESCAPECHARS, "") # 这些票不需要特殊标记来验证，可以去掉
-      i = @groups.find_index {|x| x.name == grp }
-      j = @groups[i].charas.find_index {|f| f.name == name }
-      return i, j if j # 是已经存在的无效票则返回
-      n = Character.new(name) # 添加一个无效票
-      @groups[i].charas.push(n)
-      return i, @groups[i].charas.length - 1
-    else # 真票、有效票
-      @groups.each_index do |i|
-        next if @groups[i].name == MUKOU
-        j = @groups[i].charas.find_index {|f| f.name == name }
-        return i, j if j # 是有效票则返回
-      end
-    end
-    return nil, nil
-  end
-
-  def add_index(a, b, user)
-    return false if a.nil? or b.nil?
-    @groups[a].charas[b].add(user) # 计数
-    return true
-  end
-end
-
-class Group
-  attr_accessor :name, :charas, :nums
-
-  def initialize(name, charas = [])
-    @name = name
-    @charas = charas
-    @nums = 0
-  end
-
-  def addcharas(chara)
-    @charas.push(chara)
-  end
-
-  def sort!
-    @charas.sort_by! {|x| [-x.nums, x.name] }
+    @ghash[haschara?(chara)].charas[chara].output(file) if haschara?(chara)
   end
 
   def count
     @nums = 0
-    @charas.each {|e| @nums += e.count }
+    @ghash.each do |k, e|
+      @nums += e.nums if e.name != MUKOU and e.name != NISE
+    end
+    @nums
+  end
+
+  def addgroup(group)
+    @ghash[group.name] = group
+  end
+
+  def haschara?(name)
+    @ghash.each do |k, v|
+      next if k == NISE or k == MUKOU
+      return k if v.charas.key?(name)
+    end
+    false
+  end
+
+  def addt(user, name, grp = "")
+    if grp == MUKOU or grp == NISE
+      name.gsub!(ESCAPECHARS, "") # 这些票不需要特殊标记来验证，可以去掉
+      if @ghash[grp].charas.key?(name)
+        @ghash[grp].charas[name].add(user)
+      else
+        @ghash[grp].add(name)
+        @ghash[grp].charas[name].add(user)
+      end
+    else
+      @ghash[grp].charas[name].add(user)
+    end
+  end
+
+end
+
+class Group
+  attr_accessor :name, :charas
+
+  def initialize(name)
+    @name = name
+    @charas = Hash.new
+    @nums = 0
+  end
+
+  def add(name)
+    @charas[name] = Character.new(name)
+  end
+
+  def sort
+    @charas.sort_by {|k, x| [-x.nums, x.name] }
+  end
+
+  def nums
+    @nums = 0
+    @charas.each {|k, x| @nums += x.nums }
     @nums
   end
 end
 
 class Character
-  attr_accessor :name, :nums, :group; :users
+  attr_accessor :name, :users, :nums
 
-  def initialize(name, group = "", nums = 0)
+  def initialize(name, num = 0)
     @name = name
-    @nums = nums
-    @group = group
+    @nums = num
     @users = Array.new
   end
 
@@ -309,45 +303,32 @@ class Posts
     return false
   end
 
-  def ticket(t)
-    l = Array.new
-    k = 0
-    loop do
-      return l if l.length >= t.votes.length or k >= t.votes.length
-      i, j = @comp.find(t.votes[k])
-      l.push([k, i, j]) if !i.nil? and !j.nil?
-      k += 1
-    end
-  end
-
   def count(t, tpl)
     flag = 0
     t.text.scan(tpl) {|m| t.votes.push(m.to_s) } # 把票放进数组里
     l = Array.new
     if x = mukou(t) # 如果投票者非法，即投的是伪票
       t.votes.each do |v|
-        i, j = @comp.find(v, MUKOU) # NISE
-        @comp.add_index(i, j, t.author)
+        @comp.addt(t.author, v, NISE)
       end
     else # 投票者合法
       x = "无" # 无效票
-      l = ticket(t) 
       if @rules[:banmul] and l.length > @rules[:vote_limit] # 多投Ban掉
         t.votes.each do |v|
-          i, j = @comp.find(v, MUKOU)
-          @comp.add_index(i, j, t.author) # 记录无效票
+          @comp.addt(t.author, v, MUKOU) # 记录无效票
         end
       else # 未限制多投或投票数符合要求
-        l.each do |v|
+        t.votes.each_index do |i|
           break if flag >= @rules[:vote_limit]
-          @comp.add_index(v[1], v[2], t.author)
-          t.votes[v[0]] = nil
-          flag += 1
+          if k = @comp.haschara?(t.votes[i])
+            @comp.addt(t.author, t.votes[i], k) # 正常计数
+            flag += 1
+            t.votes[i] = nil
+          end
         end
         t.votes.delete(nil)
         t.votes.each do |v|
-          i, j = @comp.find(v, MUKOU)
-          @comp.add_index(i, j, t.author) # 记录无效票
+          @comp.addt(t.author, v, MUKOU) # 记录无效票
         end
       end
     end
@@ -427,8 +408,7 @@ class Posts
         t.text.scan(@rules[:item_name]) do |uu|
           u = uu[0].to_s
           if u.include?(@rules[:chara_inc])
-            k = Character.new(u)
-            g.addcharas(k) # 规定的有效票
+            g.add(u) # 规定的有效票
           elsif u.include?(@rules[:group_inc])
             @comp.addgroup(g)
             g = Group.new(u)
@@ -444,7 +424,7 @@ class Posts
   end
 
   def parseit(url, pid, pn, lastpn)
-    if pn + 1 >= lastpn or !readcache(pid, pn)
+    if pn >= lastpn or !readcache(pid, pn)
       $stderr.print "新"
       page = Nokogiri::HTML(open(pageurl(url, pid, pn)))
       bg, ed = parse(page)
@@ -475,12 +455,12 @@ class Posts
         break
       end
     end
-    $stderr.printf "\n%s ", @comp.title
+    $stderr.printf "\n%s\n", @comp.title
     logfile.printf "\n%s\n", @comp.title
 
     pager = page.css('.l_posts_num').css('.l_reply_num')[0].text
     lastpn = pager.match(/共\s*([0-9]+?)\s*页/)[1].to_i
-    $stderr.print "\n共#{lastpn}页 "
+    $stderr.print "共#{lastpn}页 "
 
     for pn in 1..lastpn
       $stderr.print "[#{pn}"
@@ -495,8 +475,8 @@ class Posts
 end
 
 if $0 == __FILE__
-  out = ARGV[0] ? open(ARGV[0], "w") : STDOUT
-  inf = ARGV[1] ? open(ARGV[1], "w") : STDERR
+  out = ARGV[0] ? open(ARGV[0], "w") : STDOUT # 输出比赛结果
+  inf = ARGV[1] ? open(ARGV[1], "w") : STDERR # 输出无效票详情
   cha = ARGV[2] ? open(ARGV[2], "w") : "<<真红>>" # 真红13骑士
   ls = Posts.new(inf)
   pid = Array.new
