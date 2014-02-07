@@ -46,12 +46,6 @@ CONTFORM = {
   }
 }
 
-class Array
-  def find_lgn(ele)
-    ele == bsearch {|x| x >= ele }
-  end
-end
-
 def match_to_time(t, sc = 00)
   year = t.names.include?("year") ? t[:year].to_i : Time.now.year
   return Time.new(year, t[:month].to_i, t[:day].to_i, t[:hour].to_i, t[:min].to_i, sc)
@@ -70,8 +64,8 @@ class Contest
     @groups = Array.new
     @ima = Time.now
     @ghash = Hash.new
-    @blacklist = Array.new
-    @whitelist = Array.new
+    @blacklist = Hash.new
+    @whitelist = Hash.new
   end
 
   def clear
@@ -83,8 +77,6 @@ class Contest
     @people = 0
     @groups.clear
     @ima = Time.now
-    @blacklist.clear
-    @whitelist.clear
   end
 
   def addpeople
@@ -92,33 +84,33 @@ class Contest
   end
 
   def buildblacklist(file)
+    @blacklist.clear
     return if !File.exist?(file)
     f = open(file)
     while u = f.gets and !u.nil?
-      @blacklist.push(u.force_encoding(Encoding::UTF_8).strip)
+      @blacklist[u.force_encoding(Encoding::UTF_8).strip] = true
     end
     f.close
-    @blacklist.sort!
   end
 
   def buildwhitelist(file)
+    @whitelist.clear
     return if !File.exist?(file)
     f = open(file)
     while u = f.gets and !u.nil?
-      @whitelist.push(u.force_encoding(Encoding::UTF_8).strip)
+      @whitelist[u.force_encoding(Encoding::UTF_8).strip] = true
     end
     f.close
-    @whitelist.sort!
   end
 
   def inblack?(user)
     return false if @blacklist.empty?
-    return @blacklist.find_lgn(user)
+    return @blacklist.key?(user)
   end
 
   def inwhite?(user)
     return true if @whitelist.empty?
-    return @whitelist.find_lgn(user)
+    return @whitelist.key?(user)
   end
 
   def settime!(s, t)
@@ -471,13 +463,14 @@ class Posts
 
   def fetch(pid = 0, url = "http://tieba.baidu.com/p/")
     return if pid == 0
+    clear
     page = Nokogiri::HTML(open("#{url}#{pid}"))
 
     @comp.title = page.css('.core_title_txt')[0].attr('title')
     CONTFORM.each do |k, v|
       if @comp.title.include?(k)
-        @comp.buildblacklist(v[:blacklist])
-        @comp.buildwhitelist(v[:whitelist])
+        @comp.buildblacklist(v[:blacklist]) unless @rules[:blacklist] == v[:blacklist]
+        @comp.buildwhitelist(v[:whitelist]) unless @rules[:whitelist] == v[:whitelist]
         @rules = v
         break
       end
@@ -511,7 +504,6 @@ if $0 == __FILE__
     pid.push(line.to_i)
   end
   pid.each do |pt|
-    ls.clear
     ls.fetch(pt)
     ls.comp.output(out)
     ls.comp.info(cha)
