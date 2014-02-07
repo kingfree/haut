@@ -147,6 +147,7 @@ class Contest
       file.write(tmp[e.name]) unless e.name == NISE or e.name == MUKOU
     end
     file.write(tmp[MUKOU])
+    # file.write(tmp[NISE])
   end
 
   def sort!
@@ -318,7 +319,7 @@ class Posts
     t.text.scan(tpl) {|m| t.votes.push(m.to_s) } # 把票放进数组里
     l = Array.new
     if x = mukou(t) # 如果投票者非法，即投的是伪票
-      $stderr.printf("{%s[%s]} ", t.author, x) if !t.votes.empty?
+      $stderr.printf("{@%s[%s]} ", t.author, x) if !t.votes.empty?
       t.votes.each do |v|
         i, j = @comp.find(v, NISE)
         @comp.add_index(i, j)
@@ -345,7 +346,7 @@ class Posts
         end
       end
       if !t.votes.empty?
-        $stderr.printf "(%s)", t.author
+        $stderr.printf "(@%s)", t.author
         t.votes.each {|v| $stderr.printf "%s ", v }
       end
     end
@@ -436,12 +437,12 @@ class Posts
     @posts.push(t)
   end
 
-  def parseit(url, pid, pn, readnew = false)
-    if readnew or !readcache(pid, pn)
+  def parseit(url, pid, pn, lastpn)
+    if pn + 1 >= lastpn or !readcache(pid, pn)
       $stderr.print "[新]"
       page = Nokogiri::HTML(open(pageurl(url, pid, pn)))
       bg, ed = parse(page)
-      writecache(pid, pn, bg, ed)
+      writecache(pid, pn, bg, ed) if pn < lastpn
     end
   end
 
@@ -477,7 +478,7 @@ class Posts
     lastpn = @limit if @limit > 0
     for pn in 1..lastpn
       $stderr.print "[#{pn}]"
-      parseit(url, pid, pn, pn == lastpn)
+      parseit(url, pid, pn, lastpn)
     end
 
     $stderr.puts " 完成"
