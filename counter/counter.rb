@@ -93,7 +93,6 @@ class Contest
 
   def buildblacklist(file)
     return if !File.exist?(file)
-    $stderr.printf "加载%s ", file
     f = open(file)
     while u = f.gets and !u.nil?
       @blacklist.push(u.force_encoding(Encoding::UTF_8).strip)
@@ -104,7 +103,6 @@ class Contest
 
   def buildwhitelist(file)
     return if !File.exist?(file)
-    $stderr.printf "加载%s ", file
     f = open(file)
     while u = f.gets and !u.nil?
       @whitelist.push(u.force_encoding(Encoding::UTF_8).strip)
@@ -130,7 +128,7 @@ class Contest
 
   def output(file = STDOUT)
     sort!
-    file.printf "%s\n", @title
+    file.printf "\n%s\n", @title
     # file.puts "运营：#{@lz}"
     file.printf "开始时间：%s  结束时间：%s\n", @time_b.strftime(TIMEFMT), @time_e.strftime(TIMEFMT)
     file.printf "当前时间：%s  有效投票：%d票 / %d人\n", @ima.strftime(TIMEFMT), @nums, @people
@@ -150,11 +148,16 @@ class Contest
     # file.write(tmp[NISE])
   end
 
+  def info(chara, file = STDOUT)
+    a, b = find(chara)
+    @groups[a].charas[b].output(file) if a and b
+  end
+
   def sort!
     @nums = 0
     @groups.each do |e|
       e.sort!
-      e.count!
+      e.count
       @nums += e.nums if e.name != MUKOU and e.name != NISE
     end
     # @groups.sort_by! {|x| -x.nums }
@@ -185,9 +188,9 @@ class Contest
     return nil, nil
   end
 
-  def add_index(a, b)
+  def add_index(a, b, user)
     return false if a.nil? or b.nil?
-    @groups[a].charas[b].add # 计数
+    @groups[a].charas[b].add(user) # 计数
     return true
   end
 end
@@ -209,24 +212,35 @@ class Group
     @charas.sort_by! {|x| [-x.nums, x.name] }
   end
 
-  def count!
+  def count
     @nums = 0
-    @charas.each {|e| @nums += e.nums }
+    @charas.each {|e| @nums += e.count }
     @nums
   end
 end
 
 class Character
-  attr_accessor :name, :nums, :group
+  attr_accessor :name, :nums, :group; :users
 
   def initialize(name, group = "", nums = 0)
     @name = name
     @nums = nums
     @group = group
+    @users = Array.new
   end
 
-  def add
+  def add(user)
+    @users.push(user)
     @nums += 1
+  end
+
+  def count
+    @nums = @users.length
+  end
+
+  def output(file = STDOUT)
+    file.printf("%s(%d票)： ", @name, count)
+    @users.each {|v| file.printf("@%s ", v)}
   end
 end
 
@@ -251,14 +265,14 @@ class Post
 end
 
 class Posts
-  attr_accessor :posts, :comp
+  attr_accessor :posts, :comp, :logfile
 
-  def initialize(limit = 0)
+  def initialize(logf = STDERR)
     @posts = Array.new
-    @limit = limit.to_i
     @rules = Hash.new
     @comp = Contest.new
     @did = Hash.new
+    @logfile = logf
   end
 
   def clear
@@ -319,36 +333,36 @@ class Posts
     t.text.scan(tpl) {|m| t.votes.push(m.to_s) } # 把票放进数组里
     l = Array.new
     if x = mukou(t) # 如果投票者非法，即投的是伪票
-      $stderr.printf("{@%s[%s]} ", t.author, x) if !t.votes.empty?
       t.votes.each do |v|
-        i, j = @comp.find(v, NISE)
-        @comp.add_index(i, j)
+        i, j = @comp.find(v, MUKOU) # NISE
+        @comp.add_index(i, j, t.author)
       end
-      t.votes.each {|v| $stderr.printf "%s ", v }
     else # 投票者合法
+      x = "无" # 无效票
       l = ticket(t) 
       if @rules[:banmul] and l.length > @rules[:vote_limit] # 多投Ban掉
         t.votes.each do |v|
           i, j = @comp.find(v, MUKOU)
-          @comp.add_index(i, j) # 记录无效票
+          @comp.add_index(i, j, t.author) # 记录无效票
         end
       else # 未限制多投或投票数符合要求
         l.each do |v|
           break if flag >= @rules[:vote_limit]
-          @comp.add_index(v[1], v[2])
+          @comp.add_index(v[1], v[2], t.author)
           t.votes[v[0]] = nil
           flag += 1
         end
         t.votes.delete(nil)
         t.votes.each do |v|
           i, j = @comp.find(v, MUKOU)
-          @comp.add_index(i, j) # 记录无效票
+          @comp.add_index(i, j, t.author) # 记录无效票
         end
       end
-      if !t.votes.empty?
-        $stderr.printf "(@%s)", t.author
-        t.votes.each {|v| $stderr.printf "%s ", v }
-      end
+    end
+    if !t.votes.empty?
+      logfile.printf "[%s] @%s : ", x, t.author
+      t.votes.each {|v| logfile.printf "%s ", v }
+      logfile.printf "\n"
     end
     @comp.addpeople if flag != 0
     return flag
@@ -439,7 +453,7 @@ class Posts
 
   def parseit(url, pid, pn, lastpn)
     if pn + 1 >= lastpn or !readcache(pid, pn)
-      $stderr.print "[新]"
+      $stderr.print "新"
       page = Nokogiri::HTML(open(pageurl(url, pid, pn)))
       bg, ed = parse(page)
       writecache(pid, pn, bg, ed) if pn < lastpn
@@ -457,7 +471,6 @@ class Posts
 
   def fetch(pid = 0, url = "http://tieba.baidu.com/p/")
     return if pid == 0
-    puts ""
     page = Nokogiri::HTML(open("#{url}#{pid}"))
 
     @comp.title = page.css('.core_title_txt')[0].attr('title')
@@ -469,25 +482,30 @@ class Posts
         break
       end
     end
-    $stderr.printf "%s ", @comp.title
+    $stderr.printf "\n%s ", @comp.title
+    logfile.printf "\n%s\n", @comp.title
 
     pager = page.css('.l_posts_num').css('.l_reply_num')[0].text
     lastpn = pager.match(/共\s*([0-9]+?)\s*页/)[1].to_i
-    $stderr.print "共#{lastpn}页 "
+    $stderr.print "\n共#{lastpn}页 "
 
-    lastpn = @limit if @limit > 0
     for pn in 1..lastpn
-      $stderr.print "[#{pn}]"
+      $stderr.print "[#{pn}"
+      logfile.print "[#{pn}]\n"
       parseit(url, pid, pn, lastpn)
+      $stderr.print "]"
     end
 
-    $stderr.puts " 完成"
+    logfile.print "完成\n"
+    $stderr.print " 完成\n"
   end
 end
 
 if $0 == __FILE__
-  max = ARGV[0].to_i
-  ls = Posts.new(max)
+  out = ARGV[0] ? open(ARGV[0], "w") : STDOUT
+  inf = ARGV[1] ? open(ARGV[1], "w") : STDERR
+  cha = ARGV[2] ? open(ARGV[2], "w") : "<<真红>>" # 真红13骑士
+  ls = Posts.new(inf)
   pid = Array.new
   while line = $stdin.gets and line[0] != '0'
     pid.push(line.to_i)
@@ -495,7 +513,8 @@ if $0 == __FILE__
   pid.each do |pt|
     ls.clear
     ls.fetch(pt)
-    ls.comp.output
+    ls.comp.output(out)
+    ls.comp.info(cha)
   end
 end
 
