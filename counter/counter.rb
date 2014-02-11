@@ -308,7 +308,7 @@ class Posts
     l = Array.new
     if x = mukou(t) # 如果投票者非法，即投的是伪票
       t.votes.each do |v|
-        @comp.addt(t.author, v, NISE)
+        @comp.addt(t.author, v, MUKOU) # NISE
       end
     else # 投票者合法
       x = "无" # 无效票
