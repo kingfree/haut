@@ -7,6 +7,10 @@ TIMEFMT = "%m月%d日 %H:%M"
 MUKOU = "无效票"
 NISE = "伪票"
 
+ALIAS = {
+  "<<Saber>>" => "<<阿尔托莉亚>>"
+}
+
 ESCAPECHARS = /[<>【】]/
 CONTFORM = {
   "联赛" => {
@@ -133,7 +137,8 @@ class Contest
         f.count
         i += 1
         j = i if i <= 1 or f.nums != a[i - 2][1].nums
-        tmp[k] += sprintf("%2d位 %3d票 %s\n", j, f.nums, f.name.gsub(ESCAPECHARS, "")) # 输出时也不需要特殊标记，去掉
+        tmp[k] += sprintf("%2d位 %3d票 %s%s\n", j, f.nums, f.name.gsub(ESCAPECHARS, ""),
+          ALIAS.key?(f.name) ? " (" + ALIAS[f.name].gsub(ESCAPECHARS, "") + ")" : "") # 输出时也不需要特殊标记，去掉
       end
       file.write(tmp[k]) unless k == NISE or k == MUKOU
     end
@@ -157,7 +162,15 @@ class Contest
     @ghash[group.name] = group
   end
 
+  def rname(name) # 别名
+    if ALIAS.value?(name)
+      return ALIAS.rassoc(name)[0]
+    end
+    name
+  end
+
   def haschara?(name)
+    name = rname(name)
     @ghash.each do |k, v|
       next if k == NISE or k == MUKOU
       return k if v.charas.key?(name)
@@ -175,7 +188,7 @@ class Contest
         @ghash[grp].charas[name].add(user)
       end
     else
-      @ghash[grp].charas[name].add(user)
+      @ghash[grp].charas[rname(name)].add(user)
     end
   end
 
@@ -486,7 +499,7 @@ if $0 == __FILE__
   pid.each do |pt|
     ls.fetch(pt)
     ls.comp.output(out)
-    ls.comp.info(cha)
+    ls.comp.info(char)
   end
 end
 
