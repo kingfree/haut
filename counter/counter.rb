@@ -418,7 +418,7 @@ class Posts
       if t.text.include?(@rules[:deban_inc])
         g = Group.new(MUKOU) # 无效票组
         t.text.scan(@rules[:item_name]) do |uu|
-          u = uu[0].to_s
+          u = uu[0].to_s.strip
           if u.include?(@rules[:chara_inc])
             g.add(u) # 规定的有效票
           elsif u.include?(@rules[:group_inc])
