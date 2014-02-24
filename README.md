@@ -29,3 +29,4 @@
 
 * **clang**：大一上课程《程序设计基础（C 语言）》实验
 * **english**：英语作文
+* **pkupop**：[程序设计实习 / Practice on Programming](class.coursera.org/pkupop-001/)
