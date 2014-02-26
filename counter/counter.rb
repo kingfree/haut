@@ -12,14 +12,15 @@ ALIAS = {
 }
 
 ESCAPECHARS = /[<>【】]/
+ESCAPEGRPS = /(出场阵容|[<>【】：:]|（(主|客)场）)/
 CONTFORM = {
   "联赛" => {
     :begin_time => /开始时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
     :end_time => /结束时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
     :time_inc => '开始时间',
     :deban_inc => '出场阵容',
-    :item_name => /(<<.+?>>|[^><]+?（.+?场）)/,
-    :group_inc => '场）',
+    :item_name => /(<<.+?>>|[^><]*)/,
+    :group_inc => '',
     :chara_inc => '<<',
     :ticket_name => /<+.+?>+/,
     :need_pre => '',
@@ -130,6 +131,7 @@ class Contest
     file.printf "当前时间：%s  有效投票：%d票 / %d人\n", @ima.strftime(TIMEFMT), @nums, @people
     tmp = Hash.new
     @ghash.each do |k, e|
+      next if e.nums == 0
       tmp[k] = sprintf("\n%s 共%d票\n", e.name, e.nums)
       i, j = 0, 0
       a = e.sort
@@ -423,7 +425,7 @@ class Posts
             g.add(u) # 规定的有效票
           elsif u.include?(@rules[:group_inc])
             @comp.addgroup(g)
-            g = Group.new(u)
+            g = Group.new(u.gsub(ESCAPEGRPS, ''))
           end
         end
         @comp.addgroup(g)
