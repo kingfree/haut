@@ -38,7 +38,7 @@ CONTFORM = {
     :deban_inc => '组】',
     :item_name => /(【[0-9]+\..+?】|【[0-9]+组】)/,
     :group_inc => '组】',
-    :chara_inc => 'by',
+    :chara_inc => '--',
     :ticket_name => /【[0-9]+\..+?】/,
     :need_pre => '【投票】',
     :need_suf => '',
@@ -302,7 +302,7 @@ class Posts
 
   def mukou(t) # 返回真记为无效票
     # return false
-    return "时" if t.date > @comp.time_e or t.date < @comp.time_b
+    # return "时" if t.date > @comp.time_e or t.date < @comp.time_b
     # 超过比赛时间
     return "黑" if @comp.inblack?(t.author)
     return "白" unless @comp.inwhite?(t.author)
