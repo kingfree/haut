@@ -57,8 +57,8 @@ const int CHARN = 1 << 8;
 
 char* strcrep(char *s, char from, char to) {
   for (int i = 0; s[i]; i++) {
-    if (s[i] == ',') {
-      s[i] = ' ';
+    if (s[i] == from) {
+      s[i] = to;
     }
   }
   return s;
