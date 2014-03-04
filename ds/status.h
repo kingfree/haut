@@ -10,6 +10,6 @@
 #include <string>
 #include <algorithm>
 
-enum Status {Ok, Error, Infeasible, Overflow}; // 状态的枚举类型
+enum Status {Ok, Error, Infeasible, Overflow, NotFound}; // 状态的枚举类型
 
 
