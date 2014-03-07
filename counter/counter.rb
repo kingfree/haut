@@ -14,12 +14,46 @@ ALIAS = {
 ESCAPECHARS = /[<>【】]/
 ESCAPEGRPS = /(出场阵容|[<>【】：:]|（(主|客)场）)/
 CONTFORM = {
+  "技巧挑战赛" => {
+    :begin_time => /比赛时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
+    :end_time => /比赛时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
+    :time_inc => '时间',
+    :deban_inc => '参赛名单',
+    :item_name => /\s*(<<.+?>>|[^><\s]+)\s*/,
+    :group_inc => '',
+    :chara_inc => '<<',
+    :ticket_name => /<+.+?>+/,
+    :need_pre => '',
+    :need_suf => '',
+    :banmul => false,
+    :vote_limit => 3,
+    :level_limit => 8,
+    :blacklist => '',
+    :whitelist => 'whitelist.txt'
+  },
+  "新秀对抗赛" => {
+    :begin_time => /比赛时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
+    :end_time => /比赛时间：.*[-~]\s*(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
+    :time_inc => '时间',
+    :deban_inc => '投',
+    :item_name => /\s*(<<.+?>>|[^><\s]+)\s*/,
+    :group_inc => '',
+    :chara_inc => '<<',
+    :ticket_name => /<+.+?>+/,
+    :need_pre => '',
+    :need_suf => '',
+    :banmul => false,
+    :vote_limit => 3,
+    :level_limit => 8,
+    :blacklist => '',
+    :whitelist => 'whitelist.txt'
+  },
   "联赛" => {
     :begin_time => /开始时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
     :end_time => /结束时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
-    :time_inc => '开始时间',
-    :deban_inc => '出场阵容',
-    :item_name => /(<<.+?>>|[^><]*)/,
+    :time_inc => '时间',
+    :deban_inc => '出场',
+    :item_name => /\s*(<<.+?>>|[^><\s]+)\s*/,
     :group_inc => '',
     :chara_inc => '<<',
     :ticket_name => /<+.+?>+/,
@@ -396,12 +430,14 @@ class Posts
     op = @posts.length
     page.css('.l_post').each do |post|
       info = JSON.parse(post.attr('data-field'))
+      tmp = post.css('.d_post_content')[0]
+      tmp.search('br').each {|n| n.replace("\n") } # 把 <br> 替换成换行
       t = Post.new(
         info['author']['id'],
         info['author']['name'],
         info['content']['floor'],
         info['content']['date'],
-        post.css('.d_post_content')[0].content,
+        tmp.text.strip, # 去除HTML标签和首尾多余空格
         info['author']['grade_level']
       )
       record!(t)
