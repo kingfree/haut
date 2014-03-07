@@ -4,17 +4,11 @@
 using namespace std;
 
 int n;
+int l[10] = {0}, r[10] = {0};
 int s = 0, t = 0;
 
-bool C(int a, int b, int c) {
+bool C(int a, int b, int c) { // 判断是否数字都用过一遍
   s++;
-  int l[10] = {0};
-  for (; a; a /= 10) l[a % 10]++;
-  for (; b; b /= 10) l[b % 10]++;
-  for (; c; c /= 10) l[c % 10]++;
-  if (l[0] > 0) {
-    return false;
-  }
   for (int i = 1; i <= 9; i++) {
     if (l[i] != 1) {
       return false;
@@ -23,11 +17,10 @@ bool C(int a, int b, int c) {
   return true;
 }
 
-bool D(int x) {
+bool D(int x) { // 判断没有重复数字
   t++;
-  int l[10] = {0};
   for(; x; x /= 10) {
-    if(x % 10 == 0 || l[x % 10]++ > 0) {
+    if(x % 10 == 0 || l[x % 10]++ > 0) { // 不包括 0
       return false;
     }
   }
@@ -36,17 +29,24 @@ bool D(int x) {
 
 void solve() {
   int res = 0;
-  for (int left = 1; left < n; left++) if (D(left)) {
-    for (int down = 1; down <= 9876; down++) if (D(down)) {
-      int up = (n - left) * down;
-      if (D(up) && C(left, up, down)) {
-        // fprintf(stderr, "%d+%d/%d\n", left, up, down);
-        res += 1;
+  for (int left = 1; left < n; left++) { // 整数部分
+    fill(l, l + 10, 0); // 标记置空
+    if (D(left)) {
+      copy(l, l + 10, r); // 备份标记
+      for (int down = 1; down <= 9876; down++) { // 分母
+        copy(r, r + 10, l); // 还原标记
+        if (D(down)) {
+          int up = (n - left) * down; // 分子
+          if (D(up) && C(left, up, down)) {
+            // fprintf(stderr, "%d+%d/%d\n", left, up, down);
+            res += 1;
+          }
+        }
       }
     }
   }
   printf("%d\n", res);
-  fprintf(stderr, "%d %d\n", s, t);
+  // fprintf(stderr, "%d %d\n", s, t);
 }
 
 int main() {
