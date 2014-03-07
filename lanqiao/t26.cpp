@@ -19,8 +19,8 @@ bool C(int a, int b, int c) { // 判断是否数字都用过一遍
 
 bool D(int x) { // 判断没有重复数字
   t++;
-  for(; x; x /= 10) {
-    if(x % 10 == 0 || l[x % 10]++ > 0) { // 不包括 0
+  for (; x; x /= 10) {
+    if (x % 10 == 0 || l[x % 10]++ > 0) { // 不包括 0
       return false;
     }
   }
