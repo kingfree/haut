@@ -12,7 +12,7 @@ ALIAS = {
 }
 
 ESCAPECHARS = /[<>【】]/
-ESCAPEGRPS = /(出场阵容|[<>【】：:]|（(主|客)场）)/
+ESCAPEGRPS = /(出场阵容|队员名单|[<>【】：:]|（(主|客)场）)/
 CONTFORM = {
   "技巧挑战赛" => {
     :begin_time => /比赛时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
@@ -44,6 +44,23 @@ CONTFORM = {
     :need_suf => '',
     :banmul => false,
     :vote_limit => 3,
+    :level_limit => 8,
+    :blacklist => '',
+    :whitelist => 'whitelist.txt'
+  },
+  "全明星大赛" => {
+    :begin_time => /比赛时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
+    :end_time => /比赛时间：.*[-~]\s*(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
+    :time_inc => '时间',
+    :deban_inc => '队员名单：',
+    :item_name => /\s*(<<.+?>>|[^><\s]+)\s*/,
+    :group_inc => '',
+    :chara_inc => '<<',
+    :ticket_name => /<+.+?>+/,
+    :need_pre => '',
+    :need_suf => '',
+    :banmul => false,
+    :vote_limit => 1,
     :level_limit => 8,
     :blacklist => '',
     :whitelist => 'whitelist.txt'
