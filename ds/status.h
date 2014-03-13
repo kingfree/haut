@@ -23,8 +23,3 @@ char *ev(ElemType *x) {
   sprintf(s, "%d", *x);
   return s;
 }
-
-// 随机数生成
-inline int random(int n) {
-  return rand() % n + 1;
-}
