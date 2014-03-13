@@ -1,12 +1,11 @@
 /* 文件: status.h
  * 作者: 田劲锋
- * 创建时间: 2014年3月3日
- * 修改时间: 2014年3月13日
+ * 创建: 2014年3月3日
+ * 修改: 2014年3月13日
  * 描述: 《数据结构》课程预定义常量和状态头文件
  *      为了简便起见，使用 C/C++ 混合而非 ANSI C
  */
 
-#include <ios>
 #include <cstdio>
 #include <cstring>
 #include <string>
