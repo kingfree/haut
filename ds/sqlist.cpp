@@ -1,26 +1,21 @@
+/* 文件: sqlist.cpp
+ * 作者: 田劲锋
+ * 创建时间: 2014年3月3日
+ * 修改时间: 2014年3月13日
+ * 描述: 线性表的顺序表实现
+ */
+
 #include "status.h"
 
 const int LIST_INIT_SIZE = 100;
 const int LISTINCREMENT = 10;
-
-typedef int ElemType;
-
-int cmp(const ElemType a, const ElemType b) {
-  return a - b;
-}
-
-char *elemvisit(ElemType *x) {
-  static char s[1 << 20];
-  sprintf(s, "%d", *x);
-  return s;
-}
 
 struct SqList {
   ElemType *elem;
   size_t length;
   size_t listsize;
 
-  // 无参数初始化函数
+  // 初始化函数
   SqList() {
     elem = (ElemType *) malloc(LIST_INIT_SIZE * sizeof(ElemType));
     if (!elem) {
@@ -28,7 +23,6 @@ struct SqList {
     }
     length = 0;
     listsize = LIST_INIT_SIZE;
-    //return Ok;
   }
 
   Status Destory() {
