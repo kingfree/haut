@@ -11,7 +11,6 @@
 
 typedef enum {Ok, Error, Infeasible, Overflow, NotFound} Status; // 状态的枚举类型
 
-
 // 元素类型和相关操作
 typedef int ElemType;
 
@@ -19,9 +18,13 @@ int cmp(const ElemType a, const ElemType b) {
   return a - b;
 }
 
-char *elemvisit(ElemType *x) {
+char *ev(ElemType *x) {
   static char s[1 << 20];
   sprintf(s, "%d", *x);
   return s;
 }
 
+// 随机数生成
+inline int random(int n) {
+  return rand() % n + 1;
+}
