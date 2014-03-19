@@ -298,15 +298,15 @@ end
 class Post
   attr_accessor :aid, :author, :floor, :date, :text, :votes, :real, :level
 
-  def initialize(aid, author, floor, t, text, level)
-    @aid = aid.to_i
+  def initialize(author, floor, t, text)
+    # @aid = aid.to_i
     @author = author.to_s.force_encoding(Encoding::UTF_8).strip
     @floor = floor.to_i
-    @date = match_to_time(t.match(/(?<year>[0-9]+)-(?<month>[0-9]+)-(?<day>[0-9]+)\s+(?<hour>[0-9]+):(?<min>[0-9]{,2})/))
+    @date = match_to_time(t.match(/(?<month>[0-9]+)-(?<day>[0-9]+)\s+(?<hour>[0-9]+):(?<min>[0-9]{,2})/))
     @text = text
     @votes = Array.new
     @real = 0
-    @level = level.to_i
+    # @level = level.to_i
   end
 
   def output(file = STDOUT)
@@ -358,7 +358,7 @@ class Posts
     return "黑" if @comp.inblack?(t.author)
     return "白" unless @comp.inwhite?(t.author)
     # 白名单和黑名单过滤
-    return "级" if t.level < @rules[:level_limit]
+    # return "级" if t.level < @rules[:level_limit]
     # 等级不够
     return "前" unless t.text.include?(@rules[:need_pre])
     return "后" unless t.text.include?(@rules[:need_suf])
@@ -411,12 +411,10 @@ class Posts
     for i in op..ed do
       t = @posts[i]
       c = {
-        :aid => t.aid,
         :author => t.author,
         :floor => t.floor,
         :date => t.date,
         :text => t.text,
-        :level => t.level
       }
       a.push(c)
     end
@@ -431,12 +429,10 @@ class Posts
     a = JSON.parse(a.force_encoding("utf-8"))
     a.each do |post|
       t = Post.new(
-        post["aid"],
         post["author"],
         post["floor"],
         post["date"],
         post["text"],
-        post["level"]
       )
       record!(t)
     end
@@ -445,18 +441,14 @@ class Posts
 
   def parse(page)
     op = @posts.length
-    page.css('.l_post').each do |post|
-      info = JSON.parse(post.attr('data-field'))
-      tmp = post.css('.d_post_content')[0]
+    page.css('.d')[0].css('.i').each do |post|
+      tmp = post
       tmp.search('br').each {|n| n.replace("\n") } # 把 <br> 替换成换行
-      t = Post.new(
-        info['author']['id'],
-        info['author']['name'],
-        info['content']['floor'],
-        info['content']['date'],
-        tmp.text.strip, # 去除HTML标签和首尾多余空格
-        info['author']['grade_level']
-      )
+      tmp = tmp.text.strip  # 去除HTML标签和首尾多余空格
+      floor = tmp.match(/^([0-9]+?)楼\./)[1].to_i
+      name = post.css('.g')[0].content
+      date = post.css('.b')[0].content
+      t = Post.new(name,floor,date,tmp)
       record!(t)
     end
     ed = @posts.length - 1
@@ -500,6 +492,7 @@ class Posts
   end
 
   def pageurl(url, pid, pn)
+    pn = (pn - 1) * 30
     return "#{url}#{pid}?pn=#{pn}"
   end
 
@@ -513,7 +506,7 @@ class Posts
     clear
     page = Nokogiri::HTML(open("#{url}#{pid}"))
 
-    @comp.title = page.css('.core_title_txt')[0].attr('title')
+    @comp.title = page.css('.bc > strong')[0].text
     CONTFORM.each do |k, v|
       if @comp.title.include?(k)
         @comp.buildblacklist(v[:blacklist]) unless @rules[:blacklist] == v[:blacklist]
@@ -525,8 +518,8 @@ class Posts
     $stderr.printf "\n%s\n", @comp.title
     logfile.printf "\n%s\n", @comp.title
 
-    pager = page.css('.l_posts_num').css('.l_reply_num')[0].text
-    lastpn = pager.match(/共\s*([0-9]+?)\s*页/)[1].to_i
+    pager = page.css('.h')[0].text
+    lastpn = pager.match(/第\s*([0-9]+?).*([0-9]+?)\s*页/)[2].to_i
     $stderr.print "共#{lastpn}页 "
 
     for pn in 1..lastpn
