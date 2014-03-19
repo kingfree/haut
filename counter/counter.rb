@@ -508,7 +508,7 @@ class Posts
     return "tmp/#{pid}_#{pn}"
   end
 
-  def fetch(pid = 0, url = "http://tieba.baidu.com/p/")
+  def fetch(pid = 0, url = "http://wapp.baidu.com/p/")
     return if pid == 0
     clear
     page = Nokogiri::HTML(open("#{url}#{pid}"))
