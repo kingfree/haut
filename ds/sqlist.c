@@ -1,8 +1,8 @@
-/* ÎÄ¼ş: sqlist.c
- * ×÷Õß: Ìï¾¢·æ
- * ´´½¨: 2014Äê3ÔÂ3ÈÕ
- * ĞŞ¸Ä: 2014Äê3ÔÂ13ÈÕ
- * ÃèÊö: ÏßĞÔ±íµÄË³Ğò±íÊµÏÖ
+/* æ–‡ä»¶: sqlist.c
+ * ä½œè€…: ç”°åŠ²é”‹
+ * åˆ›å»º: 2014å¹´3æœˆ3æ—¥
+ * ä¿®æ”¹: 2014å¹´3æœˆ13æ—¥
+ * æè¿°: çº¿æ€§è¡¨çš„é¡ºåºè¡¨å®ç°
  */
 
 #include "status.h"
@@ -10,20 +10,20 @@
 #define LIST_INIT_SIZE 100
 #define LISTINCREMENT 10
 
-typedef struct {
+typedef struct SqList {
   ElemType *elem;
   size_t length;
   size_t listsize;
 } SqList;
 
-/* ³õÊ¼»¯£¬´«ÈëÖ¸Õë£¬¹¹ÔìÒ»¸ö¿ÕµÄÏßĞÔ±í */
+/* åˆå§‹åŒ–ï¼Œä¼ å…¥æŒ‡é’ˆï¼Œæ„é€ ä¸€ä¸ªç©ºçš„çº¿æ€§è¡¨ */
 Status Init(SqList *L) {
-  L->elem = (ElemType *) malloc(LIST_INIT_SIZE * sizeof(ElemType)); // ÎªÔªËØÉêÇëÒ»¶¨³¤¶ÈµÄ¿Õ¼ä
-  if (!L->elem) { // ÄÚ´æ·ÖÅäÊ§°Ü
+  L->elem = (ElemType *) malloc(LIST_INIT_SIZE * sizeof(ElemType)); // ä¸ºå…ƒç´ ç”³è¯·ä¸€å®šé•¿åº¦çš„ç©ºé—´
+  if (!L->elem) { // å†…å­˜åˆ†é…å¤±è´¥
     exit(Overflow);
   }
-  L->length = 0; // ³õÊ¼³¤¶ÈÎª 0
-  L->listsize = LIST_INIT_SIZE; // ³õÊ¼´æ´¢ÈİÁ¿
+  L->length = 0; // åˆå§‹é•¿åº¦ä¸º 0
+  L->listsize = LIST_INIT_SIZE; // åˆå§‹å­˜å‚¨å®¹é‡
   return Ok;
 }
 
@@ -103,10 +103,10 @@ Status Insert(SqList *L, int i, ElemType e) {
   ElemType *p, *q;
   q = L->elem + i - 1;
   for (p = L->elem + L->length - 1; p >= q; p--) {
-    *(p + 1) = *p; // ²åÈëÎ»ÖÃ¼°Ö®ºóµÄÔªËØÓÒÒÆ
+    *(p + 1) = *p; // æ’å…¥ä½ç½®åŠä¹‹åçš„å…ƒç´ å³ç§»
   }
-  *q = e; // ²åÈë e
-  L->length++; // ±í³¤Ôö¼Ó
+  *q = e; // æ’å…¥ e
+  L->length++; // è¡¨é•¿å¢åŠ 
   return Ok;
 }
 
@@ -120,7 +120,7 @@ ElemType Delete(SqList *L, int i) {
   for (p++; p <= q; p++) {
     *(p - 1) = *p;
   }
-  L->length--; // ±í³¤¼õÉÙ
+  L->length--; // è¡¨é•¿å‡å°‘
   return e;
 }
 
@@ -135,33 +135,34 @@ void Traverse(SqList *L, char* (*visit)(ElemType *)) {
 
 int main() {
   SqList *l, list;
-  puts("³õÊ¼»¯");
-  Init(l = &list); // l ÊÇ list µÄÖ¸Õë
+  puts("åˆå§‹åŒ–");
+  Init(l = &list); // l æ˜¯ list çš„æŒ‡é’ˆ
   Traverse(l, ev); // => |
-  puts("²åÈë");
+  puts("æ’å…¥");
   Insert(l, 1, 1);
   Insert(l, 1, 2);
   Insert(l, 1, 3);
   Insert(l, 3, 4);
   Insert(l, 6, 1); // => Error
   Traverse(l, ev); // => |3|2|4|1|
-  puts("É¾³ı");
+  puts("åˆ é™¤");
   Delete(l, 2);
+  Traverse(l, ev); // => |3|4|1|
   Delete(l, Locate(l, 3, cmp));
   Traverse(l, ev); // => |3|4|
-  puts("²éÕÒ");
+  puts("æŸ¥æ‰¾");
   printf("Find: %d at %d\n", 1, Locate(l, 1, cmp)); // => 2
   printf("Find: %d at %d\n", 3, Locate(l, 3, cmp)); // => 0, Not found
-  puts("Çå³ı");
+  puts("æ¸…é™¤");
   Clear(l);
   Traverse(l, ev);
-  puts("ÖØĞÂÂ¼ÈëÊı¾İ");
+  puts("é‡æ–°å½•å…¥æ•°æ®");
   int i;
   for (i = 1; i <= 101; i++) {
     Insert(l, Length(l) + 1, i);
   }
   Traverse(l, ev);
-  puts("Ç°Çıºó¼Ì");
+  puts("å‰é©±åç»§");
   ElemType x;
   Prev(l, 5, &x, cmp);
   printf("Prev(%d): %d\n", 5, x);

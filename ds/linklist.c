@@ -1,13 +1,13 @@
-/* ÎÄ¼ş: linklist.c
- * ×÷Õß: Ìï¾¢·æ
- * ´´½¨: 2014Äê3ÔÂ13ÈÕ
- * ĞŞ¸Ä: 2014Äê3ÔÂ13ÈÕ
- * ÃèÊö: ÏßĞÔ±íµÄÁ´±íÊµÏÖ
+/* æ–‡ä»¶: linklist.c
+ * ä½œè€…: ç”°åŠ²é”‹
+ * åˆ›å»º: 2014å¹´3æœˆ13æ—¥
+ * ä¿®æ”¹: 2014å¹´3æœˆ13æ—¥
+ * æè¿°: çº¿æ€§è¡¨çš„é“¾è¡¨å®ç°
  */
 
 #include "status.h"
 
-typedef struct {
+typedef struct LNode {
   ElemType data;
   struct LNode *next;
 } LNode, *LinkList;
@@ -24,9 +24,9 @@ Status Init(LinkList *L) {
 Status Create(LinkList *L, int n) {
   LNode *p;
   int i;
-  for (i = 0; i < n; i++) {
+  for (i = 1; i <= n; i++) {
     p = (LNode *) malloc(sizeof(LNode));
-    p->data = i + 1;
+    p->data = i;
     p->next = (*L)->next;
     (*L)->next = p;
   }
@@ -53,10 +53,10 @@ void Traverse(LinkList *L, char* (*visit)(ElemType *)) {
 
 int main() {
   LinkList *l, list;
-  puts("³õÊ¼»¯");
+  puts("åˆå§‹åŒ–");
   Init(l = &list);
   Traverse(l, ev);
-  puts("´´½¨");
+  puts("åˆ›å»º");
   Create(l, 10);
   Traverse(l, ev);
   return 0;

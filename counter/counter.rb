@@ -11,8 +11,8 @@ ALIAS = {
   "<<Saber>>" => "<<阿尔托莉亚>>"
 }
 
-ESCAPECHARS = /[<>【】]/
-ESCAPEGRPS = /(出场阵容|队员名单|[<>【】：:]|（(主|客)场）)/
+ESCAPECHARS = /[<>【】　 ]/
+ESCAPEGRPS = /(出场阵容|队员名单|[<>【】：:　 ]|（(主|客)场）)/
 CONTFORM = {
   "技巧挑战赛" => {
     :begin_time => /比赛时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
@@ -66,8 +66,8 @@ CONTFORM = {
     :whitelist => 'whitelist.txt'
   },
   "联赛" => {
-    :begin_time => /开始时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
-    :end_time => /结束时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
+    :begin_time => /开始时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})/,
+    :end_time => /结束时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})/,
     :time_inc => '时间',
     :deban_inc => '出场',
     :item_name => /\s*(<<.+?>>|[^><\s]+)\s*/,
@@ -102,8 +102,11 @@ CONTFORM = {
 }
 
 def match_to_time(t, sc = 00)
-  year = t.names.include?("year") ? t[:year].to_i : Time.now.year
-  return Time.new(year, t[:month].to_i, t[:day].to_i, t[:hour].to_i, t[:min].to_i, sc)
+  year = (t.names.include?("year") and t[:year]) ? t[:year].to_i : Time.now.year
+  month = (t.names.include?("month") and t[:month]) ? t[:month].to_i : Time.now.month
+  day = (t.names.include?("day") and t[:day]) ? t[:day].to_i : Time.now.day
+  # $stderr.printf "%d-%d-%d %d:%d:%d", year, month, day, t[:hour].to_i, t[:min].to_i, sc
+  Time.new(year, month, day, t[:hour].to_i, t[:min].to_i, sc)
 end
 
 class Contest
@@ -302,7 +305,7 @@ class Post
     # @aid = aid.to_i
     @author = author.to_s.force_encoding(Encoding::UTF_8).strip
     @floor = floor.to_i
-    @date = match_to_time(t.match(/(?<month>[0-9]+)-(?<day>[0-9]+)\s+(?<hour>[0-9]+):(?<min>[0-9]{,2})/))
+    @date = match_to_time(t.match(/((?<month>[0-9]+)-(?<day>[0-9]+)\s+)?(?<hour>[0-9]+):(?<min>[0-9]{,2})/))
     @text = text
     @votes = Array.new
     @real = 0
@@ -444,7 +447,7 @@ class Posts
     page.css('.d')[0].css('.i').each do |post|
       tmp = post
       tmp.search('br').each {|n| n.replace("\n") } # 把 <br> 替换成换行
-      tmp = tmp.text.strip  # 去除HTML标签和首尾多余空格
+      tmp = tmp.text.strip # 去除HTML标签和首尾多余空格
       floor = tmp.match(/^([0-9]+?)楼\./)[1].to_i
       name = post.css('.g')[0].content
       date = post.css('.b')[0].content
@@ -469,8 +472,11 @@ class Posts
           if u.include?(@rules[:chara_inc])
             g.add(u) # 规定的有效票
           elsif u.include?(@rules[:group_inc])
-            @comp.addgroup(g)
-            g = Group.new(u.gsub(ESCAPEGRPS, ''))
+            u = u.gsub(ESCAPEGRPS, '').strip
+            if !u.empty?
+              @comp.addgroup(g)
+              g = Group.new(u)
+            end
           end
         end
         @comp.addgroup(g)
@@ -519,7 +525,7 @@ class Posts
     logfile.printf "\n%s\n", @comp.title
 
     pager = page.css('.h')[0].text
-    lastpn = pager.match(/第\s*([0-9]+?).*([0-9]+?)\s*页/)[2].to_i
+    lastpn = pager.match(/第\s*([0-9]+?)\/([0-9]+?)\s*页/)[2].to_i
     $stderr.print "共#{lastpn}页 "
 
     for pn in 1..lastpn

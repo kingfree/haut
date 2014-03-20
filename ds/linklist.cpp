@@ -1,8 +1,8 @@
-/* ÎÄ¼ş: linklist.cpp
- * ×÷Õß: Ìï¾¢·æ
- * ´´½¨: 2014Äê3ÔÂ19ÈÕ
- * ĞŞ¸Ä: 2014Äê3ÔÂ19ÈÕ
- * ÃèÊö: ÏßĞÔ±íµÄÁ´±íÊµÏÖ
+/* æ–‡ä»¶: linklist.cpp
+ * ä½œè€…: ç”°åŠ²é”‹
+ * åˆ›å»º: 2014å¹´3æœˆ19æ—¥
+ * ä¿®æ”¹: 2014å¹´3æœˆ19æ—¥
+ * æè¿°: çº¿æ€§è¡¨çš„é“¾è¡¨å®ç°
  */
 
 #include "status.h"
@@ -26,7 +26,7 @@ Status Create(LinkList &L, int n) {
   LNode *p;
   for (int i = 1; i <= n; i++) {
     p = (LNode *) malloc(sizeof(LNode));
-    p->data = i; // ²åÈëÔªËØ i
+    p->data = i; // æ’å…¥å…ƒç´  i
     p->next = L->next;
     L->next = p;
   }
@@ -117,31 +117,31 @@ void Traverse(LinkList &L, char* (*visit)(ElemType *)) {
 
 int main() {
   LinkList l;
-  puts("³õÊ¼»¯");
+  puts("åˆå§‹åŒ–");
   Init(l);
   Traverse(l, ev);
-  puts("´´½¨");
+  puts("åˆ›å»º");
   Create(l, 10);
   Traverse(l, ev);
-  puts("È¡ÔªËØ");
+  puts("å–å…ƒç´ ");
   printf("%d: %d\n", 3, Get(l, 3));
   printf("%d: %d\n", 6, Get(l, 6));
-  puts("Çå³ı");
+  puts("æ¸…é™¤");
   Clear(l);
   Traverse(l, ev);
-  puts("²åÈë");
+  puts("æ’å…¥");
   Insert(l, 1, 1);
   Insert(l, 1, 2);
   Insert(l, 1, 3);
   Insert(l, 3, 4);
   Insert(l, 6, 1); // => Error
   Traverse(l, ev); // => |3|2|4|1|
-  puts("É¾³ı");
+  puts("åˆ é™¤");
   ElemType x;
   Delete(l, 2, x);
   Delete(l, Locate(l, 3, cmp), x);
   Traverse(l, ev); // => |3|4|
-  puts("²éÕÒ");
+  puts("æŸ¥æ‰¾");
   printf("Find: %d at %d\n", 1, Locate(l, 1, cmp)); // => 2
   printf("Find: %d at %d\n", 3, Locate(l, 3, cmp)); // => 0, Not found
   return 0;
