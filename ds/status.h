@@ -20,6 +20,7 @@ int cmp(const ElemType a, const ElemType b) {
 
 char *ev(ElemType *x) {
   static char s[1 << 20];
+  if (!x) return "";
   sprintf(s, "%d", *x);
   return s;
 }
