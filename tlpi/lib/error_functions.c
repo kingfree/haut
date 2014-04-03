@@ -7,9 +7,6 @@
 #include "header.h"
 #include "ename.c.inc"          /* 定义 ename 和 MAX_ENAME */
 
-#ifdef __GNUC__                 /* 如果在一个非空函数中的末语句中使用  */
-__attribute__ ((__noreturn__))  /* 防止 'gcc -Wall' 报错 */
-#endif
 static void
 terminate(bool useExit3)
 {
@@ -29,7 +26,7 @@ terminate(bool useExit3)
 }
 
 /* 按以下方式诊断 'errno' :
-      * 输出对错误号为 'err' 的错误名（在数组 'ename' 中），也对应 strerror()
+      * 输出对错误号为 'err' 的错误名（在数组 'ename' 中），并输出 strerror()
       * 输出以 'format' 格式化的 'ap' */
 
 static void
@@ -56,7 +53,7 @@ outputError(bool useErr, int err, bool flushStdout,
     fflush(stderr);           /* 假设 stderr 非行缓冲 */
 }
 
-/* 显示包含 'errno' 的错误诊断，并返回 */
+/* 显示包含 'errno' 的错误诊断，并直接返回 */
 
 void
 errMsg(const char *format, ...)
@@ -87,7 +84,7 @@ errExit(const char *format, ...)
     terminate(true);
 }
 
-/* 显示包含 'errno' 的错误诊断，并以 calling _exit() 终止进程 */
+/* 显示包含 'errno' 的错误诊断，并调用 _exit() 终止进程 */
 
 void
 err_exit(const char *format, ...)
@@ -101,7 +98,7 @@ err_exit(const char *format, ...)
     terminate(false);
 }
 
-/* 与 errExit() 相似，只是给定了错误号 'errnum' */
+/* 根据错误号 'errnum' 报错 ，并终止进程 */
 
 void
 errExitEN(int errnum, const char *format, ...)
@@ -115,7 +112,7 @@ errExitEN(int errnum, const char *format, ...)
     terminate(true);
 }
 
-/* 打印一个不含 'errno' 的错误信息 */
+/* 打印一个不含 'errno' 的错误信息，并终止进程 */
 
 void
 fatal(const char *format, ...)
@@ -129,7 +126,7 @@ fatal(const char *format, ...)
     terminate(true);
 }
 
-/* 打印命令行用法并终止进程 */
+/* 打印命令行用法，并终止进程 */
 
 void
 usageErr(const char *format, ...)
@@ -138,7 +135,7 @@ usageErr(const char *format, ...)
 
     fflush(stdout);           /* 刷新 stdout */
 
-    fprintf(stderr, "用法: ");
+    fprintf(stderr, "用法：");
     va_start(argList, format);
     vfprintf(stderr, format, argList);
     va_end(argList);
@@ -147,7 +144,7 @@ usageErr(const char *format, ...)
     exit(EXIT_FAILURE);
 }
 
-/* 提示命令行用法错误并终止进程 */
+/* 提示命令行用法错误，并终止进程 */
 
 void
 cmdLineErr(const char *format, ...)
@@ -156,7 +153,7 @@ cmdLineErr(const char *format, ...)
 
     fflush(stdout);           /* 刷新 stdout */
 
-    fprintf(stderr, "命令行用法错误: ");
+    fprintf(stderr, "命令行用法错误：");
     va_start(argList, format);
     vfprintf(stderr, format, argList);
     va_end(argList);

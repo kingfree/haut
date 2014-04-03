@@ -9,15 +9,6 @@
 
 void errMsg(const char *format, ...);
 
-#ifdef __GNUC__
-
-    /* 这个宏防止以下函数在终止 main() 或其他非空函数时
-       'gcc -Wall' 报错 "control reaches end of non-void function" */
-
-#define NORETURN __attribute__ ((__noreturn__))
-#else
-#define NORETURN
-#endif
 #define NORETURN
 
 void errExit(const char *format, ...) NORETURN ;
