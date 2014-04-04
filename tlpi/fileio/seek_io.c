@@ -2,20 +2,15 @@
 
    演示 lseek() 和文件 I/O 系统调用。
 
-   用法： seek_io file {r<长度>|R<长度>|w<字串>|s<偏移>}...
+   用法： seek_io 文件名 {r<长度>|R<长度>|w<字串>|s<偏移>}...
 
    程序打开指定的文件，按参数指定演示以下文件 I/O 操作：
-
            r<长度>    在当前文件偏移处读取 '长度' 字节并显示文本。
-
            R<长度>    在当前文件偏移处读取 '长度' 字节并显示十六进制值。
-
            w<字串>    在当前文件偏移处写出 '字串' 。
-
            s<偏移>    把当前文件偏移设置为 '偏移' 。
 
    样例：
-
         seek_io myfile wxyz s1 r2
 */
 #include <sys/stat.h>
@@ -33,8 +28,7 @@ main(int argc, char *argv[])
     ssize_t numRead, numWritten;
 
     if (argc < 3 || strcmp(argv[1], "--help") == 0)
-        usageErr("%s file {r<长度>|R<长度>|w<字串>|s<偏移>}...\n",
-                 argv[0]);
+        usageErr("%s file {r<长度>|R<长度>|w<字串>|s<偏移>}...\n", argv[0]);
 
     fd = open(argv[1], O_RDWR | O_CREAT,
                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |
@@ -62,8 +56,8 @@ main(int argc, char *argv[])
                 printf("%s: ", argv[ap]);
                 for (j = 0; j < numRead; j++) {
                     if (argv[ap][0] == 'r')
-                        printf("%c", isprint((unsigned char) buf[j]) ?
-                                                buf[j] : '?');
+                        printf("%c", (unsigned char) buf[j]);
+                        /* 考虑汉字的情况还是直接输出为好，不判断是否可打印 */
                     else
                         printf("%02x ", (unsigned int) buf[j]);
                 }
@@ -77,7 +71,8 @@ main(int argc, char *argv[])
             numWritten = write(fd, &argv[ap][1], strlen(&argv[ap][1]));
             if (numWritten == -1)
                 errExit("write");
-            printf("%s: 已写出 %ld 字节\n", argv[ap], (long) numWritten);
+            printf("%s: 已写出 %zd 字节\n", argv[ap], numWritten);
+            /* %zd 是自适应字节数长度的整数格式 */
             break;
 
         case 's':   /* 设置偏移 */

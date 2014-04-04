@@ -8,8 +8,9 @@
 * **rails**：学习 Ruby on Rails 框架
 * **java**：学习 Java 语言
 * **goweb**：《Go Web 编程》
-* **js_mm**：《JavaScript和jQuery实践手册》
+* **js_mm**：《JavaScript 和 jQuery实践手册》
 * **wbdev**：《Web 开发秘方》
+* **tlpi**：《Linux/UNIX 系统编程手册》 *The Linux Programming Interface*
 
 ### 思维/能力训练
 
@@ -31,4 +32,4 @@
 * **clang**：大一上课程《程序设计基础（C 语言）》实验
 * **english**：英语作文
 * **pkupop**：[程序设计实习 / Practice on Programming](https://class.coursera.org/pkupop-001/)
-* **ds**：大一下课程严蔚敏《数据结构》
+* **ds**：大一下课程严蔚敏《数据结构（C 语言版）》
