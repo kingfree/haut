@@ -1,2 +1,2 @@
 
-((:TITLE "きっと青春が聞こえる :ARTIST "μ's" :RATING 7 :RIPPED T) (:TITLE "ラブリンク" :ARTIST "吉田仁美" :RATING 8 :RIPPED NIL) (:TITLE "Innocent Blue" :ARTIST "Trident" :RATING 5 :RIPPED T) (:TITLE "ブルー　フィールド" :ARTIST "Trident" :RATING 6 :RIPPED T)) 
+((:|TITLE| "Affection" :|ARTIST| "Morinaga Mayumi" :|RATING| 6. :|RIPPED| |COMMON-LISP|::|T|) (:|TITLE| "PSI - missing" :|ARTIST| "川田まみ" :|RATING| 4. :|RIPPED| |COMMON-LISP|::|T|) (:|TITLE| "ブックマーク　ヘッド" :|ARTIST| "宮藤芳佳" :|RATING| 7. :|RIPPED| |COMMON-LISP|::|T|) (:|TITLE| "きっと青春が聞こえる" :|ARTIST| "μ's" :|RATING| 8. :|RIPPED| |COMMON-LISP|::|T|)) 
