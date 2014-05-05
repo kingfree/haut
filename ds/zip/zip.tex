@@ -1,0 +1,44 @@
+\documentclass[12pt,a4paper,nofonts]{ctexart}
+% 10pt = 小五, 11pt = 五号, 12pt = 小四
+\usepackage{geometry} % 页面设置
+\hypersetup{pdftitle={},pdfauthor={田劲锋},pdfsubject={}} % PDF 信息
+\usepackage{multicol} % 分栏
+\usepackage{multirow} % 跨行
+\usepackage{longtable} % 
+\usepackage{tabularx} % 
+\usepackage{booktabs} % 表格画线
+\usepackage{graphicx} % 图形
+\usepackage{color} % 颜色
+\usepackage{wallpaper} % 背景图片
+\makeindex
+
+\begin{document}
+
+﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+\setCJKfamilyfont{msyh}[BoldFont={* Bold}]{微软雅黑} \newcommand{\msyh}{\CJKfamily{msyh}} % 微软雅黑
+\setCJKfamilyfont{micro}{文泉驿微米黑} \newcommand{\micro}{\CJKfamily{micro}} % 文泉驿微米黑
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.5} % 1.5 倍行距
+\setlength{\parskip}{2pt plus 2pt}
+\renewcommand{\baselinestretch}{1.5}
+
+\input{source/title}
+\input{source/task}
+\tableofcontents\newpage
+\input{source/analysis}
+\input{source/design}
+\input{source/runtime}
+\input{source/environment}
+\input{source/program}
+\input{source/debug}
+\input{source/testcase}
+\input{source/reference}
+% \printindex
+
+\end{document}
