@@ -1,10 +1,9 @@
-\documentclass[12pt,a4paper,nofonts]{ctexart}
-% 10pt = 小五, 11pt = 五号, 12pt = 小四
-\usepackage{geometry} % 页面设置
-\hypersetup{pdftitle={},pdfauthor={田劲锋},pdfsubject={}} % PDF 信息
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=3.1cm,right=3.1cm]{geometry} % 页面设置
+\usepackage[colorlinks=true,linkcolor=blue,breaklinks=true,pdftitle={探究压缩算法},pdfauthor={田劲锋},pdfsubject={Exploring the Compression Algorithms},pdfstartview=FitH,pdfview=FitH,pdfpagemode=UseOutlines]{hyperref}
 \usepackage{multicol} % 分栏
 \usepackage{multirow} % 跨行
-\usepackage{longtable} % 
+\usepackage{longtable} % 长表格
 \usepackage{tabularx} % 
 \usepackage{booktabs} % 表格画线
 \usepackage{graphicx} % 图形
@@ -12,13 +11,12 @@
 \usepackage{wallpaper} % 背景图片
 \makeindex
 
-\begin{document}
-
 ﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
 \setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
 \setCJKmonofont{KFKai} % 等宽字体：楷体
 \setCJKfamilyfont{msyh}[BoldFont={* Bold}]{微软雅黑} \newcommand{\msyh}{\CJKfamily{msyh}} % 微软雅黑
 \setCJKfamilyfont{micro}{文泉驿微米黑} \newcommand{\micro}{\CJKfamily{micro}} % 文泉驿微米黑
+\setCJKfamilyfont{liti}{STLiti} \newcommand{\liti}{\CJKfamily{liti}} % STLiti
 
 \CJKsetecglue{\hspace{0.1em}}
 \renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
@@ -28,6 +26,12 @@
 \setlength{\parskip}{2pt plus 2pt}
 \renewcommand{\baselinestretch}{1.5}
 
+\pagestyle{plain}
+
+\begin{document}
+\input{source/common}
+
+%%%% 开始 %%%%
 \input{source/title}
 \input{source/task}
 \tableofcontents\newpage
@@ -39,6 +43,9 @@
 \input{source/debug}
 \input{source/testcase}
 \input{source/reference}
+\input{source/cocoro}
+\input{source/score}
 % \printindex
+%%%% 结束 %%%%
 
 \end{document}
