@@ -13,7 +13,7 @@
 
 /* 压栈 */
 int stack_push(Stack * stack, const void *data) {
-  /* 插入尾部 */
+  /* 插入首部 */
   return list_ins_next(stack, NULL, data);
 }
 
