@@ -14,14 +14,13 @@
 /* 打印链表 */
 static void print_list(const List *list) {
   ListElmt *element;
-  int *data, i;
-  printf("表长: %d\n", list_size(list));
-  /* 空表 */
-  if (list_size(list) < 1)
-    return;
-  /* 从头循环到尾 */
-  for (element = list_head(list); !list_is_tail(element); element = list_next(element)) {
-    printf("%d ", *(data = list_data(element)));
+  int *data, size, i;
+  printf("  表长: %d\n  ", size = list_size(list));
+  element = list_head(list);
+  for (i = 0; i < size; i++) {
+    data = list_data(element);
+    printf("%d ", *data);
+    element = list_next (element);
   }
   printf("\n");
 }
