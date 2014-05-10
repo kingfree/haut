@@ -1,15 +1,19 @@
 \documentclass[cs4size,a4paper,nofonts]{ctexart}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{探究压缩算法}
+\def\titlee{Exploring the Compression Algorithms}
 \usepackage[top=2.5cm,bottom=2.5cm,left=3.1cm,right=3.1cm]{geometry} % 页面设置
-\usepackage[colorlinks=true,linkcolor=blue,breaklinks=true,pdftitle={探究压缩算法},pdfauthor={田劲锋},pdfsubject={Exploring the Compression Algorithms},pdfstartview=FitH,pdfview=FitH,pdfpagemode=UseOutlines]{hyperref}
+\usepackage[colorlinks=true,linkcolor=blue,breaklinks=true,pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee},pdfstartview=FitH,pdfview=FitH,pdfpagemode=UseOutlines]{hyperref}
 \usepackage{multicol} % 分栏
 \usepackage{multirow} % 跨行
 \usepackage{longtable} % 长表格
-\usepackage{tabularx} % 
+\usepackage{tabularx} % 变宽表格
 \usepackage{booktabs} % 表格画线
 \usepackage{graphicx} % 图形
 \usepackage{color} % 颜色
+\usepackage{xcolor} % 颜色
 \usepackage{wallpaper} % 背景图片
-\makeindex
+\usepackage{listings} % 排版代码
 
 ﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
 \setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
@@ -26,6 +30,7 @@
 \setlength{\parskip}{2pt plus 2pt}
 \renewcommand{\baselinestretch}{1.5}
 
+\makeindex
 \pagestyle{plain}
 
 \begin{document}
