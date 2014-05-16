@@ -1,1 +1,82 @@
 \section{概要设计}
+
+
+\subsection{数据结构}
+
+\subsection{位操作}
+
+\begin{verbatim}
+/* 把位转成字节 */
+unsigned long bit2byte(unsigned long len)
+
+/* 返回第 i 位 */
+unsigned char get_bit(unsigned char *bits, unsigned long i)
+
+/* 反转各位 */
+void reversc_bits(unsigned char *bits, unsigned long len)
+\end{verbatim}
+
+\subsection{Huffman 树}
+
+\begin{verbatim}
+node *new_leaf_node(unsigned char symbol)
+
+node *new_node(unsigned long count, node *zero, node *one)
+
+void free_huffman_tree(node *root)
+
+void free_code(code *p)
+
+void free_encoder(symcode *sc)
+
+/* 对叶节点生成编码 */
+code *new_code(const node *leaf)
+\end{verbatim}
+
+\subsection{符号表}
+
+\begin{verbatim}
+#define MAX_SYMBOLS 256
+/* 符号频率表 */
+typedef node *symfreq[MAX_SYMBOLS];
+/* 符号编码表 */
+typedef code *symcode[MAX_SYMBOLS];
+
+void init_freq(symfreq *sf)
+
+unsigned int get_symfreq(symfreq *sf, FILE *in)
+
+/* 排序比较函数，低频率在前，空在末尾 */
+int sfcmp(const void *p1, const void *p2)
+
+/* 遍历子树建立符号编码表 */
+void build_symcode(node *root, symcode *sf)
+
+/* 返回编码数组 */
+symcode *calc_code(symfreq *sf)
+
+/* 写出编码表。格式如下：
+ * * 4 字节编码大小 n
+ * * 4 字节已编码字节数
+ * * 编码 [1..n] ，每个编码 [i] 的格式为：
+ *   * 1 字节符号，1 字节位长，编码字节（以 bit2byte 编码）
+ *   * 如果编码不是 8 的倍数的话，最后一字节可能会有多余位
+ */
+int write_code_table(FILE *out, symcode *sc, uint32_t syms)
+\end{verbatim}
+
+\subsection{文件操作}
+
+\begin{verbatim}
+/* 读入编码表，返回构建的 Huffman 树 */
+node *read_code_table(FILE *in, unsigned int *pdb)
+
+/* 对文件编码 */
+int do_file_encode(FILE *in, FILE *out, symcode *sc)
+
+/* 把 in 压缩成 out */
+int huffman_encode_file(FILE *in, FILE *out)
+
+/* 把 out 解压成 in */
+int huffman_decode_file(FILE *in, FILE *out)
+\end{verbatim}

@@ -1,19 +1,32 @@
 \section{详细设计}
 
 \lstset{language=C,
-    basicstyle=\small\tt,
-    commentstyle=\color{gray},
-    keywordstyle=\bfseries\color{violet},
-    stringstyle=\color{teal},
-%     showstringspaces=true,
-%     % identifierstyle=\sf,
-%     numberstyle=\tiny,
-%     numbers=left,
+  numbers=left,
+  numberstyle=\tiny,
+  basicstyle=\small\tt,
+  commentstyle=\color{gray},
+  keywordstyle=\bfseries\color{violet},
+  stringstyle=\color{teal},
+  showstringspaces=false,
+  frame=trBL,
+  %     % identifierstyle=\sf,
 %     breaklines=true,
-%     % escapeinside=``,
+  escapeinside=` `,
 %     % texcl=true,  % 为true时，注释内容被当做LaTeX代码来处理
+  morekeywords=[1]{node,code,symfreq,symcode},
 }
 
 {\linespread{1}
-\lstinputlisting[language=Ruby,title={测试 Ruby 高亮}]{exp/huffman.rb/huffman.rb}
+
+\subsection{声明文件 {\sf huffman.h}}
+\lstinputlisting[language=C]{program/huffman.h}
+
+\subsection{算法实现 {\sf huffman.c}}
+\lstinputlisting[language=C]{program/huffman.c}
+
+\subsection{主体逻辑 {\sf huff.c}}
+\lstinputlisting[language=C]{program/huff.c}
+
+\subsection{编译选项 {\sf Makefile}}
+\lstinputlisting[language=sh]{program/Makefile}
 }

@@ -19,9 +19,6 @@ extern char *optarg;
 #include <unistd.h>
 #endif
 
-static int memory_encode_file(FILE * in, FILE * out);
-static int memory_decode_file(FILE * in, FILE * out);
-
 static void version(FILE * out)
 {
   fputs("Huffman 压缩解压程序\n", out);
@@ -30,15 +27,15 @@ static void version(FILE * out)
 static void usage(const char *name, FILE * out)
 {
   fprintf(out,
-      "用法: %s [<输入文件>] [<输出文件>] [选项]\n"
-      "样例: %s 1 2        \t# 压缩文件 1 为 2\n"
+      "用法： %s [< 输入文件 >] [< 输出文件 >] [ 选项 ]\n"
+      "样例： %s 1 2        \t# 压缩文件 1 为 2\n"
       "      %s 2 3 -u     \t# 解压文件 2 为 3\n"
       "      %s -i1 -o2 -z \t# 压缩文件 1 为 2\n"
-      "选项: \n"
+      "选项： \n"
       "-i \t 输入文件\n"
       "-o \t 输出文件\n"
       "-u \t 解压缩\n"
-      "-z \t 压缩 (默认)\n"
+      "-z \t 压缩（默认）\n"
       "-h \t 显示本帮助\n"
       "-v \t 显示版本信息\n",
       name, name, name, name);
@@ -46,7 +43,7 @@ static void usage(const char *name, FILE * out)
 
 int main(int argc, char **argv)
 {
-  char compress = 1;
+  bool compress = true;
   int opt;
   const char *file_in = NULL, *file_out = NULL;
   FILE *in = stdin;
@@ -72,10 +69,10 @@ int main(int argc, char **argv)
         file_out = optarg;
         break;
       case 'z': /* 压缩 */
-        compress = 1;
+        compress = true;
         break;
       case 'u': /* 解压 */
-        compress = 0;
+        compress = false;
         break;
       case 'h': /* 帮助 */
         usage(argv[0], stdout);
@@ -92,14 +89,16 @@ int main(int argc, char **argv)
   /* 打开输入文件 */
   in = fopen(file_in, "rb");
   if (!in) {
-    fprintf(stderr, "无法打开输入文件 '%s': %s\n", file_in, strerror(errno));
+    fprintf(stderr, "无法打开输入文件 '%s': %s\n",
+        file_in, strerror(errno));
     return 1;
   }
 
   /* 打开输出文件 */
   out = fopen(file_out, "wb");
   if (!out) {
-    fprintf(stderr, "无法打开输出文件 '%s': %s\n", file_out, strerror(errno));
+    fprintf(stderr, "无法打开输出文件 '%s': %s\n",
+        file_out, strerror(errno));
     return 1;
   }
 
@@ -107,4 +106,3 @@ int main(int argc, char **argv)
   return compress ?
     huffman_encode_file(in, out) : huffman_decode_file(in, out);
 }
-

@@ -1,7 +1,7 @@
 \documentclass[cs4size,a4paper,nofonts]{ctexart}
 \def\tjf{{\tt{田劲锋}}}
-\def\titlec{探究压缩算法}
-\def\titlee{Exploring the Compression Algorithms}
+\def\titlec{用哈夫曼编码压缩文件}
+\def\titlee{File~Compression with Huffman~Coding}
 \usepackage[top=2.5cm,bottom=2.5cm,left=3.1cm,right=3.1cm]{geometry} % 页面设置
 \usepackage[unicode,colorlinks=true,linkcolor=blue,breaklinks=true,pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee},pdfstartview=FitH,pdfview=FitH,pdfpagemode=UseOutlines]{hyperref}
 \usepackage{multicol} % 分栏
@@ -14,6 +14,8 @@
 \usepackage{xcolor} % 颜色
 \usepackage{wallpaper} % 背景图片
 \usepackage{listings} % 排版代码
+\usepackage{url} % 排版链接
+\usepackage{shortvrb}
 
 ﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
 \setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
@@ -29,6 +31,8 @@
 \linespread{1.5} % 1.5 倍行距
 \setlength{\parskip}{2pt plus 2pt}
 \renewcommand{\baselinestretch}{1.5}
+\setlength{\itemsep}{0pt}
+\setlength{\parsep}{0pt}
 
 \makeindex
 \pagestyle{plain}

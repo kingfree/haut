@@ -1,6 +1,6 @@
 /* 
- * 文件: huffman.c
- * 描述: Huffman 压缩算法实现
+ *  文件: huffman.c
+ *  描述: Huffman 压缩算法实现
  */
 
 #include <stdio.h>
@@ -13,35 +13,34 @@
 #ifdef WIN32
 #include <winsock2.h>
 #include <malloc.h>
-#define alloca _alloca
 #else
 #include <netinet/in.h>
 #endif
 
-typedef struct huffman_node_tag {
-  unsigned char isLeaf;
+typedef struct node_ {
+  bool leaf;
   unsigned long count;
-  struct huffman_node_tag *parent;
+  struct node_ *parent;
 
   union {
     struct {
-      struct huffman_node_tag *zero, *one;
+      struct node_ *zero, *one;
     };
     unsigned char symbol;
   };
-} huffman_node;
+} node;
 
-typedef struct huffman_code_tag {
+typedef struct code_ {
   /* 编码位长 */
-  unsigned long numbits;
+  unsigned long len;
   /* 一个 bits[] 表示八位编码 */
   unsigned char *bits;
-} huffman_code;
+} code;
 
 /* 把位转成字节 */
-static unsigned long bit2byte(unsigned long numbits)
+static unsigned long bit2byte(unsigned long len)
 {
-  return numbits / 8 + (numbits % 8 ? 1 : 0);
+  return len / 8 + (len % 8 ? 1 : 0);
 }
 
 /* 返回第 i 位 */
@@ -51,83 +50,84 @@ static unsigned char get_bit(unsigned char *bits, unsigned long i)
 }
 
 /* 反转各位 */
-static void reverse_bits(unsigned char *bits, unsigned long numbits)
+static void reversc_bits(unsigned char *bits, unsigned long len)
 {
-  unsigned long numbytes = bit2byte(numbits);
-  unsigned char *tmp = (unsigned char *) alloca(numbytes);
-  unsigned long curbit;
-  long curbyte = 0;
+  unsigned long lbytes = bit2byte(len);
+  unsigned char *tmp = (unsigned char *) alloca(lbytes);
+  unsigned long c_bit;
+  long c_byte = 0;
 
-  memset(tmp, 0, numbytes);
+  memset(tmp, 0, lbytes);
 
-  for (curbit = 0; curbit < numbits; ++curbit) {
-    unsigned int bitpos = curbit % 8;
+  for (c_bit = 0; c_bit < len; ++c_bit) {
+    unsigned int bitpos = c_bit % 8;
 
-    if (curbit > 0 && curbit % 8 == 0)
-      ++curbyte;
+    if (c_bit > 0 && c_bit % 8 == 0)
+      ++c_byte;
 
-    tmp[curbyte] |= (get_bit(bits, numbits - curbit - 1) << bitpos);
+    tmp[c_byte] |= (get_bit(bits, len - c_bit - 1) << bitpos);
   }
 
-  memcpy(bits, tmp, numbytes);
+  memcpy(bits, tmp, lbytes);
 }
 
 /* 对叶节点生成编码 */
-static huffman_code *new_code(const huffman_node *leaf)
+static code *new_code(const node *leaf)
 {
   /* 向上移动到根节点，反转各位 */
-  unsigned long numbits = 0;
+  unsigned long len = 0;
   unsigned char *bits = NULL;
-  huffman_code *p;
+  code *p;
 
   while (leaf && leaf->parent) {
-    huffman_node *parent = leaf->parent;
-    unsigned char cur_bit = (unsigned char) (numbits % 8);
-    unsigned long cur_byte = numbits / 8;
+    node *parent = leaf->parent;
+    unsigned char c_bit = (unsigned char) (len % 8);
+    unsigned long c_byte = len / 8;
 
     /* 分配一个新字节 */
-    if (cur_bit == 0) {
-      size_t newSize = cur_byte + 1;
-      bits = (unsigned char *) realloc(bits, newSize);
-      bits[newSize - 1] = 0;	/* 初始化新字节 */
+    if (c_bit == 0) {
+      size_t new_size = c_byte + 1;
+      bits = (unsigned char *) realloc(bits, new_size);
+      bits[new_size - 1] = 0;	/* 初始化新字节 */
     }
 
     /* 只用把 1 加入，因为默认是 0 */
     if (leaf == parent->one)
-      bits[cur_byte] |= 1 << cur_bit;
+      bits[c_byte] |= 1 << c_bit;
 
-    ++numbits;
+    ++len;
     leaf = parent;
   }
 
   if (bits)
-    reverse_bits(bits, numbits);
+    reversc_bits(bits, len);
 
-  p = (huffman_code *) malloc(sizeof(huffman_code));
-  p->numbits = numbits;
+  p = (code *) malloc(sizeof(code));
+  p->len = len;
   p->bits = bits;
   return p;
 }
 
 #define MAX_SYMBOLS 256
-typedef huffman_node *SymbolFrequencies[MAX_SYMBOLS];
-typedef huffman_code *SymbolEncoder[MAX_SYMBOLS];
+/* 符号频率表 */
+typedef node *symfreq[MAX_SYMBOLS];
+/* 符号编码表 */
+typedef code *symcode[MAX_SYMBOLS];
 
-static huffman_node *new_leaf_node(unsigned char symbol)
+static node *new_leaf_node(unsigned char symbol)
 {
-  huffman_node *p = (huffman_node *) malloc(sizeof(huffman_node));
-  p->isLeaf = 1;
+  node *p = (node *) malloc(sizeof(node));
+  p->leaf = true;
   p->symbol = symbol;
   p->count = 0;
   p->parent = 0;
   return p;
 }
 
-static huffman_node *new_nonleaf_node(unsigned long count,
-    huffman_node *zero, huffman_node *one)
+static node *new_node(unsigned long count, node *zero, node *one)
 {
-  huffman_node *p = (huffman_node *) malloc(sizeof(huffman_node));
-  p->isLeaf = 0;
+  node *p = (node *) malloc(sizeof(node));
+  p->leaf = false;
   p->count = count;
   p->zero = zero;
   p->one = one;
@@ -135,79 +135,67 @@ static huffman_node *new_nonleaf_node(unsigned long count,
   return p;
 }
 
-static void free_huffman_tree(huffman_node *subtree)
+static void free_huffman_tree(node *root)
 {
-  if (subtree == NULL)
+  if (root == NULL)
     return;
 
-  if (!subtree->isLeaf) {
-    free_huffman_tree(subtree->zero);
-    free_huffman_tree(subtree->one);
+  if (!root->leaf) {
+    free_huffman_tree(root->zero);
+    free_huffman_tree(root->one);
   }
 
-  free(subtree);
+  free(root);
 }
 
-static void free_code(huffman_code *p)
+static void free_code(code *p)
 {
   free(p->bits);
   free(p);
 }
 
-static void free_encoder(SymbolEncoder *pSE)
+static void free_encoder(symcode *sc)
 {
   unsigned long i;
   for (i = 0; i < MAX_SYMBOLS; ++i) {
-    huffman_code *p = (*pSE)[i];
+    code *p = (*sc)[i];
     if (p)
       free_code(p);
   }
-  free(pSE);
+  free(sc);
 }
 
-static void init_frequencies(SymbolFrequencies *pSF)
+static void init_freq(symfreq *sf)
 {
-  memset(*pSF, 0, sizeof(SymbolFrequencies));
-#if DEBUG
-  unsigned int i;
-  for (i = 0; i < MAX_SYMBOLS; ++i) {
-    unsigned char uc = (unsigned char) i;
-    (*pSF)[i] = new_leaf_node(uc);
-  }
-#endif
+  memset(*sf, 0, sizeof(symfreq));
 }
 
-static unsigned int get_symbol_frequencies(SymbolFrequencies *pSF, FILE *in)
+static unsigned int get_symfreq(symfreq *sf, FILE *in)
 {
   int c;
-  unsigned int total_count = 0;
+  unsigned int tot = 0;
 
-  /* Set all frequencies to 0. */
-  init_frequencies(pSF);
+  /* 初始化频率表 */
+  init_freq(sf);
 
-  /* Count the frequency of each symbol in the input file. */
+  /* 计算文件中每个符号的出现次数 */
   while ((c = fgetc(in)) != EOF) {
     unsigned char uc = c;
-    if (!(*pSF)[uc])
-      (*pSF)[uc] = new_leaf_node(uc);
-    ++(*pSF)[uc]->count;
-    ++total_count;
+    if (!(*sf)[uc])
+      (*sf)[uc] = new_leaf_node(uc);
+    ++(*sf)[uc]->count;
+    ++tot;
   }
 
-  return total_count;
+  return tot;
 }
 
-/* 
- *When used by qsort, SFComp sorts the array so that
- *the symbol with the lowest frequency is first. Any
- *NULL entries will be sorted to the end of the list.
- */
-static int SFComp(const void *p1, const void *p2)
+/* 排序比较函数，低频率在前，空在末尾 */
+static int sfcmp(const void *p1, const void *p2)
 {
-  const huffman_node *hn1 = *(const huffman_node **) p1;
-  const huffman_node *hn2 = *(const huffman_node **) p2;
+  const node *hn1 = *(const node **) p1;
+  const node *hn2 = *(const node **) p2;
 
-  /* Sort all NULLs to the end. */
   if (hn1 == NULL && hn2 == NULL)
     return 0;
   if (hn1 == NULL)
@@ -223,143 +211,107 @@ static int SFComp(const void *p1, const void *p2)
   return 0;
 }
 
-#if DEBUG
-static void print_freqs(SymbolFrequencies *pSF)
+/* 调试用：输出频率表 */
+static void print_freq(symfreq *sf)
 {
   size_t i;
   for (i = 0; i < MAX_SYMBOLS; ++i) {
-    if ((*pSF)[i])
-      printf("%d, %ld\n", (*pSF)[i]->symbol, (*pSF)[i]->count);
+    if ((*sf)[i])
+      printf("%d, %ld\n", (*sf)[i]->symbol, (*sf)[i]->count);
     else
       printf("NULL\n");
   }
 }
-#endif
 
-/* 
- *build_symbol_encoder builds a SymbolEncoder by walking
- *down to the leaves of the Huffman tree and then,
- *for each leaf, determines its code.
- */
-  static void
-build_symbol_encoder(huffman_node *subtree, SymbolEncoder *pSF)
+/* 遍历子树建立符号编码表 */
+static void build_symcode(node *root, symcode *sf)
 {
-  if (subtree == NULL)
+  if (root == NULL)
     return;
 
-  if (subtree->isLeaf)
-    (*pSF)[subtree->symbol] = new_code(subtree);
+  if (root->leaf)
+    (*sf)[root->symbol] = new_code(root);
   else {
-    build_symbol_encoder(subtree->zero, pSF);
-    build_symbol_encoder(subtree->one, pSF);
+    build_symcode(root->zero, sf);
+    build_symcode(root->one, sf);
   }
 }
 
-/* 
- *calculate_huffman_codes turns pSF into an array
- *with a single entry that is the root of the
- *huffman tree. The return value is a SymbolEncoder,
- *which is an array of huffman codes index by symbol value.
- */
-static SymbolEncoder *calculate_huffman_codes(SymbolFrequencies *pSF)
+/* 返回编码数组 */
+static symcode *calc_code(symfreq *sf)
 {
   unsigned int i = 0;
   unsigned int n = 0;
-  huffman_node *m1 = NULL, *m2 = NULL;
-  SymbolEncoder *pSE = NULL;
+  node *m1 = NULL, *m2 = NULL;
+  symcode *sc = NULL;
 
-#if DEBUG
-  printf("排序前\n");
-  print_freqs(pSF);
-#endif
+  /* 对频率进行增序排序 */
+  qsort((*sf), MAX_SYMBOLS, sizeof((*sf)[0]), sfcmp);
 
-  /* Sort the symbol frequency array by ascending frequency. */
-  qsort((*pSF), MAX_SYMBOLS, sizeof((*pSF)[0]), SFComp);
+  /* 获取符号数 */
+  for (n = 0; n < MAX_SYMBOLS && (*sf)[n]; ++n);
 
-#if DEBUG
-  printf("排序后\n");
-  print_freqs(pSF);
-#endif
-
-  /* Get the number of symbols. */
-  for (n = 0; n < MAX_SYMBOLS && (*pSF)[n]; ++n);
-
-  /* 
-   *Construct a Huffman tree. This code is based
-   *on the algorithm given in Managing Gigabytes
-   *by Ian Witten et al, 2nd edition, page 34.
-   *Note that this implementation uses a simple
-   *count instead of probability.
-   */
+  /* 构造 Huffman 树 */
   for (i = 0; i < n - 1; ++i) {
-    /* Set m1 and m2 to the two subsets of least probability. */
-    m1 = (*pSF)[0];
-    m2 = (*pSF)[1];
+    /* 令 m1 和 m2 是最小的两棵树 */
+    m1 = (*sf)[0];
+    m2 = (*sf)[1];
 
-    /* Replace m1 and m2 with a set {m1, m2} whose probability
-     *is the sum of that of m1 and m2. */
-    (*pSF)[0] = m1->parent = m2->parent =
-      new_nonleaf_node(m1->count + m2->count, m1, m2);
-    (*pSF)[1] = NULL;
+    /* 合并成新树 {m1, m2} */
+    (*sf)[0] = m1->parent = m2->parent =
+      new_node(m1->count + m2->count, m1, m2);
+    (*sf)[1] = NULL;
 
-    /* Put newSet into the correct count position in pSF. */
-    qsort((*pSF), n, sizeof((*pSF)[0]), SFComp);
+    /* 对符号频率表排序（伪优先队列） */
+    qsort((*sf), n, sizeof((*sf)[0]), sfcmp);
   }
 
-  /* Build the SymbolEncoder array from the tree. */
-  pSE = (SymbolEncoder *) malloc(sizeof(SymbolEncoder));
-  memset(pSE, 0, sizeof(SymbolEncoder));
-  build_symbol_encoder((*pSF)[0], pSE);
-  return pSE;
+  /* 从树建立编码表 */
+  sc = (symcode *) malloc(sizeof(symcode));
+  memset(sc, 0, sizeof(symcode));
+  build_symcode((*sf)[0], sc);
+  return sc;
 }
 
-/* 
- *Write the huffman code table. The format is:
- *4 byte code count in network byte order.
- *4 byte number of bytes encoded
- *  (if you decode the data, you should get this number of bytes)
- *code1
- *...
- *codeN, where N is the count read at the begginning of the file.
- *Each codeI has the following format:
- *1 byte symbol, 1 byte code bit length, code bytes.
- *Each entry has bit2byte code bytes.
- *The last byte of each code may have extra bits, if the number of
- *bits in the code is not a multiple of 8.
+/* 写出编码表。格式如下：
+ * * 4 字节编码大小 n
+ * * 4 字节已编码字节数
+ * * 编码 [1..n] ，每个编码 [i] 的格式为：
+ *   * 1 字节符号，1 字节位长，编码字节（以 bit2byte 编码）
+ *   * 如果编码不是 8 的倍数的话，最后一字节可能会有多余位
  */
-static int write_code_table(FILE *out,
-    SymbolEncoder *se, uint32_t symbol_count)
+static int write_code_table(FILE *out, symcode *sc, uint32_t syms)
 {
   uint32_t i, count = 0;
 
-  /* Determine the number of entries in se. */
+  /* 确定 sc 中的符号数 */
   for (i = 0; i < MAX_SYMBOLS; ++i) {
-    if ((*se)[i])
+    if ((*sc)[i])
       ++count;
   }
 
-  /* Write the number of entries in network byte order. */
+  /* 写出符号数 */
   i = htonl(count);
   if (fwrite(&i, sizeof(i), 1, out) != 1)
     return 1;
 
-  /* Write the number of bytes that will be encoded. */
-  symbol_count = htonl(symbol_count);
-  if (fwrite(&symbol_count, sizeof(symbol_count), 1, out) != 1)
+  /* 写出待编码字节数 */
+  syms = htonl(syms);
+  if (fwrite(&syms, sizeof(syms), 1, out) != 1)
     return 1;
 
-  /* Write the entries. */
+  /* 写出符号表 */
   for (i = 0; i < MAX_SYMBOLS; ++i) {
-    huffman_code *p = (*se)[i];
+    code *p = (*sc)[i];
     if (p) {
-      unsigned int numbytes;
-      /* Write the 1 byte symbol. */
+      unsigned int lbytes;
+      /* 写出 1 字节符号 */
       fputc((unsigned char) i, out);
-      /* Write the 1 byte code bit length. */
-      fputc(p->numbits, out);
-      /* Write the code bytes. */
-      numbytes = bit2byte(p->numbits);
-      if (fwrite(p->bits, 1, numbytes, out) != numbytes)
+      /* 写出 1 字节位长 */
+      fputc(p->len, out);
+      /* 写出编码字节 */
+      lbytes = bit2byte(p->len);
+      if (fwrite(p->bits, 1, lbytes, out) != lbytes)
         return 1;
     }
   }
@@ -367,19 +319,13 @@ static int write_code_table(FILE *out,
   return 0;
 }
 
-/* 
- *read_code_table builds a Huffman tree from the code
- *in the in file. This function returns NULL on error.
- *The returned value should be freed with free_huffman_tree.
- */
-static huffman_node *read_code_table(FILE *in,
-    unsigned int *pDataBytes)
+/* 读入编码表，返回构建的 Huffman 树 */
+static node *read_code_table(FILE *in, unsigned int *pdb)
 {
-  huffman_node *root = new_nonleaf_node(0, NULL, NULL);
+  node *root = new_node(0, NULL, NULL);
   uint32_t count;
 
-  /* Read the number of entries.
-     (it is stored in network byte order). */
+  /* 读入符号数 */
   if (fread(&count, sizeof(count), 1, in) != 1) {
     free_huffman_tree(root);
     return NULL;
@@ -387,24 +333,23 @@ static huffman_node *read_code_table(FILE *in,
 
   count = ntohl(count);
 
-  /* Read the number of data bytes this encoding represents. */
-  if (fread(pDataBytes, sizeof(*pDataBytes), 1, in) != 1) {
+  /* 读入当前分支编码数 */
+  if (fread(pdb, sizeof(*pdb), 1, in) != 1) {
     free_huffman_tree(root);
     return NULL;
   }
 
-  *pDataBytes = ntohl(*pDataBytes);
+  *pdb = ntohl(*pdb);
 
-
-  /* Read the entries. */
+  /* 读入符号表 */
   while (count-- > 0) {
     int c;
-    unsigned int curbit;
+    unsigned int c_bit;
     unsigned char symbol;
-    unsigned char numbits;
-    unsigned char numbytes;
+    unsigned char len;
+    unsigned char lbytes;
     unsigned char *bytes;
-    huffman_node *p = root;
+    node *p = root;
 
     if ((c = fgetc(in)) == EOF) {
       free_huffman_tree(root);
@@ -417,35 +362,30 @@ static huffman_node *read_code_table(FILE *in,
       return NULL;
     }
 
-    numbits = (unsigned char) c;
-    numbytes = (unsigned char) bit2byte(numbits);
-    bytes = (unsigned char *) malloc(numbytes);
-    if (fread(bytes, 1, numbytes, in) != numbytes) {
+    len = (unsigned char) c;
+    lbytes = (unsigned char) bit2byte(len);
+    bytes = (unsigned char *) malloc(lbytes);
+    if (fread(bytes, 1, lbytes, in) != lbytes) {
       free(bytes);
       free_huffman_tree(root);
       return NULL;
     }
 
-    /* 
-     *Add the entry to the Huffman tree. The value
-     *of the current bit is used switch between
-     *zero and one child nodes in the tree. New nodes
-     *are added as needed in the tree.
-     */
-    for (curbit = 0; curbit < numbits; ++curbit) {
-      if (get_bit(bytes, curbit)) {
+    /* 依据当前位加入 Huffman 树 */
+    for (c_bit = 0; c_bit < len; ++c_bit) {
+      if (get_bit(bytes, c_bit)) {
         if (p->one == NULL) {
-          p->one = curbit == (unsigned char) (numbits - 1)
+          p->one = c_bit == (unsigned char) (len - 1)
             ? new_leaf_node(symbol)
-            : new_nonleaf_node(0, NULL, NULL);
+            : new_node(0, NULL, NULL);
           p->one->parent = p;
         }
         p = p->one;
       } else {
         if (p->zero == NULL) {
-          p->zero = curbit == (unsigned char) (numbits - 1)
+          p->zero = c_bit == (unsigned char) (len - 1)
             ? new_leaf_node(symbol)
-            : new_nonleaf_node(0, NULL, NULL);
+            : new_node(0, NULL, NULL);
           p->zero->parent = p;
         }
         p = p->zero;
@@ -458,86 +398,79 @@ static huffman_node *read_code_table(FILE *in,
   return root;
 }
 
-static int do_file_encode(FILE *in, FILE *out, SymbolEncoder *se)
+/* 对文件编码 */
+static int do_file_encode(FILE *in, FILE *out, symcode *sc)
 {
-  unsigned char curbyte = 0;
-  unsigned char curbit = 0;
+  unsigned char c_byte = 0;
+  unsigned char c_bit = 0;
   int c;
 
   while ((c = fgetc(in)) != EOF) {
     unsigned char uc = (unsigned char) c;
-    huffman_code *code = (*se)[uc];
+    code *cod = (*sc)[uc];
     unsigned long i;
 
-    for (i = 0; i < code->numbits; ++i) {
-      /* Add the current bit to curbyte. */
-      curbyte |= get_bit(code->bits, i) << curbit;
+    for (i = 0; i < cod->len; ++i) {
+      /* 添加位到当前字节 */
+      c_byte |= get_bit(cod->bits, i) << c_bit;
 
-      /* If this byte is filled up then write it
-       *out and reset the curbit and curbyte. */
-      if (++curbit == 8) {
-        fputc(curbyte, out);
-        curbyte = 0;
-        curbit = 0;
+      /* 若字节已满则写出并重置 */
+      if (++c_bit == 8) {
+        fputc(c_byte, out);
+        c_byte = 0;
+        c_bit = 0;
       }
     }
   }
 
-  /* 
-   *If there is data in curbyte that has not been
-   *output yet, which means that the last encoded
-   *character did not fall on a byte boundary,
-   *then output it.
-   */
-  if (curbit > 0)
-    fputc(curbyte, out);
+  /* 还有剩余数据的话直接输出 */
+  if (c_bit > 0)
+    fputc(c_byte, out);
 
   return 0;
 }
 
-/* 
- *huffman_encode_file huffman encodes in to out.
- */
+/* 把 in 压缩成 out */
 int huffman_encode_file(FILE *in, FILE *out)
 {
-  SymbolFrequencies sf;
-  SymbolEncoder *se;
-  huffman_node *root = NULL;
+  symfreq sf;
+  symcode *sc;
+  node *root = NULL;
   int rc;
-  unsigned int symbol_count;
+  unsigned int syms;
 
-  /* Get the frequency of each symbol in the input file. */
-  symbol_count = get_symbol_frequencies(&sf, in);
+  /* 获取输入文件中符号出现频率 */
+  syms = get_symfreq(&sf, in);
 
-  /* Build an optimal table from the symbolCount. */
-  se = calculate_huffman_codes(&sf);
+  /* 生成编码表 */
+  sc = calc_code(&sf);
   root = sf[0];
 
-  /* Scan the file again and, using the table
-     previously built, encode it into the output file. */
+  /* 再次扫描文件，使用之前生成的编码表来编码 */
   rewind(in);
-  rc = write_code_table(out, se, symbol_count);
+  rc = write_code_table(out, sc, syms);
   if (rc == 0)
-    rc = do_file_encode(in, out, se);
+    rc = do_file_encode(in, out, sc);
 
-  /* Free the Huffman tree. */
+  /* 释放空间 */
   free_huffman_tree(root);
-  free_encoder(se);
+  free_encoder(sc);
   return rc;
 }
 
+/* 把 out 解压成 in */
 int huffman_decode_file(FILE *in, FILE *out)
 {
-  huffman_node *root, *p;
+  node *root, *p;
   int c;
   unsigned int data_count;
 
-  /* Read the Huffman code table. */
+  /* 读入编码表 */
   root = read_code_table(in, &data_count);
   if (!root)
     return 1;
 
-  /* Decode the file. */
+  /* 解码文件 */
   p = root;
   while (data_count > 0 && (c = fgetc(in)) != EOF) {
     unsigned char byte = (unsigned char) c;
@@ -546,7 +479,7 @@ int huffman_decode_file(FILE *in, FILE *out)
       p = byte & mask ? p->one : p->zero;
       mask <<= 1;
 
-      if (p->isLeaf) {
+      if (p->leaf) {
         fputc(p->symbol, out);
         p = root;
         --data_count;
