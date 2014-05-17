@@ -1,18 +1,16 @@
 \section{开发环境}
 
-为跨平台考虑，我在两个平台上进行开发和调试。主作业平台是：
-\begin{description}
-\item[操作系统] Microsoft Windows 8.1
-\item[系统类型] x64
-\item[编辑器] Sublime Text 2
-\item[编译器] MinGW32 GCC 4.5.2
-\end{description}
+为跨平台考虑，我在两个平台上进行开发和调试，见表 \ref{development}。
 
-副作业平台搭建在虚拟机上：
-\begin{description}
-\item[操作系统] Arch Linux
-\item[系统类型] x86\_64
-\item[内核版本] 3.13.7-1
-\item[编辑器] Vim
-\item[编译器] GCC 4.8.2
-\end{description}
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{l|ll}
+ & 主作业平台 & 副作业平台 \\\hline
+操作系统 & Microsoft Windows 8.1 & Arch Linux (内核 3.13.7-1) \\
+系统类型 & x64 & x86\_64 （虚拟机）\\
+编辑器 & Sublime Text 2 & Vim 7.4 \\
+编译器 & MinGW32 GCC 4.5.2 & GCC 4.8.2 \\
+\end{tabular}
+\end{center}
+\caption{\label{development}我的开发环境}
+\end{table}

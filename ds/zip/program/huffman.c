@@ -37,8 +37,8 @@ typedef struct code_ {
   unsigned char *bits;
 } code;
 
-/* 把位转成字节 */
-static unsigned long bit2byte(unsigned long len)
+/* 位长度到转成字节长度 */
+static unsigned long bit_len_byte(unsigned long len)
 {
   return len / 8 + (len % 8 ? 1 : 0);
 }
@@ -52,7 +52,7 @@ static unsigned char get_bit(unsigned char *bits, unsigned long i)
 /* 反转各位 */
 static void reversc_bits(unsigned char *bits, unsigned long len)
 {
-  unsigned long lbytes = bit2byte(len);
+  unsigned long lbytes = bit_len_byte(len);
   unsigned char *tmp = (unsigned char *) alloca(lbytes);
   unsigned long c_bit;
   long c_byte = 0;
@@ -277,7 +277,7 @@ static symcode *calc_code(symfreq *sf)
  * * 4 字节编码大小 n
  * * 4 字节已编码字节数
  * * 编码 [1..n] ，每个编码 [i] 的格式为：
- *   * 1 字节符号，1 字节位长，编码字节（以 bit2byte 编码）
+ *   * 1 字节符号，1 字节位长，编码字节（以 bit_len_byte 编码）
  *   * 如果编码不是 8 的倍数的话，最后一字节可能会有多余位
  */
 static int write_code_table(FILE *out, symcode *sc, uint32_t syms)
@@ -310,7 +310,7 @@ static int write_code_table(FILE *out, symcode *sc, uint32_t syms)
       /* 写出 1 字节位长 */
       fputc(p->len, out);
       /* 写出编码字节 */
-      lbytes = bit2byte(p->len);
+      lbytes = bit_len_byte(p->len);
       if (fwrite(p->bits, 1, lbytes, out) != lbytes)
         return 1;
     }
@@ -363,7 +363,7 @@ static node *read_code_table(FILE *in, unsigned int *pdb)
     }
 
     len = (unsigned char) c;
-    lbytes = (unsigned char) bit2byte(len);
+    lbytes = (unsigned char) bit_len_byte(len);
     bytes = (unsigned char *) malloc(lbytes);
     if (fread(bytes, 1, lbytes, in) != lbytes) {
       free(bytes);

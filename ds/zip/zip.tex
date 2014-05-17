@@ -1,7 +1,8 @@
 \documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
-\def\titlec{用哈夫曼编码压缩文件}
-\def\titlee{File~Compression with Huffman~Coding}
+\def\titlec{用哈夫曼算法压缩文件}
+\def\titlee{File~Compression with Huffman~Algorithm}
 \usepackage[top=2.5cm,bottom=2.5cm,left=3.1cm,right=3.1cm]{geometry} % 页面设置
 \usepackage[unicode,colorlinks=true,linkcolor=blue,breaklinks=true,pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee},pdfstartview=FitH,pdfview=FitH,pdfpagemode=UseOutlines]{hyperref}
 \usepackage{multicol} % 分栏
@@ -16,6 +17,13 @@
 \usepackage{listings} % 排版代码
 \usepackage{url} % 排版链接
 \usepackage{shortvrb}
+\usepackage{pstricks} % 绘图
+\usepackage{pst-tree} % 画树
+\usepackage{pst-uml} % 画 UML
+\usepackage{clrscode3e} % CLRS 伪代码
+\usepackage{nameref}
+\usepackage{caption}
+\captionsetup{font={small}} % 标题字体大小
 
 ﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
 \setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
@@ -43,7 +51,7 @@
 %%%% 开始 %%%%
 \input{source/title}
 \input{source/task}
-\tableofcontents\newpage
+\linespread{1}\tableofcontents\linespread{1.5}\newpage
 \input{source/analysis}
 \input{source/design}
 \input{source/runtime}
@@ -54,7 +62,6 @@
 \input{source/reference}
 \input{source/cocoro}
 \input{source/score}
-% \printindex
 %%%% 结束 %%%%
 
 \end{document}
