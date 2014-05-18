@@ -12,4 +12,4 @@ all:
 	$(CC) huffman.c huff.c -o huff $(EXTRA)
 
 clean:
-	$(RM) *.exe *.o *.a
+	$(RM) huff *.exe *.o *.a

@@ -24,6 +24,7 @@
 \usepackage{nameref}
 \usepackage{caption}
 \captionsetup{font={small}} % 标题字体大小
+\usepackage{enumitem} % 调整列表样式
 
 ﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
 \setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
@@ -39,8 +40,10 @@
 \linespread{1.5} % 1.5 倍行距
 \setlength{\parskip}{2pt plus 2pt}
 \renewcommand{\baselinestretch}{1.5}
-\setlength{\itemsep}{0pt}
-\setlength{\parsep}{0pt}
+
+\setlength{\abovecaptionskip}{1pt}
+\setlength{\belowcaptionskip}{0pt}
+\setlength{\intextsep}{8pt}
 
 \makeindex
 \pagestyle{plain}

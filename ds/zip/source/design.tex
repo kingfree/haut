@@ -10,7 +10,7 @@
 
 我们还可以提供如下选项：
 \begin{quote}
-\begin{description}
+\begin{description}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt]
 \item[-i]   输入文件
 \item[-o]   输出文件
 \item[-u]   解压缩
@@ -26,7 +26,7 @@
 \newcommand{\des}[2]{\makebox[2em][s]{\bf #1}\quad #2}
 \newcommand{\function}[5]{\CTEXnoindent
     \underline{\makebox[\textwidth][l]{\it{#1}}}\\
-    {\tt {\bfseries\color{violet}{#3}} #1(#2);}\\
+    {\tt {{#3}} {\bfseries #1}(#2);}\\
     \des{返回}{#4}\\
     \des{描述}{#5}\par
 \CTEXindent}
@@ -36,12 +36,18 @@
 \function{huffman\_encode\_file}
 {FILE *in, FILE *out}
 {int}{成功返回 0}
-{读入文件 {\tt in}，编码之后输出到 {\tt out} 中。}
+{读入文件 {\tt in}，编码之后输出到 {\tt out} 中。首先获取输入文件中符号出现频率，依此调用 Huffman 算法生成编码表。再次扫描文件，使用之前生成的编码表来编码，每读入一个位就进行对照编码表进行编码，满一个字节就写出，最后不满补 0。}
+
+% \subsection{文件操作}
+% \begin{verbatim}
+% /* 对文件编码 */
+% int do_file_encode(FILE *in, FILE *out, symcode *sc)
+% \end{verbatim}
 
 \function{huffman\_decode\_file}
 {FILE *in, FILE *out}
 {int}{成功返回 0}
-{读入文件 {\tt in}，解码之后输出到 {\tt out} 中。}
+{读入文件 {\tt in}，解码之后输出到 {\tt out} 中。首先读入编码表，构建对应的 Huffman 树。接着按位读入后面的数据，不断查询 Huffman 树知道叶结点，输出解码结果，不断重复到文件直到末尾。}
 
 \subsection{位操作}
 
@@ -69,10 +75,10 @@
 {void}{无}
 {把长度为 $len$ 的 $bits$ 依二进制位反转。}
 
-\begin{verbatim}
-/* 对叶节点生成编码 */
-code *new_code(const node *leaf)
-\end{verbatim}
+\function{new\_code}
+{const node *leaf}
+{code *}{指向生成的编码结构体的指针}
+{从叶结点 $leaf$ 沿 Huffman 树回溯到根结点，逆序生成该叶结点对应符号的 Huffman 编码序列。}
 
 \function{free\_code}
 {code *p}
@@ -81,37 +87,47 @@ code *new_code(const node *leaf)
 
 \subsection{符号表}
 
+定义符号表类型：
+\begin{itemize}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt]
+\item 符号频率表 \verb|symfreq[]| 是一个长为 256 的结点数组类型，主要用来存储符号出现频率以构建 Huffman 树；
+\item 符号编码表 \verb|symcode[]| 是一个长为 256 的编码数组类型，用来存储符号对应的编码。
+\end{itemize}
+
+\function{init\_freq}
+{symfreq *sf}
+{void}{无}
+{初始化符号频率表 $sf$。}
+
+\function{get\_symfreq}
+{symfreq *sf, FILE *in}
+{unsigned int}{文件 {\tt in} 中的符号总数}
+{读入文件 {\tt in} 中所有符号，统计符号总数，并把每个符号出现次数保存到符号频率表 $sf$ 中。}
+
+\function{write\_code\_table}
+{FILE *out, symcode *sc, uint32\_t syms}
+{int}{成功返回 0}
+{向文件 {\tt out} 中写出符号编码表 $sc$。写出的具体格式如下：
+\begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt]
+  \item （4 字节） 编码大小 $n$，即 $sc$ 的大小，以网络字节顺序写出
+  \item （4 字节） 待编码字节数 $syms$，即文件大小，以网络字节顺序写出
+  \item 符号的具体编码 $code[1..n]$ ，每个 $code[i]$ 的编码格式为：
+  \begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt]
+    \item （1 字节） 符号，即原字符本身
+    \item （1 字节） 位长，即下面的编码位长度，单位是位
+    \item 具体编码位数据。如果编码不是 8 的倍数的话，最后一字节会有用以补 0 的多余位
+  \end{enumerate}
+\end{enumerate}
+}
+
+\function{read\_code\_table}
+{FILE *in, unsigned int *pdb}
+{node *}{从文件中构建的 Huffman 树}
+{从文件 {\tt in} 中读入符号编码表。以网络字节顺序，首先读入符号总数 $count$，然后读入待解码的符号总数 $pdb$。接着依据规则读入符号编码表，依此构建 Huffman 树，并把文件偏移设置到符号编码表末尾。}
+
 \function{free\_encoder}
 {symcode *sc}
 {void}{无}
 {销毁符号编码表 $sc$。}
-
-\begin{verbatim}
-#define MAX_SYMBOLS 256
-/* 符号频率表 */
-typedef node *symfreq[MAX_SYMBOLS];
-/* 符号编码表 */
-typedef code *symcode[MAX_SYMBOLS];
-
-void init_freq(symfreq *sf)
-
-unsigned int get_symfreq(symfreq *sf, FILE *in)
-
-/* 排序比较函数，低频率在前，空在末尾 */
-int sfcmp(const void *p1, const void *p2)
-
-/* 遍历子树建立符号编码表 */
-void build_symcode(node *root, symcode *sf)
-
-/* 写出编码表。格式如下：
- * * 4 字节编码大小 n
- * * 4 字节已编码字节数
- * * 编码 [1..n] ，每个编码 [i] 的格式为：
- *   * 1 字节符号，1 字节位长，编码字节（以 bit2byte 编码）
- *   * 如果编码不是 8 的倍数的话，最后一字节可能会有多余位
- */
-int write_code_table(FILE *out, symcode *sc, uint32_t syms)
-\end{verbatim}
 
 \subsection{Huffman 树}
 
@@ -144,25 +160,22 @@ int write_code_table(FILE *out, symcode *sc, uint32_t syms)
 {node *}{生成的结点地址}
 {生成一个普通结点，其保存了频数 $count$，左右孩子分别是 $zero$ 和 $one$。}
 
-\begin{verbatim}
+\function{sfcmp}
+{const void *p1, const void *p2}
+{int}{正数表示 $p1 > p2$，零表示相等，负数表示 $p2<p1$}
+{对符号频率表进行排序的比较函数，用于 {\tt qsort()}。规则是低频率在前，高频率在后，频率为 0 即频率为空的在末尾。}
 
-/* 返回编码数组 */
-symcode *calc_code(symfreq *sf)
+\function{calc\_code}
+{symfreq *sf}
+{symcode *}{已编码的数组指针}
+{从符号频率表 $sf$ 建立 Huffman 树的主算法。首先获取符号数 $n$，然后对频率进行增序排序。接着构建 Huffman 树，每次取出并删除 $sf$ 最前面两个元素，合并成新的结点并加入 $sf$，调用 {\tt qsort()} 进行增序排序以维护有序性，如此进行 $n-1$ 次即可构建成功。最后调用 {\tt build\_symcode()} 生成符号编码表并返回。}
 
-\end{verbatim}
+\function{build\_symcode}
+{node *root, symcode *sc}
+{void}{无}
+{以 $root$ 为根遍历以构建好的 Huffman 树，建立符号编码表 $sc$。}
 
-\function{free\_huffman\_tree}
+\function{free\_tree}
 {node *root}
 {void}{无}
 {从根结点 $root$ 开始递归销毁这棵 Huffman 树。}
-
-\subsection{文件操作}
-
-\begin{verbatim}
-/* 读入编码表，返回构建的 Huffman 树 */
-node *read_code_table(FILE *in, unsigned int *pdb)
-
-/* 对文件编码 */
-int do_file_encode(FILE *in, FILE *out, symcode *sc)
-
-\end{verbatim}

@@ -34,7 +34,7 @@
 
 # Documents with complex format
 *.dvi
-*.pdf
+# *.pdf
 
 # Log files
 *.log

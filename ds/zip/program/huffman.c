@@ -21,7 +21,6 @@ typedef struct node_ {
   bool leaf;
   unsigned long count;
   struct node_ *parent;
-
   union {
     struct {
       struct node_ *zero, *one;
@@ -56,9 +55,7 @@ static void reversc_bits(unsigned char *bits, unsigned long len)
   unsigned char *tmp = (unsigned char *) alloca(lbytes);
   unsigned long c_bit;
   long c_byte = 0;
-
   memset(tmp, 0, lbytes);
-
   for (c_bit = 0; c_bit < len; ++c_bit) {
     unsigned int bitpos = c_bit % 8;
 
@@ -67,7 +64,6 @@ static void reversc_bits(unsigned char *bits, unsigned long len)
 
     tmp[c_byte] |= (get_bit(bits, len - c_bit - 1) << bitpos);
   }
-
   memcpy(bits, tmp, lbytes);
 }
 
@@ -78,30 +74,24 @@ static code *new_code(const node *leaf)
   unsigned long len = 0;
   unsigned char *bits = NULL;
   code *p;
-
   while (leaf && leaf->parent) {
     node *parent = leaf->parent;
     unsigned char c_bit = (unsigned char) (len % 8);
     unsigned long c_byte = len / 8;
-
     /* 分配一个新字节 */
     if (c_bit == 0) {
       size_t new_size = c_byte + 1;
       bits = (unsigned char *) realloc(bits, new_size);
       bits[new_size - 1] = 0;	/* 初始化新字节 */
     }
-
     /* 只用把 1 加入，因为默认是 0 */
     if (leaf == parent->one)
       bits[c_byte] |= 1 << c_bit;
-
     ++len;
     leaf = parent;
   }
-
   if (bits)
     reversc_bits(bits, len);
-
   p = (code *) malloc(sizeof(code));
   p->len = len;
   p->bits = bits;
@@ -135,16 +125,14 @@ static node *new_node(unsigned long count, node *zero, node *one)
   return p;
 }
 
-static void free_huffman_tree(node *root)
+static void free_tree(node *root)
 {
   if (root == NULL)
     return;
-
   if (!root->leaf) {
-    free_huffman_tree(root->zero);
-    free_huffman_tree(root->one);
+    free_tree(root->zero);
+    free_tree(root->one);
   }
-
   free(root);
 }
 
@@ -174,10 +162,8 @@ static unsigned int get_symfreq(symfreq *sf, FILE *in)
 {
   int c;
   unsigned int tot = 0;
-
   /* 初始化频率表 */
   init_freq(sf);
-
   /* 计算文件中每个符号的出现次数 */
   while ((c = fgetc(in)) != EOF) {
     unsigned char uc = c;
@@ -186,7 +172,6 @@ static unsigned int get_symfreq(symfreq *sf, FILE *in)
     ++(*sf)[uc]->count;
     ++tot;
   }
-
   return tot;
 }
 
@@ -195,19 +180,16 @@ static int sfcmp(const void *p1, const void *p2)
 {
   const node *hn1 = *(const node **) p1;
   const node *hn2 = *(const node **) p2;
-
   if (hn1 == NULL && hn2 == NULL)
     return 0;
   if (hn1 == NULL)
     return 1;
   if (hn2 == NULL)
     return -1;
-
   if (hn1->count > hn2->count)
     return 1;
   else if (hn1->count < hn2->count)
     return -1;
-
   return 0;
 }
 
@@ -224,16 +206,15 @@ static void print_freq(symfreq *sf)
 }
 
 /* 遍历子树建立符号编码表 */
-static void build_symcode(node *root, symcode *sf)
+static void build_symcode(node *root, symcode *sc)
 {
   if (root == NULL)
     return;
-
   if (root->leaf)
-    (*sf)[root->symbol] = new_code(root);
+    (*sc)[root->symbol] = new_code(root);
   else {
-    build_symcode(root->zero, sf);
-    build_symcode(root->one, sf);
+    build_symcode(root->zero, sc);
+    build_symcode(root->one, sc);
   }
 }
 
@@ -244,28 +225,22 @@ static symcode *calc_code(symfreq *sf)
   unsigned int n = 0;
   node *m1 = NULL, *m2 = NULL;
   symcode *sc = NULL;
-
   /* 对频率进行增序排序 */
   qsort((*sf), MAX_SYMBOLS, sizeof((*sf)[0]), sfcmp);
-
   /* 获取符号数 */
   for (n = 0; n < MAX_SYMBOLS && (*sf)[n]; ++n);
-
   /* 构造 Huffman 树 */
   for (i = 0; i < n - 1; ++i) {
     /* 令 m1 和 m2 是最小的两棵树 */
     m1 = (*sf)[0];
     m2 = (*sf)[1];
-
     /* 合并成新树 {m1, m2} */
     (*sf)[0] = m1->parent = m2->parent =
       new_node(m1->count + m2->count, m1, m2);
     (*sf)[1] = NULL;
-
     /* 对符号频率表排序（伪优先队列） */
     qsort((*sf), n, sizeof((*sf)[0]), sfcmp);
   }
-
   /* 从树建立编码表 */
   sc = (symcode *) malloc(sizeof(symcode));
   memset(sc, 0, sizeof(symcode));
@@ -277,29 +252,25 @@ static symcode *calc_code(symfreq *sf)
  * * 4 字节编码大小 n
  * * 4 字节已编码字节数
  * * 编码 [1..n] ，每个编码 [i] 的格式为：
- *   * 1 字节符号，1 字节位长，编码字节（以 bit_len_byte 编码）
+ *   * 1 字节符号，1 字节位长，编码字节
  *   * 如果编码不是 8 的倍数的话，最后一字节可能会有多余位
  */
 static int write_code_table(FILE *out, symcode *sc, uint32_t syms)
 {
   uint32_t i, count = 0;
-
   /* 确定 sc 中的符号数 */
   for (i = 0; i < MAX_SYMBOLS; ++i) {
     if ((*sc)[i])
       ++count;
   }
-
   /* 写出符号数 */
   i = htonl(count);
   if (fwrite(&i, sizeof(i), 1, out) != 1)
     return 1;
-
   /* 写出待编码字节数 */
   syms = htonl(syms);
   if (fwrite(&syms, sizeof(syms), 1, out) != 1)
     return 1;
-
   /* 写出符号表 */
   for (i = 0; i < MAX_SYMBOLS; ++i) {
     code *p = (*sc)[i];
@@ -315,7 +286,6 @@ static int write_code_table(FILE *out, symcode *sc, uint32_t syms)
         return 1;
     }
   }
-
   return 0;
 }
 
@@ -324,23 +294,18 @@ static node *read_code_table(FILE *in, unsigned int *pdb)
 {
   node *root = new_node(0, NULL, NULL);
   uint32_t count;
-
   /* 读入符号数 */
   if (fread(&count, sizeof(count), 1, in) != 1) {
-    free_huffman_tree(root);
+    free_tree(root);
     return NULL;
   }
-
   count = ntohl(count);
-
   /* 读入当前分支编码数 */
   if (fread(pdb, sizeof(*pdb), 1, in) != 1) {
-    free_huffman_tree(root);
+    free_tree(root);
     return NULL;
   }
-
   *pdb = ntohl(*pdb);
-
   /* 读入符号表 */
   while (count-- > 0) {
     int c;
@@ -350,27 +315,23 @@ static node *read_code_table(FILE *in, unsigned int *pdb)
     unsigned char lbytes;
     unsigned char *bytes;
     node *p = root;
-
     if ((c = fgetc(in)) == EOF) {
-      free_huffman_tree(root);
+      free_tree(root);
       return NULL;
     }
     symbol = (unsigned char) c;
-
     if ((c = fgetc(in)) == EOF) {
-      free_huffman_tree(root);
+      free_tree(root);
       return NULL;
     }
-
     len = (unsigned char) c;
     lbytes = (unsigned char) bit_len_byte(len);
     bytes = (unsigned char *) malloc(lbytes);
     if (fread(bytes, 1, lbytes, in) != lbytes) {
       free(bytes);
-      free_huffman_tree(root);
+      free_tree(root);
       return NULL;
     }
-
     /* 依据当前位加入 Huffman 树 */
     for (c_bit = 0; c_bit < len; ++c_bit) {
       if (get_bit(bytes, c_bit)) {
@@ -391,10 +352,8 @@ static node *read_code_table(FILE *in, unsigned int *pdb)
         p = p->zero;
       }
     }
-
     free(bytes);
   }
-
   return root;
 }
 
@@ -404,16 +363,13 @@ static int do_file_encode(FILE *in, FILE *out, symcode *sc)
   unsigned char c_byte = 0;
   unsigned char c_bit = 0;
   int c;
-
   while ((c = fgetc(in)) != EOF) {
     unsigned char uc = (unsigned char) c;
     code *cod = (*sc)[uc];
     unsigned long i;
-
     for (i = 0; i < cod->len; ++i) {
       /* 添加位到当前字节 */
       c_byte |= get_bit(cod->bits, i) << c_bit;
-
       /* 若字节已满则写出并重置 */
       if (++c_bit == 8) {
         fputc(c_byte, out);
@@ -422,11 +378,9 @@ static int do_file_encode(FILE *in, FILE *out, symcode *sc)
       }
     }
   }
-
   /* 还有剩余数据的话直接输出 */
   if (c_bit > 0)
     fputc(c_byte, out);
-
   return 0;
 }
 
@@ -438,22 +392,18 @@ int huffman_encode_file(FILE *in, FILE *out)
   node *root = NULL;
   int rc;
   unsigned int syms;
-
   /* 获取输入文件中符号出现频率 */
   syms = get_symfreq(&sf, in);
-
   /* 生成编码表 */
   sc = calc_code(&sf);
   root = sf[0];
-
   /* 再次扫描文件，使用之前生成的编码表来编码 */
   rewind(in);
   rc = write_code_table(out, sc, syms);
   if (rc == 0)
     rc = do_file_encode(in, out, sc);
-
   /* 释放空间 */
-  free_huffman_tree(root);
+  free_tree(root);
   free_encoder(sc);
   return rc;
 }
@@ -464,12 +414,10 @@ int huffman_decode_file(FILE *in, FILE *out)
   node *root, *p;
   int c;
   unsigned int data_count;
-
   /* 读入编码表 */
   root = read_code_table(in, &data_count);
   if (!root)
     return 1;
-
   /* 解码文件 */
   p = root;
   while (data_count > 0 && (c = fgetc(in)) != EOF) {
@@ -478,7 +426,6 @@ int huffman_decode_file(FILE *in, FILE *out)
     while (data_count > 0 && mask) {
       p = byte & mask ? p->one : p->zero;
       mask <<= 1;
-
       if (p->leaf) {
         fputc(p->symbol, out);
         p = root;
@@ -486,8 +433,6 @@ int huffman_decode_file(FILE *in, FILE *out)
       }
     }
   }
-
-  free_huffman_tree(root);
+  free_tree(root);
   return 0;
 }
-

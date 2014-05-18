@@ -10,15 +10,14 @@
 
 假定我们希望压缩一个十万字符的文件。表 \ref{basetable} 给出了文件中所出现的字符和它们的出现频率。
 
-\begin{table}[htbp]
-\begin{center}
+\begin{table}[h]
+\centering
 \begin{tabular}{|l|cccccc|}\hline
  & a & b & c & d & e & f \\\hline
 频率（千次） & 45 & 13 & 12 & 16 & 9 & 5 \\
 定长编码 & 000 & 001 & 010 & 011 & 100 & 101 \\
 变长编码 & 0 & 101 & 100 & 111 & 1101 & 1100 \\\hline
 \end{tabular}
-\end{center}
 \caption{\label{basetable}一个字符编码问题。一个 100 000 个字符的文件，只包含 a--f 6个不同字符，频率如此。如果为每个字符指定一个 3 位的码字，则文件编码长度为 300 000 位。但如果使用变长编码，就可以下降到 224 000 位。}
 \end{table}
 
@@ -59,9 +58,8 @@
 实际上，由于 $n$ 是字符集数量，这个值一般是个常数，为 256。在实际运行中，这样小的规模中，$O(n\lg n)$ 的优势并不比 $O(n^2\lg n)$ 好多少。这并不是一个严重的问题，相对于庞大的数据量来说，符号数造成的影响小到可以忽略。
 
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[trim=28mm 102mm 22mm 24mm,clip]{image/clrs_huffman.pdf}
-\end{center}
 \caption{\label{clrs_huffman} 对表 \ref{basetable} 给出的频率执行 Huffman 算法的过程。每一部分显示了 $Q$ 中的内容，且已有递增序。每个步骤中，频率最低的两棵树进行合并。叶结点用矩形表示，包含一个字符及其频率。内部结点用圆圈表示，包含其孩子结点频率之和。结点指向左孩子的边标记为 0，指向右孩子的边标记为 1。一个字母的码字对应从根到其叶结点的路径上的边标记序列。(a)初始集合有 $n=6$ 个结点，每个结点对应一个字母。 (b)--(e) 为中间步骤。(f) 是最终的编码树。（参考 \cite{clrs}）}
 \end{figure}
 

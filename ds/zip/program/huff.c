@@ -29,8 +29,8 @@ static void usage(const char *name, FILE * out)
   fprintf(out,
       "用法： %s [< 输入文件 >] [< 输出文件 >] [ 选项 ]\n"
       "样例： %s 1 2        \t# 压缩文件 1 为 2\n"
-      "      %s 2 3 -u     \t# 解压文件 2 为 3\n"
-      "      %s -i1 -o2 -z \t# 压缩文件 1 为 2\n"
+      "       %s 2 3 -u     \t# 解压文件 2 为 3\n"
+      "       %s -i1 -o2 -z \t# 压缩文件 1 为 2\n"
       "选项： \n"
       "-i \t 输入文件\n"
       "-o \t 输出文件\n"
