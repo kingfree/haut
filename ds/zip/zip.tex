@@ -4,7 +4,11 @@
 \def\titlec{用哈夫曼算法压缩文件}
 \def\titlee{File~Compression with Huffman~Algorithm}
 \usepackage[top=2.5cm,bottom=2.5cm,left=3.1cm,right=3.1cm]{geometry} % 页面设置
-\usepackage[unicode,colorlinks=true,linkcolor=blue,breaklinks=true,pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee},pdfstartview=FitH,pdfview=FitH,pdfpagemode=UseOutlines]{hyperref}
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
+\usepackage{tikz} % 画图
+\usetikzlibrary{shapes,arrows}
 \usepackage{multicol} % 分栏
 \usepackage{multirow} % 跨行
 \usepackage{longtable} % 长表格
@@ -19,9 +23,12 @@
 \usepackage{shortvrb}
 \usepackage{pstricks} % 绘图
 \usepackage{pst-tree} % 画树
-\usepackage{pst-uml} % 画 UML
+% \usepackage{pst-uml} % 画 UML
+\usepackage{uml} % 画 UML
 \usepackage{clrscode3e} % CLRS 伪代码
+\usepackage{smartdiagram} % 智能画图
 \usepackage{nameref}
+\usepackage{rotating} % 横排大图
 \usepackage{caption}
 \captionsetup{font={small}} % 标题字体大小
 \usepackage{enumitem} % 调整列表样式
@@ -53,6 +60,7 @@
 
 %%%% 开始 %%%%
 \input{source/title}
+\newpage\pagestyle{empty}\quad\setcounter{page}{0}\newpage\pagestyle{plain}
 \input{source/task}
 \linespread{1}\tableofcontents\linespread{1.5}\newpage
 \input{source/analysis}

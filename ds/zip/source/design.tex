@@ -1,5 +1,91 @@
 \section{概要设计}
 
+% \subsection{函数调用关系}
+
+\begin{sidewaysfigure}
+\centering
+\newcommand{\defun}[2]{{\it #2}\\ {#1}}
+% \newcommand{\defun}[2]{{#1}}
+
+% \smartdiagram[constellation diagram]{
+% \defun{编码文件}{huffman encode file},
+% \smartdiagram[sequence diagram]{
+%   \defun{获取频率}{get symfreq},
+%   \defun{新叶结点}{new leaf node},
+%   \defun{建立符号编码表}{build symcode},
+%   },
+% \defun{计算编码}{calc code},
+% \defun{写出编码表}{write code table},
+% \defun{编码}{do file encode},
+% \defun{销毁编码表}{free encoder},
+% \defun{销毁树}{free tree}
+% }
+\begin{tikzpicture}[align=center]
+% \draw[help lines] (0,0) grid (20,11);
+
+\node (A) at (27em,10) [ellipse,draw] {\defun{压缩文件}{huffman\_encode\_file}};
+  \node (B1) at (7em,8) [draw] {\defun{获取频率}{get\_symfreq}};
+  \draw[<-] (node cs:name=B1,anchor=north) |- (7em,9) -| (node cs:name=A,anchor=south);
+    \node (C11) at (0em,6) [draw] {\defun{排序比较函数}{sfcmp}};
+    \draw[<-] (node cs:name=C11,anchor=north) |- (7em,7);
+    \node (C12) at (7em,6) [draw] {\defun{新叶结点}{new\_leaf\_node}};
+    \draw[<-] (node cs:name=C12,anchor=north) |- (node cs:name=B1,anchor=south);
+    \node (C13) at (15em,6) [draw] {\defun{建立符号编码表}{build\_symcode}};
+    \draw[<-] (node cs:name=C13,anchor=north) |- (7em,7);
+      \node (D) at (15em,4) [draw] {\defun{创建编码}{new\_code}};
+      \draw[<-] (node cs:name=D,anchor=north) |- (node cs:name=C13,anchor=south);
+  \node (B2) at (25em,8) [draw] {\defun{计算编码}{calc\_code}};
+  \draw[<-] (node cs:name=B2,anchor=north) |- (25em,9) -| (node cs:name=A,anchor=south);
+    \node (C21) at (22em,6) [draw] {\defun{新结点}{new\_node}};
+    \draw[<-] (node cs:name=C21,anchor=north) |- (22em,7) -| (node cs:name=B2,anchor=south);
+    \node (C22) at (28em,6) [draw] {\defun{初始化频率表}{init\_freq}};
+    \draw[<-] (node cs:name=C22,anchor=north) |- (28em,7) -| (node cs:name=B2,anchor=south);
+  \node (B3) at (35em,8) [draw] {\defun{写出编码表}{write\_code\_table}};
+  \draw[<-] (node cs:name=B3,anchor=north) |- (35em,9) -| (node cs:name=A,anchor=south);
+    \node (C31) at (33.4em,6) [circle,draw] {\emph{fwrite}};
+    \draw[<-] (node cs:name=C31,anchor=north) |- (35em,7) -| (node cs:name=B3,anchor=south);
+    \node (C32) at (36.6em,6) [circle,draw] {\emph{htonl}};
+    \draw[<-] (node cs:name=C32,anchor=north) |- (35em,7) -| (node cs:name=B3,anchor=south);
+  \node (B4) at (44em,8) [draw] {\defun{进行文件编码}{do\_file\_encode}};
+  \draw[<-] (node cs:name=B4,anchor=north) |- (44em,9) -| (node cs:name=A,anchor=south);
+  \node (B5) at (44em,6) [draw] {\defun{销毁编码表}{free\_encoder}};
+  \draw[<-] (node cs:name=B5,anchor=east) |- (50em,6) |- (35em,9) -| (node cs:name=A,anchor=south);
+    \node (C5) at (44em,4) [draw] {\defun{销毁编码}{free\_code}};
+    \draw[<-] (node cs:name=C5,anchor=north) |- (node cs:name=B5,anchor=south);
+  \node (B6) at (40em,2) [draw] {\defun{销毁树}{free\_tree}};
+  \draw[<-] (node cs:name=B6,anchor=east) |- (50em,2) |- (35em,9) -| (node cs:name=A,anchor=south);
+
+\node (G) at (32em,0) [ellipse,draw] {\defun{解压缩文件}{huffman\_decode\_file}};
+  \node (F) at (22em,2) [draw] {\defun{读入编码表}{read\_code\_table}};
+  \draw[->] (node cs:name=G,anchor=north) |- (35em,1) -| (node cs:name=F,anchor=south);
+    \node (E1) at (33.4em,4) [circle,draw] {\emph{fread}};
+    \draw[->] (node cs:name=F,anchor=north) |- (35em,3) -| (node cs:name=E1,anchor=south);
+    \node (E2) at (36.6em,4) [circle,draw] {\emph{ntohl}};
+    \draw[->] (node cs:name=F,anchor=north) |- (35em,3) -| (node cs:name=E2,anchor=south);
+
+  \draw[<-] (node cs:name=C21,anchor=south) |- (22em,3) -| (node cs:name=F,anchor=north);
+  \draw[<-] (node cs:name=C12,anchor=south) |- (22em,3) -| (node cs:name=F,anchor=north);
+\draw[<-] (node cs:name=B6,anchor=south) |- (35em,1) -| (node cs:name=G,anchor=north);
+
+\end{tikzpicture}
+
+% \begin{tikzpicture}
+% \node {\defun{编码文件}{huffman encode file}}
+%   child {node {\defun{计算编码}{calc code}}}
+%   child {node {\defun{获取频率}{get symfreq}}
+%     child {node {\defun{新叶结点}{new leaf node}}}
+%     child {node {\defun{建立符号编码表}{build symcode}}}
+%   }
+%   child {node {\defun{写出编码表}{write code table}}}
+%   child {node {\defun{编码}{do file encode}}}
+%   child {node {\defun{销毁编码表}{free encoder}}}
+%   child {node {\defun{销毁树}{free tree}}};
+% \end{tikzpicture}
+
+\caption{\label{funcall}两个接口对主要函数之间的调用关系}
+\end{sidewaysfigure}
+
+
 \subsection{程序运行逻辑}
 
 我们首先考虑程序运行的主要逻辑。当键入程序名运行程序时，应该给出帮助信息，告诉用户应该怎样使用本程序。假定运行程序名为 {\sf huff}。
@@ -33,6 +119,8 @@
 
 \subsection{接口定义}
 
+第~\pageref{funcall}~页的横排大图 \ref{funcall} 展示了这两个对外接口对主要函数之间的调用关系。
+
 \function{huffman\_encode\_file}
 {FILE *in, FILE *out}
 {int}{成功返回 0}
@@ -51,14 +139,17 @@
 
 \subsection{位操作}
 
-\begin{center}
-\umlClass{\makebox[3.5cm]{code}}{
-  len: unsigned long\\
-  bits: unsigned char *\\
+\begin{figure}[htp]
+\centering
+\umlDiagram[sizeX=4.4cm, sizeY=3.4cm]{
+  \umlClass{code}
+    {\umlAttribute[type=\texttt{unsigned long}]{\emph{len}}}
+    {\umlAttribute[type=\texttt{unsigned char *}]{\emph{bits}}}
 }
-\end{center}
+\caption{\label{code}码字数据类型}
+\end{figure}
 
-定义数据类型 \verb|code| 用来存储位数据，其 \verb|len| 表示编码位长， \verb|bits| 是指向存储编码值得指针，一个 \verb|bits[]| 表示八位编码。
+如图 \ref{code}，定义数据类型 \verb|code| 用来存储位数据，其 \verb|len| 表示编码位长， \verb|bits| 是指向存储编码值得指针，一个 \verb|bits[]| 表示八位编码。
 
 \function{bit\_len\_byte}
 {unsigned long len}
@@ -131,23 +222,21 @@
 
 \subsection{Huffman 树}
 
-\begin{center}
-\umlClass{node}{
-  leaf: bool\\
-  count: unsigned long\\
-  parent: node *\\
-  \hline
-  \umlState{}{
-    \umlNote{
-      zero: node *\\
-      one: node *
-    }\\
-    \umlNote{symbol: unsigned char}
-  }\\
+\begin{figure}[htp]
+\centering
+\umlDiagram[sizeX=4.8cm, sizeY=6.4cm]{
+  \umlClass{node}{\umlAttribute[type=\texttt{bool}]{\emph{leaf}}
+    \umlAttribute[type=\texttt{unsigned long}]{\emph{count}}
+    \umlAttribute[type=\texttt{unsigned char *}]{\emph{bits}}
+  }{\umlAttribute[visibility=-,type=\texttt{node *}]{\emph{zero}}
+    \umlAttribute[visibility=-,type=\texttt{node *}]{\emph{one}}
+    \umlAttribute[visibility=+,type=\texttt{unsigned char}]{\emph{symbol}}
+  }
 }
-\end{center}
+\caption{\label{node}结点数据类型}
+\end{figure}
 
-定义数据类型 \verb|node| 用来存储 Huffman 树的结点。其 \verb|leaf| 标识是否为叶结点，如果是叶结点，联合体用 \verb|symbol| 存储该结点表示的符号；如果不是，则使用含有 \verb|zero| 和 \verb|one| 指针域的结构体来存储左右子树的地址。
+如图 \ref{node}，定义数据类型 \verb|node| 用来存储 Huffman 树的结点。其 \verb|leaf| 标识是否为叶结点，如果是叶结点，联合体用 \verb|symbol| 存储该结点表示的符号；如果不是，则使用含有 \verb|zero| 和 \verb|one| 指针域的结构体来存储左右子树的地址。
  \verb|count| 存储该结点的频率（频数），指针 \verb|parent| 指向该结点的父亲。
 
 \function{new\_leaf\_node}
