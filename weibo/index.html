@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <title>微博分析</title>
+  <script src="js/jquery-1.11.1.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h1>获取微博</h1>
+    <div class="row">
+      <div class="col-xs-4">
+        <form role="form" id="getweibo">
+          <div class="form-group">
+            <label for="appkey">App Key</label>
+            <input id="appkey" type="text" class="form-control" id="appkey" value="">
+          </div>
+          <div class="form-group">
+            <label for="appsecret">App Secret</label>
+            <input id="appsecret" type="text" class="form-control" id="appsecret" value="">
+          </div>
+          <button type="submit" class="btn btn-default">获取微博</button>
+        </form>
+      </div>
+
+      <div class="col-xs-8">
+        <table class="table table-hover">
+          <thead>
+            <th>内容</th>
+            <th>时间</th>
+          </thead>
+          <tbody id="weibo"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script src="js/getweibo.js"></script>
+</body>
+</html>
