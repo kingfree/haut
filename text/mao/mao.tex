@@ -1,7 +1,7 @@
 \documentclass[cs4size,a4paper,nofonts]{ctexart}
 \usepackage[utf8]{inputenc}
 \def\tjf{田劲锋}
-\def\titlec{关于互联网改变青年人认知形式与人认知能力的调研}
+\def\titlec{关于网络语言传播和影响的调研}
 \usepackage[top=2.5cm,bottom=2.5cm,left=3.1cm,right=3.1cm]{geometry} % 页面设置
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
@@ -41,6 +41,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \setlength{\abovecaptionskip}{1pt}
 \setlength{\belowcaptionskip}{0pt}
 \setlength{\intextsep}{8pt}
+\setlist{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
 
 \makeindex
 \pagestyle{plain}
@@ -50,7 +51,12 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 %%%% 开始 %%%%
 
 \input{source/title}
-\linespread{1}\tableofcontents\linespread{1.5}\newpage
+\tableofcontents\newpage
+\input{source/context}
+\input{source/biblio}\newpage
+\appendix\part*{附录}
+\input{source/pictures}
+\input{source/question}
 
 %%%% 结束 %%%%
 
