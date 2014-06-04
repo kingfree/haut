@@ -2,7 +2,6 @@ MAIN = sss
 
 all:
 	xelatex $(MAIN)
-	bibtex $(MAIN)
 	xelatex $(MAIN)
 
 clean:
