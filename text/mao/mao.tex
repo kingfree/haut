@@ -6,28 +6,24 @@
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
 pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
-\usepackage{tikz} % 画图
-\usetikzlibrary{shapes,arrows}
 \usepackage{multicol} % 分栏
 \usepackage{multirow} % 跨行
 \usepackage{longtable} % 长表格
-\usepackage{tabularx} % 变宽表格
-\usepackage{booktabs} % 表格画线
 \usepackage{graphicx} % 图形
 \usepackage{color} % 颜色
 \usepackage{xcolor} % 颜色
 \usepackage{url} % 排版链接
 \usepackage{nameref}
-\usepackage{rotating} % 横排大图
 \usepackage{caption}
 \captionsetup{font={small}} % 标题字体大小
-\usepackage{enumitem} % 调整列表样式
+\usepackage[inline]{enumitem} % 调整列表样式
 
+\setmainfont{Times New Roman}
 ﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
 \setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
 \setCJKmonofont{KFKai} % 等宽字体：楷体
 \setCJKfamilyfont{msyh}[BoldFont={* Bold}]{微软雅黑} \newcommand{\msyh}{\CJKfamily{msyh}} % 微软雅黑
-\setCJKfamilyfont{micro}{文泉驿微米黑} \newcommand{\micro}{\CJKfamily{micro}} % 文泉驿微米黑
+\setCJKfamilyfont{mincho}{MS PMincho} \newcommand{\mincho}{\CJKfamily{mincho}} % 文泉驿微米黑
 \setCJKfamilyfont{fangso}{华文仿宋} \newcommand{\fangso}{\CJKfamily{fangso}} % STLiti
 
 \CJKsetecglue{\hspace{0.1em}}
@@ -42,6 +38,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \setlength{\belowcaptionskip}{0pt}
 \setlength{\intextsep}{8pt}
 \setlist{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist*[enumerate,2]{label=(\Alph*)}
 
 \makeindex
 \pagestyle{plain}
