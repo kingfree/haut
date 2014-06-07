@@ -1,4 +1,4 @@
-MAIN = mao
+MAIN = marx
 
 all:
 	xelatex $(MAIN)

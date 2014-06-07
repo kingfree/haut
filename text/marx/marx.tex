@@ -1,4 +1,4 @@
-\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\documentclass[cs4size,a4paper,nofonts,draft]{ctexart}
 \usepackage[utf8]{inputenc}
 \def\tjf{田劲锋}
 \def\titlec{关于网络语言传播和影响的调研}
@@ -6,6 +6,9 @@
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
 pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+\usepackage{xeCJK}
+\usepackage{xpinyin}
+
 \usepackage{multicol} % 分栏
 \usepackage{multirow} % 跨行
 \usepackage{longtable} % 长表格
@@ -39,6 +42,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \setlength{\intextsep}{8pt}
 \setlist{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
 \setlist*[enumerate,2]{label=(\Alph*)}
+\setlist[enumerate,2]{label=(\Alph*)}
 
 \makeindex
 \pagestyle{plain}
@@ -48,8 +52,8 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 %%%% 开始 %%%%
 
 \input{source/title}
-\tableofcontents\newpage
-\input{source/context}
+\setcounter{tocdepth}{2}\tableofcontents\newpage
+\input{source/context}\newpage
 \input{source/biblio}\newpage
 \appendix\part*{附录}
 \input{source/pictures}
