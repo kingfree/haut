@@ -19,6 +19,7 @@ pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
 \usepackage{xcolor} % 颜色
 \usepackage{wallpaper} % 背景图片
 \usepackage{listings} % 排版代码
+\usepackage{verbatim} % 排版代码
 \usepackage{url} % 排版链接
 \usepackage{shortvrb}
 \usepackage{pstricks} % 绘图
@@ -31,14 +32,15 @@ pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
 \usepackage{rotating} % 横排大图
 \usepackage{caption}
 \captionsetup{font={small}} % 标题字体大小
-\usepackage{enumitem} % 调整列表样式
+\usepackage[inline]{enumitem} % 调整列表样式
 
+﻿\setmainfont{Times New Roman}
 ﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
 \setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
 \setCJKmonofont{KFKai} % 等宽字体：楷体
 \setCJKfamilyfont{msyh}[BoldFont={* Bold}]{微软雅黑} \newcommand{\msyh}{\CJKfamily{msyh}} % 微软雅黑
 \setCJKfamilyfont{micro}{文泉驿微米黑} \newcommand{\micro}{\CJKfamily{micro}} % 文泉驿微米黑
-\setCJKfamilyfont{liti}{STLiti} \newcommand{\liti}{\CJKfamily{liti}} % STLiti
+\setCJKfamilyfont{liti}{隶书} \newcommand{\liti}{\CJKfamily{liti}}
 
 \CJKsetecglue{\hspace{0.1em}}
 \renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
@@ -56,23 +58,26 @@ pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
 \pagestyle{plain}
 
 \begin{document}
-\input{source/common}
+\include{source/common}
 
 %%%% 开始 %%%%
-\input{source/title}
-\newpage\pagestyle{empty}\quad\setcounter{page}{0}\newpage\pagestyle{plain}
-\input{source/task}
+\include{source/title}\newpage
+\pagestyle{empty}\quad\newpage
+\include{source/task}\quad\newpage
+\setcounter{page}{0}\pagestyle{plain}
 \linespread{1}\tableofcontents\linespread{1.5}\newpage
-\input{source/analysis}
-\input{source/design}
-\input{source/runtime}
-\input{source/environment}
-\input{source/program}
-\input{source/debug}
-\input{source/testcase}
-\input{source/reference}
-\input{source/cocoro}
-\input{source/score}
+\include{source/analysis}
+\include{source/kaiyou}
+\include{source/design}
+\include{source/runtime}
+\include{source/environment}
+\include{source/program}
+\include{source/debug}
+\include{source/testcase}
+\include{source/conclusion}
+\include{source/reference}
+\include{source/cocoro}
+\include{source/score}
 %%%% 结束 %%%%
 
 \end{document}
