@@ -1,0 +1,212 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\usepackage[top=2.5cm,bottom=2.5cm,left=3.1cm,right=3.1cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black]{hyperref}
+\usepackage{amsmath,amsopn}
+\usepackage{graphicx} % 图形
+\usepackage{color} % 颜色
+\usepackage{xcolor} % 颜色
+\usepackage{wallpaper} % 背景图片
+\usepackage{listings} % 排版代码
+\usepackage{verbatim} % 排版代码
+\usepackage{url} % 排版链接
+\usepackage{shortvrb}
+\usepackage{fancyvrb}
+\usepackage{nameref}
+\usepackage{caption}
+\captionsetup{font={small}} % 标题字体大小
+\usepackage[inline]{enumitem} % 调整列表样式
+
+% ﻿\setmainfont{Times New Roman}
+﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+\setCJKfamilyfont{liti}{隶书} \newcommand{\liti}{\CJKfamily{liti}}
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1}
+\setlength{\parskip}{2pt plus 2pt}
+\renewcommand{\baselinestretch}{1}
+
+\setlength{\abovecaptionskip}{1pt}
+\setlength{\belowcaptionskip}{0pt}
+\setlength{\intextsep}{8pt}
+
+\lstset{language=C,
+  numbers=left,
+  numberstyle=\tiny,
+  basicstyle=\small\tt,
+  commentstyle=\color{gray},
+  keywordstyle=\bfseries\color{violet},
+  stringstyle=\color{teal},
+  showstringspaces=false,
+  frame=tb,
+  %     % identifierstyle=\sf,
+%     breaklines=true,
+  escapeinside=` `,
+%     % texcl=true,  % 为true时，注释内容被当做LaTeX代码来处理
+}
+
+\DeclareMathOperator{\Ack}{Ack}
+
+\makeindex
+\pagestyle{plain}
+
+\begin{document}
+
+%%%% 开始 %%%%
+\title{程序设计实践 实验报告}
+\author{\tjf}
+\date{201316920311}
+\maketitle
+
+\tableofcontents
+
+\section{函数与程序结构}
+
+\subsection{P123 调试示例}
+
+主要是预编译指令的写法，和工程的文件包含。
+
+\lstinputlisting[language=C,caption={\tt error10\_1\_main.c}]{../ex1/error10_1_main.c}
+\lstinputlisting[language=C,caption={\tt error10\_1\_cal.c}]{../ex1/error10_1_cal.c}
+\lstinputlisting[language=C,caption={\tt error10\_1\_vol.c}]{../ex1/error10_1_vol.c}
+
+运行结果：
+\begin{verbatim}
+    1 - 计算球体体积
+    2 - 计算圆柱体体积
+    3 - 计算圆锥体体积
+ 其他 - 退出程序运行
+请输入对应指令：1
+请输入球体的半径：2
+球体体积为：33.51
+    1 - 计算球体体积
+    2 - 计算圆柱体体积
+    3 - 计算圆锥体体积
+ 其他 - 退出程序运行
+请输入对应指令：3
+请输入圆锥体的底面半径和高：2.4 3
+圆锥体体积为：18.10
+    1 - 计算球体体积
+    2 - 计算圆柱体体积
+    3 - 计算圆锥体体积
+ 其他 - 退出程序运行
+请输入对应指令：2
+请输入圆柱体的底面半径和高：2.4 3
+圆柱体体积为：54.29
+    1 - 计算球体体积
+    2 - 计算圆柱体体积
+    3 - 计算圆锥体体积
+ 其他 - 退出程序运行
+请输入对应指令：4
+\end{verbatim}
+
+另外，一些复杂的预编译指令在 Microsoft Visual C++ 6.0 上是无法编译通过的，需要使用符合 C89 标准的编译器 如 GCC。
+
+\subsection{P132 编程题 (5)}
+
+实现阿克曼函数：
+\[\Ack(m, n) = \left\{\begin{array}{ll}
+n + 1, & m = 0 ,\\
+\Ack(m - 1, 1), & n = 0 ,\\
+\Ack(m-1, \Ack(m, n-1)), & m > 0 \text{\,且\,} n > 0 .\\
+\end{array}\right.\]
+
+使用递归可以实现：
+\lstinputlisting[language=C,caption={\tt t5.c}]{../ex1/t5.c}
+
+运行结果：
+\begin{verbatim}
+请输入 m: 2
+请输入 n: 3
+Ackerman(2, 3) = 9
+\end{verbatim}
+
+\subsection{P132 编程题 (7)}
+
+求斐波那契数列项：
+\[f(n) = \left\{\begin{array}{ll}
+0, & n = 0, \\
+1, & n = 1, \\
+f(n - 2) + f(n - 1), & n > 1. \\
+\end{array}\right.\]
+
+使用递归完成：
+\lstinputlisting[language=C,caption={\tt t7.c}]{../ex1/t7.c}
+
+运行结果：
+\begin{verbatim}
+请输入 n: 6
+fib(6) = 8
+\end{verbatim}
+
+\subsection{P132 编程题 (8)}
+
+实现二进制转换函数 {\tt dectobin(n)}，其中 $n$ 是正整数。
+
+二除取余，倒序输出。仍然可以使用递归：
+\lstinputlisting[language=C,caption={\tt t8.c}]{../ex1/t8.c}
+
+运行结果：
+\begin{verbatim}
+请输入 n: 100
+1100100
+\end{verbatim}
+
+\section{指针进阶}
+
+指针虽好，减少滥用。
+
+\subsection{P138 编程题 (2)}
+
+输入星期的英文单词，输出对应序号。
+
+顺序查找比较即可：
+\lstinputlisting[language=C,caption={\tt t2.c}]{../ex2/t2.c}
+
+运行结果：
+\begin{verbatim}
+Tuesday
+3
+
+Kinyoubi                           # 星期五（金曜日「きにょうび」）
+-1
+\end{verbatim}
+
+\subsection{P138 编程题 (3)}
+
+统计输入的最长字符串。
+
+小心指针类型的问题，分清楚指针数组和数组指针。这里我每读入一个字符串，就分配相应大小的内存：
+\lstinputlisting[language=C,caption={\tt t3.c}]{../ex2/t3.c}
+
+运行结果：
+\begin{verbatim}
+n=4
+ao                                 # 蓝色（青「あお」）
+kiiro                              # 黄色（黄色「きいろ」）
+aka                                # 红色（赤「あか」）
+midori                             # 绿色（緑「みどり」）
+6
+\end{verbatim}
+
+\subsection{P140 调试示例}
+\subsection{P145 编程题 (1)}
+\subsection{P145 编程题 (2)}
+\subsection{P145 编程题 (3)}
+
+\section{文件}
+
+\subsection{P148 改错题}
+\subsection{P150 编程题 (3)}
+\subsection{P150 编程题 (7)}
+
+%%%% 结束 %%%%
+
+\end{document}
