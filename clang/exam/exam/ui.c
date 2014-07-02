@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <errno.h>
 
 #include "db.h"
 #include "problem.h"
@@ -77,7 +78,7 @@ void ui_teacher()
 
 void ui_teacher_insert()
 {
-  problem p = ui_input_problem();
+  problem *p = ui_input_problem();
   FILE *db = problem_open();
   if (db == NULL) {
     perror("打开题目数据库失败");
