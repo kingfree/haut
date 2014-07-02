@@ -1,11 +1,11 @@
 /* exam.c
- * Èë¿ÚÖ÷³ÌĞò
+ * å…¥å£ä¸»ç¨‹åº
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "db.h"
+#include "slist.h"
 #include "problem.h"
 #include "ui.h"
 

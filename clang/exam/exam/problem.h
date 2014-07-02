@@ -5,32 +5,36 @@
 #ifndef _PROBLEM_H_
 #define _PROBLEM_H_
 
-#include "db.h"
+#include "slist.h"
 
-typedef struct problem {
-  int id;
+typedef struct Problem {
+  int  id;
   char des[256];   // 题目描述
   char opt[4][64]; // 选项
   char ans;        // 答案
   char dif;        // 难度系数
-  int cate_id;
-} problem;
+  int  tag;        // 标签（知识点）
+  int  chapter;    // 章
+  int  section;    // 节
+} Problem;
+
+typedef SList PList;
 
 const char *problem_db_name = "problem.db";
 
-FILE * problem_open();
-int problem_close(FILE *db);
+PList *problem_open();
+int problem_close(PList *db);
 
-int problem_insert(FILE *db, problem *p); // by id
-int problem_delete(FILE *db, problem *p); // by id
-int problem_update(FILE *db, problem *p); // by id
-int problem_select(FILE *db, problem *p); // by id
+int problem_insert(PList *db, Problem *p); // by id
+int problem_delete(PList *db, Problem *p); // by id
+int problem_update(PList *db, Problem *p); // by id
+int problem_select(PList *db, Problem *p); // by id
 
-int problem_count(FILE *db);
-int problem_max_id(FILE *db);
+int problem_count(PList *db);
+int problem_max_id(PList *db);
 
-list * problem_search(FILE *db, char *search);
+PList *problem_search(PList *db, char *search);
 
-int problem_max_id(FILE *db);
+int problem_max_id(PList *db);
 
 #endif

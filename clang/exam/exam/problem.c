@@ -2,21 +2,27 @@
  * 题目数据库的增删改查
  */
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 
 #include "problem.h"
 
-FILE * problem_open()
+PList *problem_read_list()
 {
-  return db_open(problem_db_name, sizeof(problem));
+  FILE *file = fopen(problem_db_name, "r+");
+  if (file == NULL) {
+    return NULL;
+  }
+  Problem p;
 }
 
-int problem_close(FILE *db)
+int problem_write_list(PList *db)
 {
   return db_close(db);
 }
 
-int problem_insert(FILE *db, problem *p)
+int problem_insert(PList *db, problem *p)
 {
   p->id = problem_max_id(db) + 1;
   return db_insert(db, p);

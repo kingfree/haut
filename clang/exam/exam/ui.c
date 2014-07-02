@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include <errno.h>
 
-#include "db.h"
+#include "slist.h"
 #include "problem.h"
 #include "ui.h"
 
@@ -65,7 +65,7 @@ void ui_teacher()
       "   0 - 返回上一级\n"
     )) {
       // case 1: ui_teacher_view(); break;
-      case 2: ui_teacher_insert(); break;
+      case 2: ui_teacher_ insert(); break;
       // case 3: ui_teacher_delete(); break;
       // case 4: ui_teacher_update(); break;
       // case 5: ui_teacher_select(); break;
@@ -78,8 +78,8 @@ void ui_teacher()
 
 void ui_teacher_insert()
 {
-  problem *p = ui_input_problem();
-  FILE *db = problem_open();
+  Problem *p = ui_input_problem();
+  PList *db = problem_read_list();
   if (db == NULL) {
     perror("打开题目数据库失败");
     return;
@@ -88,7 +88,7 @@ void ui_teacher_insert()
     perror("插入题目失败");
     return;
   }
-  if (problem_close(db) != 0) {
+  if (problem_write_list(db) != 0) {
     perror("关闭题目数据库失败");
     return;
   }

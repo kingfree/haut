@@ -5,11 +5,11 @@
 #ifndef _UI_H_
 #define _UI_H_
 
-#include "db.h"
+#include "slist.h"
 #include "problem.h"
 
 #define NAME    "标准化考试系统"
-#define VERSION "0.0.2"
+#define VERSION "0.0.3"
 
 void ui_login();
 
