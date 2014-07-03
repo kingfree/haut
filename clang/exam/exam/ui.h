@@ -9,7 +9,7 @@
 #include "problem.h"
 
 #define NAME    "标准化考试系统"
-#define VERSION "0.0.3"
+#define VERSION "0.0.4"
 
 void ui_login();
 
@@ -26,6 +26,6 @@ void ui_teacher_select();
 void ui_teacher_generate();
 void ui_teacher_score();
 
-problem * ui_input_problem();
+Problem ui_input_problem();
 
 #endif

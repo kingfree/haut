@@ -20,10 +20,10 @@ typedef struct Problem {
 
 typedef SList PList;
 
-const char *problem_db_name = "problem.db";
+static char *problem_db_name = "problem.db";
 
-PList *problem_open();
-int problem_close(PList *db);
+int problem_read_list(PList *db);
+int problem_write_list(PList *db);
 
 int problem_insert(PList *db, Problem *p); // by id
 int problem_delete(PList *db, Problem *p); // by id
