@@ -1,8 +1,8 @@
 CC = gcc
-EXTRA = 
+EXTRA = -Wall -g
 
 all:
-	$(CC) exam.c slist.c file.c problem.c ui.c -o exam $(EXTRA)
+	$(CC) slist.c file.c problem.c ui.c exam.c -o exam $(EXTRA)
 
 clean:
-	$(RM) oxam *.exe *.o *.a
+	$(RM) exam *.exe *.o *.a

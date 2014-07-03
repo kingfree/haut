@@ -5,11 +5,13 @@
 #ifndef _UI_H_
 #define _UI_H_
 
+#include <stdbool.h>
+
 #include "slist.h"
 #include "problem.h"
 
 #define NAME    "标准化考试系统"
-#define VERSION "0.0.4"
+#define VERSION "0.0.6"
 
 void ui_login();
 
@@ -26,6 +28,7 @@ void ui_teacher_select();
 void ui_teacher_generate();
 void ui_teacher_score();
 
-Problem ui_input_problem();
+Problem *ui_input_problem();
+void ui_output_problem(Problem *p, bool show_more);
 
 #endif
