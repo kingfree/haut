@@ -1,4 +1,4 @@
-/* ui.c
+﻿/* ui.c
  * 终端用户屏幕交互
  */
 
@@ -14,7 +14,7 @@
 #include "ui.h"
 
 void cls() {
-#ifdef WIN32
+#ifdef WINNT
   system("cls");
 #else
   system("clear");
@@ -22,7 +22,7 @@ void cls() {
 }
 
 void pause() {
-#ifdef WIN32
+#ifdef WINNT
   system("pause");
 #else
   fprintf(stderr, "键入回车以继续...\n");
@@ -90,7 +90,7 @@ void ui_teacher()
 
 void *ui_each_problem_show(SList *item, void *userdata)
 {
-  Problem *p = item->userdata;
+  Problem *p = (Problem *) item->userdata;
   // fprintf(stderr, "(%p)->%p\n", item, p);
   printf("%3d. %s\n"
     "     [A]. %s\t[B]. %s\t[C]. %s\t[D]. %s\n"
@@ -103,9 +103,9 @@ void *ui_each_problem_show(SList *item, void *userdata)
 
 void ui_teacher_view()
 {
-  PList *db, dbc;
+  PList *db = plist_new();
   int n;
-  if ((n = problem_read_list(db = &dbc)) < 0) {
+  if ((n = problem_read_list(db)) < 0) {
     perror("读取题目数据库失败");
     return;
   }
@@ -170,9 +170,9 @@ void ui_output_problem(Problem *p, bool show_more)
 
 void ui_teacher_insert()
 {
-  PList *db, dbc;
+  PList *db = plist_new();
   int n;
-  if ((n = problem_read_list(db = &dbc)) < 0) {
+  if ((n = problem_read_list(db)) < 0) {
     perror("读取题目数据库失败");
     return;
   }

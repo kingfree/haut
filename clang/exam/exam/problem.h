@@ -1,4 +1,4 @@
-/* problem.h
+﻿/* problem.h
  * 题目数据库的增删改查
  */
 
@@ -24,12 +24,15 @@ typedef struct PList {
     int count;
 } PList;
 
+Problem *problem_new();
 PList *plist_new();
 
 static char *problem_db_name = "problem.db";
 
 int problem_read_list(PList *db);
 int problem_write_list(PList *db);
+
+void problem_restore(PList *db);
 
 int problem_insert(PList *db, Problem *p); // by id
 int problem_delete(PList *db, Problem *p); // by id
@@ -40,8 +43,6 @@ int problem_count(PList *db);
 int problem_max_id(PList *db);
 
 PList *problem_search(PList *db, char *search);
-
-int problem_max_id(PList *db);
 
 char *dif2star(int dif);
 

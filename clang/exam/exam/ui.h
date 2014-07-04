@@ -1,4 +1,4 @@
-/* ui.h
+﻿/* ui.h
  * 终端用户屏幕交互
  */
 
@@ -10,8 +10,8 @@
 #include "slist.h"
 #include "problem.h"
 
-#define NAME    "标准化考试系统"
-#define VERSION "0.0.6"
+static char *NAME = "标准化考试系统";
+static char *VERSION = "0.0.7";
 
 void ui_login();
 
