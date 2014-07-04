@@ -27,10 +27,8 @@ typedef struct PList {
 Problem *problem_new();
 PList *plist_new();
 
-static char *problem_db_name = "problem.db";
-
-int problem_read_list(PList *db);
-int problem_write_list(PList *db);
+int problem_read_file(PList *db, const char *filename);
+int problem_write_file(PList *db, const char *filename);
 
 void problem_restore(PList *db);
 

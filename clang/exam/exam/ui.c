@@ -13,8 +13,13 @@
 #include "problem.h"
 #include "ui.h"
 
+static char *NAME = "标准化考试系统";
+static char *VERSION = "0.0.8";
+
+static char *problem_db_name = "problem.db";
+
 void cls() {
-#ifdef WINNT
+#ifdef WIN32
   system("cls");
 #else
   system("clear");
@@ -22,7 +27,7 @@ void cls() {
 }
 
 void pause() {
-#ifdef WINNT
+#ifdef WIN32
   system("pause");
 #else
   fprintf(stderr, "键入回车以继续...\n");
@@ -56,6 +61,7 @@ void ui_login()
       case 2: ui_teacher(); break;
       // case 3: ui_help(); break;
       // case 4: ui_about(); break;
+      case 0: exit(0); break;
       default: return; break;
     }
   }
@@ -82,8 +88,8 @@ void ui_teacher()
       // case 5: ui_teacher_select(); break;
       // case 6: ui_teacher_generate(); break;
       // case 7: ui_teacher_score(); break;
-      case 9: return; break;
-      default: exit(0); break;
+      case 0: exit(0); break;
+      default: return; break;
     }
   }
 }
@@ -92,11 +98,11 @@ void *ui_each_problem_show(SList *item, void *userdata)
 {
   Problem *p = (Problem *) item->userdata;
   // fprintf(stderr, "(%p)->%p\n", item, p);
-  printf("%3d. %s\n"
-    "     [A]. %s\t[B]. %s\t[C]. %s\t[D]. %s\n"
+  printf("%d. %s\n"
+    "    [A]. %s\t[B]. %s\t[C]. %s\t[D]. %s\n"
     "", p->id, p->des,
     p->opt[0], p->opt[1], p->opt[2], p->opt[3]);
-  printf("  答案: %c\t难度: %10s\t标签: %i\t章节: %i.%i\n",
+  printf("\t 答案: %c\t 难度: %-10s\t 标签: %i\t 章节: %i.%i\n",
     p->ans, dif2star(p->dif), p->tag, p->chapter, p->section);
   return NULL;
 }
@@ -105,7 +111,7 @@ void ui_teacher_view()
 {
   PList *db = plist_new();
   int n;
-  if ((n = problem_read_list(db)) < 0) {
+  if ((n = problem_read_file(db, problem_db_name)) < 0) {
     perror("读取题目数据库失败");
     return;
   }
@@ -114,18 +120,19 @@ void ui_teacher_view()
   pause();
 }
 
+char ui_input_ans()
+{
+  char c = ' ';
+  while (scanf("%c", &c), c = toupper(c), !('A' <= c && c <= 'D'));
+  return c;
+}
+
 Problem *ui_input_problem()
 {
-  // int  id;
-  // char des[256];   // 题目描述
-  // char opt[4][64]; // 选项
-  // char ans;        // 答案
-  // char dif;        // 难度系数
-  // int  tag;        // 标签（知识点）
-  // int  chapter;    // 章
-  // int  section;    // 节
   int i = 0;
   Problem *p = malloc(sizeof(Problem));
+
+  printf("请输入题目相关信息: \n");
 
   printf("题目描述: ");
   scanf("%s", p->des);
@@ -136,27 +143,27 @@ Problem *ui_input_problem()
   }
 
   printf("正确答案字母序号: ");
-  while (scanf("%c", &p->ans), p->ans = toupper(p->ans), !('A' <= p->ans && p->ans <= 'D'));
+  p->ans = ui_input_ans();
 
   printf("题目难度(1--10): ");
-  scanf("%hi", &p->dif);
+  while(scanf("%hi", &p->dif) != 1);
 
   printf("知识点标签(数字编号): ");
-  scanf("%hi", &p->tag);
+  while(scanf("%hi", &p->tag) != 1);
 
   printf("知识点章节(章.节): ");
-  scanf("%hi.%hi", &p->chapter, &p->section);
+  while(scanf("%hi.%hi", &p->chapter, &p->section) != 2);
 
   return p;
 }
 
 void ui_output_problem(Problem *p, bool show_more)
 {
-  printf("%3d. %s\n"
-    "[A]. %s\n"
-    "[B]. %s\n"
-    "[C]. %s\n"
-    "[D]. %s\n"
+  printf("%d. %s\n"
+    "    [A]. %s\n"
+    "    [B]. %s\n"
+    "    [C]. %s\n"
+    "    [D]. %s\n"
     "", p->id, p->des,
     p->opt[0], p->opt[1], p->opt[2], p->opt[3]);
   if (show_more) {
@@ -172,7 +179,7 @@ void ui_teacher_insert()
 {
   PList *db = plist_new();
   int n;
-  if ((n = problem_read_list(db)) < 0) {
+  if ((n = problem_read_file(db, problem_db_name)) < 0) {
     perror("读取题目数据库失败");
     return;
   }
@@ -184,7 +191,7 @@ void ui_teacher_insert()
     perror("插入题目失败");
     return;
   }
-  if (problem_write_list(db) < 0) {
+  if (problem_write_file(db, problem_db_name) < 0) {
     perror("写入题目数据库失败");
     return;
   }

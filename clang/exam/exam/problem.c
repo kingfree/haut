@@ -11,8 +11,6 @@
 #include "file.h"
 #include "problem.h"
 
-extern char *problem_db_name;
-
 Problem *problem_new()
 {
   Problem *p = (Problem *) malloc(sizeof(Problem));
@@ -45,12 +43,12 @@ int cmp_id(const SList *item1, const SList *item2, void *max_id)
   return (a->id - b->id);
 }
 
-int problem_read_list(PList *db)
+int problem_read_file(PList *db, const char *filename)
 /* 返回成功读取的条目数 */
 {
-  FILE *file = fopen(problem_db_name, "rb");
+  FILE *file = fopen(filename, "rb");
   if (file == NULL) {
-    if ((file = fopen(problem_db_name, "wb")) == NULL) {
+    if ((file = fopen(filename, "wb")) == NULL) {
       return -1;
     }
     return 0;
@@ -97,9 +95,9 @@ void *problem_write(SList *item, void *file)
   return NULL;
 }
 
-int problem_write_list(PList *db)
+int problem_write_file(PList *db, const char *filename)
 {
-  FILE *file = fopen(problem_db_name, "wb");
+  FILE *file = fopen(filename, "wb");
   if (file == NULL) {
       return -1;
   }

@@ -10,9 +10,6 @@
 #include "slist.h"
 #include "problem.h"
 
-static char *NAME = "标准化考试系统";
-static char *VERSION = "0.0.7";
-
 void ui_login();
 
 void ui_student();

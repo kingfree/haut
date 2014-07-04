@@ -6,11 +6,9 @@ LINKER=link -nologo
 
 INCLUDES=  -I. 
 
-DEFINES= $(INCLUDES) $(DEFS) -DWINNT=1
+DEFINES= $(INCLUDES) $(DEFS) -DWINNT=1 -DWIN32=1
 
 CFLAGS= $(DEFINES)
-RC=rc
-RCVARS=-r -DWIN32
 
 SRCS = slist.c file.c problem.c ui.c exam.c
 
