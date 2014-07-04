@@ -25,7 +25,14 @@ void ui_teacher_select();
 void ui_teacher_generate();
 void ui_teacher_score();
 
+Problem *ui_select_id(PList *db);
+void ui_edit_problem(Problem *p);
+
 Problem *ui_input_problem();
 void ui_output_problem(Problem *p, bool show_more);
+
+void ui_output_count(PList *db);
+
+char *dif2star(int dif);
 
 #endif

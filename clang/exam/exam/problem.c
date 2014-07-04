@@ -114,15 +114,3 @@ int problem_insert(PList *db, Problem *p)
   db->max_id++;
   return 0;
 }
-
-char *dif2star(int dif) {
-  char *s = calloc(16, sizeof(char));
-  char c[8][4] = {""};
-  int i;
-  for (i = 0; i < dif / 2; i++)
-    strcpy(c[i], "★");
-  if ((i = dif % 2) == 1)
-    strcpy(c[dif / 2 + 1], "☆");
-  sprintf(s, "%s%s%s%s%s", c[0], c[1], c[2], c[3], c[4]);
-  return s;
-}

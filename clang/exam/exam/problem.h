@@ -42,6 +42,4 @@ int problem_max_id(PList *db);
 
 PList *problem_search(PList *db, char *search);
 
-char *dif2star(int dif);
-
 #endif

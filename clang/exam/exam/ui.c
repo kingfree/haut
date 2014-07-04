@@ -14,7 +14,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.0.8";
+static char *VERSION = "0.0.9";
 
 static char *problem_db_name = "problem.db";
 
@@ -35,11 +35,36 @@ void pause() {
 #endif
 }
 
-int input_option(char *menu)
+bool gotn()
 {
-  cls();
-  printf("欢迎使用 %s v%s\n"
-    "%s", NAME, VERSION, menu);
+  char c;
+  c = getchar();
+  if (c == '\n' || c == '\r') {
+    return true;
+  }
+  ungetc(c, stdin);
+  return false;
+}
+
+char *dif2star(int dif) {
+  char *s = calloc(16, sizeof(char));
+  char c[8][4] = {""};
+  int i;
+  for (i = 0; i < dif / 2; i++)
+    strcpy(c[i], "★");
+  if ((i = dif % 2) == 1)
+    strcpy(c[dif / 2 + 1], "☆");
+  sprintf(s, "%s%s%s%s%s", c[0], c[1], c[2], c[3], c[4]);
+  return s;
+}
+
+int input_option(char *menu, bool cl)
+{
+  if (cl) {
+    cls();
+    printf("欢迎使用 %s v%s\n", NAME, VERSION);
+  }
+  printf("%s", menu);
   printf("请输入你的选项: ");
   int x;
   scanf("%i", &x);
@@ -56,7 +81,7 @@ void ui_login()
       "   3 - 使用帮助\n"
       "   4 - 关于\n"
       "   0 - 退出系统\n"
-    )) {
+    , true)) {
       // case 1: ui_student(); break;
       case 2: ui_teacher(); break;
       // case 3: ui_help(); break;
@@ -80,12 +105,12 @@ void ui_teacher()
       "   7 - 成绩分析\n"
       "   9 - 返回上一级\n"
       "   0 - 退出系统\n"
-    )) {
+    , true)) {
       case 1: ui_teacher_view(); break;
       case 2: ui_teacher_insert(); break;
       // case 3: ui_teacher_delete(); break;
-      // case 4: ui_teacher_update(); break;
-      // case 5: ui_teacher_select(); break;
+      case 4: ui_teacher_update(); break;
+      case 5: ui_teacher_select(); break;
       // case 6: ui_teacher_generate(); break;
       // case 7: ui_teacher_score(); break;
       case 0: exit(0); break;
@@ -115,7 +140,7 @@ void ui_teacher_view()
     perror("读取题目数据库失败");
     return;
   }
-  printf("数据库中有 %d 条记录，最大编号为 %d\n", db->count, db->max_id);
+  ui_output_count(db);
   slist_foreach(db->slist, ui_each_problem_show, NULL);
   pause();
 }
@@ -125,6 +150,11 @@ char ui_input_ans()
   char c = ' ';
   while (scanf("%c", &c), c = toupper(c), !('A' <= c && c <= 'D'));
   return c;
+}
+
+void ui_output_count(PList *db)
+{
+  printf("数据库中有 %d 条记录，最大编号为 %d\n", db->count, db->max_id);
 }
 
 Problem *ui_input_problem()
@@ -157,6 +187,39 @@ Problem *ui_input_problem()
   return p;
 }
 
+void ui_edit_problem(Problem *p)
+{
+  printf("修改题目信息(直接回车表示不修改): \n");
+  fflush(stdin);
+
+  printf("题目描述: %s\n>", p->des);
+  if(!gotn()) scanf("%s", p->des);
+  fflush(stdin);
+
+  int i = 0;
+  for (i = 'A'; i <= 'D'; i++) {
+    printf("[选项 %c]: %s\n>", i, p->opt[i - 'A']);
+    if(!gotn()) scanf("%s", p->opt[i - 'A']);
+    fflush(stdin);
+  }
+
+  printf("正确答案: %c\n>", p->ans);
+  if(!gotn()) p->ans = ui_input_ans();
+  fflush(stdin);
+
+  printf("题目难度: (%hi)%s\n>", p->dif, dif2star(p->dif));
+  if(!gotn()) while(scanf("%hi", &p->dif) != 1);
+  fflush(stdin);
+
+  printf("知识点标签: %hi\n>", p->tag);
+  if(!gotn()) while(scanf("%hi", &p->tag) != 1);
+  fflush(stdin);
+
+  printf("知识点章节: %hi.%hi\n>", p->chapter, p->section);
+  if(!gotn()) while(scanf("%hi.%hi", &p->chapter, &p->section) != 2);
+  fflush(stdin);
+}
+
 void ui_output_problem(Problem *p, bool show_more)
 {
   printf("%d. %s\n"
@@ -183,7 +246,7 @@ void ui_teacher_insert()
     perror("读取题目数据库失败");
     return;
   }
-  printf("数据库中有 %d 条记录，最大编号为 %d\n", db->count, db->max_id);
+  ui_output_count(db);
   Problem *p = ui_input_problem();
   p->id = db->max_id + 1;
   ui_output_problem(p, true);
@@ -195,5 +258,81 @@ void ui_teacher_insert()
     perror("写入题目数据库失败");
     return;
   }
+  pause();
+}
+
+void ui_teacher_select()
+{
+  PList *db = plist_new();
+  int n;
+  if ((n = problem_read_file(db, problem_db_name)) < 0) {
+    perror("读取题目数据库失败");
+    return;
+  }
+  ui_output_count(db);
+  while (true) {
+    switch (input_option(
+      "可以查询的关键字:\n"
+      "   1 - 题目编号\n"
+      "   2 - 题目描述\n"
+      "   3 - 题目选项\n"
+      "   4 - 题目难度\n"
+      "   5 - 题目标签\n"
+      "   6 - 题目章节\n"
+      "   7 - 模糊查询\n"
+      "   9 - 返回上一级\n"
+      "   0 - 退出系统\n"
+    , false)) {
+      case 1: ui_select_id(db); break;
+      // case 2: ui_select_des(db); break;
+      // case 3: ui_select_opt(db); break;
+      // case 4: ui_select_dif(db); break;
+      // case 5: ui_select_tag(db); break;
+      // case 6: ui_select_sec(db); break;
+      // case 7: ui_select_mul(db); break;
+      case 0: exit(0); break;
+      default: return; break;
+    }
+  }
+}
+
+void *by_id(SList *item, void *id_p)
+{
+  Problem *p = (Problem *) item->userdata;
+  int *id = (int *) id_p;
+  return p->id == *id ? p : NULL;
+}
+
+Problem *ui_select_id(PList *db)
+{
+  int id = -1;
+  printf("题目编号: ");
+  while (scanf("%d", &id) != 1);
+
+  Problem *p = (Problem *) slist_find(db->slist, by_id, &id);
+  return p;
+}
+
+void ui_teacher_update()
+{
+  PList *db = plist_new();
+  int n;
+  if ((n = problem_read_file(db, problem_db_name)) < 0) {
+    perror("读取题目数据库失败");
+    goto end;
+  }
+  ui_output_count(db);
+  Problem *p = ui_select_id(db);
+  if (p == NULL || p->id < 0) {
+    perror("获取题目失败");
+    goto end;
+  }
+  ui_edit_problem(p);
+  ui_output_problem(p, true);
+  if (problem_write_file(db, problem_db_name) < 0) {
+    perror("写入题目数据库失败");
+    goto end;
+  }
+end:
   pause();
 }
