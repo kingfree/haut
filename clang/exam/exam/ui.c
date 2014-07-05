@@ -7,15 +7,16 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <assert.h>
 #include <errno.h>
 
-#include "algorithm.h"
+#include "addon.h"
 #include "slist.h"
 #include "problem.h"
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.1.8";
+static char *VERSION = "0.1.9";
 
 static char *problem_db_name = "problem.db";
 
@@ -36,21 +37,10 @@ void pause() {
 #endif
 }
 
-bool gotn()
-{
-    char c;
-    c = getchar();
-    if (c == '\n' || c == '\r') {
-        return true;
-    }
-    ungetc(c, stdin);
-    return false;
-}
-
 char *dif2star(int dif) {
+    assert(0 <= dif && dif <= 10);
     char *s = calloc(16, sizeof(char));
-    if (s == NULL)
-        return NULL;
+    assert(s);
     char c[8][4] = { "" };
     int i;
     for (i = 0; i < dif / 2; i++)
@@ -67,8 +57,7 @@ int input_option(char *menu, bool cl)
         cls();
         printf("欢迎使用 %s v%s\n", NAME, VERSION);
     }
-    printf("%s", menu);
-    printf("$ ");
+    printf("%s$ ", menu);
     int x;
     scanf("%i", &x);
     getchar();
@@ -122,19 +111,6 @@ void ui_teacher()
     }
 }
 
-void *ui_each_problem_show(SList *item, void *userdata)
-{
-    Problem *p = (Problem *)item->userdata;
-    // fprintf(stderr, "(%p)->%p\n", item, p);
-    printf("%d. %s\n"
-        "    [A]. %s\t[B]. %s\t[C]. %s\t[D]. %s\n"
-        "", p->id, p->des,
-        p->opt[0], p->opt[1], p->opt[2], p->opt[3]);
-    printf("\t 答案: %c\t 难度: %-10s\t 标签: %i\t 章节: %i.%i\n",
-        p->ans, dif2star(p->dif), p->tag, p->chapter, p->section);
-    return NULL;
-}
-
 void ui_teacher_view()
 {
     PList *db = plist_new();
@@ -149,11 +125,160 @@ void ui_teacher_view()
     pause();
 }
 
+void ui_teacher_insert()
+{
+    PList *db = plist_new();
+    int n;
+    if ((n = problem_read_file(db, problem_db_name)) < 0) {
+        perror("读取题目数据库失败");
+        goto end;
+    }
+    ui_output_count(db);
+    Problem *p = ui_input_problem();
+    p->id = db->max_id + 1;
+    int id = p->id;
+    ui_output_problem(p, true);
+    if (problem_insert(db, p) < 0) {
+        perror("插入题目失败");
+        goto end;
+    }
+    if (problem_write_file(db, problem_db_name) < 0) {
+        perror("写入题目数据库失败");
+        goto end;
+    }
+    printf("插入题目 %d 成功！\n", id);
+end:
+    plist_free(db);
+    pause();
+}
+
+void ui_teacher_delete()
+{
+    PList *db = plist_new();
+    int n;
+    if ((n = problem_read_file(db, problem_db_name)) < 0) {
+        perror("读取题目数据库失败");
+        goto end;
+    }
+    ui_output_count(db);
+    Problem *p = ui_select_id(db);
+    if (p == NULL || p->id < 0) {
+        perror("获取题目失败");
+        goto end;
+    }
+    int id = p->id;
+    printf("你确定要删除该题吗？输入'Y'或'y'以确认:\n$ ");
+    gotn();
+    char y = getchar();
+    if (y != 'Y' && y != 'y') goto end;
+    if (p != slist_unbox(slist_remove(&db->slist, by_id, &id))) {
+        perror("删除题目失败");
+        goto end;
+    }
+    problem_free(p);
+    if (problem_write_file(db, problem_db_name) < 0) {
+        perror("写入题目数据库失败");
+        goto end;
+    }
+    printf("删除题目 %d 成功！\n", id);
+end:
+    plist_free(db);
+    pause();
+}
+
+void ui_teacher_update()
+{
+    PList *db = plist_new();
+    int n;
+    if ((n = problem_read_file(db, problem_db_name)) < 0) {
+        perror("读取题目数据库失败");
+        goto end;
+    }
+    ui_output_count(db);
+    Problem *p = ui_select_id(db);
+    if (p == NULL || p->id < 0) {
+        perror("获取题目失败");
+        goto end;
+    }
+    int id = p->id;
+    ui_edit_problem(p);
+    ui_output_problem(p, true);
+    if (problem_write_file(db, problem_db_name) < 0) {
+        perror("写入题目数据库失败");
+        goto end;
+    }
+    printf("修改题目 %d 成功！\n", id);
+end:
+    plist_free(db);
+    pause();
+}
+
+void ui_teacher_select()
+{
+    PList *db = plist_new();
+    int n;
+    if ((n = problem_read_file(db, problem_db_name)) < 0) {
+        perror("读取题目数据库失败");
+        return;
+    }
+    ui_output_count(db);
+    while (true) {
+        cls();
+        switch (input_option(
+            "可以查询的关键字:\n"
+            "   1 - 题目编号\n"
+            "   2 - 题目描述\n"
+            "   3 - 题目选项\n"
+            "   4 - 题目难度\n"
+            "   5 - 题目标签\n"
+            "   6 - 题目章节\n"
+            "   7 - 模糊查询\n"
+            "   9 - 返回上一级\n"
+            "   0 - 退出系统\n"
+            , false)) {
+        case 1: ui_select_id(db); break;
+        case 2: ui_select_des(db); break;
+        case 3: ui_select_opt(db); break;
+        case 4: ui_select_dif(db); break;
+        case 5: ui_select_tag(db); break;
+        case 6: ui_select_sec(db); break;
+        case 7: ui_select_mul(db); break;
+        case 0: exit(0); break;
+        default: return; break;
+        }
+        pause();
+    }
+    plist_free(db);
+}
+
+
+void *ui_each_problem_show(SList *item, void *userdata)
+{
+    Problem *p = (Problem *)item->userdata;
+    // fprintf(stderr, "(%p)->%p\n", item, p);
+    printf("%d. %s\n"
+        "    [A]. %s\t[B]. %s\t[C]. %s\t[D]. %s\n"
+        "", p->id, p->des,
+        p->opt[0], p->opt[1], p->opt[2], p->opt[3]);
+    printf("\t 答案: %c\t 难度: %-10s\t 标签: %i\t 章节: %i.%i\n",
+        p->ans, dif2star(p->dif), p->tag, p->chapter, p->section);
+    return NULL;
+}
+
 char ui_input_ans()
 {
     char c = ' ';
     while (scanf("%c", &c), c = toupper(c), !('A' <= c && c <= 'D'));
     return c;
+}
+
+int ui_input_number()
+{
+    int n = 0;
+    static char s[64];
+    while (scanf("%s", s), !('0' <= s[0] && s[0] <= '9'));
+    sscanf(s, "%d", &n);
+    return n;
 }
 
 void ui_output_count(PList *db)
@@ -219,19 +344,19 @@ void ui_edit_problem(Problem *p)
 
     printf("题目难度: (%hi)%s\n$ ", p->dif, dif2star(p->dif));
     if (!gotn()) {
-        while (scanf("%hi", &p->dif) != 1);
+        p->dif = ui_input_number();
         gotn();
     }
 
     printf("知识点标签: %hi\n$ ", p->tag);
     if (!gotn()) {
-        while (scanf("%hi", &p->tag) != 1);
+        p->tag = ui_input_number();
         gotn();
     }
 
     printf("知识点章节: %hi.%hi\n$ ", p->chapter, p->section);
     if (!gotn()) {
-        while (scanf("%hi.%hi", &p->chapter, &p->section) != 2);
+        scanf("%hi.%hi", &p->chapter, &p->section); // 未作容错处理
         gotn();
     }
 }
@@ -252,71 +377,6 @@ void ui_output_problem(Problem *p, bool show_more)
         printf("标签: %i\t", p->tag);
         printf("章节: %i.%i\n", p->chapter, p->section);
     }
-}
-
-void ui_teacher_insert()
-{
-    PList *db = plist_new();
-    int n;
-    if ((n = problem_read_file(db, problem_db_name)) < 0) {
-        perror("读取题目数据库失败");
-        goto end;
-    }
-    ui_output_count(db);
-    Problem *p = ui_input_problem();
-    p->id = db->max_id + 1;
-    int id = p->id;
-    ui_output_problem(p, true);
-    if (problem_insert(db, p) < 0) {
-        perror("插入题目失败");
-        goto end;
-    }
-    if (problem_write_file(db, problem_db_name) < 0) {
-        perror("写入题目数据库失败");
-        goto end;
-    }
-    printf("插入题目 %d 成功！\n", id);
-end:
-    plist_free(db);
-    pause();
-}
-
-void ui_teacher_select()
-{
-    PList *db = plist_new();
-    int n;
-    if ((n = problem_read_file(db, problem_db_name)) < 0) {
-        perror("读取题目数据库失败");
-        return;
-    }
-    ui_output_count(db);
-    while (true) {
-        cls();
-        switch (input_option(
-            "可以查询的关键字:\n"
-            "   1 - 题目编号\n"
-            "   2 - 题目描述\n"
-            "   3 - 题目选项\n"
-            "   4 - 题目难度\n"
-            "   5 - 题目标签\n"
-            "   6 - 题目章节\n"
-            "   7 - 模糊查询\n"
-            "   9 - 返回上一级\n"
-            "   0 - 退出系统\n"
-            , false)) {
-        case 1: ui_select_id(db); break;
-        case 2: ui_select_des(db); break;
-        case 3: ui_select_opt(db); break;
-        case 4: ui_select_dif(db); break;
-        case 5: ui_select_tag(db); break;
-        case 6: ui_select_sec(db); break;
-        case 7: ui_select_mul(db); break;
-        case 0: exit(0); break;
-        default: return; break;
-        }
-        pause();
-    }
-    plist_free(db);
 }
 
 Problem *ui_select_id(PList *db)
@@ -401,65 +461,4 @@ int ui_select_mul(PList *db)
     printf("输入要查询的关键字:\n$ ");
     while (scanf("%s", key) != 1);
     return ui_select_output(db, by_mul, key);
-}
-
-void ui_teacher_update()
-{
-    PList *db = plist_new();
-    int n;
-    if ((n = problem_read_file(db, problem_db_name)) < 0) {
-        perror("读取题目数据库失败");
-        goto end;
-    }
-    ui_output_count(db);
-    Problem *p = ui_select_id(db);
-    if (p == NULL || p->id < 0) {
-        perror("获取题目失败");
-        goto end;
-    }
-    int id = p->id;
-    ui_edit_problem(p);
-    ui_output_problem(p, true);
-    if (problem_write_file(db, problem_db_name) < 0) {
-        perror("写入题目数据库失败");
-        goto end;
-    }
-    printf("修改题目 %d 成功！\n", id);
-end:
-    plist_free(db);
-    pause();
-}
-
-void ui_teacher_delete()
-{
-    PList *db = plist_new();
-    int n;
-    if ((n = problem_read_file(db, problem_db_name)) < 0) {
-        perror("读取题目数据库失败");
-        goto end;
-    }
-    ui_output_count(db);
-    Problem *p = ui_select_id(db);
-    if (p == NULL || p->id < 0) {
-        perror("获取题目失败");
-        goto end;
-    }
-    int id = p->id;
-    printf("你确定要删除该题吗？输入'Y'或'y'以确认:\n$ ");
-    gotn();
-    char y = getchar();
-    if (y != 'Y' && y != 'y') goto end;
-    if (p != slist_unbox(slist_remove(&db->slist, by_id, &id))) {
-        perror("删除题目失败");
-        goto end;
-    }
-    problem_free(p);
-    if (problem_write_file(db, problem_db_name) < 0) {
-        perror("写入题目数据库失败");
-        goto end;
-    }
-    printf("删除题目 %d 成功！\n", id);
-end:
-    plist_free(db);
-    pause();
 }

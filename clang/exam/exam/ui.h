@@ -43,6 +43,9 @@ void *ui_each_problem_show(SList *item, void *userdata);
 
 void ui_output_count(PList *db);
 
+int ui_input_number();
+char ui_input_ans();
+
 char *dif2star(int dif);
 
 #endif

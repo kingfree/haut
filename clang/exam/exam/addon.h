@@ -1,14 +1,18 @@
-﻿/* algorithm.h
- * 算法库
+﻿/* addon.h
+ * 附加函数库
  */
 
-#ifndef _ALGORITHM_H_
-#define _ALGORITHM_H_
+#ifndef _ADDON_H_
+#define _ADDON_H_
 
 #include <stdbool.h>
 
 #ifndef max
 #define max(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
 typedef struct sel_num {
@@ -19,7 +23,8 @@ typedef struct sel_num {
 bool select_cond_number(sel_num cond, int data);
 
 bool zero(double d);
-
 bool psame(int n, double d);
+
+bool gotn();
 
 #endif

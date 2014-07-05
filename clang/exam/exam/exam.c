@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "slist.h"
-#include "problem.h"
 #include "ui.h"
 
 int main(int argc, char *argv[])

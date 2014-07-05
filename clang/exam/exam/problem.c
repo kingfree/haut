@@ -6,17 +6,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
 #include <math.h>
 
-#include "algorithm.h"
+#include "addon.h"
 #include "file.h"
 #include "problem.h"
 
 Problem *problem_new()
 {
     Problem *p = (Problem *)malloc(sizeof(Problem));
-    if (p == NULL)
-        return NULL;
+    assert(p);
     p->id = 0;
     p->ans = 'A';
     p->dif = 0;
@@ -29,8 +29,7 @@ Problem *problem_new()
 PList *plist_new()
 {
     PList *pl = (PList *)malloc(sizeof(PList));
-    if (pl == NULL)
-        return NULL;
+    assert(pl);
     pl->slist = NULL;
     pl->max_id = 0;
     pl->count = 0;
