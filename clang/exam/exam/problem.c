@@ -135,3 +135,10 @@ int problem_insert(PList *db, Problem *p)
     db->max_id++;
     return 0;
 }
+
+void *by_id(SList *item, void *data)
+{
+    Problem *p = (Problem *) item->userdata;
+    int *id = (int *)data;
+    return p->id == *id ? item : NULL;
+}
