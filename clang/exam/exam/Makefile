@@ -1,8 +1,25 @@
-OPT = -o exam -Wall
-CC = gcc
+RM=rm -f
+CC= gcc
+DEFS=  
+PROGNAME= exam
+INCLUDES= -I.
+LIBS=
 
-all:
-	$(CC) $(OPT) addon.c slist.c file.c problem.c ui.c exam.c
+DEFINES= $(INCLUDES) $(DEFS) -DSYS_UNIX=1
+CFLAGS= -Wall -g $(DEFINES)
+
+SRCS = addon.c exam.c file.c problem.c slist.c ui.c 
+
+OBJS = addon.o exam.o file.o problem.o slist.o ui.o 
+
+.c.o:
+	$(RM) $@
+	$(CC) $(CFLAGS) -c $*.c
+
+all: $(PROGNAME)
+
+$(PROGNAME) : $(OBJS)
+	$(CC) $(CFLAGS) -o $(PROGNAME) $(OBJS) $(LIBS)
 
 clean:
-	$(RM) exam *.exe *.o *.a *.obj
+	$(RM) $(OBJS) $(PROGNAME) core *~

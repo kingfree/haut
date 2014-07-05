@@ -16,7 +16,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.1.9";
+static char *VERSION = "0.2.0";
 
 static char *problem_db_name = "problem.db";
 
@@ -32,8 +32,7 @@ void pause() {
 #ifdef WIN32
     system("pause");
 #else
-    fprintf(stderr, "键入回车以继续...\n");
-    getchar();
+    system("read -p \"请按任意键继续. . .\"");
 #endif
 }
 
@@ -306,6 +305,8 @@ Problem *ui_input_problem()
 
     printf("题目难度(1--10):\n$ ");
     while (scanf("%hi", &p->dif) != 1);
+    if (p->dif < 0) p->dif = 0;
+    if (p->dif > 10) p->dif = 10;
 
     printf("知识点标签(数字编号):\n$ ");
     while (scanf("%hi", &p->tag) != 1);
@@ -342,9 +343,11 @@ void ui_edit_problem(Problem *p)
         gotn();
     }
 
-    printf("题目难度: (%hi)%s\n$ ", p->dif, dif2star(p->dif));
+    printf("题目难度: (%hi) %s\n$ ", p->dif, dif2star(p->dif));
     if (!gotn()) {
         p->dif = ui_input_number();
+        if (p->dif < 0) p->dif = 0;
+        if (p->dif > 10) p->dif = 10;
         gotn();
     }
 
@@ -433,7 +436,7 @@ int ui_select_opt(PList *db)
 int ui_select_dif(PList *db)
 {
     sel_num t;
-    printf("题目难度（数字前输入 < > = == <= >= != <>）:\n$ ");
+    printf("题目难度（输入 < > = == <= >= != <> 后空格数字，如 \"<= 5\" ）:\n$ ");
     while (scanf("%s%d", t.mark, &t.num) != 2);
     return ui_select_output(db, by_dif, &t);
 }
@@ -450,7 +453,7 @@ int ui_select_sec(PList *db)
 {
     double secs[64];
     int i = 0;
-    printf("题目章节编号（小数点分割章节，节可省略，以 0 结尾）:\n$ ");
+    printf("题目章节编号（小数点分割章节，节可省略，以 0 结尾，如 \"2.2 2.4 5 0\" ）:\n$ ");
     for (; scanf("%lf", &secs[i]), secs[i] > 0; i++);
     return ui_select_output(db, by_secs, secs);
 }

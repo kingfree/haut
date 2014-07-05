@@ -4,7 +4,7 @@ DEFS= -nologo
 PROGNAME= exam.exe
 LINKER=link -nologo
 
-INCLUDES=  -I. 
+INCLUDES= -I. 
 
 DEFINES= $(INCLUDES) $(DEFS) -DWINNT=1 -DWIN32=1
 
