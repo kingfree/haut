@@ -9,12 +9,13 @@
 #include <ctype.h>
 #include <errno.h>
 
+#include "algorithm.h"
 #include "slist.h"
 #include "problem.h"
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.1.0";
+static char *VERSION = "0.1.5";
 
 static char *problem_db_name = "problem.db";
 
@@ -67,7 +68,7 @@ int input_option(char *menu, bool cl)
         printf("欢迎使用 %s v%s\n", NAME, VERSION);
     }
     printf("%s", menu);
-    printf(">");
+    printf("$ ");
     int x;
     scanf("%i", &x);
     getchar();
@@ -113,8 +114,8 @@ void ui_teacher()
         case 3: ui_teacher_delete(); break;
         case 4: ui_teacher_update(); break;
         case 5: ui_teacher_select(); break;
-        //case 6: ui_teacher_generate(); break;
-        //case 7: ui_teacher_score(); break;
+            //case 6: ui_teacher_generate(); break;
+            //case 7: ui_teacher_score(); break;
         case 0: exit(0); break;
         default: return; break;
         }
@@ -167,24 +168,24 @@ Problem *ui_input_problem()
 
     printf("请输入题目相关信息: \n");
 
-    printf("题目描述:\n>");
+    printf("题目描述:\n$ ");
     scanf("%s", p->des);
 
     for (i = 'A'; i <= 'D'; i++) {
-        printf("[选项 %c]:\n>", i);
+        printf("[选项 %c]:\n$ ", i);
         scanf("%s", p->opt[i - 'A']);
     }
 
-    printf("正确答案字母序号:\n>");
+    printf("正确答案字母序号:\n$ ");
     p->ans = ui_input_ans();
 
-    printf("题目难度(1--10):\n>");
+    printf("题目难度(1--10):\n$ ");
     while (scanf("%hi", &p->dif) != 1);
 
-    printf("知识点标签(数字编号):\n>");
+    printf("知识点标签(数字编号):\n$ ");
     while (scanf("%hi", &p->tag) != 1);
 
-    printf("知识点章节(章.节):\n>");
+    printf("知识点章节(章.节):\n$ ");
     while (scanf("%hi.%hi", &p->chapter, &p->section) != 2);
 
     return p;
@@ -195,7 +196,7 @@ void ui_edit_problem(Problem *p)
     printf("修改题目信息(直接回车表示不修改): \n");
     gotn();
 
-    printf("题目描述: %s\n>", p->des);
+    printf("题目描述: %s\n$ ", p->des);
     if (!gotn()) {
         scanf("%s", p->des);
         gotn();
@@ -203,32 +204,32 @@ void ui_edit_problem(Problem *p)
 
     int i = 0;
     for (i = 'A'; i <= 'D'; i++) {
-        printf("[选项 %c]: %s\n>", i, p->opt[i - 'A']);
+        printf("[选项 %c]: %s\n$ ", i, p->opt[i - 'A']);
         if (!gotn()) {
             scanf("%s", p->opt[i - 'A']);
             gotn();
         }
     }
 
-    printf("正确答案: %c\n>", p->ans);
+    printf("正确答案: %c\n$ ", p->ans);
     if (!gotn()) {
         p->ans = ui_input_ans();
         gotn();
     }
 
-    printf("题目难度: (%hi)%s\n>", p->dif, dif2star(p->dif));
+    printf("题目难度: (%hi)%s\n$ ", p->dif, dif2star(p->dif));
     if (!gotn()) {
         while (scanf("%hi", &p->dif) != 1);
         gotn();
     }
 
-    printf("知识点标签: %hi\n>", p->tag);
+    printf("知识点标签: %hi\n$ ", p->tag);
     if (!gotn()) {
         while (scanf("%hi", &p->tag) != 1);
         gotn();
     }
 
-    printf("知识点章节: %hi.%hi\n>", p->chapter, p->section);
+    printf("知识点章节: %hi.%hi\n$ ", p->chapter, p->section);
     if (!gotn()) {
         while (scanf("%hi.%hi", &p->chapter, &p->section) != 2);
         gotn();
@@ -303,12 +304,12 @@ void ui_teacher_select()
             "   0 - 退出系统\n"
             , false)) {
         case 1: ui_select_id(db); break;
-            // case 2: ui_select_des(db); break;
-            // case 3: ui_select_opt(db); break;
-            // case 4: ui_select_dif(db); break;
-            // case 5: ui_select_tag(db); break;
-            // case 6: ui_select_sec(db); break;
-            // case 7: ui_select_mul(db); break;
+        case 2: ui_select_des(db); break;
+        case 3: ui_select_opt(db); break;
+        case 4: ui_select_dif(db); break;
+        //case 5: ui_select_tag(db); break;
+        //case 6: ui_select_sec(db); break;
+        //case 7: ui_select_mul(db); break;
         case 0: exit(0); break;
         default: return; break;
         }
@@ -319,23 +320,60 @@ void ui_teacher_select()
 Problem *ui_select_id(PList *db)
 {
     int id = -1;
-    printf("题目编号:\n>");
+    printf("题目编号:\n$ ");
     while (scanf("%d", &id) != 1);
 
-    SList *s = (SList *) slist_find(db->slist, by_id, &id);
+    SList *s = (SList *)slist_find(db->slist, by_id, &id);
     Problem *p = NULL;
     if (s == NULL) {
-        perror("无此题目");
+        perror("没有找到题目");
         goto end;
     }
     p = (Problem *)s->userdata;
     if (p == NULL) {
-        perror("无此题目");
+        perror("没有题目数据");
         goto end;
     }
     ui_output_problem(p, true);
 end:
     return p;
+}
+
+int ui_select_output(PList *db, SListCallback *find, void *matchdata)
+{
+    int n = 0;
+    SList *s = db->slist;
+    while ((s = (SList *)slist_find(s, find, matchdata)) != NULL) {
+        n++;
+        ui_each_problem_show(s, NULL);
+        s = slist_tail(s);
+    }
+    printf("共查询到 %d 个符合条件的结果。\n", n);
+    return n;
+}
+
+int ui_select_des(PList *db)
+{
+    char des[256] = "";
+    printf("题目描述（只需输入部分内容）:\n$ ");
+    while (scanf("%s", des) != 1);
+    return ui_select_output(db, by_des, des);
+}
+
+int ui_select_opt(PList *db)
+{
+    char opt[64] = "";
+    printf("题目选项（只需输入部分内容）:\n$ ");
+    while (scanf("%s", opt) != 1);
+    return ui_select_output(db, by_opt, opt);
+}
+
+int ui_select_dif(PList *db)
+{
+    sel_num t;
+    printf("题目难度（数字前可输入 < > = == <= >= != <>）:\n$ ");
+    while (scanf("%s%d", t.mark, &t.num) != 2);
+    return ui_select_output(db, by_dif, &t);
 }
 
 void ui_teacher_update()
@@ -365,7 +403,6 @@ end:
     pause();
 }
 
-
 void ui_teacher_delete()
 {
     PList *db = plist_new();
@@ -381,7 +418,7 @@ void ui_teacher_delete()
         goto end;
     }
     int id = p->id;
-    printf("你确定要删除该题吗？输入'Y'或'y'以确认:\n>");
+    printf("你确定要删除该题吗？输入'Y'或'y'以确认:\n$ ");
     gotn();
     char y = getchar();
     if (y != 'Y' && y != 'y') goto end;

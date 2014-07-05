@@ -26,10 +26,20 @@ void ui_teacher_generate();
 void ui_teacher_score();
 
 Problem *ui_select_id(PList *db);
+int ui_select_des(PList *db);
+int ui_select_opt(PList *db);
+int ui_select_dif(PList *db);
+int ui_select_tag(PList *db);
+int ui_select_sec(PList *db);
+int ui_select_mul(PList *db);
+
+int ui_select_output(PList *db, SListCallback *find, void *matchdata);
+
 void ui_edit_problem(Problem *p);
 
 Problem *ui_input_problem();
 void ui_output_problem(Problem *p, bool show_more);
+void *ui_each_problem_show(SList *item, void *userdata);
 
 void ui_output_count(PList *db);
 

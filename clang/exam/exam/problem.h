@@ -35,10 +35,7 @@ int problem_write_file(PList *db, const char *filename);
 
 void problem_restore(PList *db);
 
-int problem_insert(PList *db, Problem *p); // by id
-int problem_delete(PList *db, Problem *p); // by id
-int problem_update(PList *db, Problem *p); // by id
-int problem_select(PList *db, Problem *p); // by id
+int problem_insert(PList *db, Problem *p);
 
 int problem_count(PList *db);
 int problem_max_id(PList *db);

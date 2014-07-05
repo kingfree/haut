@@ -48,7 +48,7 @@ void problem_slist_free(void *s)
 
 void plist_free(PList *db)
 {
-    db->slist = slist_delete(db->slist, problem_free);
+    db->slist = slist_delete(db->slist, problem_slist_free);
     free(db);
 }
 
@@ -142,3 +142,39 @@ void *by_id(SList *item, void *data)
     int *id = (int *)data;
     return p->id == *id ? item : NULL;
 }
+
+void *by_des(SList *item, void *data)
+{
+    Problem *p = (Problem *)item->userdata;
+    char *des = (char *)data;
+    return strstr(p->des, des) ? item : NULL;
+}
+
+void *by_opt(SList *item, void *data)
+{
+    Problem *p = (Problem *)item->userdata;
+    char *opt = (char *)data;
+    int i = 0;
+    for (i = 0; i < 4; i++) {
+        if (strstr(p->des, opt)) {
+            return item;
+        }
+    }
+    return NULL;
+}
+
+void *by_dif(SList *item, void *data)
+{
+    Problem *p = (Problem *)item->userdata;
+    sel_num *t = (sel_num *)data;
+    return select_cond_number(*t, p->dif) ? item : NULL;
+}
+
+//void *by_tag(SList *item, void *data)
+//{}
+//
+//void *by_sec(SList *item, void *data)
+//{}
+//
+//void *by_mul(SList *item, void *data)
+//{}
