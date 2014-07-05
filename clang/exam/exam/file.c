@@ -10,8 +10,8 @@
 
 int file_data_count(FILE *file, size_t size)
 {
-  fseek(file, 0, SEEK_END);
-  int n = ftell(file) / size;
-  rewind(file);
-  return n;
+    fseek(file, 0, SEEK_END);
+    int n = ftell(file) / size;
+    rewind(file);
+    return n;
 }

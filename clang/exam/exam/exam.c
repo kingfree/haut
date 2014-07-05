@@ -11,9 +11,9 @@
 
 int main(int argc, char *argv[])
 {
-  if (argc > 1) {
-    // process_args
-  }
-  ui_login();
-  return 0;
+    if (argc > 1) {
+        // process_args
+    }
+    ui_login();
+    return 0;
 }
