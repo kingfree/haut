@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <math.h>
 
 #include "algorithm.h"
 #include "file.h"
@@ -156,7 +157,7 @@ void *by_opt(SList *item, void *data)
     char *opt = (char *)data;
     int i = 0;
     for (i = 0; i < 4; i++) {
-        if (strstr(p->des, opt)) {
+        if (strstr(p->opt[i], opt) != NULL) {
             return item;
         }
     }
@@ -170,11 +171,36 @@ void *by_dif(SList *item, void *data)
     return select_cond_number(*t, p->dif) ? item : NULL;
 }
 
-//void *by_tag(SList *item, void *data)
-//{}
-//
-//void *by_sec(SList *item, void *data)
-//{}
-//
+void *by_tags(SList *item, void *data)
+{
+    Problem *p = (Problem *)item->userdata;
+    short *tags = (short *)data;
+    int i = 0;
+    for (i = 0; tags[i] > 0; i++) {
+        if (p->tag == tags[i]) {
+            return item;
+        }
+    }
+    return NULL;
+}
+
+void *by_secs(SList *item, void *data)
+{
+    Problem *p = (Problem *)item->userdata;
+    double *secs = (double *)data;
+    int i = 0;
+    double a, b;
+    for (i = 0; secs[i] > 0; i++) {
+        b = modf(secs[i], &a);
+        //fprintf(stderr, "%lf %lf\n", a, b);
+        if (p->chapter == (int) a) {
+            if (zero(b) || psame(p->section, b)) {
+                return item;
+            }
+        }
+    }
+    return NULL;
+}
+
 //void *by_mul(SList *item, void *data)
 //{}

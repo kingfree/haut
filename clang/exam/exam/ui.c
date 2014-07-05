@@ -15,7 +15,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.1.5";
+static char *VERSION = "0.1.7";
 
 static char *problem_db_name = "problem.db";
 
@@ -291,6 +291,7 @@ void ui_teacher_select()
     }
     ui_output_count(db);
     while (true) {
+        cls();
         switch (input_option(
             "可以查询的关键字:\n"
             "   1 - 题目编号\n"
@@ -307,12 +308,13 @@ void ui_teacher_select()
         case 2: ui_select_des(db); break;
         case 3: ui_select_opt(db); break;
         case 4: ui_select_dif(db); break;
-        //case 5: ui_select_tag(db); break;
-        //case 6: ui_select_sec(db); break;
+        case 5: ui_select_tag(db); break;
+        case 6: ui_select_sec(db); break;
         //case 7: ui_select_mul(db); break;
         case 0: exit(0); break;
         default: return; break;
         }
+        pause();
     }
     plist_free(db);
 }
@@ -371,9 +373,26 @@ int ui_select_opt(PList *db)
 int ui_select_dif(PList *db)
 {
     sel_num t;
-    printf("题目难度（数字前可输入 < > = == <= >= != <>）:\n$ ");
+    printf("题目难度（数字前输入 < > = == <= >= != <>）:\n$ ");
     while (scanf("%s%d", t.mark, &t.num) != 2);
     return ui_select_output(db, by_dif, &t);
+}
+
+int ui_select_tag(PList *db)
+{
+    short tags[64], i = 0;
+    printf("题目标签编号（以 0 结尾）:\n$ ");
+    for (; scanf("%hi", &tags[i]), tags[i] > 0; i++);
+    return ui_select_output(db, by_tags, tags);
+}
+
+int ui_select_sec(PList *db)
+{
+    double secs[64];
+    int i = 0;
+    printf("题目章节编号（小数点分割章节，节可省略，以 0 结尾）:\n$ ");
+    for (; scanf("%lf", &secs[i]), secs[i] > 0; i++);
+    return ui_select_output(db, by_secs, secs);
 }
 
 void ui_teacher_update()

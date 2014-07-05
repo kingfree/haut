@@ -18,4 +18,8 @@ typedef struct sel_num {
 
 bool select_cond_number(sel_num cond, int data);
 
+bool zero(double d);
+
+bool psame(int n, double d);
+
 #endif

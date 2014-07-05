@@ -46,8 +46,8 @@ void *by_id(SList *item, void *data);
 void *by_des(SList *item, void *data);
 void *by_opt(SList *item, void *data);
 void *by_dif(SList *item, void *data);
-void *by_tag(SList *item, void *data);
-void *by_sec(SList *item, void *data);
+void *by_tags(SList *item, void *data);
+void *by_secs(SList *item, void *data);
 void *by_mul(SList *item, void *data);
 
 #endif
