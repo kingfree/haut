@@ -101,8 +101,7 @@ void problem_restore(PList *db)
     db->count = slist_length(db->slist);
     if (db->count <= 0) {
         db->max_id = 0;
-    }
-    else {
+    } else {
         SList *s = slist_nth(db->slist, db->count);
         Problem *p = (Problem *)s->userdata;
         db->max_id = p->id;
@@ -139,7 +138,7 @@ int problem_insert(PList *db, Problem *p)
 
 void *by_id(SList *item, void *data)
 {
-    Problem *p = (Problem *) item->userdata;
+    Problem *p = (Problem *)item->userdata;
     int *id = (int *)data;
     return p->id == *id ? item : NULL;
 }
@@ -193,7 +192,7 @@ void *by_secs(SList *item, void *data)
     for (i = 0; secs[i] > 0; i++) {
         b = modf(secs[i], &a);
         //fprintf(stderr, "%lf %lf\n", a, b);
-        if (p->chapter == (int) a) {
+        if (p->chapter == (int)a) {
             if (zero(b) || psame(p->section, b)) {
                 return item;
             }
@@ -202,5 +201,25 @@ void *by_secs(SList *item, void *data)
     return NULL;
 }
 
-//void *by_mul(SList *item, void *data)
-//{}
+void *by_mul(SList *item, void *data)
+{
+    Problem *p = (Problem *)item->userdata;
+    char *key = (char *)data;
+    int a, b;
+    if ('0' <= key[0] && key[0] <= '9') {
+        sscanf(key, "%d", &a);
+        if (p->id == a || p->tag == a || p->dif == a || p->chapter == a || p->section == a) {
+            return item;
+        }
+        if (sscanf(key, "%d.%d", &a, &b) == 2 && p->chapter == a && p->section == b) {
+            return item;
+        }
+    }
+    if (by_des(item, data) != NULL) {
+        return item;
+    }
+    if (by_opt(item, data) != NULL) {
+        return item;
+    }
+    return NULL;
+}

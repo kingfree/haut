@@ -15,7 +15,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.1.7";
+static char *VERSION = "0.1.8";
 
 static char *problem_db_name = "problem.db";
 
@@ -310,7 +310,7 @@ void ui_teacher_select()
         case 4: ui_select_dif(db); break;
         case 5: ui_select_tag(db); break;
         case 6: ui_select_sec(db); break;
-        //case 7: ui_select_mul(db); break;
+        case 7: ui_select_mul(db); break;
         case 0: exit(0); break;
         default: return; break;
         }
@@ -393,6 +393,14 @@ int ui_select_sec(PList *db)
     printf("题目章节编号（小数点分割章节，节可省略，以 0 结尾）:\n$ ");
     for (; scanf("%lf", &secs[i]), secs[i] > 0; i++);
     return ui_select_output(db, by_secs, secs);
+}
+
+int ui_select_mul(PList *db)
+{
+    char key[64] = "";
+    printf("输入要查询的关键字:\n$ ");
+    while (scanf("%s", key) != 1);
+    return ui_select_output(db, by_mul, key);
 }
 
 void ui_teacher_update()
