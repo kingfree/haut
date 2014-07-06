@@ -26,21 +26,15 @@ typedef struct PList {
 
 Problem *problem_new();
 void problem_free(Problem *p);
-PList *plist_new();
 void problem_slist_free(void *s);
+
+PList *plist_new();
 void plist_free(PList *db);
 
 int problem_read_file(PList *db, const char *filename);
 int problem_write_file(PList *db, const char *filename);
-
 void problem_restore(PList *db);
-
 int problem_insert(PList *db, Problem *p);
-
-int problem_count(PList *db);
-int problem_max_id(PList *db);
-
-PList *problem_search(PList *db, char *search);
 
 void *by_id(SList *item, void *data);
 void *by_des(SList *item, void *data);

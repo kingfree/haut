@@ -5,6 +5,7 @@
 #ifndef _PAPER_H_
 #define _PAPER_H_
 
+#include "addon.h"
 #include "slist.h"
 #include "problem.h"
 
@@ -22,12 +23,12 @@ int paper_write(Paper *pa, const char *filename);
 
 int paper_insert_problem(Paper *pa, Problem *p);
 int paper_insert_pid(Paper *pa, int pid);
+void fprint_paper_pid(FILE *file, Paper *pa);
 
 int paper_generate_random(Paper *pa, PList *db, int n);
-int paper_generate_tags(Paper *pa, PList *db, int tags[]);
-int paper_generate_secs(Paper *pa, PList *db, int secs[]);
-int paper_generate_custom(Paper *pa, PList *db, int pids[]);
-
-void fprint_paper_pid(FILE *file, Paper *pa);
+int paper_generate_tags(Paper *pa, PList *db, int n, int tags[]);
+int paper_generate_secs(Paper *pa, PList *db, int n, int secs[]);
+int paper_generate_dif(Paper *pa, PList *db, int n, sel_num *dif);
+int paper_generate_custom(Paper *pa, PList *db, int n, int pids[]);
 
 #endif

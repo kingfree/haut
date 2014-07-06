@@ -17,12 +17,13 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.2.4";
+static char *VERSION = "0.2.5";
 
 static char *problem_db_name = "problem.db";
 static char *paper_filetype = ".paper.db";
 
-void cls() {
+void cls()
+{
 #ifdef WIN32
     system("cls");
 #else
@@ -30,7 +31,8 @@ void cls() {
 #endif
 }
 
-void pause() {
+void pause()
+{
 #ifdef WIN32
     system("pause");
 #else
@@ -38,7 +40,8 @@ void pause() {
 #endif
 }
 
-char *dif2star(int dif) {
+char *dif2star(int dif)
+{
     assert(0 <= dif && dif <= 10);
     char *s = calloc(16, sizeof(char));
     assert(s);
@@ -71,19 +74,64 @@ void ui_login()
         switch (input_option(
             "   1 - 以学生身份登录\n"
             "   2 - 以教师身份登录\n"
-            "   3 - 使用帮助\n"
+            "   3 - 帮助\n"
             "   4 - 关于\n"
             "   0 - 退出系统\n"
             , true)) {
-            // case 1: ui_student(); break;
+        case 1: ui_student(); break;
         case 2: ui_teacher(); break;
-            // case 3: ui_help(); break;
-            // case 4: ui_about(); break;
+        case 3: ui_help(); break;
+        case 4: ui_about(); break;
         case 0: exit(0); break;
         default: return; break;
         }
     }
 }
+
+void ui_help()
+{
+#ifdef WIN32
+    system("..\\exam.pdf");
+#else
+    printf("请查阅课程报告文档 exam.pdf \n");
+    pause();
+#endif
+}
+
+void ui_about()
+{
+    cls();
+    printf("%s v%s \n"
+        "开源的标准化考试系统（命令行版） \n"
+        "\n"
+        "版权所有 (c) 2014 田劲锋  保留所有权利 \n"
+        "遵循 MIT 许可协议，允许有限制的自由使用 \n"
+        "\n", NAME, VERSION);
+    pause();
+}
+
+void ui_student()
+{
+    while (true) {
+        switch (input_option(
+            "   1 - 做卷子\n"
+            "   2 - 看成绩\n"
+            "   9 - 返回上一级\n"
+            "   0 - 退出系统\n"
+            , true)) {
+        case 1: ui_student_test(); break;
+        case 2: ui_student_score(); break;
+        case 0: exit(0); break;
+        default: return; break;
+        }
+    }
+}
+
+void ui_student_test()
+{}
+
+void ui_student_score()
+{}
 
 void ui_teacher()
 {
@@ -181,7 +229,7 @@ void ui_teacher_delete()
         perror("写入题目数据库失败");
         goto end;
     }
-    printf("删除题目 %d 成功！\n", id);
+    printf("删除题目 %d 成功！ \n", id);
 end:
     plist_free(db);
     pause();
@@ -208,7 +256,7 @@ void ui_teacher_update()
         perror("写入题目数据库失败");
         goto end;
     }
-    printf("修改题目 %d 成功！\n", id);
+    printf("修改题目 %d 成功！ \n", id);
 end:
     plist_free(db);
     pause();
@@ -266,16 +314,18 @@ void ui_teacher_generate()
             "   1 - 随机生成\n"
             "   2 - 按标签生成\n"
             "   3 - 按章节生成\n"
-            "   4 - 自定义生成\n"
-            "   5 - 试卷列表\n"
+            "   4 - 按难度生成\n"
+            "   5 - 自定义生成\n"
+            "   6 - 试卷列表\n"
             "   9 - 返回上一级\n"
             "   0 - 退出系统\n"
             , false)) {
         case 1: ui_generate_random(db); break;
         case 2: ui_generate_tags(db); break;
         case 3: ui_generate_secs(db); break;
-        case 4: ui_generate_custom(db); break;
-        case 5: ui_paper_list(); break;
+        case 4: ui_generate_dif(db); break;
+        case 5: ui_generate_custom(db); break;
+        case 6: ui_paper_list(); break;
         case 0: exit(0); break;
         default: return; break;
         }
@@ -306,6 +356,9 @@ void ui_generate_random(PList *db)
     printf("生成题目数:\n$ ");
     int n = ui_input_number();
     Paper *pa = paper_new();
+    printf("试卷标题:\n$ ");
+    scanf("%s", pa->title);
+    //    gotn();
     paper_generate_random(pa, db, n);
     ui_paper_save(pa);
     paper_free(pa);
@@ -315,6 +368,9 @@ void ui_generate_tags(PList *db)
 {}
 
 void ui_generate_secs(PList *db)
+{}
+
+void ui_generate_dif(PList *db)
 {}
 
 void ui_generate_custom(PList *db)
