@@ -9,6 +9,7 @@
 
 #include "slist.h"
 #include "problem.h"
+#include "paper.h"
 
 void ui_login();
 
@@ -47,5 +48,12 @@ int ui_input_number();
 char ui_input_ans();
 
 char *dif2star(int dif);
+
+void ui_generate_random(PList *db);
+void ui_generate_tags(PList *db);
+void ui_generate_secs(PList *db);
+void ui_generate_custom(PList *db);
+
+int ui_paper_save(Paper *pa);
 
 #endif

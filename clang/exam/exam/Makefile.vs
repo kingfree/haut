@@ -10,9 +10,9 @@ DEFINES= $(INCLUDES) $(DEFS) -DWINNT=1 -DWIN32=1
 
 CFLAGS= $(DEFINES)
 
-SRCS = addon.c slist.c file.c problem.c ui.c exam.c
+SRCS = addon.c slist.c file.c paper.c problem.c ui.c exam.c
 
-OBJS = addon.obj slist.obj file.obj problem.obj ui.obj exam.obj
+OBJS = addon.obj slist.obj file.obj paper.obj problem.obj ui.obj exam.obj
 
 .c.obj:
 	$(CC) $(CFLAGS) -c $< -Fo$@

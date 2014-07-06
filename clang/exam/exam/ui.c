@@ -13,10 +13,11 @@
 #include "addon.h"
 #include "slist.h"
 #include "problem.h"
+#include "paper.h"
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.2.0";
+static char *VERSION = "0.2.2";
 
 static char *problem_db_name = "problem.db";
 
@@ -102,7 +103,7 @@ void ui_teacher()
         case 3: ui_teacher_delete(); break;
         case 4: ui_teacher_update(); break;
         case 5: ui_teacher_select(); break;
-            //case 6: ui_teacher_generate(); break;
+        case 6: ui_teacher_generate(); break;
             //case 7: ui_teacher_score(); break;
         case 0: exit(0); break;
         default: return; break;
@@ -250,6 +251,56 @@ void ui_teacher_select()
     plist_free(db);
 }
 
+void ui_teacher_generate()
+{
+    PList *db = plist_new();
+    if (problem_read_file(db, problem_db_name) < 0) {
+        perror("读取题目数据库失败");
+        return;
+    }
+    while (true) {
+        cls();
+        switch (input_option(
+            "选择智能组卷算法:\n"
+            "   1 - 随机生成\n"
+            "   2 - 按标签生成\n"
+            "   3 - 按章节生成\n"
+            "   4 - 自定义生成\n"
+            "   9 - 返回上一级\n"
+            "   0 - 退出系统\n"
+            , false)) {
+        case 1: ui_generate_random(db); break;
+        case 2: ui_generate_tags(db); break;
+        case 3: ui_generate_secs(db); break;
+        case 4: ui_generate_custom(db); break;
+        case 0: exit(0); break;
+        default: return; break;
+        }
+        pause();
+    }
+    plist_free(db);
+}
+
+void ui_generate_random(PList *db)
+{
+    ui_output_count(db);
+    printf("智能组卷 - 随机生成\n");
+    printf("生成题目数:\n$ ");
+    int n = ui_input_number();
+    Paper *pa = paper_new();
+    //paper_generate_random(pa, db, n);
+    ui_paper_save(pa);
+    paper_free(pa);
+}
+
+void ui_generate_tags(PList *db)
+{}
+
+void ui_generate_secs(PList *db)
+{}
+
+void ui_generate_custom(PList *db)
+{}
 
 void *ui_each_problem_show(SList *item, void *userdata)
 {
@@ -422,6 +473,7 @@ int ui_select_des(PList *db)
     char des[256] = "";
     printf("题目描述（只需输入部分内容）:\n$ ");
     while (scanf("%s", des) != 1);
+    printf("查找题目描述中含有 \"%s\" 的题目...\n", des);
     return ui_select_output(db, by_des, des);
 }
 
@@ -430,14 +482,16 @@ int ui_select_opt(PList *db)
     char opt[64] = "";
     printf("题目选项（只需输入部分内容）:\n$ ");
     while (scanf("%s", opt) != 1);
+    printf("查找题目选项中含有 \"%s\" 的题目...\n", opt);
     return ui_select_output(db, by_opt, opt);
 }
 
 int ui_select_dif(PList *db)
 {
     sel_num t;
-    printf("题目难度（输入 < > = == <= >= != <> 后空格数字，如 \"<= 5\" ）:\n$ ");
+    printf("题目难度（输入 < > = == <= >= != <> 后空格数字）:\n$ ");
     while (scanf("%s%d", t.mark, &t.num) != 2);
+    printf("查找题目难度 %s %d 的题目...\n", t.mark, t.num);
     return ui_select_output(db, by_dif, &t);
 }
 
@@ -446,6 +500,9 @@ int ui_select_tag(PList *db)
     short tags[64], i = 0;
     printf("题目标签编号（以 0 结尾）:\n$ ");
     for (; scanf("%hi", &tags[i]), tags[i] > 0; i++);
+    printf("查找题目标签为");
+    for (i = 0; tags[i] > 0; i++) printf(" %d", tags[i]);
+    printf(" 的题目...\n");
     return ui_select_output(db, by_tags, tags);
 }
 
@@ -453,8 +510,11 @@ int ui_select_sec(PList *db)
 {
     double secs[64];
     int i = 0;
-    printf("题目章节编号（小数点分割章节，节可省略，以 0 结尾，如 \"2.2 2.4 5 0\" ）:\n$ ");
+    printf("题目章节编号（小数点分割章节，节可省略，以 0 结尾 ）:\n$ ");
     for (; scanf("%lf", &secs[i]), secs[i] > 0; i++);
+    printf("查找题目章节为");
+    for (i = 0; secs[i] > 0; i++) printf(" %.2lf", secs[i]);
+    printf(" 的题目...\n");
     return ui_select_output(db, by_secs, secs);
 }
 
@@ -463,5 +523,23 @@ int ui_select_mul(PList *db)
     char key[64] = "";
     printf("输入要查询的关键字:\n$ ");
     while (scanf("%s", key) != 1);
+    printf("查找题目中含有 \"%s\" 的题目...\n", key);
     return ui_select_output(db, by_mul, key);
+}
+
+int ui_paper_save(Paper *pa)
+{
+    fprint_paper_pid(stdout, pa);
+    char filename[64] = "";
+    char *filetype = ".paper.db";
+    printf("请输入要保存的文件名:\n$ ");
+    scanf("%s", filename);
+    strcat(filename, filetype);
+    printf("正在保存试卷文件 \"%s\" ...", filename);
+    if (paper_write(pa, filename) != 0) {
+        perror("保存文件失败");
+        return -1;
+    }
+    printf("成功\n");
+    return 0;
 }
