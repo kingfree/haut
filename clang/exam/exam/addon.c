@@ -3,6 +3,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
@@ -56,4 +57,10 @@ bool psame(int n, double d)
         }
     }
     return false;
+}
+
+int random(int a, int b)
+/* 返回 [a, b) 之间的随机数 */
+{
+    return rand() % (b - a) + a;
 }

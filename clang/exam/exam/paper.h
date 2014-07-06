@@ -17,11 +17,11 @@ typedef struct Paper {
 Paper *paper_new();
 void paper_free(Paper *pa);
 
-void paper_list();
 int paper_read(Paper *pa, const char *filename);
 int paper_write(Paper *pa, const char *filename);
 
 int paper_insert_problem(Paper *pa, Problem *p);
+int paper_insert_pid(Paper *pa, int pid);
 
 int paper_generate_random(Paper *pa, PList *db, int n);
 int paper_generate_tags(Paper *pa, PList *db, int tags[]);

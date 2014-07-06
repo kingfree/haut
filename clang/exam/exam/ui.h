@@ -49,6 +49,8 @@ char ui_input_ans();
 
 char *dif2star(int dif);
 
+void ui_paper_list();
+
 void ui_generate_random(PList *db);
 void ui_generate_tags(PList *db);
 void ui_generate_secs(PList *db);

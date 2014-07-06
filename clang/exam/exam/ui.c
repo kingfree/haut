@@ -17,9 +17,10 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.2.2";
+static char *VERSION = "0.2.4";
 
 static char *problem_db_name = "problem.db";
+static char *paper_filetype = ".paper.db";
 
 void cls() {
 #ifdef WIN32
@@ -104,7 +105,7 @@ void ui_teacher()
         case 4: ui_teacher_update(); break;
         case 5: ui_teacher_select(); break;
         case 6: ui_teacher_generate(); break;
-            //case 7: ui_teacher_score(); break;
+        case 7: ui_teacher_score(); break;
         case 0: exit(0); break;
         default: return; break;
         }
@@ -266,6 +267,7 @@ void ui_teacher_generate()
             "   2 - 按标签生成\n"
             "   3 - 按章节生成\n"
             "   4 - 自定义生成\n"
+            "   5 - 试卷列表\n"
             "   9 - 返回上一级\n"
             "   0 - 退出系统\n"
             , false)) {
@@ -273,12 +275,28 @@ void ui_teacher_generate()
         case 2: ui_generate_tags(db); break;
         case 3: ui_generate_secs(db); break;
         case 4: ui_generate_custom(db); break;
+        case 5: ui_paper_list(); break;
         case 0: exit(0); break;
         default: return; break;
         }
         pause();
     }
     plist_free(db);
+}
+
+void ui_teacher_score()
+{}
+
+void ui_paper_list()
+{
+#ifdef WIN32
+    char s[64] = "dir /B *";
+#else
+    char s[64] = "ls -1 *";
+#endif
+    strcat(s, paper_filetype);
+    printf("已有的试卷文件:\n");
+    system(s);
 }
 
 void ui_generate_random(PList *db)
@@ -288,7 +306,7 @@ void ui_generate_random(PList *db)
     printf("生成题目数:\n$ ");
     int n = ui_input_number();
     Paper *pa = paper_new();
-    //paper_generate_random(pa, db, n);
+    paper_generate_random(pa, db, n);
     ui_paper_save(pa);
     paper_free(pa);
 }
@@ -370,7 +388,7 @@ Problem *ui_input_problem()
 
 void ui_edit_problem(Problem *p)
 {
-    printf("修改题目信息(直接回车表示不修改): \n");
+    printf("修改题目信息（直接回车表示不修改）: \n");
     gotn();
 
     printf("题目描述: %s\n$ ", p->des);
@@ -531,10 +549,13 @@ int ui_paper_save(Paper *pa)
 {
     fprint_paper_pid(stdout, pa);
     char filename[64] = "";
-    char *filetype = ".paper.db";
-    printf("请输入要保存的文件名:\n$ ");
+    printf("请输入要保存的文件名（直接回车不保存）:\n$ ");
+    gotn();
+    if (gotn()) {
+        return 0;
+    }
     scanf("%s", filename);
-    strcat(filename, filetype);
+    strcat(filename, paper_filetype);
     printf("正在保存试卷文件 \"%s\" ...", filename);
     if (paper_write(pa, filename) != 0) {
         perror("保存文件失败");

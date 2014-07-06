@@ -27,4 +27,6 @@ bool psame(int n, double d);
 
 bool gotn();
 
+int random(int a, int b);
+
 #endif
