@@ -1,11 +1,17 @@
 RM=rm -f
 CC= gcc
-DEFS=  
+DEFS= 
 PROGNAME= exam
 INCLUDES= -I.
 LIBS=
 
-DEFINES= $(INCLUDES) $(DEFS) -DSYS_UNIX=1
+ifdef WIN32
+OSDEF= -fexec-charset=gbk
+else
+OSDEF= -DSYS_UNIX=1
+endif
+
+DEFINES= $(INCLUDES) $(DEFS) $(OSDEF)
 CFLAGS= -Wall -g $(DEFINES)
 
 SRCS = addon.c exam.c file.c paper.c problem.c slist.c ui.c 

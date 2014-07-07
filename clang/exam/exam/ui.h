@@ -16,6 +16,7 @@ void pause();
 char *dif2star(int dif);
 
 void ui_login();
+void ui_teacher_login();
 
 void ui_student();
 void ui_teacher();

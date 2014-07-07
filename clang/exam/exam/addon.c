@@ -9,6 +9,19 @@
 
 #include "addon.h"
 
+#ifdef WIN32
+#include <conio.h>
+#else
+#include <termios.h>
+#endif
+
+void swap(int *a, int *b)
+{
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+
 bool gotn()
 /* 清理遗留的回车换行符 */
 {
@@ -63,4 +76,42 @@ int random(int a, int b)
 /* 返回 [a, b) 之间的随机数 */
 {
     return rand() % (b - a) + a;
+}
+
+#define PWD_MAX 256
+
+char *getpass(char *prompt)
+{
+	static char passwd[PWD_MAX] = "";
+	printf("%s", prompt);
+#ifdef WIN32
+	int i = 0;
+	char c;
+	while ((c = getch()) != '\n' && c != '\r' && i < PWD_MAX) {
+		if (c == '\b' && i > 0) {
+			passwd[i--] = '\0';
+			printf("\b \b");
+		} else {
+			passwd[i++] = c;
+			printf("*");
+		}
+	}
+	passwd[i] = '\0';
+#else
+	struct termios oldflags, newflags;
+	tcgetattr(fileno(stdin), &oldflags);
+	newflags = oldflags;
+	newflags.c_lflag &= ~ECHO;
+	newflags.c_lflag |= ECHONL;
+	if (tcsetattr(fileno(stdin), TCSANOW, &newflags) != 0) {
+		perror("tcsetattr");
+		return NULL;
+	}
+	fgets(passwd, PWD_MAX, stdin);
+	if (tcsetattr(fileno(stdin), TCSANOW, &oldflags) != 0) {
+		perror("tcsetattr");
+		return NULL;
+	}
+#endif
+	return passwd;
 }

@@ -15,6 +15,8 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
+void swap(int *a, int *b);
+
 typedef struct sel_num {
     int num;
     char mark[8]; // < > = == <= >= != <>
@@ -28,5 +30,7 @@ bool psame(int n, double d);
 bool gotn();
 
 int random(int a, int b);
+
+char *getpass(char *prompt);
 
 #endif

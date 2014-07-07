@@ -17,7 +17,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.2.5";
+static char *VERSION = "0.2.7";
 
 static char *problem_db_name = "problem.db";
 static char *paper_filetype = ".paper.db";
@@ -79,7 +79,7 @@ void ui_login()
             "   0 - 退出系统\n"
             , true)) {
         case 1: ui_student(); break;
-        case 2: ui_teacher(); break;
+        case 2: ui_teacher_login(); break;
         case 3: ui_help(); break;
         case 4: ui_about(); break;
         case 0: exit(0); break;
@@ -132,6 +132,14 @@ void ui_student_test()
 
 void ui_student_score()
 {}
+
+void ui_teacher_login()
+{
+	char *s = getpass("密码: ");
+	printf("%s\n", s);
+    // 处理密码
+	ui_teacher();
+}
 
 void ui_teacher()
 {
@@ -358,20 +366,63 @@ void ui_generate_random(PList *db)
     Paper *pa = paper_new();
     printf("试卷标题:\n$ ");
     scanf("%s", pa->title);
-    //    gotn();
     paper_generate_random(pa, db, n);
     ui_paper_save(pa);
     paper_free(pa);
 }
 
 void ui_generate_tags(PList *db)
-{}
+{
+    ui_output_count(db);
+    printf("智能组卷 - 按知识点标签生成\n");
+    int tags[64], i = 0;
+    printf("题目标签编号（以 0 结尾）:\n$ ");
+    for (; scanf("%d", &tags[i]), tags[i] > 0; i++);
+    printf("生成题目数:\n$ ");
+    int n = ui_input_number();
+    Paper *pa = paper_new();
+    printf("试卷标题:\n$ ");
+    scanf("%s", pa->title);
+    paper_generate_tags(pa, db, n, tags, i);
+    ui_paper_save(pa);
+    paper_free(pa);
+}
 
 void ui_generate_secs(PList *db)
-{}
+{
+    ui_output_count(db);
+    printf("智能组卷 - 按知识点章节生成\n");
+    double secs[64];
+    int i = 0;
+    printf("题目章节编号（小数点分割章节，节可省略，以 0 结尾 ）:\n$ ");
+    for (; scanf("%lf", &secs[i]), secs[i] > 0; i++);
+    printf("生成题目数:\n$ ");
+    int n = ui_input_number();
+    Paper *pa = paper_new();
+    printf("试卷标题:\n$ ");
+    scanf("%s", pa->title);
+    paper_generate_secs(pa, db, n, secs, i);
+    ui_paper_save(pa);
+    paper_free(pa);
+}
 
 void ui_generate_dif(PList *db)
-{}
+{
+    ui_output_count(db);
+    printf("智能组卷 - 按难度区间生成\n");
+    int a, b;
+    printf("题目难度区间（两个 0--10 的数字）:\n$ ");
+    a = ui_input_number();
+    b = ui_input_number();
+    printf("生成题目数:\n$ ");
+    int n = ui_input_number();
+    Paper *pa = paper_new();
+    printf("试卷标题:\n$ ");
+    scanf("%s", pa->title);
+    paper_generate_dif(pa, db, n, a, b);
+    ui_paper_save(pa);
+    paper_free(pa);
+}
 
 void ui_generate_custom(PList *db)
 {}
@@ -566,7 +617,7 @@ int ui_select_dif(PList *db)
     printf("题目难度（输入 < > = == <= >= != <> 后空格数字）:\n$ ");
     while (scanf("%s%d", t.mark, &t.num) != 2);
     printf("查找题目难度 %s %d 的题目...\n", t.mark, t.num);
-    return ui_select_output(db, by_dif, &t);
+    return ui_select_output(db, by_difs, &t);
 }
 
 int ui_select_tag(PList *db)
@@ -603,6 +654,10 @@ int ui_select_mul(PList *db)
 
 int ui_paper_save(Paper *pa)
 {
+    if (pa->length <= 0) {
+        perror("试卷中没有题目");
+        return -1;
+    }
     fprint_paper_pid(stdout, pa);
     char filename[64] = "";
     printf("请输入要保存的文件名（直接回车不保存）:\n$ ");

@@ -72,3 +72,71 @@ int paper_generate_random(Paper *pa, PList *db, int n)
     }
     return pa->length;
 }
+
+int paper_generate_s(Paper *pa, PList *db, int n, void *data, int m, SListCallback *find)
+{
+    if (db->count < n) {
+        n = db->count;
+    }
+    SList *s = db->slist;
+    Problem *p = NULL;
+    int i = 0, j = 0;
+    int k = n / m + 1;
+    for (i = 0; i < m; i++) {
+        j = 0;
+        while ((s = (SList *)slist_find(s, find, data +i)) != NULL) {
+            p = (Problem *)s->userdata;
+            if (p->id == paper_insert_pid(pa, p->id)) {
+                j++;
+                if (j >= k) {
+                    break;
+                }
+            }
+            if (pa->length >= n) {
+                goto end;
+            }
+            s = slist_tail(s);
+        }
+    }
+end:
+    return pa->length;
+}
+
+int paper_generate_tags(Paper *pa, PList *db, int n, int secs[], int m)
+{
+    return paper_generate_s(pa, db, n, secs, m, by_tags);
+}
+
+int paper_generate_secs(Paper *pa, PList *db, int n, double secs[], int m)
+{
+    return paper_generate_s(pa, db, n, secs, m, by_secs);
+}
+
+int paper_generate_dif(Paper *pa, PList *db, int n, int a, int b)
+{
+    if (a > b) {
+        swap(&a, &b);
+    }
+    if (db->count < n) {
+        n = db->count;
+    }
+    SList *s = db->slist;
+    Problem *p = NULL;
+    int j[11] = {0};
+    int k = n / (b - a + 1) + 1;
+    short r[2] = {a, b};
+    //fprintf(stderr, "k = %d\n", k);
+    while ((s = (SList *)slist_find(s, by_difr, &r)) != NULL) {
+        p = (Problem *)s->userdata;
+        if (j[p->dif]++ >= k) {
+            break;
+        }
+        paper_insert_pid(pa, p->id);
+        if (pa->length >= n) {
+            goto end;
+        }
+        s = slist_tail(s);
+    }
+end:
+    return pa->length;
+}

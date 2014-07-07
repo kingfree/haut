@@ -162,11 +162,22 @@ void *by_opt(SList *item, void *data)
     return NULL;
 }
 
-void *by_dif(SList *item, void *data)
+void *by_difs(SList *item, void *data)
 {
     Problem *p = (Problem *)item->userdata;
     sel_num *t = (sel_num *)data;
     return select_cond_number(*t, p->dif) ? item : NULL;
+}
+
+void *by_difr(SList *item, void *data)
+{
+    Problem *p = (Problem *)item->userdata;
+    short *dif = (short *)data;
+    //fprintf(stderr, "%d in [%d, %d]\n", p->dif, dif[0], dif[1]);
+    if (dif[0] <= p->dif && p->dif <= dif[1]) {
+        return item;
+    }
+    return NULL;
 }
 
 void *by_tags(SList *item, void *data)
