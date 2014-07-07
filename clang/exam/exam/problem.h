@@ -19,6 +19,8 @@ typedef struct Problem {
   short  section;  // 节
 } Problem;
 
+Problem *problem_new();
+
 int problem_read_file(List *list);
 int problem_write_file(List *list);
 

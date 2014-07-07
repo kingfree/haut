@@ -12,7 +12,7 @@
 #include "file.h"
 #include "user.h"
 
-static char *user_list_name = "user.list";
+static char *user_list_name = "user.db";
 
 User *user_new()
 {

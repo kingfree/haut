@@ -16,6 +16,21 @@
 
 static char *problem_db_name = "problem.db";
 
+Problem *problem_new()
+{
+    Problem *p = (Problem *)malloc(sizeof(Problem));
+    assert(p);
+    p->id = 0;
+    memset(p->des, 0, sizeof(p->des));
+    memset(p->opt, 0, sizeof(p->opt));
+    p->ans = 'A';
+    p->dif = 0;
+    p->tag = 0;
+    p->chapter = 0;
+    p->section = 0;
+    return p;
+}
+
 int problem_read_file(List *list)
 {
     return read_file_to_list(problem_db_name, list, sizeof(Problem));

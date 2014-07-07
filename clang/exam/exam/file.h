@@ -34,8 +34,12 @@ void list_free(List *list);
 int read_file_to_list(char *filename, List *list, size_t size);
 int write_list_to_file(char *filename, List *list, size_t size);
 void *write_userdata(SList *item, void *data);
-
-int list_insert(List *list, void *p);
 void list_restore(List *list);
+
+void *list_each_call(List *list, SListCallback *call, void *data);
+int list_insert(List *list, void *p);
+void *list_remove(List *list, SListCallback *find, void *data);
+void *list_find(List *list, SListCallback *find, void *data);
+int list_find_each_call(List *list, SListCallback *find, void *data, SListCallback *call);
 
 #endif

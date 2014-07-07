@@ -119,3 +119,35 @@ void list_free(List *list)
     list->slist = slist_delete(list->slist, userdata_free);
     free(list);
 }
+
+void *list_find(List *list, SListCallback *find, void *data)
+{
+    SList *s = (SList *)slist_find(list->slist, find, data);
+    if (s == NULL) {
+        return NULL;
+    }
+    void *p = (void *)s->userdata;
+    return p;
+}
+
+int list_find_each_call(List *list, SListCallback *find, void *data, SListCallback *call)
+{
+    int n = 0;
+    SList *s = list->slist;
+    while ((s = (SList *)slist_find(s, find, data)) != NULL) {
+        n++;
+        call(s, NULL);
+        s = slist_tail(s);
+    }
+    return n;
+}
+
+void *list_each_call(List *list, SListCallback *call, void *data)
+{
+    return slist_foreach(list->slist, call, data);
+}
+
+void *list_remove(List *list, SListCallback *find, void *data)
+{
+    return slist_unbox(slist_remove(&list->slist, find, data));
+}

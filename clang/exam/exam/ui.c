@@ -18,7 +18,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.3.4";
+static char *VERSION = "0.3.5";
 
 static char *paper_filetype = ".paper.list";
 
@@ -214,7 +214,7 @@ void ui_teacher_view()
         return;
     }
     ui_output_count(list);
-    slist_foreach(list->slist, ui_each_problem_show, NULL);
+    list_each_call(list, ui_each_problem_show, NULL);
     list_free(list);
     pause();
 }
@@ -222,8 +222,7 @@ void ui_teacher_view()
 void ui_teacher_insert()
 {
     List *list = list_new();
-    int n;
-    if ((n = problem_read_file(list)) < 0) {
+    if (problem_read_file(list) < 0) {
         perror("读取题目数据库失败");
         goto end;
     }
@@ -265,7 +264,7 @@ void ui_teacher_delete()
     gotn();
     char y = getchar();
     if (y != 'Y' && y != 'y') goto end;
-    if (p != slist_unbox(slist_remove(&list->slist, by_id, &id))) {
+    if (list_remove(list, by_id, &id) != p) {
         perror("删除题目失败");
         goto end;
     }
@@ -484,11 +483,7 @@ void ui_output_count(List *list)
 Problem *ui_input_problem()
 {
     int i = 0;
-    Problem *p = (Problem *)malloc(sizeof(Problem));
-    if (p == NULL) {
-        perror("申请题目空间失败");
-        return NULL;
-    }
+    Problem *p = problem_new();
 
     printf("请输入题目相关信息: \n");
 
@@ -588,31 +583,17 @@ Problem *ui_select_id(List *list)
     printf("题目编号:\n$ ");
     while (scanf("%d", &id) != 1);
 
-    SList *s = (SList *)slist_find(list->slist, by_id, &id);
-    Problem *p = NULL;
-    if (s == NULL) {
-        perror("没有找到题目");
-        goto end;
-    }
-    p = (Problem *)s->userdata;
+    Problem *p = (Problem *)list_find(list, by_id, &id);
     if (p == NULL) {
-        perror("没有题目数据");
-        goto end;
+        return NULL;
     }
     ui_output_problem(p, true);
-end:
     return p;
 }
 
-int ui_select_output(List *list, SListCallback *find, void *matchdata)
+int ui_select_output(List *list, SListCallback *find, void *data)
 {
-    int n = 0;
-    SList *s = list->slist;
-    while ((s = (SList *)slist_find(s, find, matchdata)) != NULL) {
-        n++;
-        ui_each_problem_show(s, NULL);
-        s = slist_tail(s);
-    }
+    int n = list_find_each_call(list, find, data, ui_each_problem_show);
     printf("共查询到 %d 个符合条件的结果。\n", n);
     return n;
 }
