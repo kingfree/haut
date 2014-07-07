@@ -18,10 +18,9 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.3.1";
+static char *VERSION = "0.3.4";
 
-static char *problem_db_name = "problem.db";
-static char *paper_filetype = ".paper.db";
+static char *paper_filetype = ".paper.list";
 
 void cls()
 {
@@ -209,55 +208,54 @@ void ui_teacher()
 
 void ui_teacher_view()
 {
-    PList *db = plist_new();
-    int n;
-    if ((n = problem_read_file(db, problem_db_name)) < 0) {
+    List *list = list_new();
+    if (problem_read_file(list) < 0) {
         perror("读取题目数据库失败");
         return;
     }
-    ui_output_count(db);
-    slist_foreach(db->slist, ui_each_problem_show, NULL);
-    plist_free(db);
+    ui_output_count(list);
+    slist_foreach(list->slist, ui_each_problem_show, NULL);
+    list_free(list);
     pause();
 }
 
 void ui_teacher_insert()
 {
-    PList *db = plist_new();
+    List *list = list_new();
     int n;
-    if ((n = problem_read_file(db, problem_db_name)) < 0) {
+    if ((n = problem_read_file(list)) < 0) {
         perror("读取题目数据库失败");
         goto end;
     }
-    ui_output_count(db);
+    ui_output_count(list);
     Problem *p = ui_input_problem();
-    p->id = db->max_id + 1;
+    p->id = list->max_id + 1;
     int id = p->id;
     ui_output_problem(p, true);
-    if (problem_insert(db, p) < 0) {
+    if (list_insert(list, p) < 0) {
         perror("插入题目失败");
         goto end;
     }
-    if (problem_write_file(db, problem_db_name) < 0) {
+    if (problem_write_file(list) < 0) {
         perror("写入题目数据库失败");
         goto end;
     }
     printf("插入题目 %d 成功！\n", id);
 end:
-    plist_free(db);
+    list_free(list);
     pause();
 }
 
 void ui_teacher_delete()
 {
-    PList *db = plist_new();
+    List *list = list_new();
     int n;
-    if ((n = problem_read_file(db, problem_db_name)) < 0) {
+    if ((n = problem_read_file(list)) < 0) {
         perror("读取题目数据库失败");
         goto end;
     }
-    ui_output_count(db);
-    Problem *p = ui_select_id(db);
+    ui_output_count(list);
+    Problem *p = ui_select_id(list);
     if (p == NULL || p->id < 0) {
         perror("获取题目失败");
         goto end;
@@ -267,31 +265,31 @@ void ui_teacher_delete()
     gotn();
     char y = getchar();
     if (y != 'Y' && y != 'y') goto end;
-    if (p != slist_unbox(slist_remove(&db->slist, by_id, &id))) {
+    if (p != slist_unbox(slist_remove(&list->slist, by_id, &id))) {
         perror("删除题目失败");
         goto end;
     }
-    problem_free(p);
-    if (problem_write_file(db, problem_db_name) < 0) {
+    free(p);
+    if (problem_write_file(list) < 0) {
         perror("写入题目数据库失败");
         goto end;
     }
     printf("删除题目 %d 成功！ \n", id);
 end:
-    plist_free(db);
+    list_free(list);
     pause();
 }
 
 void ui_teacher_update()
 {
-    PList *db = plist_new();
+    List *list = list_new();
     int n;
-    if ((n = problem_read_file(db, problem_db_name)) < 0) {
+    if ((n = problem_read_file(list)) < 0) {
         perror("读取题目数据库失败");
         goto end;
     }
-    ui_output_count(db);
-    Problem *p = ui_select_id(db);
+    ui_output_count(list);
+    Problem *p = ui_select_id(list);
     if (p == NULL || p->id < 0) {
         perror("获取题目失败");
         goto end;
@@ -299,25 +297,25 @@ void ui_teacher_update()
     int id = p->id;
     ui_edit_problem(p);
     ui_output_problem(p, true);
-    if (problem_write_file(db, problem_db_name) < 0) {
+    if (problem_write_file(list) < 0) {
         perror("写入题目数据库失败");
         goto end;
     }
     printf("修改题目 %d 成功！ \n", id);
 end:
-    plist_free(db);
+    list_free(list);
     pause();
 }
 
 void ui_teacher_select()
 {
-    PList *db = plist_new();
+    List *list = list_new();
     int n;
-    if ((n = problem_read_file(db, problem_db_name)) < 0) {
+    if ((n = problem_read_file(list)) < 0) {
         perror("读取题目数据库失败");
         return;
     }
-    ui_output_count(db);
+    ui_output_count(list);
     while (true) {
         cls();
         switch (ui_input_option(
@@ -332,25 +330,25 @@ void ui_teacher_select()
             "   9 - 返回上一级\n"
             "   0 - 退出系统\n"
             , false)) {
-        case 1: ui_select_id(db); break;
-        case 2: ui_select_des(db); break;
-        case 3: ui_select_opt(db); break;
-        case 4: ui_select_dif(db); break;
-        case 5: ui_select_tag(db); break;
-        case 6: ui_select_sec(db); break;
-        case 7: ui_select_mul(db); break;
+        case 1: ui_select_id(list); break;
+        case 2: ui_select_des(list); break;
+        case 3: ui_select_opt(list); break;
+        case 4: ui_select_dif(list); break;
+        case 5: ui_select_tag(list); break;
+        case 6: ui_select_sec(list); break;
+        case 7: ui_select_mul(list); break;
         case 0: exit(0); break;
         default: return; break;
         }
         pause();
     }
-    plist_free(db);
+    list_free(list);
 }
 
 void ui_teacher_generate()
 {
-    PList *db = plist_new();
-    if (problem_read_file(db, problem_db_name) < 0) {
+    List *list = list_new();
+    if (problem_read_file(list) < 0) {
         perror("读取题目数据库失败");
         return;
     }
@@ -366,36 +364,36 @@ void ui_teacher_generate()
             "   9 - 返回上一级\n"
             "   0 - 退出系统\n"
             , false)) {
-        case 1: ui_generate_random(db); break;
-        case 2: ui_generate_tags(db); break;
-        case 3: ui_generate_secs(db); break;
-        case 4: ui_generate_dif(db); break;
+        case 1: ui_generate_random(list); break;
+        case 2: ui_generate_tags(list); break;
+        case 3: ui_generate_secs(list); break;
+        case 4: ui_generate_dif(list); break;
         case 6: ui_paper_list(); break;
         case 0: exit(0); break;
         default: return; break;
         }
         pause();
     }
-    plist_free(db);
+    list_free(list);
 }
 
-void ui_generate_random(PList *db)
+void ui_generate_random(List *list)
 {
-    ui_output_count(db);
+    ui_output_count(list);
     printf("智能组卷 - 随机生成\n");
     printf("生成题目数:\n$ ");
     int n = ui_input_number();
     Paper *pa = paper_new();
     printf("试卷标题:\n$ ");
     scanf("%s", pa->title);
-    paper_generate_random(pa, db, n);
+    paper_generate_random(pa, list, n);
     ui_paper_save(pa);
     paper_free(pa);
 }
 
-void ui_generate_tags(PList *db)
+void ui_generate_tags(List *list)
 {
-    ui_output_count(db);
+    ui_output_count(list);
     printf("智能组卷 - 按知识点标签生成\n");
     int tags[64], i = 0;
     printf("题目标签编号（以 0 结尾）:\n$ ");
@@ -405,14 +403,14 @@ void ui_generate_tags(PList *db)
     Paper *pa = paper_new();
     printf("试卷标题:\n$ ");
     scanf("%s", pa->title);
-    paper_generate_tags(pa, db, n, tags, i);
+    paper_generate_tags(pa, list, n, tags, i);
     ui_paper_save(pa);
     paper_free(pa);
 }
 
-void ui_generate_secs(PList *db)
+void ui_generate_secs(List *list)
 {
-    ui_output_count(db);
+    ui_output_count(list);
     printf("智能组卷 - 按知识点章节生成\n");
     double secs[64];
     int i = 0;
@@ -423,14 +421,14 @@ void ui_generate_secs(PList *db)
     Paper *pa = paper_new();
     printf("试卷标题:\n$ ");
     scanf("%s", pa->title);
-    paper_generate_secs(pa, db, n, secs, i);
+    paper_generate_secs(pa, list, n, secs, i);
     ui_paper_save(pa);
     paper_free(pa);
 }
 
-void ui_generate_dif(PList *db)
+void ui_generate_dif(List *list)
 {
-    ui_output_count(db);
+    ui_output_count(list);
     printf("智能组卷 - 按难度区间生成\n");
     int a, b;
     printf("题目难度区间（两个 0--10 的数字）:\n$ ");
@@ -441,7 +439,7 @@ void ui_generate_dif(PList *db)
     Paper *pa = paper_new();
     printf("试卷标题:\n$ ");
     scanf("%s", pa->title);
-    paper_generate_dif(pa, db, n, a, b);
+    paper_generate_dif(pa, list, n, a, b);
     ui_paper_save(pa);
     paper_free(pa);
 }
@@ -478,15 +476,19 @@ int ui_input_number()
     return n;
 }
 
-void ui_output_count(PList *db)
+void ui_output_count(List *list)
 {
-    printf("数据库中有 %d 条记录，最大编号为 %d\n", db->count, db->max_id);
+    printf("数据库中有 %d 条记录，最大编号为 %d\n", list->count, list->max_id);
 }
 
 Problem *ui_input_problem()
 {
     int i = 0;
-    Problem *p = problem_new();
+    Problem *p = (Problem *)malloc(sizeof(Problem));
+    if (p == NULL) {
+        perror("申请题目空间失败");
+        return NULL;
+    }
 
     printf("请输入题目相关信息: \n");
 
@@ -580,13 +582,13 @@ void ui_output_problem(Problem *p, bool show_more)
     }
 }
 
-Problem *ui_select_id(PList *db)
+Problem *ui_select_id(List *list)
 {
     int id = -1;
     printf("题目编号:\n$ ");
     while (scanf("%d", &id) != 1);
 
-    SList *s = (SList *)slist_find(db->slist, by_id, &id);
+    SList *s = (SList *)slist_find(list->slist, by_id, &id);
     Problem *p = NULL;
     if (s == NULL) {
         perror("没有找到题目");
@@ -602,10 +604,10 @@ end:
     return p;
 }
 
-int ui_select_output(PList *db, SListCallback *find, void *matchdata)
+int ui_select_output(List *list, SListCallback *find, void *matchdata)
 {
     int n = 0;
-    SList *s = db->slist;
+    SList *s = list->slist;
     while ((s = (SList *)slist_find(s, find, matchdata)) != NULL) {
         n++;
         ui_each_problem_show(s, NULL);
@@ -615,34 +617,34 @@ int ui_select_output(PList *db, SListCallback *find, void *matchdata)
     return n;
 }
 
-int ui_select_des(PList *db)
+int ui_select_des(List *list)
 {
     char des[256] = "";
     printf("题目描述（只需输入部分内容）:\n$ ");
     while (scanf("%s", des) != 1);
     printf("查找题目描述中含有 \"%s\" 的题目...\n", des);
-    return ui_select_output(db, by_des, des);
+    return ui_select_output(list, by_des, des);
 }
 
-int ui_select_opt(PList *db)
+int ui_select_opt(List *list)
 {
     char opt[64] = "";
     printf("题目选项（只需输入部分内容）:\n$ ");
     while (scanf("%s", opt) != 1);
     printf("查找题目选项中含有 \"%s\" 的题目...\n", opt);
-    return ui_select_output(db, by_opt, opt);
+    return ui_select_output(list, by_opt, opt);
 }
 
-int ui_select_dif(PList *db)
+int ui_select_dif(List *list)
 {
     sel_num t;
     printf("题目难度（输入 < > = == <= >= != <> 后空格数字）:\n$ ");
     while (scanf("%s%d", t.mark, &t.num) != 2);
     printf("查找题目难度 %s %d 的题目...\n", t.mark, t.num);
-    return ui_select_output(db, by_difs, &t);
+    return ui_select_output(list, by_difs, &t);
 }
 
-int ui_select_tag(PList *db)
+int ui_select_tag(List *list)
 {
     short tags[64], i = 0;
     printf("题目标签编号（以 0 结尾）:\n$ ");
@@ -650,10 +652,10 @@ int ui_select_tag(PList *db)
     printf("查找题目标签为");
     for (i = 0; tags[i] > 0; i++) printf(" %d", tags[i]);
     printf(" 的题目...\n");
-    return ui_select_output(db, by_tags, tags);
+    return ui_select_output(list, by_tags, tags);
 }
 
-int ui_select_sec(PList *db)
+int ui_select_sec(List *list)
 {
     double secs[64];
     int i = 0;
@@ -662,16 +664,16 @@ int ui_select_sec(PList *db)
     printf("查找题目章节为");
     for (i = 0; secs[i] > 0; i++) printf(" %.2lf", secs[i]);
     printf(" 的题目...\n");
-    return ui_select_output(db, by_secs, secs);
+    return ui_select_output(list, by_secs, secs);
 }
 
-int ui_select_mul(PList *db)
+int ui_select_mul(List *list)
 {
     char key[64] = "";
     printf("输入要查询的关键字:\n$ ");
     while (scanf("%s", key) != 1);
     printf("查找题目中含有 \"%s\" 的题目...\n", key);
-    return ui_select_output(db, by_mul, key);
+    return ui_select_output(list, by_mul, key);
 }
 
 void ui_paper_list()

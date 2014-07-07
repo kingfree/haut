@@ -58,16 +58,16 @@ int paper_insert_pid(Paper *pa, int pid)
     return pa->pid[pa->length++] = pid;
 }
 
-int paper_generate_random(Paper *pa, PList *db, int n)
+int paper_generate_random(Paper *pa, List *list, int n)
 {
     int id = 0;
     SList *s = NULL;
-    if (db->count < n) {
-        n = db->count;
+    if (list->count < n) {
+        n = list->count;
     }
     while (pa->length < n) {
-        id = random(1, db->max_id + 1);
-        s = (SList *)slist_find(db->slist, by_id, &id);
+        id = random(1, list->max_id + 1);
+        s = (SList *)slist_find(list->slist, by_id, &id);
         if (s != NULL) {
             paper_insert_pid(pa, id);
         }
@@ -75,12 +75,12 @@ int paper_generate_random(Paper *pa, PList *db, int n)
     return pa->length;
 }
 
-int paper_generate_tags(Paper *pa, PList *db, int n, int tags[], int m)
+int paper_generate_tags(Paper *pa, List *list, int n, int tags[], int m)
 {
-    if (db->count < n) {
-        n = db->count;
+    if (list->count < n) {
+        n = list->count;
     }
-    SList *s = db->slist;
+    SList *s = list->slist;
     Problem *p = NULL;
     int i = 0, j = 0;
     int k = n / m + 1;
@@ -104,12 +104,12 @@ end:
     return pa->length;
 }
 
-int paper_generate_secs(Paper *pa, PList *db, int n, double secs[], int m)
+int paper_generate_secs(Paper *pa, List *list, int n, double secs[], int m)
 {
-    if (db->count < n) {
-        n = db->count;
+    if (list->count < n) {
+        n = list->count;
     }
-    SList *s = db->slist;
+    SList *s = list->slist;
     Problem *p = NULL;
     int i = 0, j = 0;
     int k = n / m + 1;
@@ -133,15 +133,15 @@ end:
     return pa->length;
 }
 
-int paper_generate_dif(Paper *pa, PList *db, int n, int a, int b)
+int paper_generate_dif(Paper *pa, List *list, int n, int a, int b)
 {
     if (a > b) {
         swap(&a, &b);
     }
-    if (db->count < n) {
-        n = db->count;
+    if (list->count < n) {
+        n = list->count;
     }
-    SList *s = db->slist;
+    SList *s = list->slist;
     Problem *p = NULL;
     int j[11] = { 0 };
     int k = n / (b - a + 1) + 1;

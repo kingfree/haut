@@ -12,7 +12,7 @@
 #include "file.h"
 #include "user.h"
 
-static char *user_db_name = "user.db";
+static char *user_list_name = "user.list";
 
 User *user_new()
 {
@@ -46,7 +46,7 @@ int user_init()
 
 int user_reg(User *u)
 {
-    FILE *file = fopen(user_db_name, "ab");
+    FILE *file = fopen(user_list_name, "ab");
     if (file == NULL) {
         return -1;
     }
@@ -69,12 +69,12 @@ int user_reg(User *u)
 
 int user_login(User *u)
 {
-    FILE *file = fopen(user_db_name, "rb");
+    FILE *file = fopen(user_list_name, "rb");
     if (file == NULL) {
         if (user_init() < 0) {
             return -1;
         }
-        file = fopen(user_db_name, "rb");
+        file = fopen(user_list_name, "rb");
         if (file == NULL) {
             return -1;
         }

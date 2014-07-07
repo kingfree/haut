@@ -7,6 +7,7 @@
 
 #include "addon.h"
 #include "slist.h"
+#include "file.h"
 #include "problem.h"
 
 typedef struct Paper {
@@ -25,9 +26,9 @@ int paper_insert_problem(Paper *pa, Problem *p);
 int paper_insert_pid(Paper *pa, int pid);
 void fprint_paper_pid(FILE *file, Paper *pa);
 
-int paper_generate_random(Paper *pa, PList *db, int n);
-int paper_generate_tags(Paper *pa, PList *db, int n, int tags[], int m);
-int paper_generate_secs(Paper *pa, PList *db, int n, double secs[], int m);
-int paper_generate_dif(Paper *pa, PList *db, int n, int a, int b);
+int paper_generate_random(Paper *pa, List *list, int n);
+int paper_generate_tags(Paper *pa, List *list, int n, int tags[], int m);
+int paper_generate_secs(Paper *pa, List *list, int n, double secs[], int m);
+int paper_generate_dif(Paper *pa, List *list, int n, int a, int b);
 
 #endif

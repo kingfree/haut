@@ -6,6 +6,7 @@
 #define _PROBLEM_H_
 
 #include "slist.h"
+#include "file.h"
 
 typedef struct Problem {
   int  id;
@@ -18,23 +19,8 @@ typedef struct Problem {
   short  section;  // 节
 } Problem;
 
-typedef struct PList {
-    SList *slist;
-    int max_id;
-    int count;
-} PList;
-
-Problem *problem_new();
-void problem_free(Problem *p);
-void problem_slist_free(void *s);
-
-PList *plist_new();
-void plist_free(PList *db);
-
-int problem_read_file(PList *db, const char *filename);
-int problem_write_file(PList *db, const char *filename);
-void problem_restore(PList *db);
-int problem_insert(PList *db, Problem *p);
+int problem_read_file(List *list);
+int problem_write_file(List *list);
 
 void *by_id(SList *item, void *data);
 void *by_des(SList *item, void *data);
