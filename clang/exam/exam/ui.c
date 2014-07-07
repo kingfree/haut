@@ -17,7 +17,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.2.7";
+static char *VERSION = "0.2.8";
 
 static char *problem_db_name = "problem.db";
 static char *paper_filetype = ".paper.db";
@@ -323,7 +323,6 @@ void ui_teacher_generate()
             "   2 - 按标签生成\n"
             "   3 - 按章节生成\n"
             "   4 - 按难度生成\n"
-            "   5 - 自定义生成\n"
             "   6 - 试卷列表\n"
             "   9 - 返回上一级\n"
             "   0 - 退出系统\n"
@@ -332,7 +331,6 @@ void ui_teacher_generate()
         case 2: ui_generate_tags(db); break;
         case 3: ui_generate_secs(db); break;
         case 4: ui_generate_dif(db); break;
-        case 5: ui_generate_custom(db); break;
         case 6: ui_paper_list(); break;
         case 0: exit(0); break;
         default: return; break;
@@ -340,21 +338,6 @@ void ui_teacher_generate()
         pause();
     }
     plist_free(db);
-}
-
-void ui_teacher_score()
-{}
-
-void ui_paper_list()
-{
-#ifdef WIN32
-    char s[64] = "dir /B *";
-#else
-    char s[64] = "ls -1 *";
-#endif
-    strcat(s, paper_filetype);
-    printf("已有的试卷文件:\n");
-    system(s);
 }
 
 void ui_generate_random(PList *db)
@@ -424,7 +407,7 @@ void ui_generate_dif(PList *db)
     paper_free(pa);
 }
 
-void ui_generate_custom(PList *db)
+void ui_teacher_score()
 {}
 
 void *ui_each_problem_show(SList *item, void *userdata)
@@ -650,6 +633,18 @@ int ui_select_mul(PList *db)
     while (scanf("%s", key) != 1);
     printf("查找题目中含有 \"%s\" 的题目...\n", key);
     return ui_select_output(db, by_mul, key);
+}
+
+void ui_paper_list()
+{
+#ifdef WIN32
+    char s[64] = "dir /B *";
+#else
+    char s[64] = "ls -1 *";
+#endif
+    strcat(s, paper_filetype);
+    printf("已有的试卷文件:\n");
+    system(s);
 }
 
 int ui_paper_save(Paper *pa)

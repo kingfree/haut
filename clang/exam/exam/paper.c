@@ -102,9 +102,9 @@ end:
     return pa->length;
 }
 
-int paper_generate_tags(Paper *pa, PList *db, int n, int secs[], int m)
+int paper_generate_tags(Paper *pa, PList *db, int n, int tags[], int m)
 {
-    return paper_generate_s(pa, db, n, secs, m, by_tags);
+    return paper_generate_s(pa, db, n, tags, m, by_tags);
 }
 
 int paper_generate_secs(Paper *pa, PList *db, int n, double secs[], int m)

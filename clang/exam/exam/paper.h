@@ -29,6 +29,5 @@ int paper_generate_random(Paper *pa, PList *db, int n);
 int paper_generate_tags(Paper *pa, PList *db, int n, int tags[], int m);
 int paper_generate_secs(Paper *pa, PList *db, int n, double secs[], int m);
 int paper_generate_dif(Paper *pa, PList *db, int n, int a, int b);
-int paper_generate_custom(Paper *pa, PList *db, int pids[]);
 
 #endif

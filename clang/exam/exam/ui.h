@@ -59,6 +59,5 @@ void ui_generate_random(PList *db);
 void ui_generate_tags(PList *db);
 void ui_generate_secs(PList *db);
 void ui_generate_dif(PList *db);
-void ui_generate_custom(PList *db);
 
 #endif
