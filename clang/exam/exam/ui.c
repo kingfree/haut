@@ -18,7 +18,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.3.0";
+static char *VERSION = "0.3.1";
 
 static char *problem_db_name = "problem.db";
 static char *paper_filetype = ".paper.db";
@@ -56,7 +56,7 @@ char *dif2star(int dif)
     return s;
 }
 
-int input_option(char *menu, bool cl)
+int ui_input_option(char *menu, bool cl)
 {
     if (cl) {
         cls();
@@ -72,7 +72,7 @@ int input_option(char *menu, bool cl)
 void ui_index()
 {
     while (true) {
-        switch (input_option(
+        switch (ui_input_option(
             "   1 - 学生登录\n"
             "   2 - 教师登录\n"
             "   3 - 帮助\n"
@@ -138,7 +138,7 @@ end:
 void ui_student(User *u)
 {
     while (true) {
-        switch (input_option(
+        switch (ui_input_option(
             "   1 - 做卷子\n"
             "   2 - 看成绩\n"
             "   9 - 返回上一级\n"
@@ -183,7 +183,7 @@ void ui_teacher_login()
 void ui_teacher()
 {
     while (true) {
-        switch (input_option(
+        switch (ui_input_option(
             "   1 - 浏览试题\n"
             "   2 - 添加试题（增）\n"
             "   3 - 删除试题（删）\n"
@@ -320,7 +320,7 @@ void ui_teacher_select()
     ui_output_count(db);
     while (true) {
         cls();
-        switch (input_option(
+        switch (ui_input_option(
             "可以查询的关键字:\n"
             "   1 - 题目编号\n"
             "   2 - 题目描述\n"
@@ -356,7 +356,7 @@ void ui_teacher_generate()
     }
     while (true) {
         cls();
-        switch (input_option(
+        switch (ui_input_option(
             "选择智能组卷算法:\n"
             "   1 - 随机生成\n"
             "   2 - 按标签生成\n"
