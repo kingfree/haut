@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <assert.h>
 
@@ -15,7 +16,8 @@ Paper *paper_new()
     Paper *pa = (Paper *)malloc(sizeof(Paper));
     assert(pa);
     pa->length = 0;
-    pa->title[0] = '\0';
+    memset(pa->title, 0, sizeof(pa->title));
+    memset(pa->pid, 0, sizeof(pa->pid));
     return pa;
 }
 
@@ -73,7 +75,7 @@ int paper_generate_random(Paper *pa, PList *db, int n)
     return pa->length;
 }
 
-int paper_generate_s(Paper *pa, PList *db, int n, void *data, int m, SListCallback *find)
+int paper_generate_tags(Paper *pa, PList *db, int n, int tags[], int m)
 {
     if (db->count < n) {
         n = db->count;
@@ -84,7 +86,7 @@ int paper_generate_s(Paper *pa, PList *db, int n, void *data, int m, SListCallba
     int k = n / m + 1;
     for (i = 0; i < m; i++) {
         j = 0;
-        while ((s = (SList *)slist_find(s, find, data +i)) != NULL) {
+        while ((s = (SList *)slist_find(s, by_tags, tags + i)) != NULL) {
             p = (Problem *)s->userdata;
             if (p->id == paper_insert_pid(pa, p->id)) {
                 j++;
@@ -102,14 +104,33 @@ end:
     return pa->length;
 }
 
-int paper_generate_tags(Paper *pa, PList *db, int n, int tags[], int m)
-{
-    return paper_generate_s(pa, db, n, tags, m, by_tags);
-}
-
 int paper_generate_secs(Paper *pa, PList *db, int n, double secs[], int m)
 {
-    return paper_generate_s(pa, db, n, secs, m, by_secs);
+    if (db->count < n) {
+        n = db->count;
+    }
+    SList *s = db->slist;
+    Problem *p = NULL;
+    int i = 0, j = 0;
+    int k = n / m + 1;
+    for (i = 0; i < m; i++) {
+        j = 0;
+        while ((s = (SList *)slist_find(s, by_secs, secs + i)) != NULL) {
+            p = (Problem *)s->userdata;
+            if (p->id == paper_insert_pid(pa, p->id)) {
+                j++;
+                if (j >= k) {
+                    break;
+                }
+            }
+            if (pa->length >= n) {
+                goto end;
+            }
+            s = slist_tail(s);
+        }
+    }
+end:
+    return pa->length;
 }
 
 int paper_generate_dif(Paper *pa, PList *db, int n, int a, int b)
@@ -122,9 +143,9 @@ int paper_generate_dif(Paper *pa, PList *db, int n, int a, int b)
     }
     SList *s = db->slist;
     Problem *p = NULL;
-    int j[11] = {0};
+    int j[11] = { 0 };
     int k = n / (b - a + 1) + 1;
-    short r[2] = {a, b};
+    short r[2] = { a, b };
     //fprintf(stderr, "k = %d\n", k);
     while ((s = (SList *)slist_find(s, by_difr, &r)) != NULL) {
         p = (Problem *)s->userdata;

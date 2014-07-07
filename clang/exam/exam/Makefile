@@ -14,9 +14,9 @@ endif
 DEFINES= $(INCLUDES) $(DEFS) $(OSDEF)
 CFLAGS= -Wall -g $(DEFINES)
 
-SRCS = addon.c exam.c file.c paper.c problem.c slist.c ui.c 
+SRCS = addon.c user.c exam.c file.c paper.c problem.c slist.c ui.c 
 
-OBJS = addon.o exam.o file.o paper.o problem.o slist.o ui.o 
+OBJS = addon.o user.o exam.o file.o paper.o problem.o slist.o ui.o 
 
 .c.o:
 	$(RM) $@

@@ -10,8 +10,9 @@
 int main(int argc, char *argv[])
 {
     if (argc > 1) {
-        // process_args
+        // 处理命令行参数
+        // 这里暂时不需要
     }
-    ui_login();
+    ui_index();
     return 0;
 }

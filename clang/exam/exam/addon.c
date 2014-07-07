@@ -87,7 +87,7 @@ char *getpass(char *prompt)
 #ifdef WIN32
 	int i = 0;
 	char c;
-	while ((c = getch()) != '\n' && c != '\r' && i < PWD_MAX) {
+	while ((c = _getch()) != '\n' && c != '\r' && i < PWD_MAX) {
 		if (c == '\b' && i > 0) {
 			passwd[i--] = '\0';
 			printf("\b \b");

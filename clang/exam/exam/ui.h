@@ -10,21 +10,24 @@
 #include "slist.h"
 #include "problem.h"
 #include "paper.h"
+#include "user.h"
 
 void cls();
 void pause();
 char *dif2star(int dif);
 
-void ui_login();
+void ui_index();
+int ui_do_login(User *u);
+void ui_student_login();
 void ui_teacher_login();
 
-void ui_student();
+void ui_student(User *u);
 void ui_teacher();
 void ui_help();
 void ui_about();
 
-void ui_student_test();
-void ui_student_score();
+void ui_student_test(User *u);
+void ui_student_score(User *u);
 
 void ui_teacher_view();
 void ui_teacher_insert();

@@ -14,10 +14,11 @@
 #include "slist.h"
 #include "problem.h"
 #include "paper.h"
+#include "user.h"
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.2.8";
+static char *VERSION = "0.3.0";
 
 static char *problem_db_name = "problem.db";
 static char *paper_filetype = ".paper.db";
@@ -68,17 +69,17 @@ int input_option(char *menu, bool cl)
     return x;
 }
 
-void ui_login()
+void ui_index()
 {
     while (true) {
         switch (input_option(
-            "   1 - 以学生身份登录\n"
-            "   2 - 以教师身份登录\n"
+            "   1 - 学生登录\n"
+            "   2 - 教师登录\n"
             "   3 - 帮助\n"
             "   4 - 关于\n"
             "   0 - 退出系统\n"
             , true)) {
-        case 1: ui_student(); break;
+        case 1: ui_student_login(); break;
         case 2: ui_teacher_login(); break;
         case 3: ui_help(); break;
         case 4: ui_about(); break;
@@ -110,7 +111,31 @@ void ui_about()
     pause();
 }
 
-void ui_student()
+void ui_student_login()
+{
+    User *u = user_new();
+    int res = 0;
+    if ((res = ui_do_login(u)) > 0) {
+        ui_student(u);
+    } else {
+        perror("以学生身份登录失败");
+        pause();
+        if (res != -2) {
+            printf("自动建立新账号 %s...\n", u->username);
+            if (user_reg(u) < 0) {
+                perror("建立新用户失败");
+                goto end;
+            }
+            printf("以建立的新用户 %s 登录。\n", u->username);
+            pause();
+            ui_student(u);
+        }
+    }
+end:
+    user_free(u);
+}
+
+void ui_student(User *u)
 {
     while (true) {
         switch (input_option(
@@ -119,26 +144,40 @@ void ui_student()
             "   9 - 返回上一级\n"
             "   0 - 退出系统\n"
             , true)) {
-        case 1: ui_student_test(); break;
-        case 2: ui_student_score(); break;
+        case 1: ui_student_test(u); break;
+        case 2: ui_student_score(u); break;
         case 0: exit(0); break;
         default: return; break;
         }
     }
 }
 
-void ui_student_test()
+void ui_student_test(User *u)
 {}
 
-void ui_student_score()
+void ui_student_score(User *u)
 {}
+
+int ui_do_login(User *u)
+{
+    printf("用户名: ");
+    scanf("%s", u->username);
+	char *s = getpass("密码: ");
+    strncpy(u->passwd, s, 64);
+    return user_login(u);
+}
 
 void ui_teacher_login()
 {
-	char *s = getpass("密码: ");
-	printf("%s\n", s);
-    // 处理密码
-	ui_teacher();
+    User *u = user_new();
+    if (ui_do_login(u) > 0 && u->teacher == true) {
+        user_free(u);
+        ui_teacher();
+    } else {
+        user_free(u);
+        perror("以教师身份登录失败");
+        pause();
+    }
 }
 
 void ui_teacher()
