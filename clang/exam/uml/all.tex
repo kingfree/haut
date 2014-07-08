@@ -1,0 +1,29 @@
+
+\begin{figure}[htp]
+  \centering
+\fontsize{10pt}{11pt}
+\linespread{1}
+\begin{tikzpicture}
+\umlemptyclass{UI}
+\umlemptyclass[x=5, y=2]{SList}
+\umlemptyclass[x=3, y=2]{List}
+\umlemptyclass[x=-6, y=1]{Paper}
+\umlemptyclass[x=-3, y=0]{Problem}
+\umlemptyclass[x=-4, y=-3]{Score}
+\umlemptyclass[x=2, y=-4]{User}
+\umlaggreg[geometry=-|-]{List}{SList}
+\umlcompo[geometry=|-]{Paper}{Problem}
+\umlcompo[geometry=|-|]{Score}{Problem}
+\umlcompo[geometry=-|]{Score}{Paper}
+\umlaggreg[geometry=|-]{Score}{User}
+\umldep[geometry=-|]{UI}{User}
+\umldep[geometry=|-]{UI}{Paper}
+\umldep[geometry=|-]{UI}{Problem}
+\umldep[geometry=|-]{UI}{Score}
+\umldep[geometry=-|]{UI}{List}
+\umluniassoc[geometry=|-,mult=0..*]{Paper}{List}
+\umluniassoc[geometry=|-|,mult=0..*]{Problem}{List}
+\umluniassoc[geometry=--,mult=0..*]{Score}{List}
+\end{tikzpicture}
+  \caption{\label{all_uml}各个类之间的关系}
+\end{figure}
