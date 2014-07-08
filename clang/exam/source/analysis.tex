@@ -1,1 +1,68 @@
 \section{需求分析}
+
+\subsection{任务探究}
+
+大一最后的课程——程序设计实践，目的是加深对 C 语言的理解和使用，为后来的学习打好基础。课程设计要求做一个标准化考试系统，任务书要求如下：
+
+\begin{quote}\small
+\tasktext
+\end{quote}
+
+考虑基本功能，即是对题目数据库的增、删、改、查，用文件存取数据，以及按一定策略生成试卷。
+
+考虑扩展功能，
+
+\subsection{界面模块}
+
+\begin{figure}[htp]
+  \centering
+  \linespread{1}
+% \begin{tikzpicture}[align=center](10,4)
+% % \draw[help lines] (0,0) grid (10,3);
+% \node (main) at (5,4) [draw] {入口主界面};
+%   \node (student) at (2,2) [draw] {学\\生\\登\\录};
+%   \draw[-] (student) |- (5,3.3) -| (main);
+%   \node (teacher) at (4,2) [draw] {教\\师\\登\\录};
+%   \draw[-] (teacher) |- (5,3.3) -| (main);
+%   \node (help) at (6,2) [draw] {帮\\助};
+%   \draw[-] (help) |- (5,3.3) -| (main);
+%   \node (about) at (8,2) [draw] {关\\于};
+%   \draw[-] (about) |- (5,3.3) -| (main);
+% \end{tikzpicture}
+\smartdiagram[bubble diagram]{主界面,
+帮助,
+学生\\登录,
+关于,
+教师\\登录
+}
+  \caption{\label{al_main}主要模块}  
+\end{figure}
+
+\subsubsection{学生功能模块}
+
+\begin{figure}[htp]
+  \centering
+  \linespread{1}
+\smartdiagram[constellation diagram]{学生\\主界面,
+做卷子,
+看成绩
+}
+  \caption{\label{al_student}学生功能模块}  
+\end{figure}
+
+\subsubsection{教师功能模块}
+
+\begin{figure}[htp]
+  \centering
+  \linespread{1}
+\smartdiagram[constellation diagram]{教师\\主界面,
+浏览\\试题,
+添加\\试题\\（增）,
+删除\\试题\\（删）,
+修改\\试题\\（改）,
+查询\\试题\\（查）,
+智能\\组卷,
+成绩\\分析
+}
+  \caption{\label{al_teacher}教师功能模块}  
+\end{figure}

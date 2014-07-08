@@ -1,0 +1,219 @@
+\newcommand\class[3]{\node[rectangle split, rectangle split parts=3, draw, text width=14cm]{
+{\bf #1}
+\nodepart{two}#2
+\nodepart{three}#3
+};}
+\newcommand\method[2]{{#1}:~{\it #2}}
+\newcommand\vart[2]{{#1}:~{\it #2}}
+\newcommand\argu[2]{{\sf #2}:~{\it #1}}
+
+\begin{figure}[htp]
+  \centering
+% \begin{tikzpicture}[outline/.style={draw=#1,thick,fill=#1!20},
+% outline/.default=black]
+% \node [outline] at (0,1) {default};
+% \node [outline=blue] at (0,0) {blue};
+% \end{tikzpicture}
+\fontsize{10pt}{11pt}
+\linespread{1}
+\begin{tikzpicture}[every text node part/.style={align=center}]
+\class{SList}{
++ \argu{SList *}{next} \\
++ \argu{const void *}{userdata}
+}{
++ \method{slist\_concat(\argu{SList *}{head}, \argu{SList *}{tail})}{SList *} \\
++ \method{slist\_cons(\argu{SList *}{item}, \argu{SList *}{slist})}{SList *} \\
++ \method{slist\_delete(\argu{SList *}{slist}, \argu{回调函数}{delete\_fct})}{SList *} \\
++ \method{slist\_remove(\argu{SList **}{phead}, \argu{回调函数}{find}, \argu{void *}{matchdata})}{SList *} \\
++ \method{slist\_reverse(\argu{SList *}{slist})}{SList *} \\
+- \method{slist\_sort\_merge(\argu{SList *}{left}, \argu{SList *}{right}, \argu{比较函数}{compare}, \argu{void *}{userdata})}{SList *} \\
++ \method{slist\_sort(\argu{SList *}{slist}, \argu{比较函数}{compare}, \argu{void *}{userdata})}{SList *} \\
++ \method{slist\_tail(\argu{SList *}{slist})}{SList *} \\
++ \method{slist\_nth(\argu{SList *}{slist}, \argu{size\_t}{n})}{SList *} \\
++ \method{slist\_find(\argu{SList *}{slist}, \argu{回调函数}{find}, \argu{void *}{matchdata})}{void *} \\
++ \method{slist\_length(\argu{SList *}{slist})}{size\_t} \\
++ \method{slist\_foreach(\argu{SList *}{slist}, \argu{回调函数}{find}, \argu{void *}{userdata})}{void *} \\
++ \method{slist\_box(\argu{const void *}{userdata})}{SList *} \\
++ \method{slist\_unbox(\argu{SList *}{item})}{void *}
+}
+\end{tikzpicture}
+  \caption{SList 类}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{sequencediagram}
+    \newthread{ss}{:SimulationServer}
+    \newinst{ctr}{:SimControlNode}
+    \newinst{ps}{:PhysicsServer}
+    \newinst[1]{sense}{:SenseServer}
+    
+    \begin{call}{ss}{Initialize()}{sense}{}
+    \end{call}
+    \begin{sdblock}{Run Loop}{The main loop}
+      \begin{call}{ss}{StartCycle()}{ctr}{}
+        \begin{call}{ctr}{ActAgent()}{sense}{}
+        \end{call}
+      \end{call}
+      \begin{call}{ss}{Update()}{ps}{}
+        \begin{messcall}{ps}{PrePhysicsUpdate()}{sense}{state}
+        \end{messcall}
+        \begin{sdblock}{Physics Loop}{}
+          \begin{callself}{ps}{PhysicsUpdate()}{}
+          \end{callself}
+        \end{sdblock}
+        \begin{call}{ps}{PostPhysicsUpdate()}{sense}{}
+        \end{call}
+      \end{call}
+      \begin{call}{ss}{EndCycle()}{ctr}{}
+        \begin{call}{ctr}{SenseAgent()}{sense}{}
+        \end{call}
+      \end{call}
+    \end{sdblock}
+  \end{sequencediagram}
+  \caption{UML sequence diagram demo}
+\end{figure}
+
+
+% \umlDiagram[box=,sizeX=15cm, sizeY=16cm,ref=ADTdiagram,
+%             grayness=0.92]{}% End of diagram
+%   \umlSchema[pos=\umlTopRight{ADTdiagram}, posDelta={-.5,-.5},
+%     refpoint=tr]{ADT}{% Attributes
+%     \umlAttribute[visibility,type=String]{name}}{}{}{}{}
+%   \umlSchema[pos=\umlTopLeft{ADTdiagram}, posDelta={.5,-1},
+%              refpoint=lt, abstract,
+%              ref=ADTexample]{ADT-example}{%
+%     \umlAttribute[visibility=-,
+%       type=\emph{\umlColorsArgument\umlColorsAdjust type},default=null]{%
+%       firstNode}
+%     }{%Methods
+%     }{%Arguments
+%     \umlArgument[type=Metaclass]{type}
+%     }{%Constraints
+%     }{%Structure
+%       \umlDiagram[box=,innerBorder=2mm,outerBorder]{%
+%         \umlClass[pos={.5,.5}, ref=adtNode,box=]{Node}{%
+%           \umlAttribute[visibility,
+%             type=\emph{\umlColorsArgument\umlColorsAdjust type}]{%
+%             data}}{}%
+%         \umlAssociation[angleA=20, angleB=-20,
+%                      arm=1em, arm=1em]{adtNode}{adtNode}%
+%      }\cr% End of Diagram
+%    }% End of ADT-example
+%   \umlInstance{ADTexample}{ADT}%
+%   \umlSchema[pos=\umlRight{ADTexample}, posDelta={3,-1},
+%              refpoint=tl, ]{Graph}{% Attributes
+%     }{% Methods
+%     \umlMethod[visibility,]{%
+%       insert}{\emph{\umlColorsArgument\umlColorsAdjust type} x}
+%     \umlMethod[visibility,
+%         type=\emph{\umlColorsArgument\umlColorsAdjust type}]{%
+%       dijkstra}{\emph{\umlColorsArgument\umlColorsAdjust type} x}
+%     \umlMethod[visibility, type=boolean]{%
+%       insertEdge}{\emph{\umlColorsArgument\umlColorsAdjust type} x}
+%     \umlMethod[visibility, ]{%
+%       delete}{\emph{\umlColorsArgument\umlColorsAdjust type} x}
+%     }{% Arguments
+%     }{% Constraints
+%     }{% Structure
+%       \umlDiagram[box=,innerBorder=2mm, outerBorder,
+%                   sizeX=11em,sizeY=3.5em,ref=GraphDiagram]{%
+%            \begin{umlColors}{\umlColorsSub}
+%         \umlClass[pos=\umlBottomLeft{GraphDiagram},
+%                   posDelta={1,1}, ref=graphNode]{Node}{}{}%
+%         \umlAssociation[angleA=20, angleB=-20, armA=1em, armB=1em
+%                      ]{graphNode}{graphNode}%
+%            \end{umlColors}
+%           \umlLabelA[height=0mm,offset=1ex]{graphNodegraphNode}{*}%
+%           \umlLabelB[height=0mm,offset=1ex,refpoint=t
+%                      ]{graphNodegraphNode}{*}%
+%         \umlSymbol[fraction=.5]{graphNodegraphNode}{\pnode{gngn}}
+%         \umlClass[pos=gngn, posDelta={2,0},
+%                            ref=graphEdge, refpoint=l]{Edge}{%
+%         \umlAttribute[type=real]{cost}}{}%
+%       \umlAssociationClass[]{graphEdge}{gngn}%
+%       }\cr% End of diagram
+%     }% End of Graph
+%   \umlSubclass{Graph}{ADTexample}
+%   \umlSchema[posX=\umlLeft{ADTexample}, posDelta={3em,-1em},
+%              posY=\umlBottom{Graph},
+%              refpoint=tl, ref=searchTree]{Search Tree}{% Attributes
+%     }{% Methods
+%     \umlMethod[visibility,]{%
+%       insert}{\emph{\umlColorsArgument\umlColorsAdjust type} x}
+%     \umlMethod[visibility,
+%          type=\emph{\umlColorsArgument\umlColorsAdjust type}]{%
+%       search}{\emph{\umlColorsArgument\umlColorsAdjust type} x}
+%     \umlMethod[visibility, type=boolean]{%
+%       search}{\emph{\umlColorsArgument\umlColorsAdjust type} x}
+%     \umlMethod[visibility, ]{%
+%       delete}{\emph{\umlColorsArgument\umlColorsAdjust type} x}
+%     }{% Arguments
+%     \umlArgument[type=Integer, initialValue=2]{arity}
+%     \umlArgument[type={${\umlColorsArgument\umlColorsAdjust type}
+%       \times {\umlColorsArgument\umlColorsAdjust type}\rightarrow$
+%         boolean}, default=>]{sort}
+%     }{% Constraints
+%     }{% Structure
+%       \umlDiagram[box=, sizeX=14em, sizeY=4em,
+%                   innerBorder=2mm, outerBorder]{%
+%         \begin{umlColors}{\umlColorsSub}
+%         \umlClass[pos={.5, .5}, ref=treeNode]{Node}{}{}%
+%         \umlAssociation[angleA=30, angleB=-30, armA=1em, armB=1em
+%                      ]{treeNode}{treeNode}%
+%          \end{umlColors}
+%           \umlLabelA[height=1mm, offset=4mm,refpoint=l
+%             ]{treeNodetreeNode}{%
+%             \emph{\umlColorsArgument\umlColorsAdjust arity}}%
+%           \umlLabelB[refpoint=tl,height=-1mm, offset=4mm,
+%                      ]{treeNodetreeNode}{1}%
+%         }\cr% End of diagram
+%     }%
+%   \umlSubclass{searchTree}{ADTexample}%
+%   \umlSchema[pos=\umlBottomLeft{searchTree},posDelta={0,-1},
+%              refpoint=lt]{List}{%Attributes
+%     }{% Methods
+%     }{% Arguments
+%     }{% Constraints
+%     }{% Structure
+%       \umlDiagram[box=, sizeX=6em, sizeY=4em,
+%                   innerBorder=2mm, outerBorder]{%
+%         \begin{umlColors}{\umlColorsSub}
+%           \umlClass[pos={.5, .5}, ref=listNode]{Node}{}{}%
+%           \umlAssociation[angleA=30, angleB=-30, armA=1em, armB=1em
+%                        ]{listNode}{listNode}%
+%         \end{umlColors}
+%           \umlLabelA[height=1mm, offset=5mm, refpoint=l
+%                      ]{listNodelistNode}{1}%
+%           \umlLabelB[refpoint=tl, height=-1mm,offset=5mm
+%                      ]{listNodelistNode}{1}%
+%         }\cr% End of diagram
+%     }% End of Schema List
+%   \umlPlaceNode[leftside, top, down=1em]{List}{Listtl}
+%   \umlPlaceNode[leftside,right=2em,bottom]{ADTexample}{ADTexamplebl}
+%   \umlSubclass[armA=1.4142em, armAngleA=135]{Listtl}{ADTexamplebl}%
+%   \umlSchema[pos=\umlTopRight{List},posDelta={1em,-2em},
+%              refpoint=tl]{Queue}{% Attributes
+%     }{\umlMethod[visibility]{%
+%       enqueue}{\emph{\umlColorsArgument\umlColorsAdjust type} x}
+%     \umlMethod[visibility, type=\emph{\umlColorsArgument\umlColorsAdjust type}]{%
+%       dequeue}{}}{%Arguments
+%     }{%Constraints
+%     \umlCompartmentline{First come, first served.}
+%     }{% Structure
+%     }% End of Queue
+%   \umlPlaceNode[rightside, top, down=1em]{List}{Listtr}
+%   \umlSubclass[angleA=90, armAngleA=135, armA=1.4142em]{Queue}{Listtr}%
+%   \umlSchema[pos=\umlTopRight{Queue},posDelta={\umlNodeSep,0em},
+%              refpoint=tl]{Stack}{%Attributes
+%     }{% Methods
+%     \umlMethod[visibility]{
+%       push}{\emph{\umlColorsArgument\umlColorsAdjust type} x}
+%     \umlMethod[visibility, type=\emph{\umlColorsArgument\umlColorsAdjust type}]{%
+%       pop}{}
+%     }{% Arguments
+%     }{% Constraints
+%     \umlCompartmentline{S:Stack = S.push(x).pop()}
+%     }{% Structure
+%     }% End of Stack
+%   \umlSubclass[angleA=90, armAngleA=135, armA=1.4142em]{Stack}{Listtr}%

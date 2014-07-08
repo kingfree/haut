@@ -34,8 +34,12 @@ pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
 \usepackage[inline]{enumitem} % 调整列表样式
 \usepackage{paralist} % 排序列表环境
 
+\usepackage{tikz}
+\usetikzlibrary{arrows,shadows} % for pgf-umlsd
+\usepackage[underline=true,rounded corners=false]{pgf-umlsd}
+
 ﻿\setmainfont{Times New Roman}
-﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+﻿\setCJKmainfont[BoldFont={SimHei},ItalicFont={STFangsong}]{SimSun}  % 主要字体：宋体、黑体
 \setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
 \setCJKmonofont{KFKai} % 等宽字体：楷体
 \setCJKfamilyfont{liti}{隶书} \newcommand{\liti}{\CJKfamily{liti}}
@@ -73,7 +77,7 @@ pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
 \include{source/debug}
 \include{source/testcase}
 \include{source/conclusion}
-\include{source/reference}
+% \include{source/reference}
 
 %%%% 结束 %%%%
 
