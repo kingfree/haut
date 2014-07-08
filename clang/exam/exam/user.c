@@ -63,7 +63,7 @@ int user_reg(User *u)
     if (fclose(file) != 0) {
         return -1;
     }
-    fprintf(stderr, "%d %s %s %d\n", u->id, u->username, u->passwd, u->teacher);
+    //fprintf(stderr, "%d %s %s %d\n", u->id, u->username, u->passwd, u->teacher);
     return u->id;
 }
 

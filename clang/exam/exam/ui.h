@@ -11,6 +11,7 @@
 #include "problem.h"
 #include "paper.h"
 #include "user.h"
+#include "score.h"
 
 void cls();
 void pause();
@@ -63,5 +64,8 @@ void ui_generate_random(List *list);
 void ui_generate_tags(List *list);
 void ui_generate_secs(List *list);
 void ui_generate_dif(List *list);
+
+void *ui_do_problem(SList *item, void *userdata);
+void ui_output_score(Score *s);
 
 #endif

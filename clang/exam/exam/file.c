@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <assert.h>
 
 #include "file.h"
@@ -133,15 +134,18 @@ void *list_find(List *list, SListCallback *find, void *data)
     return p;
 }
 
-int list_find_each_call(List *list, SListCallback *find, void *data, SListCallback *call)
+int list_find_each_call(List *list, SListCallback *find, void *data, SListCallback *call, ...)
 {
+    va_list args;
+    va_start(args, call);
     int n = 0;
     SList *s = list->slist;
     while ((s = (SList *)slist_find(s, find, data)) != NULL) {
         n++;
-        call(s, NULL);
+        call(s, va_arg(args, void *));
         s = slist_tail(s);
     }
+    va_end(args);
     return n;
 }
 

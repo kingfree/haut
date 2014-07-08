@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <math.h>
 #include <assert.h>
 
@@ -47,14 +48,17 @@ void fprint_paper_pid(Paper *pa, void *file)
     fprintf(file, "\n");
 }
 
-void paper_problem_call(Paper *pa, List *list, SListCallback *call)
+void paper_problem_call(Paper *pa, List *list, SListCallback *call, ...)
 {
+    va_list args;
+    va_start(args, call);
     printf("%s\n", pa->title);
     int i = 0;
     for (i = 0; i < pa->length; i++) {
         printf("(%d) ", i + 1);
-        list_find_each_call(list, by_id, pa->pid + i, call);
+        list_find_each_call(list, by_id, pa->pid + i, call, va_arg(args, void *));
     }
+    va_end(args);
 }
 
 int paper_insert_pid(Paper *pa, int pid)

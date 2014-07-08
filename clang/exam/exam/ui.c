@@ -15,10 +15,11 @@
 #include "problem.h"
 #include "paper.h"
 #include "user.h"
+#include "score.h"
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.3.6";
+static char *VERSION = "0.3.8";
 
 void cls()
 {
@@ -150,7 +151,51 @@ void ui_student(User *u)
 }
 
 void ui_student_test(User *u)
-{}
+{
+    List *list = list_new();
+    if (paper_read_list(list) < 0) {
+        perror("读取试卷数据库失败");
+        return;
+    }
+    ui_output_count(list);
+    int id = -1;
+    printf("试卷编号:\n$ ");
+    while (scanf("%d", &id) != 1);
+    Paper *p = (Paper *)list_find(list, by_id, &id);
+    if (p == NULL) {
+        perror("没有这套试卷");
+        return;
+    }
+    List *problist = list_new();
+    if (problem_read_file(problist) < 0) {
+        perror("读取题目数据库失败");
+        return;
+    }
+    cls();
+    Score *s = score_new(u, p);
+    paper_problem_call(p, problist, ui_do_problem, s);
+    score_restore(s);
+    list_free(list);
+    list_free(problist);
+
+    List *scorelist = list_new();
+    if (score_read_list(scorelist) < 0) {
+        perror("读取成绩数据库失败");
+        goto end;
+    }
+    if (list_insert(scorelist, p) < 0) {
+        perror("插入成绩失败");
+        goto end;
+    }
+    if (score_write_file(scorelist) < 0) {
+        perror("写入成绩数据库失败");
+        goto end;
+    }
+end:
+    printf("考试完成！\n");
+    ui_output_score(s);
+    list_free(scorelist);
+}
 
 void ui_student_score(User *u)
 {}
@@ -464,6 +509,25 @@ void *ui_each_problem_show(SList *item, void *userdata)
         p->ans, dif2star(p->dif), p->tag, p->chapter, p->section);
     return NULL;
 }
+
+void *ui_do_problem(SList *item, void *userdata)
+{
+    Problem *p = (Problem *)item->userdata;
+    printf("%s\n"
+        "    [A]. %s\n"
+        "    [B]. %s\n"
+        "    [C]. %s\n"
+        "    [D]. %s\n"
+        "选择: ", p->des,
+        p->opt[0], p->opt[1], p->opt[2], p->opt[3]);
+    char c = ui_input_ans();
+    Score *s = (Score *)userdata;
+    score_did(s, c);
+    return NULL;
+}
+
+void ui_output_score(Score *s)
+{}
 
 void *ui_each_paper_show(SList *item, void *userdata)
 {
