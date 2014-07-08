@@ -18,9 +18,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.3.5";
-
-static char *paper_filetype = ".paper.list";
+static char *VERSION = "0.3.6";
 
 void cls()
 {
@@ -245,6 +243,17 @@ end:
     pause();
 }
 
+bool ui_get_yes(char *s)
+{
+    printf("%s输入'Y'或'y'以确认:\n$ ", s);
+    gotn();
+    char y = getchar();
+    if (y == 'Y' || y == 'y') {
+        return true;
+    }
+    return false;
+}
+
 void ui_teacher_delete()
 {
     List *list = list_new();
@@ -260,10 +269,9 @@ void ui_teacher_delete()
         goto end;
     }
     int id = p->id;
-    printf("你确定要删除该题吗？输入'Y'或'y'以确认:\n$ ");
-    gotn();
-    char y = getchar();
-    if (y != 'Y' && y != 'y') goto end;
+    if (!ui_get_yes("你确定要删除该题吗？")) {
+        goto end;
+    }
     if (list_remove(list, by_id, &id) != p) {
         perror("删除题目失败");
         goto end;
@@ -359,7 +367,8 @@ void ui_teacher_generate()
             "   2 - 按标签生成\n"
             "   3 - 按章节生成\n"
             "   4 - 按难度生成\n"
-            "   6 - 试卷列表\n"
+            "   5 - 试卷列表\n"
+            "   6 - 查看试卷\n"
             "   9 - 返回上一级\n"
             "   0 - 退出系统\n"
             , false)) {
@@ -367,7 +376,8 @@ void ui_teacher_generate()
         case 2: ui_generate_tags(list); break;
         case 3: ui_generate_secs(list); break;
         case 4: ui_generate_dif(list); break;
-        case 6: ui_paper_list(); break;
+        case 5: ui_paper_list(); break;
+        case 6: ui_paper_view(list); break;
         case 0: exit(0); break;
         default: return; break;
         }
@@ -387,7 +397,6 @@ void ui_generate_random(List *list)
     scanf("%s", pa->title);
     paper_generate_random(pa, list, n);
     ui_paper_save(pa);
-    paper_free(pa);
 }
 
 void ui_generate_tags(List *list)
@@ -404,7 +413,6 @@ void ui_generate_tags(List *list)
     scanf("%s", pa->title);
     paper_generate_tags(pa, list, n, tags, i);
     ui_paper_save(pa);
-    paper_free(pa);
 }
 
 void ui_generate_secs(List *list)
@@ -422,7 +430,6 @@ void ui_generate_secs(List *list)
     scanf("%s", pa->title);
     paper_generate_secs(pa, list, n, secs, i);
     ui_paper_save(pa);
-    paper_free(pa);
 }
 
 void ui_generate_dif(List *list)
@@ -440,7 +447,6 @@ void ui_generate_dif(List *list)
     scanf("%s", pa->title);
     paper_generate_dif(pa, list, n, a, b);
     ui_paper_save(pa);
-    paper_free(pa);
 }
 
 void ui_teacher_score()
@@ -456,6 +462,13 @@ void *ui_each_problem_show(SList *item, void *userdata)
         p->opt[0], p->opt[1], p->opt[2], p->opt[3]);
     printf("\t 答案: %c\t 难度: %-10s\t 标签: %i\t 章节: %i.%i\n",
         p->ans, dif2star(p->dif), p->tag, p->chapter, p->section);
+    return NULL;
+}
+
+void *ui_each_paper_show(SList *item, void *userdata)
+{
+    Paper *pa = (Paper *)item->userdata;
+    fprint_paper_pid(pa, stdout);
     return NULL;
 }
 
@@ -659,14 +672,35 @@ int ui_select_mul(List *list)
 
 void ui_paper_list()
 {
-#ifdef WIN32
-    char s[64] = "dir /B *";
-#else
-    char s[64] = "ls -1 *";
-#endif
-    strcat(s, paper_filetype);
-    printf("已有的试卷文件:\n");
-    system(s);
+    List *list = list_new();
+    if (paper_read_list(list) < 0) {
+        perror("读取试卷数据库失败");
+        return;
+    }
+    ui_output_count(list);
+    list_each_call(list, ui_each_paper_show, NULL);
+    list_free(list);
+}
+
+void ui_paper_view(List *problist)
+{
+    List *list = list_new();
+    if (paper_read_list(list) < 0) {
+        perror("读取试卷数据库失败");
+        return;
+    }
+    ui_output_count(list);
+    int id = -1;
+    printf("试卷编号:\n$ ");
+    while (scanf("%d", &id) != 1);
+    Paper *p = (Paper *)list_find(list, by_id, &id);
+    if (p == NULL) {
+        perror("没有这套试卷");
+        return;
+    }
+    cls();
+    paper_problem_call(p, problist, ui_each_problem_show);
+    list_free(list);
 }
 
 int ui_paper_save(Paper *pa)
@@ -675,20 +709,28 @@ int ui_paper_save(Paper *pa)
         perror("试卷中没有题目");
         return -1;
     }
-    fprint_paper_pid(stdout, pa);
-    char filename[64] = "";
-    printf("请输入要保存的文件名（直接回车不保存）:\n$ ");
-    gotn();
-    if (gotn()) {
+    fprint_paper_pid(pa, stdout);
+    if (!ui_get_yes("是否保存试卷？\n$ ")) {
         return 0;
     }
-    scanf("%s", filename);
-    strcat(filename, paper_filetype);
-    printf("正在保存试卷文件 \"%s\" ...", filename);
-    if (paper_write(pa, filename) != 0) {
-        perror("保存文件失败");
-        return -1;
+    List *list = list_new();
+    if (paper_read_list(list) < 0) {
+        perror("读取试卷数据库失败");
+        goto end;
     }
-    printf("成功\n");
+    ui_output_count(list);
+    pa->id = list->max_id + 1;
+    int id = pa->id;
+    if (list_insert(list, pa) < 0) {
+        perror("保存试卷失败");
+        goto end;
+    }
+    if (paper_write_list(list) < 0) {
+        perror("写出试卷数据库失败");
+        goto end;
+    }
+    printf("保存试卷 %d 成功！ \n", id);
+end:
+    list_free(list);
     return 0;
 }

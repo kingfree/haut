@@ -43,7 +43,7 @@ int problem_write_file(List *list)
 
 void *by_id(SList *item, void *data)
 {
-    Problem *p = (Problem *)item->userdata;
+    ID *p = (ID *)item->userdata;
     int *id = (int *)data;
     return p->id == *id ? item : NULL;
 }

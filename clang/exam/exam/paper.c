@@ -11,40 +11,50 @@
 #include "addon.h"
 #include "paper.h"
 
+static char *paper_db_name = "paper.db";
+
 Paper *paper_new()
 {
     Paper *pa = (Paper *)malloc(sizeof(Paper));
     assert(pa);
+    pa->id = 0;
     pa->length = 0;
     memset(pa->title, 0, sizeof(pa->title));
     memset(pa->pid, 0, sizeof(pa->pid));
     return pa;
 }
 
-void paper_free(Paper *pa)
+int paper_read_list(List *list)
 {
-    free(pa);
+    return read_file_to_list(paper_db_name, list, sizeof(Paper));
 }
 
-int paper_write(Paper *pa, const char *filename)
+int paper_write_list(List *list)
 {
-    FILE *file = fopen(filename, "w+");
-    if (file == NULL) {
-        return -1;
+    return write_list_to_file(paper_db_name, list, sizeof(Paper));
+}
+
+void fprint_paper_pid(Paper *pa, void *file)
+{
+    fprintf(file, "%d. %s (%d)\n", pa->id, pa->title, pa->length);
+    if (pa->length > sizeof(pa->pid)) {
+        return;
     }
-    fprint_paper_pid(file, pa);
-    fclose(file);
-    return 0;
-}
-
-void fprint_paper_pid(FILE *file, Paper *pa)
-{
-    fprintf(file, "%s\n", pa->title);
     int i = 0;
     for (i = 0; i < pa->length; i++) {
         fprintf(file, " %d", pa->pid[i]);
     }
     fprintf(file, "\n");
+}
+
+void paper_problem_call(Paper *pa, List *list, SListCallback *call)
+{
+    printf("%s\n", pa->title);
+    int i = 0;
+    for (i = 0; i < pa->length; i++) {
+        printf("(%d) ", i + 1);
+        list_find_each_call(list, by_id, pa->pid + i, call);
+    }
 }
 
 int paper_insert_pid(Paper *pa, int pid)

@@ -83,6 +83,9 @@ void list_restore(List *list)
         SList *s = slist_nth(list->slist, list->count);
         ID *p = (ID *)s->userdata;
         list->max_id = p->id;
+        if (list->count > list->max_id) {
+            list->count = list->max_id;
+        }
     }
 }
 

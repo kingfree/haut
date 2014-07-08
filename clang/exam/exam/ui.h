@@ -56,6 +56,7 @@ int ui_input_number();
 char ui_input_ans();
 
 void ui_paper_list();
+void ui_paper_view(List *problist);
 int ui_paper_save(Paper *pa);
 
 void ui_generate_random(List *list);
