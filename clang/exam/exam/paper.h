@@ -32,6 +32,6 @@ int paper_generate_tags(Paper *pa, List *list, int n, int tags[], int m);
 int paper_generate_secs(Paper *pa, List *list, int n, double secs[], int m);
 int paper_generate_dif(Paper *pa, List *list, int n, int a, int b);
 
-void paper_problem_call(Paper *pa, List *list, SListCallback *call, ...);
+void paper_problem_call(Paper *pa, List *list, SListCallback *call, void *userdata);
 
 #endif

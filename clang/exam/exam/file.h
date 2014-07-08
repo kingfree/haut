@@ -42,6 +42,6 @@ void *list_each_call(List *list, SListCallback *call, void *data);
 int list_insert(List *list, void *p);
 void *list_remove(List *list, SListCallback *find, void *data);
 void *list_find(List *list, SListCallback *find, void *data);
-int list_find_each_call(List *list, SListCallback *find, void *data, SListCallback *call, ...);
+int list_find_each_call(List *list, SListCallback *find, void *data, SListCallback *call, void *userdata);
 
 #endif

@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <time.h>
 #include <assert.h>
 #include <errno.h>
 
@@ -19,7 +20,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.3.8";
+static char *VERSION = "0.3.9";
 
 void cls()
 {
@@ -157,7 +158,7 @@ void ui_student_test(User *u)
         perror("读取试卷数据库失败");
         return;
     }
-    ui_output_count(list);
+    list_each_call(list, ui_each_paper_show, list);
     int id = -1;
     printf("试卷编号:\n$ ");
     while (scanf("%d", &id) != 1);
@@ -174,7 +175,6 @@ void ui_student_test(User *u)
     cls();
     Score *s = score_new(u, p);
     paper_problem_call(p, problist, ui_do_problem, s);
-    score_restore(s);
     list_free(list);
     list_free(problist);
 
@@ -183,7 +183,8 @@ void ui_student_test(User *u)
         perror("读取成绩数据库失败");
         goto end;
     }
-    if (list_insert(scorelist, p) < 0) {
+    s->id = scorelist->max_id;
+    if (list_insert(scorelist, s) < 0) {
         perror("插入成绩失败");
         goto end;
     }
@@ -194,11 +195,14 @@ void ui_student_test(User *u)
 end:
     printf("考试完成！\n");
     ui_output_score(s);
-    list_free(scorelist);
+    //list_free(scorelist);
+    pause();
 }
 
 void ui_student_score(User *u)
-{}
+{
+
+}
 
 int ui_do_login(User *u)
 {
@@ -495,7 +499,17 @@ void ui_generate_dif(List *list)
 }
 
 void ui_teacher_score()
-{}
+{
+    List *scorelist = list_new();
+    if (score_read_list(scorelist) < 0) {
+        perror("读取成绩数据库失败");
+        goto end;
+    }
+    list_each_call(scorelist, ui_each_score_show, NULL);
+end:
+    list_free(scorelist);
+    pause();
+}
 
 void *ui_each_problem_show(SList *item, void *userdata)
 {
@@ -507,6 +521,22 @@ void *ui_each_problem_show(SList *item, void *userdata)
         p->opt[0], p->opt[1], p->opt[2], p->opt[3]);
     printf("\t 答案: %c\t 难度: %-10s\t 标签: %i\t 章节: %i.%i\n",
         p->ans, dif2star(p->dif), p->tag, p->chapter, p->section);
+    return NULL;
+}
+
+void *ui_each_score_show(SList *item, void *userdata)
+{
+    Score *s = (Score *)item->userdata;
+    printf("%d. （试卷 %d ）\n"
+        "考生: %s\n"
+        "成绩: %d 分 \n"
+        "时间: %s"
+        "\n",
+        s->id, s->paper_id,
+        s->username,
+        s->right * 100 / s->paper_count,
+        ctime(&s->date)
+        );
     return NULL;
 }
 
@@ -522,17 +552,29 @@ void *ui_do_problem(SList *item, void *userdata)
         p->opt[0], p->opt[1], p->opt[2], p->opt[3]);
     char c = ui_input_ans();
     Score *s = (Score *)userdata;
-    score_did(s, c);
+    score_did(s, c, p->ans);
     return NULL;
 }
 
 void ui_output_score(Score *s)
-{}
+{
+    printf("%s"
+        "考生: %s\n"
+        "成绩: %d 分 \n"
+        "\n",
+        ctime(&s->date),
+        s->username,
+        s->right * 100 / s->paper_count);
+}
 
 void *ui_each_paper_show(SList *item, void *userdata)
 {
     Paper *pa = (Paper *)item->userdata;
-    fprint_paper_pid(pa, stdout);
+    if (userdata == NULL) {
+        fprint_paper_pid(pa, stdout);
+    } else {
+        printf("%d. %s （共 %d 题）\n", pa->id, pa->title, pa->length);
+    }
     return NULL;
 }
 
@@ -670,7 +712,7 @@ Problem *ui_select_id(List *list)
 
 int ui_select_output(List *list, SListCallback *find, void *data)
 {
-    int n = list_find_each_call(list, find, data, ui_each_problem_show);
+    int n = list_find_each_call(list, find, data, ui_each_problem_show, NULL);
     printf("共查询到 %d 个符合条件的结果。\n", n);
     return n;
 }
@@ -763,7 +805,7 @@ void ui_paper_view(List *problist)
         return;
     }
     cls();
-    paper_problem_call(p, problist, ui_each_problem_show);
+    paper_problem_call(p, problist, ui_each_problem_show, NULL);
     list_free(list);
 }
 

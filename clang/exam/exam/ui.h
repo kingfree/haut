@@ -65,7 +65,10 @@ void ui_generate_tags(List *list);
 void ui_generate_secs(List *list);
 void ui_generate_dif(List *list);
 
+void *ui_each_paper_show(SList *item, void *userdata);
+
 void *ui_do_problem(SList *item, void *userdata);
 void ui_output_score(Score *s);
+void *ui_each_score_show(SList *item, void *userdata);
 
 #endif
