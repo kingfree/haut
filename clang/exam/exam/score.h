@@ -28,4 +28,6 @@ int score_write_file(List *list);
 
 int score_did(Score *s, char c, char ans);
 
+void *by_user_id(SList *item, void *data);
+
 #endif

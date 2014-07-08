@@ -20,7 +20,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.3.9";
+static char *VERSION = "0.4.0";
 
 void cls()
 {
@@ -183,7 +183,7 @@ void ui_student_test(User *u)
         perror("读取成绩数据库失败");
         goto end;
     }
-    s->id = scorelist->max_id;
+    s->id = scorelist->max_id + 1;
     if (list_insert(scorelist, s) < 0) {
         perror("插入成绩失败");
         goto end;
@@ -201,7 +201,15 @@ end:
 
 void ui_student_score(User *u)
 {
-
+    List *scorelist = list_new();
+    if (score_read_list(scorelist) < 0) {
+        perror("读取成绩数据库失败");
+        goto end;
+    }
+    list_find_each_call(scorelist, by_user_id, &u->id, ui_each_score_show, NULL);
+end:
+    list_free(scorelist);
+    pause();
 }
 
 int ui_do_login(User *u)

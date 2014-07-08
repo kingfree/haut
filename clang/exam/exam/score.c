@@ -47,3 +47,10 @@ int score_did(Score *s, char c, char ans)
     s->right += (c == ans);
     return s->now;
 }
+
+void *by_user_id(SList *item, void *data)
+{
+    Score *s = (Score *)item->userdata;
+    int *user_id = (int *)data;
+    return s->user_id == *user_id ? item : NULL;
+}
