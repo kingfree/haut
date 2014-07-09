@@ -10,6 +10,8 @@
 
 #include "list.h"
 
+void list_restore(List *list);
+
 int file_data_count(FILE *file, size_t size)
 {
     fseek(file, 0, SEEK_END);
@@ -96,7 +98,7 @@ int write_list_to_file(char *filename, List *list, size_t size)
     if (file == NULL) {
         return -1;
     }
-    Block b = {.file = file, .size = size, .count = 0, .max_id = 0};
+    Block b = { .file = file, .size = size, .count = 0, .max_id = 0 };
     rewind(file);
     slist_foreach(list->slist, write_userdata, &b);
     fclose(file);

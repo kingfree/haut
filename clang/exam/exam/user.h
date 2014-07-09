@@ -1,6 +1,6 @@
 /* user.h
-* 用户类（学生和教师数据）
-*/
+ * 用户类（学生和教师数据）
+ */
 
 #ifndef _USER_H_
 #define _USER_H_

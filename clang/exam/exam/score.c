@@ -1,6 +1,6 @@
 /* score.c
-* 成绩类
-*/
+ * 成绩类
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

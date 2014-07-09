@@ -1,6 +1,6 @@
 ﻿/* paper.c
-* 试卷类
-*/
+ * 试卷类
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -50,8 +50,8 @@ pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
 \setlength{\parskip}{2pt plus 2pt}
 \renewcommand{\baselinestretch}{1.5}
 
-\setlength{\abovecaptionskip}{1pt}
-\setlength{\belowcaptionskip}{0pt}
+% \setlength{\abovecaptionskip}{1pt}
+% \setlength{\belowcaptionskip}{0pt}
 \setlength{\intextsep}{8pt}
 \setlist{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
 \setlist[enumerate,1]{label=（\Alph*）}
@@ -67,15 +67,15 @@ pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
 \pagestyle{empty}\quad\newpage
 \include{source/task}\quad\newpage
 \setcounter{page}{0}\pagestyle{plain}
-\linespread{1}\tableofcontents\linespread{1.5}\newpage
+{\linespread{1}\tableofcontents}\newpage
 \include{source/analysis}
-\include{source/summary}
 \include{source/design}
+\include{source/detail}
 % \include{source/program}
 \include{source/debug}
 \include{source/testcase}
 \include{source/conclusion}
-% \include{source/reference}
+\include{source/reference}
 
 %%%% 结束 %%%%
 

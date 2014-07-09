@@ -20,7 +20,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.4.1";
+static char *VERSION = "0.4.2";
 
 void cls()
 {
@@ -216,7 +216,7 @@ int ui_do_login(User *u)
 {
     printf("用户名: ");
     scanf("%s", u->username);
-	char *s = getpass("密码: ");
+    char *s = getpass("密码: ");
     strncpy(u->passwd, s, 64);
     return user_login(u);
 }

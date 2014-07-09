@@ -1,6 +1,6 @@
 ﻿/* paper.h
-* 试卷类
-*/
+ * 试卷类
+ */
 
 #ifndef _PAPER_H_
 #define _PAPER_H_

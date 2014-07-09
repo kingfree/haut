@@ -9,14 +9,14 @@
 #include "list.h"
 
 typedef struct Problem {
-  int  id;
-  char des[256];   // 题目描述
-  char opt[4][64]; // 选项
-  char ans;        // 答案
-  short dif;       // 难度系数
-  short  tag;      // 标签（知识点）
-  short  chapter;  // 章
-  short  section;  // 节
+    int id;
+    char des[256];   // 题目描述
+    char opt[4][64]; // 选项
+    char ans;        // 答案
+    short dif;       // 难度系数
+    short tag;       // 标签（知识点）
+    short chapter;   // 章
+    short section;   // 节
 } Problem;
 
 Problem *problem_new();

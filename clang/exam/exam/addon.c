@@ -1,6 +1,6 @@
 /* addon.h
-* 附加函数库
-*/
+ * 附加函数库
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -82,36 +82,36 @@ int random(int a, int b)
 
 char *getpass(char *prompt)
 {
-	static char passwd[PWD_MAX] = "";
-	printf("%s", prompt);
+    static char passwd[PWD_MAX] = "";
+    printf("%s", prompt);
 #ifdef WIN32
-	int i = 0;
-	char c;
-	while ((c = _getch()) != '\n' && c != '\r' && i < PWD_MAX) {
-		if (c == '\b' && i > 0) {
-			passwd[i--] = '\0';
-			printf("\b \b");
-		} else {
-			passwd[i++] = c;
-			printf("*");
-		}
-	}
-	passwd[i] = '\0';
+    int i = 0;
+    char c;
+    while ((c = _getch()) != '\n' && c != '\r' && i < PWD_MAX) {
+        if (c == '\b' && i > 0) {
+            passwd[i--] = '\0';
+            printf("\b \b");
+        } else {
+            passwd[i++] = c;
+            printf("*");
+        }
+    }
+    passwd[i] = '\0';
 #else
-	struct termios oldflags, newflags;
-	tcgetattr(fileno(stdin), &oldflags);
-	newflags = oldflags;
-	newflags.c_lflag &= ~ECHO;
-	newflags.c_lflag |= ECHONL;
-	if (tcsetattr(fileno(stdin), TCSANOW, &newflags) != 0) {
-		perror("tcsetattr");
-		return NULL;
-	}
-	fgets(passwd, PWD_MAX, stdin);
-	if (tcsetattr(fileno(stdin), TCSANOW, &oldflags) != 0) {
-		perror("tcsetattr");
-		return NULL;
-	}
+    struct termios oldflags, newflags;
+    tcgetattr(fileno(stdin), &oldflags);
+    newflags = oldflags;
+    newflags.c_lflag &= ~ECHO;
+    newflags.c_lflag |= ECHONL;
+    if (tcsetattr(fileno(stdin), TCSANOW, &newflags) != 0) {
+        perror("tcsetattr");
+        return NULL;
+    }
+    fgets(passwd, PWD_MAX, stdin);
+    if (tcsetattr(fileno(stdin), TCSANOW, &oldflags) != 0) {
+        perror("tcsetattr");
+        return NULL;
+    }
 #endif
-	return passwd;
+    return passwd;
 }

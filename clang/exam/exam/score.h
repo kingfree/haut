@@ -1,6 +1,6 @@
 /* score.h
-* 成绩类
-*/
+ * 成绩类
+ */
 
 #ifndef _SCORE_H_
 #define _SCORE_H_

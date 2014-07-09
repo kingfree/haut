@@ -2,21 +2,27 @@
 
 \subsection{任务探究}
 
-大一最后的课程——程序设计实践，目的是加深对 C 语言的理解和使用，为后来的学习打好基础。课程设计要求做一个标准化考试系统，任务书要求如下：
+大一最后的课程——程序设计实践，目的是加深对 C 语言的理解和使用，为后来的学习打好基础。课程设计要求做一个标准化考试系统。
 
+任务书要求如下：
 \begin{quote}\small
 \tasktext
 \end{quote}
 
-考虑基本功能，即是对题目数据库的增、删、改、查，用文件存取数据，以及按一定策略生成试卷。
+考虑基本功能，即是对题目数据库的增、删、改、查（用文件存取数据），以及按一定策略生成试卷。
 
-考虑扩展功能，
+考虑扩展功能，需要实现用户模块和权限处理，还有简单的成绩管理。
 
 \subsection{界面模块}
 
+对于本程序而言，我们不需要复杂的 GUI（图形用户界面）。因为标准 C 中并没有直接对图形操作的库，直接调用 Windows API 会无法移植到类 UNIX 操作系统，并且程序会相当复杂。如果可能的话，我更喜欢用 Web 的方式呈现，当然这也需要使用相应的编程工具链，不是标准 C 可以简单做到的。
+
+所以我决定采用纯文本命令行界面，如非必要不对终端界面进行特殊设置。本来是要实现命令行参数接口的，限于时间关系，未能完成。目前的界面只是简单地文本状态下的用户交互，提供简单的容错处理。
+
+考虑用户界面，提供学生和教师两个入口。如图~\ref{al_main}~所示，主界面提供了两个用户入口，并提供了帮助和关于。
+
 \begin{figure}[htp]
-  \centering
-  \linespread{1}
+\pictext
 % \begin{tikzpicture}[align=center](10,4)
 % % \draw[help lines] (0,0) grid (10,3);
 % \node (main) at (5,4) [draw] {入口主界面};
@@ -35,26 +41,28 @@
 关于,
 教师\\登录
 }
-  \caption{\label{al_main}主要模块}  
+\caption{\label{al_main}主要模块}  
 \end{figure}
 
 \subsubsection{学生功能模块}
 
+学生模块属于扩展功能，如图~\ref{al_student}~，提供做卷子和看成绩两个模块入口。
+
 \begin{figure}[htp]
-  \centering
-  \linespread{1}
+\pictext
 \smartdiagram[constellation diagram]{学生\\主界面,
 做卷子,
 看成绩
 }
-  \caption{\label{al_student}学生功能模块}  
+\caption{\label{al_student}学生功能模块}  
 \end{figure}
 
 \subsubsection{教师功能模块}
 
+教师模块是本程序的主要部分。如图~\ref{al_teacher}~所示，应该实现试题的增、删、改、查功能，实现一定策略的“智能”组卷算法。作为扩展功能，实现对成绩的查看。
+
 \begin{figure}[htp]
-  \centering
-  \linespread{1}
+\pictext
 \smartdiagram[constellation diagram]{教师\\主界面,
 浏览\\试题,
 添加\\试题\\（增）,
@@ -64,5 +72,38 @@
 智能\\组卷,
 成绩\\分析
 }
-  \caption{\label{al_teacher}教师功能模块}  
+\caption{\label{al_teacher}教师功能模块}  
+\end{figure}
+
+目前不需要做到批量增、删、改，其对象是应当是唯一的，这里我们用题目编号来指定。
+
+对于查询操作，应该提供多种方式。如图~\ref{al_select}~，可以根据试题某个属性单独查询，也应提供模糊查询以查询所有选项。
+
+\begin{figure}[htp]
+\pictext
+\smartdiagram[constellation diagram]{查询\\试题,
+编号,
+描述,
+选项,
+难度,
+标签,
+章节,
+模糊\\查询
+}
+\caption{\label{al_select}试题查询模块}  
+\end{figure}
+
+对于组卷功能，我们应该提供多种算法。如图~\ref{al_generate}~，可以完全随机生成，也可以指定标签、章节、难度对试卷进行生成。另外，这里也可以查看已生成试卷列表和内容。
+
+\begin{figure}[htp]
+\pictext
+\smartdiagram[constellation diagram]{智能\\组卷,
+随机\\生成,
+按标签\\生成,
+按章节\\生成,
+按难度\\生成,
+试卷\\列表,
+查看\\试卷
+}
+\caption{\label{al_generate}试卷模块}  
 \end{figure}
