@@ -1,5 +1,5 @@
-/* file.c
- * 文件操作封装
+/* list.c
+ * 用于操作数据库的链表
  */
 
 #include <stdio.h>
@@ -8,7 +8,7 @@
 #include <stdarg.h>
 #include <assert.h>
 
-#include "file.h"
+#include "list.h"
 
 int file_data_count(FILE *file, size_t size)
 {

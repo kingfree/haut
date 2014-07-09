@@ -6,7 +6,7 @@
 #define _PROBLEM_H_
 
 #include "slist.h"
-#include "file.h"
+#include "list.h"
 
 typedef struct Problem {
   int  id;

@@ -1,5 +1,5 @@
-/* paper.c
-* ÊÔ¾íÀà
+ï»¿/* paper.c
+* è¯•å·ç±»
 */
 
 #include <stdio.h>

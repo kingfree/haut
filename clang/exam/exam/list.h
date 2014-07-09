@@ -1,5 +1,5 @@
-/* file.h
- * 文件操作封装
+/* list.h
+ * 用于操作数据库的链表
  */
 
 #ifndef _FILE_H_

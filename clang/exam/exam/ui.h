@@ -38,6 +38,9 @@ void ui_teacher_select();
 void ui_teacher_generate();
 void ui_teacher_score();
 
+int ui_input_number();
+char ui_input_ans();
+
 Problem *ui_select_id(List *list);
 int ui_select_des(List *list);
 int ui_select_opt(List *list);
@@ -46,25 +49,21 @@ int ui_select_tag(List *list);
 int ui_select_sec(List *list);
 int ui_select_mul(List *list);
 int ui_select_output(List *list, SListCallback *find, void *matchdata);
-
-Problem *ui_input_problem();
-void ui_edit_problem(Problem *p);
-void ui_output_problem(Problem *p, bool show_more);
-void *ui_each_problem_show(SList *item, void *userdata);
 void ui_output_count(List *list);
-
-int ui_input_number();
-char ui_input_ans();
-
-void ui_paper_list();
-void ui_paper_view(List *problist);
-int ui_paper_save(Paper *pa);
 
 void ui_generate_random(List *list);
 void ui_generate_tags(List *list);
 void ui_generate_secs(List *list);
 void ui_generate_dif(List *list);
 
+Problem *ui_input_problem();
+void ui_edit_problem(Problem *p);
+void ui_output_problem(Problem *p, bool show_more);
+void *ui_each_problem_show(SList *item, void *userdata);
+
+void ui_paper_list();
+void ui_paper_view(List *problist);
+int ui_paper_save(Paper *pa);
 void *ui_each_paper_show(SList *item, void *userdata);
 
 void *ui_do_problem(SList *item, void *userdata);

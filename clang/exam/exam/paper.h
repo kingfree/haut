@@ -1,5 +1,5 @@
-/* paper.h
-* ÊÔ¾íÀà
+ï»¿/* paper.h
+* è¯•å·ç±»
 */
 
 #ifndef _PAPER_H_
@@ -7,7 +7,7 @@
 
 #include "addon.h"
 #include "slist.h"
-#include "file.h"
+#include "list.h"
 #include "problem.h"
 
 typedef struct Paper {

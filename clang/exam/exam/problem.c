@@ -11,7 +11,7 @@
 
 #include "addon.h"
 #include "slist.h"
-#include "file.h"
+#include "list.h"
 #include "problem.h"
 
 static char *problem_db_name = "problem.db";

@@ -20,7 +20,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.4.0";
+static char *VERSION = "0.4.1";
 
 void cls()
 {
@@ -161,7 +161,7 @@ void ui_student_test(User *u)
     list_each_call(list, ui_each_paper_show, list);
     int id = -1;
     printf("试卷编号:\n$ ");
-    while (scanf("%d", &id) != 1);
+    id = ui_input_number();
     Paper *p = (Paper *)list_find(list, by_id, &id);
     if (p == NULL) {
         perror("没有这套试卷");
@@ -596,9 +596,11 @@ char ui_input_ans()
 int ui_input_number()
 {
     int n = 0;
-    static char s[64];
-    while (scanf("%s", s), !('0' <= s[0] && s[0] <= '9'));
-    sscanf(s, "%d", &n);
+    char c = ' ';
+    while (c = getchar(), !('0' <= c && c <= '9'));
+    ungetc(c, stdin);
+    // while (scanf("%s", s), !('0' <= s[0] && s[0] <= '9'));
+    scanf("%d", &n);
     return n;
 }
 

@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#include "file.h"
+#include "list.h"
 #include "user.h"
 
 static char *user_list_name = "user.db";
