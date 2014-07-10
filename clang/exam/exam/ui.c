@@ -20,7 +20,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.4.2";
+static char *VERSION = "0.4.3";
 
 void cls()
 {
@@ -628,15 +628,16 @@ Problem *ui_input_problem()
     p->ans = ui_input_ans();
 
     printf("题目难度(1--10):\n$ ");
-    while (scanf("%hi", &p->dif) != 1);
+    p->dif = ui_input_number();
     if (p->dif < 0) p->dif = 0;
     if (p->dif > 10) p->dif = 10;
 
     printf("知识点标签(数字编号):\n$ ");
-    while (scanf("%hi", &p->tag) != 1);
+    p->tag = ui_input_number();
 
     printf("知识点章节(章.节):\n$ ");
-    while (scanf("%hi.%hi", &p->chapter, &p->section) != 2);
+    p->chapter = ui_input_number();
+    p->section = ui_input_number();
 
     return p;
 }
@@ -683,7 +684,8 @@ void ui_edit_problem(Problem *p)
 
     printf("知识点章节: %hi.%hi\n$ ", p->chapter, p->section);
     if (!gotn()) {
-        scanf("%hi.%hi", &p->chapter, &p->section); // 未作容错处理
+        p->chapter = ui_input_number();
+        p->section = ui_input_number();
         gotn();
     }
 }

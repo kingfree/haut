@@ -1,2 +1,68 @@
-\section{详细设计}
+﻿\section{详细设计}
+
+整个系统有七个大类，上百个方法。由于时间关系，不能够一一说明，我这里拣几个比较主要的方法来说明其程序流程，其他代码实现还请查看附录~\ref{codes}。
+
+\subsection{已实现功能}
+
+\subsubsection{插入题目}
+
+图~\ref{insert_problem}~展示了插入题目的流程。
+
+\begin{figure}[htp]
+  \pictext\small
+\begin{tikzpicture}
+\begin{umlseqdiag}
+\umlactor[class=UI]{ui}
+\umlmulti[class=List, fill=blue!20]{list}
+\umlobject[class=Problem]{p}
+\begin{umlcall}[op={list\_new()},return={list\_free(list)}]{ui}{list}
+  \begin{umlcall}[op={problem\_read\_file(list)}]{list}{list}
+  \end{umlcall}
+  \begin{umlcall}[op={ui\_output\_count(list)}]{ui}{list}
+  \end{umlcall}
+  \begin{umlcall}[op={ui\_input\_problem()}, return={ui\_output\_problem(p)}]{ui}{p}
+    \begin{umlcall}[op={p.id}, return={list.max\_id + 1}]{p}{list}
+    \end{umlcall}
+  \end{umlcall}
+  \begin{umlcall}[op={list\_insert(list, p)}]{p}{list}
+  \end{umlcall}
+  \begin{umlcall}[op={problem\_write\_file(list)}]{list}{list}
+  \end{umlcall}
+\end{umlcall}
+\end{umlseqdiag}
+\end{tikzpicture}
+  \caption{\label{insert_problem}插入题目的流程}
+\end{figure}
+
+\subsubsection{修改题目}
+\subsubsection{模糊查询}
+\subsubsection{生成试卷}
+\subsubsection{用户登录}
+\subsubsection{学生考试}
+
+
+\subsection{未实现功能}
+
+系统完成的时候，老师提出了加入多选题功能的要求。由于时间关系，不再具体实现，大概叙述一下实现的思路。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

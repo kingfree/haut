@@ -127,7 +127,7 @@ SList 类提供了链表操作的通用方法，包括附加、连接、销毁�
 + \argu{short}{chapter} \comt{章}\\
 + \argu{short}{section} \comt{节}\\
 }{
-+ \method{problem\_new()}{Problem *} \comt{创建题目并初始化}\\
++ \method{problem\_new()}{Problem *} \comt{实例化题目}\\
 + \method{problem\_read\_file(\argu{List *}{list})}{int} \comt{读取题目数据库}\\
 + \method{problem\_write\_file(\argu{List *}{list})}{int} \comt{写出题目数据库}\\
 }
@@ -141,27 +141,129 @@ SList 类提供了链表操作的通用方法，包括附加、连接、销毁�
 
 \subsection{Paper 类}
 
+\begin{figure}[htp]
+  \pictext\small
+\begin{tikzpicture}
+\umlclass{Paper}{
++ \argu{int}{id} \comt{试卷编号}\\
++ \argu{int}{length} \comt{试卷题目数}\\
++ \argu{int[]}{pid} \comt{题目编号数组}\\
++ \argu{char[]}{title} \comt{试卷标题}\\
+}{
++ \method{papar\_new()}{Papar *} \comt{实例化试卷}\\
++ \method{papar\_free(\argu{Paper *}{pa})}{void *} \comt{析构试卷}\\
++ \method{papar\_read\_list(\argu{List *}{list})}{int} \comt{读取试卷数据库}\\
++ \method{papar\_write\_list(\argu{List *}{list})}{int} \comt{写出试卷数据库}\\
++ \method{paper\_insert\_pid(\argu{Paper *}{pa}, \argu{int}{pid})}{int} \comt{插入题目}\\
++ \method{paper\_problem\_call(\argu{Paper *}{pa}, \argu{List *}{list}, \argu{回调}{call}, \argu{void *}{userdata})}{void} \comtn{遍历试卷题目}\\
++ \method{paper\_generate\_random(\argu{Paper *}{pa}, \argu{List *}{list}, \argu{int}{n})}{int} \comtn{随机生成试卷}\\
++ \method{paper\_generate\_tags(\argu{Paper *}{pa}, \argu{List *}{list}, \argu{int}{n}, \argu{int[]}{tags}, \argu{int}{m})}{int} \comtn{按标签生成试卷}\\
++ \method{paper\_generate\_secs(\argu{Paper *}{pa}, \argu{List *}{list}, \argu{int}{n}, \argu{double[]}{secs}, \argu{int}{m})}{int} \comtn{按章节生成试卷}\\
++ \method{paper\_generate\_dif(\argu{Paper *}{pa}, \argu{List *}{list}, \argu{int}{n}, \argu{int}{a}, \argu{int}{b})}{int} \comtn{在难度区间$[a,b]$生成试卷}\\
+}
+\end{tikzpicture}
+  \caption{\label{paper}Paper 类}
+\end{figure}
 
+图~\ref{paper}~所示的 Paper 类存储试卷，用数组来存储题目数据库中的题目编号（所以试卷依赖于题目）。
+
+在试卷中插入题目，要求题目不重复，方法会遍历题目数组保证题号唯一。生成试卷时指定的题目数量如果过多，会自动缩减到合适大小。
 
 \subsection{User 类}
 
+\begin{figure}[htp]
+  \pictext\small
+\begin{tikzpicture}
+\umlclass{User}{
++ \argu{int}{id} \comt{用户编号}\\
++ \argu{char[]}{username} \comt{用户名}\\
+-- \argu{char[]}{passwd} \comt{密码}\\
++ \argu{bool}{teacher} \comt{是否为教师}\\
+}{
++ \method{user\_new()}{User *} \comt{实例化用户}\\
++ \method{user\_free(\argu{User *}{u})}{void *} \comt{析构用户}\\
+-- \method{user\_init()}{int} \comt{初始化根用户}\\
++ \method{user\_reg(\argu{User *}{u})}{int} \comt{用户注册}\\
++ \method{user\_login(\argu{User *}{u})}{int} \comt{用户登录}\\
+}
+\end{tikzpicture}
+  \caption{\label{user}User 类}
+\end{figure}
 
+图~\ref{user}~是 User 类，这个类自己在内部实现了文件操作。
+
+密码本来应该是密文存储，但是没有必要为这样一个玩具系统写 Hash 函数，不如明文存储。这里目的是展示用户登录逻辑，没有必有实现特别复杂的用户管理。
 
 \subsection{Score 类}
 
+\begin{figure}[htp]
+  \pictext\small
+\begin{tikzpicture}
+\umlclass{Score}{
++ \argu{int}{id} \comt{成绩编号}\\
++ \argu{int}{user\_id} \comt{用户编号}\\
++ \argu{char[]}{username} \comt{用户名}\\
++ \argu{int}{paper\_id} \comt{试卷编号}\\
++ \argu{int}{paper\_count} \comt{试卷题目数}\\
++ \argu{char[]}{answer} \comt{用户提交的答案}\\
++ \argu{int}{right} \comt{用户题目正确个数}\\
++ \argu{time\_t}{date} \comt{开始做题时间}\\
+-- \argu{int}{now} \comt{当前做到的题目指针}\\
+}{
++ \method{score\_new(\argu{User *}{u}, \argu{Paper *}{p})}{Score *} \comt{实例化成绩}\\
++ \method{score\_read\_list(\argu{List *}{list})}{int} \comt{读取成绩数据库}\\
++ \method{score\_write\_list(\argu{List *}{list})}{int} \comt{写出成绩数据库}\\
++ \method{score\_did(\argu{Score *}{s}, \argu{char}{c}, \argu{char}{ans})}{int} \comt{记录做题}\\
+}
+\end{tikzpicture}
+  \caption{\label{score}Score 类}
+\end{figure}
 
+图~\ref{score}~是 Score 类，实现了成绩的记录。
 
 \subsection{公共回调函数}
 \label{sec_callback}
 
+Slist 类提供了两个接口，其中回调函数接口提供了对 SList 对象的带参数调用操作，排序比较函数接口用于 SList 对象的大小比较，类似于 \verb|qsort()| 的比较函数。
+
 \begin{figure}[htp]
   \pictext\small
-  % \input{uml/callback}
-  \caption{\label{callback}回调函数接口}
+\begin{tikzpicture}
+\umlclass[type=interface]{SListCallback}{
+\# \argu{SList *}{item}\\
+\# \argu{void *}{userdata}\\
+}{
++ write\_userdata() \comt{写出数据到文件}\\
++ by\_id() \comt{各类编号（查找）}\\
++ by\_des() \comt{题目描述（查找）}\\
++ by\_opt() \comt{题目选项（查找）}\\
++ by\_difr() \comt{题目难度区间（查找）}\\
++ by\_difs() \comt{题目难度（查找）}\\
++ by\_tags() \comt{题目标签（查找）}\\
++ by\_secs() \comt{题目章节（查找）}\\
++ by\_mul() \comt{模糊查询（查找）}\\
++ by\_user\_id() \comt{试卷中的用户编号（查找）}\\
+}
+\end{tikzpicture}  \caption{\label{callback}回调函数}
 \end{figure}
 
+回调函数可以用于查找、输出，主要传递给 foreach 方法进行调用。由于传递进去的参数只有一个泛型指针，所以我设计了 sel\_num 和 ID 、 Block 数据类型来存储和传递参数，具体实现比较丑陋，还有待改进。遵循此接口的方法列在图~\ref{callback}~中。
 
+\begin{figure}[htp]
+  \pictext\small
+\begin{tikzpicture}
+\umlclass[type=interface]{SListCompare}{
+\# \argu{SList *}{item1}\\
+\# \argu{SList *}{item2}\\
+\# \argu{void *}{userdata}\\
+}{
++ cmp\_id() \comt{比较编号}\\
+}
+\end{tikzpicture}  \caption{\label{compare}比较函数}
+\end{figure}
+
+比较函数用于排序，目前只有按编号排序（图~\ref{compare}），并且隐藏在读入方法里调用。其他的关键字排序可以以此接口来编写调用，因为用途不大，不再编写。
 
 \subsection{UI 类}
 
-
+UI 类实际上相当于一个上帝类，掌控全局，并且可以访问其他类的几乎所有方法和属性。

@@ -1,5 +1,5 @@
-/* addon.h
- * ¸½¼Óº¯Êı¿â
+ï»¿/* addon.h
+ * é™„åŠ å‡½æ•°åº“
  */
 
 #include <stdio.h>
@@ -23,7 +23,7 @@ void swap(int *a, int *b)
 }
 
 bool gotn()
-/* ÇåÀíÒÅÁôµÄ»Ø³µ»»ĞĞ·û */
+/* æ¸…ç†é—ç•™çš„å›è½¦æ¢è¡Œç¬¦ */
 {
     char c;
     c = getchar();
@@ -35,7 +35,7 @@ bool gotn()
 }
 
 bool select_cond_number(sel_num cond, int data)
-/* ²éÑ¯Ìõ¼ş */
+/* æŸ¥è¯¢æ¡ä»¶ */
 {
     //fprintf(stderr, "%d - [%d %s]\n", data, cond.num, cond.mark);
     if (strcmp(cond.mark, "<") == 0) {
@@ -54,13 +54,13 @@ bool select_cond_number(sel_num cond, int data)
 }
 
 bool zero(double d)
-/* ¸¡µãÊıÊÇ·ñÎªÁã */
+/* æµ®ç‚¹æ•°æ˜¯å¦ä¸ºé›¶ */
 {
     return fabs(d - 0) <= 1e-6;
 }
 
 bool psame(int n, double d)
-/* ¸¡µãÊı d µÄĞ¡ÊıÎ»ÊÇ·ñµÈÓÚÕûÊı n */
+/* æµ®ç‚¹æ•° d çš„å°æ•°ä½æ˜¯å¦ç­‰äºæ•´æ•° n */
 {
     int i = 0;
     double m = n;
@@ -73,7 +73,7 @@ bool psame(int n, double d)
 }
 
 int random(int a, int b)
-/* ·µ»Ø [a, b) Ö®¼äµÄËæ»úÊı */
+/* è¿”å› [a, b) ä¹‹é—´çš„éšæœºæ•° */
 {
     return rand() % (b - a) + a;
 }

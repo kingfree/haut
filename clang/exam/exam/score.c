@@ -1,5 +1,5 @@
-/* score.c
- * ³É¼¨Àà
+ï»¿/* score.c
+ * æˆç»©ç±»
  */
 
 #include <stdio.h>

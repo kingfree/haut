@@ -1,5 +1,5 @@
-/* score.h
- * ³É¼¨Àà
+ï»¿/* score.h
+ * æˆç»©ç±»
  */
 
 #ifndef _SCORE_H_
