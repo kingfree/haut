@@ -78,6 +78,19 @@ int random(int a, int b)
     return rand() % (b - a) + a;
 }
 
+char *read_string(char *s, size_t n)
+{
+    fgets(s, n, stdin);
+    int l = strlen(s);
+    while (--l) {
+        if (s[l] == '\n' || s[l] == '\r') {
+            s[l] = '\0';
+            return s;
+        }
+    }
+    return s;
+}
+
 #define PWD_MAX 256
 
 char *getpass(char *prompt)

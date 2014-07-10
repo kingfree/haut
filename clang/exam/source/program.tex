@@ -15,37 +15,52 @@
 %     breaklines=true,
   % escapeinside=` `,
 %     % texcl=true,  % 为true时，注释内容被当做LaTeX代码来处理
-  morekeywords=[1]{node,code,symfreq,symcode},
+  morekeywords=[1]{perror,assert,printf,fprintf,scanf,sscanf},
+  morekeywords=[2]{Problem,List,SList,Paper,User,Score},
 }
-
 \linespread{1}
 
-\lstinputlisting[language=bash]{exam/Makefile}
+\subsection{许可证}
+\begin{quote}
+\tiny
+\verbatiminput{exam/LICENSE}
+\end{quote}
 
+\subsection{主文件}
 \lstinputlisting{exam/exam.c}
 
+\subsection{UI 类}
 \lstinputlisting{exam/ui.h}
 \lstinputlisting{exam/ui.c}
 
+\subsection{List 类}
 \lstinputlisting{exam/list.h}
 \lstinputlisting{exam/list.c}
 
+\subsection{Slist 类}
 \lstinputlisting{exam/slist.h}
 \lstinputlisting{exam/slist.c}
 
+\subsection{Problem 类}
 \lstinputlisting{exam/problem.h}
 \lstinputlisting{exam/problem.c}
 
+\subsection{Paper 类}
 \lstinputlisting{exam/paper.h}
 \lstinputlisting{exam/paper.c}
 
+\subsection{Score 类}
 \lstinputlisting{exam/score.h}
 \lstinputlisting{exam/score.c}
 
+\subsection{User 类}
 \lstinputlisting{exam/user.h}
 \lstinputlisting{exam/user.c}
 
+\subsection{辅助方法}
 \lstinputlisting{exam/addon.h}
 \lstinputlisting{exam/addon.c}
 
-\linespread{1.5}
+\subsection{工程文件}
+\lstinputlisting[language=bash]{exam/Makefile}
+\lstinputlisting[language=bash]{exam/Makefile.vs}

@@ -229,29 +229,6 @@ Slist 类提供了两个接口，其中回调函数接口提供了对 SList 对�
 \begin{figure}[htp]
   \pictext\small
 \begin{tikzpicture}
-\umlclass[type=interface]{SListCallback}{
-\# \argu{SList *}{item}\\
-\# \argu{void *}{userdata}\\
-}{
-+ write\_userdata() \comt{写出数据到文件}\\
-+ by\_id() \comt{各类编号（查找）}\\
-+ by\_des() \comt{题目描述（查找）}\\
-+ by\_opt() \comt{题目选项（查找）}\\
-+ by\_difr() \comt{题目难度区间（查找）}\\
-+ by\_difs() \comt{题目难度（查找）}\\
-+ by\_tags() \comt{题目标签（查找）}\\
-+ by\_secs() \comt{题目章节（查找）}\\
-+ by\_mul() \comt{模糊查询（查找）}\\
-+ by\_user\_id() \comt{试卷中的用户编号（查找）}\\
-}
-\end{tikzpicture}  \caption{\label{callback}回调函数}
-\end{figure}
-
-回调函数可以用于查找、输出，主要传递给 foreach 方法进行调用。由于传递进去的参数只有一个泛型指针，所以我设计了 sel\_num 和 ID 、 Block 数据类型来存储和传递参数，具体实现比较丑陋，还有待改进。遵循此接口的方法列在图~\ref{callback}~中。
-
-\begin{figure}[htp]
-  \pictext\small
-\begin{tikzpicture}
 \umlclass[type=interface]{SListCompare}{
 \# \argu{SList *}{item1}\\
 \# \argu{SList *}{item2}\\
@@ -264,6 +241,102 @@ Slist 类提供了两个接口，其中回调函数接口提供了对 SList 对�
 
 比较函数用于排序，目前只有按编号排序（图~\ref{compare}），并且隐藏在读入方法里调用。其他的关键字排序可以以此接口来编写调用，因为用途不大，不再编写。
 
+\begin{figure}[htp]
+  \pictext\small
+\begin{tikzpicture}
+\umlclass[type=interface]{SListCallback}{
+\# \argu{SList *}{item}\\
+\# \argu{void *}{userdata}\\
+}{
++ write\_userdata() \comt{写出数据到文件（遍历）}\\
++ by\_id() \comt{各类编号（查找）}\\
++ by\_des() \comt{题目描述（查找）}\\
++ by\_opt() \comt{题目选项（查找）}\\
++ by\_difr() \comt{题目难度区间（查找）}\\
++ by\_difs() \comt{题目难度（查找）}\\
++ by\_tags() \comt{题目标签（查找）}\\
++ by\_secs() \comt{题目章节（查找）}\\
++ by\_mul() \comt{模糊查询（查找）}\\
++ by\_user\_id() \comt{试卷中的用户编号（查找）}\\
++ ui\_each\_problem\_show() \comt{显示单个题目（遍历）}\\
++ ui\_each\_paper\_show() \comt{显示单张试卷（遍历）}\\
++ ui\_each\_score\_show() \comt{显示单条成绩（遍历）}\\
++ ui\_do\_problem() \comt{做单个题目（遍历）}\\
+}
+\end{tikzpicture}  \caption{\label{callback}回调函数}
+\end{figure}
+
+回调函数可以用于查找和遍历，主要传递给 foreach 方法进行调用。由于传递进去的参数只有一个泛型指针，所以我设计了 sel\_num 和 ID 、 Block 数据类型来存储和传递参数，具体实现比较丑陋，还有待改进。遵循此接口的方法列在图~\ref{callback}~中。
+
 \subsection{UI 类}
 
-UI 类实际上相当于一个上帝类，掌控全局，并且可以访问其他类的几乎所有方法和属性。
+UI 类实际上相当于一个上帝类，掌控全局，并且可以访问其他类的几乎所有方法和属性。其本身没有属性，也不需要被实例化，是唯一的用户界面接口。图~\ref{ui}~是 UI 类的所有方法，这些方法都是与界面有关联的。方法的嵌套层次与界面菜单一致。
+
+\begin{figure}[htp]
+  \pictext\small
+\begin{tikzpicture}
+\umlclass{UI}{
+}{
+\argu{void}{ui\_index()} \comt{主界面}\\
+  \quad\argu{int}{ui\_do\_login(\argu{User *}{u})} \comt{登录界面}\\
+\argu{void}{ui\_student\_login()} \comt{学生登录}\\
+  \quad\argu{void}{ui\_student(\argu{User *}{u})} \comt{学生主界面}\\
+    \quad\quad\argu{void}{ui\_student\_test(\argu{User *}{u})} \comt{做卷子}\\
+    \quad\quad\argu{void}{ui\_student\_score(\argu{User *}{u})} \comt{看成绩}\\
+\argu{void}{ui\_teacher\_login()} \comt{教师登录}\\
+  \quad\argu{void}{ui\_teacher()} \comt{教师主界面}\\
+    \quad\quad\argu{void}{ui\_teacher\_view()} \comt{浏览试题}\\
+      \quad\quad\quad\argu{void}{ui\_output\_count(\argu{List *}{list})} \comt{输出题目数等}\\
+      \quad\quad\quad\argu{void}{ui\_output\_problem(\argu{Problem *}{p}, \argu{bool}{show\_more})} \comt{输出试题}\\
+    \quad\quad\argu{void}{ui\_teacher\_insert()} \comt{插入试题（增）}\\
+      \quad\quad\quad\argu{Problem *}{ui\_input\_problem()} \comt{输入题目}\\
+    \quad\quad\argu{void}{ui\_teacher\_delete()} \comt{删除试题（删）}\\
+    \quad\quad\argu{void}{ui\_teacher\_update()} \comt{修改试题（改）}\\
+      \quad\quad\quad\argu{void}{ui\_edit\_problem(\argu{Problem *}{p})} \comt{编辑题目}\\
+    \quad\quad\argu{void}{ui\_teacher\_select()} \comt{查询试题（查）}\\
+      \quad\quad\quad\argu{Problem *}{ui\_select\_id(\argu{List *}{list})} \comt{按编号查询}\\
+      \quad\quad\quad\argu{int}{ui\_select\_des(\argu{List *}{list})} \comt{按题目描述查询}\\
+      \quad\quad\quad\argu{int}{ui\_select\_opt(\argu{List *}{list})} \comt{按题目选项查询}\\
+      \quad\quad\quad\argu{int}{ui\_select\_dif(\argu{List *}{list})} \comt{按题目难度查询}\\
+      \quad\quad\quad\argu{int}{ui\_select\_tag(\argu{List *}{list})} \comt{按题目标签查询}\\
+      \quad\quad\quad\argu{int}{ui\_select\_sec(\argu{List *}{list})} \comt{按题目章节查询}\\
+      \quad\quad\quad\argu{int}{ui\_select\_mul(\argu{List *}{list})} \comt{模糊查询}\\
+      \quad\quad\quad\argu{int}{ui\_select\_output(\argu{List *}{list}, {回调}{find}, {void *}{matchdata})} \comt{查询到时输出题目}\\
+    \quad\quad\argu{void}{ui\_teacher\_generate()} \comt{智能组卷}\\
+      \quad\quad\quad\argu{void}{ui\_generate\_random(\argu{List *}{list})} \comt{随机生成}\\
+      \quad\quad\quad\argu{void}{ui\_generate\_tags(\argu{List *}{list})} \comt{按标签生成}\\
+      \quad\quad\quad\argu{void}{ui\_generate\_secs(\argu{List *}{list})} \comt{按章节生成}\\
+      \quad\quad\quad\argu{void}{ui\_generate\_dif(\argu{List *}{list})} \comt{按难度区间生成}\\
+      \quad\quad\quad\argu{void}{ui\_paper\_list()} \comt{试卷列表}\\
+      \quad\quad\quad\argu{void}{ui\_paper\_view(\argu{List *}{problist})} \comt{查看试卷}\\
+      \quad\quad\quad\argu{int}{ui\_paper\_save(\argu{Paper *}{pa})} \comt{保存试卷}\\
+    \quad\quad\argu{void}{ui\_teacher\_score()} \comt{成绩分析}\\
+      \quad\quad\quad\argu{void}{ui\_output\_score(\argu{Score *}{s})} \comt{输出成绩}\\
+\argu{void}{ui\_help()} \comt{帮助}\\
+\argu{void}{ui\_about()} \comt{关于}\\
+}
+\end{tikzpicture}  \caption{\label{ui}UI 类}
+\end{figure}
+
+\subsection{辅助方法}
+
+还有一些辅助方法，用于通用的终端控制操作，分散在不同的类中，如图~\ref{addon}~。
+
+\begin{figure}[htp]
+  \pictext\small
+\begin{tikzpicture}
+\umlclass{addon}{
+\method{gotn()}{bool} \comt{清除遗留换行符}\\
+\method{getpass(\argu{char *}{prompt})}{char *} \comt{掩码输入密码}\\
+\method{read\_string(\argu{char *}{s}, \argu{size\_t}{n})}{char *} \comt{输入字符串}\\
+}{
+\argu{void}{cls()} \comt{清屏}\\
+\argu{void}{pause()} \comt{暂停}\\
+\argu{char *}{dif2star()} \comt{把难度转成星级}\\
+\argu{int}{ui\_input\_number()} \comt{输入数字}\\
+\argu{char}{ui\_input\_ans()} \comt{输入选项字母}\\
+}
+\end{tikzpicture}  \caption{\label{addon}辅助方法}
+\end{figure}
+
+其他一些辅助的数值操作的方法不再表述。

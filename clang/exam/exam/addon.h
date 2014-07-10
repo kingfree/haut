@@ -33,4 +33,6 @@ int random(int a, int b);
 
 char *getpass(char *prompt);
 
+char *read_string(char *s, size_t n);
+
 #endif

@@ -20,7 +20,7 @@
 #include "ui.h"
 
 static char *NAME = "标准化考试系统";
-static char *VERSION = "0.4.3";
+static char *VERSION = "0.4.4";
 
 void cls()
 {
@@ -617,11 +617,11 @@ Problem *ui_input_problem()
     printf("请输入题目相关信息: \n");
 
     printf("题目描述:\n$ ");
-    scanf("%s", p->des);
+    read_string(p->des, 256);
 
     for (i = 'A'; i <= 'D'; i++) {
         printf("[选项 %c]:\n$ ", i);
-        scanf("%s", p->opt[i - 'A']);
+        read_string(p->opt[i - 'A'], 64);
     }
 
     printf("正确答案字母序号:\n$ ");
@@ -649,16 +649,14 @@ void ui_edit_problem(Problem *p)
 
     printf("题目描述: %s\n$ ", p->des);
     if (!gotn()) {
-        scanf("%s", p->des);
-        gotn();
+        read_string(p->des, 256);
     }
 
     int i = 0;
     for (i = 'A'; i <= 'D'; i++) {
         printf("[选项 %c]: %s\n$ ", i, p->opt[i - 'A']);
         if (!gotn()) {
-            scanf("%s", p->opt[i - 'A']);
-            gotn();
+            read_string(p->opt[i - 'A'], 64);
         }
     }
 

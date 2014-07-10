@@ -66,17 +66,21 @@ pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
 \include{source/title}\newpage
 \pagestyle{empty}\quad\newpage
 \include{source/task}\quad\newpage
-\setcounter{page}{0}\pagestyle{plain}
-{\linespread{1}\tableofcontents}\newpage
+\setcounter{page}{1}\pagestyle{plain}
+{\linespread{1}
+\tableofcontents
+\vfill\centering
+\includegraphics[height=5cm]{image/saki.png}
+\vfill}\newpage
 \include{source/analysis}
 \include{source/design}
 \include{source/detail}
 \include{source/debug}
 \include{source/testcase}
 \include{source/conclusion}
-\include{source/reference}
 \appendix
-% \include{source/program}
+\include{source/program}
+\include{source/reference}
 
 %%%% 结束 %%%%
 

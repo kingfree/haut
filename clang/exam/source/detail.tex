@@ -1,12 +1,12 @@
 ﻿\section{详细设计}
 
-整个系统有七个大类，上百个方法。由于时间关系，不能够一一说明，我这里拣几个比较主要的方法来说明其程序流程，其他代码实现还请查看附录~\ref{codes}。
-
 \subsection{已实现功能}
+
+整个系统有七个大类，上百个方法。由于时间关系，不能够一一说明，我这里拣几个比较主要的方法来说明其程序流程，其他代码实现还请查看附录~\ref{codes}。
 
 \subsubsection{插入题目}
 
-图~\ref{insert_problem}~展示了插入题目的流程。
+图~\ref{insert}~展示了插入题目的流程，首先实例化一个链表，将题目数据库读入，提示用户输入题目信息，将题目编号设置为最大编号加一，插入链表尾部，最后将链表写入文件，释放内存。
 
 \begin{figure}[htp]
   \pictext\small
@@ -14,7 +14,7 @@
 \begin{umlseqdiag}
 \umlactor[class=UI]{ui}
 \umlmulti[class=List, fill=blue!20]{list}
-\umlobject[class=Problem]{p}
+\umlobject[class=Problem, fill=green!20]{p}
 \begin{umlcall}[op={list\_new()},return={list\_free(list)}]{ui}{list}
   \begin{umlcall}[op={problem\_read\_file(list)}]{list}{list}
   \end{umlcall}
@@ -31,38 +31,190 @@
 \end{umlcall}
 \end{umlseqdiag}
 \end{tikzpicture}
-  \caption{\label{insert_problem}插入题目的流程}
+  \caption{\label{insert}ui\_teacher\_insert()}
 \end{figure}
 
-\subsubsection{修改题目}
+删除和修改题目与此同理，都是将文件数据全部读入实例化的链表中，对链表进行操作，再将链表全部写入文件。这对于小数据量是有效且便利的。老师提出，删除时不应读入内存，存在大量数据的情况会使内存溢出。为了换取这样的空间代价，我们不得不用时间上非常慢的对硬盘文件的读取来实现，这也得不偿失。实际上，对文件的读写在操作系统里会映射为对内存的读写，操作系统还是会把文件读入内存（虽然不是全部，但一般文件没有大到足以分页），这种优化实际上是徒劳的。基于这种思想的删除和修改在实验最后一题里有实现（见实验报告），但不适用于本程序。
+
 \subsubsection{模糊查询}
+
+模糊查询实际上是统合了所有属性的查询，这种查询方式很类似于搜索引擎。当然相对于搜索引擎来说，还是非常简单的，不需要语法分析什么的，只是简单地关键字比对。
+
+在输入关键字 key 之后，只需要调用 ui\_select\_output(list, by\_mul, key) 即可将所有查找结果输出出来。其中回调函数 by\_mul 实现如 Listing~\ref{by_mul}，将关键字与各个域进行比对并返回元素本身。
+
+
+\lstset{language=C,
+  numbers=left,
+  numberstyle=\tiny,
+  basicstyle=\small,
+  stringstyle=\tt,
+  keywordstyle=\bfseries,
+  keywordstyle=[2]{\bfseries\color{blue!50!black}},
+  showstringspaces=false,
+  breaklines=true,
+  frame=tb,
+  morekeywords=[1]{perror,assert,printf,fprintf,scanf,sscanf},
+  morekeywords=[2]{Problem,List,SList,Paper,User,Score},
+}
+
+{\linespread{1}
+\begin{lstlisting}[caption={\label{by_mul}by\_mul()}]
+void *by_mul(SList *item, void *data)
+{
+    Problem *p = (Problem *)item->userdata;
+    char *key = (char *)data;
+    int a, b;
+    if ('0' <= key[0] && key[0] <= '9') {
+        sscanf(key, "%d", &a);
+        if (p->id == a || p->tag == a || p->dif == a
+         || p->chapter == a || p->section == a) {
+            return item;
+        }
+        if (sscanf(key, "%d.%d", &a, &b) == 2
+         && p->chapter == a && p->section == b) {
+            return item;
+        }
+    }
+    if (by_des(item, data) != NULL) {
+        return item;
+    }
+    if (by_opt(item, data) != NULL) {
+        return item;
+    }
+    return NULL;
+}
+\end{lstlisting}
+}
+
 \subsubsection{生成试卷}
+
+生成试卷的算法有多个，其中按标签和按章节生成的算法比较类似。Listing~\ref{paper_generate_tags}~是按标签生成的算法，将题目列表和指定的题目数、标签列表传入，限制每个标签的题目数量不超过$n/m+1$，遍历题目列表凡是符合条件的加入试卷，直到满足数量或超出限制。
+
+{\linespread{1}
+\begin{lstlisting}[caption={\label{paper_generate_tags}paper\_generate\_tags()}]
+int paper_generate_tags(Paper *pa, List *list, int n, int tags[], int m)
+{
+    if (list->count < n) {
+        n = list->count;
+    }
+    SList *s = list->slist;
+    Problem *p = NULL;
+    int i = 0, j = 0;
+    int k = n / m + 1;
+    for (i = 0; i < m; i++) {
+        j = 0;
+        while ((s = (SList *)slist_find(s, by_tags, tags + i)) != NULL) {
+            p = (Problem *)s->userdata;
+            if (p->id == paper_insert_pid(pa, p->id)) {
+                j++;
+                if (j >= k) {
+                    break;
+                }
+            }
+            if (pa->length >= n) {
+                goto end;
+            }
+            s = slist_tail(s);
+        }
+    }
+end:
+    return pa->length;
+}
+\end{lstlisting}
+}
+
+随机生成的算法比较简单，每次生成合法的随机题目编号插入试卷，直到达到指定数量为止。
+
+按难度区间生成的算法，需要在区间中均匀分布题目难度，也有一个控制因子在起作用。
+
 \subsubsection{用户登录}
+
+用户登录逻辑比较简单，如果没有用户数据库，就注册一个教师用户 root；如果没有该用户名，就注册一个学生类型的账户。注册完后直接登录。
+
+逻辑比较简单，方便用户操作，只是为了简单分模块逻辑。密码明文存储，也不提供修改密码什么的操作，没有必要。
+
 \subsubsection{学生考试}
 
+学生考试功能是 UI 类最复杂的，一共对三个类进行了操作，实例化了五个对象，逻辑比较复杂。Listing~\ref{ui_student_test}~展示了该方法的具体实现代码，首先读取试卷数据库，让用户选择试卷编号，实例化试卷；接着将试卷对应的题目读取出来，用用户和试卷来实例化成绩类，对每道题目调用 ui\_do\_problem 来做题并记录；最后读取成绩列表，插入成绩再写回硬盘。
+
+{\linespread{1}
+\begin{lstlisting}[caption={\label{ui_student_test}ui\_student\_test()}]
+void ui_student_test(User *u)
+{
+    List *list = list_new();
+    if (paper_read_list(list) < 0) {
+        perror("读取试卷数据库失败");
+        return;
+    }
+    list_each_call(list, ui_each_paper_show, list);
+    int id = -1;
+    printf("试卷编号:\n$ ");
+    id = ui_input_number();
+    Paper *p = (Paper *)list_find(list, by_id, &id);
+    if (p == NULL) {
+        perror("没有这套试卷");
+        return;
+    }
+    List *problist = list_new();
+    if (problem_read_file(problist) < 0) {
+        perror("读取题目数据库失败");
+        return;
+    }
+    cls();
+    Score *s = score_new(u, p);
+    paper_problem_call(p, problist, ui_do_problem, s);
+    list_free(list);
+    list_free(problist);
+
+    List *scorelist = list_new();
+    if (score_read_list(scorelist) < 0) {
+        perror("读取成绩数据库失败");
+        goto end;
+    }
+    s->id = scorelist->max_id + 1;
+    if (list_insert(scorelist, s) < 0) {
+        perror("插入成绩失败");
+        goto end;
+    }
+    if (score_write_file(scorelist) < 0) {
+        perror("写入成绩数据库失败");
+        goto end;
+    }
+end:
+    printf("考试完成！\n");
+    ui_output_score(s);
+    list_free(scorelist);
+    pause();
+}
+\end{lstlisting}
+}
 
 \subsection{未实现功能}
 
+\subsubsection{多项选择题}
+
 系统完成的时候，老师提出了加入多选题功能的要求。由于时间关系，不再具体实现，大概叙述一下实现的思路。
 
+在存储单项选择题的时候，我固定了四个选项，并且用一个字符表示正确选项的编号。实际上，选项可以增长到无限，正确答案也可能不止一个。那么如何存储呢？考虑使用$n$个二进制位来标识每个选项的正确与否，这样一个8位的字符实际上可以保存8个选项的状态。要实现选项答案的分离，只需要用到简单的位操作。Listing~\ref{get_bit}~实现了取二进制指定位的操作，并且支持用多个字符即字符串来存储更多选项。
 
+{\linespread{1}
+\begin{lstlisting}[caption={\label{get_bit}get\_bit()}]
+unsigned char get_bit(unsigned char *bits, unsigned long i) {
+  return (bits[i / 8] >> i % 8) & 1;
+}
+\end{lstlisting}
+}
 
+至于多项选择题的输入判断，可以直接读入字符串，进行大小写转换，取其 ASCII 编码值直接对应到每个选项中，取对应位进行对比判断即可。
 
+至于评分标准，应该支持自定义。一般地，多选只要有错选就不给分，不选不给分。特殊的，少选的给部分分或者不给分。新课标高考物理的评分标准是“全部选对的得6分，选对但不全的得3分，有选错的得0分”。类似于这样的标准可以通过选项配置来解决。
 
+\subsubsection{词法分析}
 
+实际上我们的查询可以做得更好，利用状态机来将用户一定规则的输入与数据进行匹配，可以实现更为丰富的查询，甚至实现批量删除和修改。当然我们会发现这些功能都是 SQL 的标准配置。个人实现一个 SQL 还是比较困难的，尤其是没有编译原理的相关基础，所以这部分就放弃不做了。
 
+\subsubsection{图形界面}
 
+其实不管怎么说，这个系统的难度在于使用了大量的底层操作。终端界面有不少限制，并不适合这种互动性非常高的应用。想象了许多功能，在终端中运营都不会达到非常好的效果。终端的优势在于使用脚本语言处理大量文本数据，进行系统编程和系统管理维护。以普通用户为中心的应用程序，应当拥有良好的图形用户界面\footnote{关于用户界面的设计，参考《界面设计模式》\cite{dinterface}。}。
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+比较好的解决方案是采用 C/S 架构，分离底层与用户界面。本程序这点做的非常不好，也是水平所限。
