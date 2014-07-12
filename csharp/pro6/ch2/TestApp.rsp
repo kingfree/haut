@@ -1,0 +1,7 @@
+# 响应文件
+ 
+# 外部程序集引用
+/r:System.Windows.Forms.dll
+
+# 指定输出目标并编译
+/target:exe /out:TestApp.exe *.cs
