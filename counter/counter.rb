@@ -14,56 +14,23 @@ ALIAS = {
 ESCAPECHARS = /[<>【】　 ]/
 ESCAPEGRPS = /(出场阵容|队员名单|[<>【】：:　 ]|（(主|客)场）)/
 CONTFORM = {
-  "技巧挑战赛" => {
-    :begin_time => /比赛时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
-    :end_time => /比赛时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
-    :time_inc => '时间',
-    :deban_inc => '参赛名单',
+  "最燃" => {
+    :begin_time => /有效投票时间.*：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})/,
+    :end_time => /有效投票时间.*月.*日.*\-(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})/,
+    :time_inc => '引言',
+    :deban_inc => '角色名单',
     :item_name => /\s*(<<.+?>>|[^><\s]+)\s*/,
+    :code_format => /\[\[(?<code>SDR14.{1,2}\-.{8}\-.{3})\]\]/, #[[SDR141-DF5VSZmW-SpS]]-00000
+    :codelist => 'codelist.txt',
     :group_inc => '',
     :chara_inc => '<<',
     :ticket_name => /<+.+?>+/,
     :need_pre => '',
     :need_suf => '',
     :banmul => false,
-    :vote_limit => 3,
-    :level_limit => 8,
+    :vote_limit => 4,
     :blacklist => '',
-    :whitelist => 'whitelist.txt'
-  },
-  "新秀对抗赛" => {
-    :begin_time => /比赛时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
-    :end_time => /比赛时间：.*[-~]\s*(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
-    :time_inc => '时间',
-    :deban_inc => '投',
-    :item_name => /\s*(<<.+?>>|[^><\s]+)\s*/,
-    :group_inc => '',
-    :chara_inc => '<<',
-    :ticket_name => /<+.+?>+/,
-    :need_pre => '',
-    :need_suf => '',
-    :banmul => false,
-    :vote_limit => 3,
-    :level_limit => 8,
-    :blacklist => '',
-    :whitelist => 'whitelist.txt'
-  },
-  "全明星大赛" => {
-    :begin_time => /比赛时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
-    :end_time => /比赛时间：.*[-~]\s*(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+):(?<min>[0-9]{,2})/,
-    :time_inc => '时间',
-    :deban_inc => '队员名单：',
-    :item_name => /\s*(<<.+?>>|[^><\s]+)\s*/,
-    :group_inc => '',
-    :chara_inc => '<<',
-    :ticket_name => /<+.+?>+/,
-    :need_pre => '',
-    :need_suf => '',
-    :banmul => false,
-    :vote_limit => 1,
-    :level_limit => 8,
-    :blacklist => '',
-    :whitelist => 'whitelist.txt'
+    :whitelist => ''
   },
   "联赛" => {
     :begin_time => /开始时间：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})/,
@@ -124,6 +91,7 @@ class Contest
     @ghash = Hash.new
     @blacklist = Hash.new
     @whitelist = Hash.new
+    @codelist = Hash.new
   end
 
   def clear
@@ -162,6 +130,16 @@ class Contest
     f.close
   end
 
+  def buildcodelist(file)
+    @codelist.clear
+    return if !File.exist?(file)
+    f = open(file)
+    while u = f.gets and !u.nil?
+      @codelist[u.force_encoding(Encoding::UTF_8).strip] = true
+    end
+    f.close
+  end
+
   def inblack?(user)
     return false if @blacklist.empty?
     return @blacklist.key?(user)
@@ -170,6 +148,11 @@ class Contest
   def inwhite?(user)
     return true if @whitelist.empty?
     return @whitelist.key?(user)
+  end
+
+  def incode?(code)
+    return true if @codelist.empty?
+    return @codelist.key?(code)
   end
 
   def settime!(s, t)
@@ -356,7 +339,9 @@ class Posts
 
   def mukou(t) # 返回真记为无效票
     # return false
-    # return "时" if t.date > @comp.time_e or t.date < @comp.time_b
+    return "时" if t.date > @comp.time_e or t.date < @comp.time_b
+    return "码" unless t.text.match(@rules[:code_format])
+    return "伪" unless @comp.incode?(t.text.match(@rules[:code_format])[:code])
     # 超过比赛时间
     return "黑" if @comp.inblack?(t.author)
     return "白" unless @comp.inwhite?(t.author)
@@ -381,27 +366,35 @@ class Posts
       end
     else # 投票者合法
       x = "无" # 无效票
-      if @rules[:banmul] and l.length > @rules[:vote_limit] # 多投Ban掉
-        t.votes.each do |v|
-          @comp.addt(t.author, v, MUKOU) # 记录无效票
-        end
-      else # 未限制多投或投票数符合要求
+      flag = 0
+      # if @rules[:banmul] and l.length > @rules[:vote_limit] # 多投Ban掉
+      #   t.votes.each_index do |i|
+      #     break if flag > @rules[:vote_limit]
+      #     flag += 1 if k = @comp.haschara?(t.votes[i])
+      #   end
+      #   flag = 0 if flag <= @rules[:vote_limit]
+      # end
+      user = []
+      if flag == 0
         t.votes.each_index do |i|
           break if flag >= @rules[:vote_limit]
           if k = @comp.haschara?(t.votes[i])
+            next if user.index(k)
+            user << k
             @comp.addt(t.author, t.votes[i], k) # 正常计数
             flag += 1
             t.votes[i] = nil
           end
         end
-        t.votes.delete(nil)
-        t.votes.each do |v|
-          @comp.addt(t.author, v, MUKOU) # 记录无效票
-        end
+      end
+      t.votes.delete(nil)
+      t.votes.each do |v|
+        @comp.addt(t.author, v, MUKOU) # 记录无效票
       end
     end
     if !t.votes.empty?
       logfile.printf "[%s] @%s : ", x, t.author
+      # logfile.printf "\n{%s}\n", t.text
       t.votes.each {|v| logfile.printf "%s ", v }
       logfile.printf "\n"
     end
@@ -517,6 +510,7 @@ class Posts
       if @comp.title.include?(k)
         @comp.buildblacklist(v[:blacklist]) unless @rules[:blacklist] == v[:blacklist]
         @comp.buildwhitelist(v[:whitelist]) unless @rules[:whitelist] == v[:whitelist]
+        @comp.buildcodelist(v[:codelist]) unless @rules[:codelist] == v[:codelist]
         @rules = v
         break
       end
