@@ -3,16 +3,6 @@ require "open-uri"
 require "json"
 require "scanf"
 
-TIMEFMT = "%m月%d日 %H:%M"
-MUKOU = "无效票"
-NISE = "伪票"
-
-ALIAS = {
-  "<<Saber>>" => "<<阿尔托莉亚>>"
-}
-
-ESCAPECHARS = /[<>【】　 ]/
-ESCAPEGRPS = /(出场阵容|队员名单|[<>【】：:　 ]|（(主|客)场）)/
 CONTFORM = {
   "最燃" => {
     :begin_time => /有效投票时间.*：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})/,
@@ -28,7 +18,7 @@ CONTFORM = {
     :need_pre => '',
     :need_suf => '',
     :banmul => false,
-    :vote_limit => 4,
+    :vote_limit => 1, # 修改这里限制每组投票上限
     :blacklist => '',
     :whitelist => ''
   },
@@ -67,6 +57,17 @@ CONTFORM = {
     :whitelist => ''
   }
 }
+
+TIMEFMT = "%m月%d日 %H:%M"
+MUKOU = "无效票"
+NISE = "伪票"
+
+ALIAS = {
+  "<<Saber>>" => "<<阿尔托莉亚>>"
+}
+
+ESCAPECHARS = /[<>【】　 ]/
+ESCAPEGRPS = /(出场阵容|队员名单|[<>【】：:　 ]|（(主|客)场）)/
 
 def match_to_time(t, sc = 00)
   year = (t.names.include?("year") and t[:year]) ? t[:year].to_i : Time.now.year
@@ -135,7 +136,7 @@ class Contest
     return if !File.exist?(file)
     f = open(file)
     while u = f.gets and !u.nil?
-      @codelist[u.force_encoding(Encoding::UTF_8).strip] = true
+      @codelist[u.force_encoding(Encoding::UTF_8).strip.split(' ')[0]] = true
     end
     f.close
   end
@@ -176,8 +177,8 @@ class Contest
         f.count
         i += 1
         j = i if i <= 1 or f.nums != a[i - 2][1].nums
-        tmp[k] += sprintf("%2d位 %3d票 %s%s\n", j, f.nums, f.name.gsub(ESCAPECHARS, ""),
-          ALIAS.key?(f.name) ? " (" + ALIAS[f.name].gsub(ESCAPECHARS, "") + ")" : "") # 输出时也不需要特殊标记，去掉
+        tmp[k] += sprintf("%2d位 %3d票 %s%s\n", j, f.nums, f.name,
+          ALIAS.key?(f.name) ? " (" + ALIAS[f.name] + ")" : "") # 输出时也不需要特殊标记，去掉
       end
       file.write(tmp[k]) unless k == NISE or k == MUKOU
     end
@@ -261,7 +262,7 @@ class Character
   attr_accessor :name, :users, :nums
 
   def initialize(name, num = 0)
-    @name = name
+    @name = name.gsub(ESCAPECHARS, '')
     @nums = num
     @users = Array.new
   end
@@ -282,7 +283,7 @@ class Character
 end
 
 class Post
-  attr_accessor :aid, :author, :floor, :date, :text, :votes, :real, :level
+  attr_accessor :aid, :author, :floor, :date, :text, :votes, :real, :level, :code
 
   def initialize(author, floor, t, text)
     # @aid = aid.to_i
@@ -309,6 +310,7 @@ class Posts
     @rules = Hash.new
     @comp = Contest.new
     @did = Hash.new
+    @codedid = Hash.new
     @logfile = logf
   end
 
@@ -329,18 +331,34 @@ class Posts
     return false
   end
 
-  def kiroku(name, v = 0)
+  def codedid?(code)
+    if @codedid.key?(code)
+      return @codedid[code] == 0 ? false : true
+    end
+    return false
+  end
+
+  def kiroku(name, text, v = 0)
     if @did.key?(name)
       @did[name] += v
     else
       @did[name] = v
+    end
+    code = text.match(@rules[:code_format])
+    return if not code
+    code = code[0]
+    if @codedid.key?(code)
+      @codedid[code] += v
+    else
+      @codedid[code] = v
     end
   end
 
   def mukou(t) # 返回真记为无效票
     # return false
     return "时" if t.date > @comp.time_e or t.date < @comp.time_b
-    return "码" unless t.text.match(@rules[:code_format])
+    code = t.text.match(@rules[:code_format])
+    return "码" if not code or codedid?(code[0])
     return "伪" unless @comp.incode?(t.text.match(@rules[:code_format])[:code])
     # 超过比赛时间
     return "黑" if @comp.inblack?(t.author)
@@ -358,7 +376,7 @@ class Posts
 
   def count(t, tpl)
     flag = 0
-    t.text.scan(tpl) {|m| t.votes.push(m.to_s) } # 把票放进数组里
+    t.text.scan(tpl) {|m| t.votes.push(m.to_s.gsub(ESCAPECHARS, '')) } # 把票放进数组里
     l = Array.new
     if x = mukou(t) # 如果投票者非法，即投的是伪票
       t.votes.each do |v|
@@ -366,7 +384,6 @@ class Posts
       end
     else # 投票者合法
       x = "无" # 无效票
-      flag = 0
       # if @rules[:banmul] and l.length > @rules[:vote_limit] # 多投Ban掉
       #   t.votes.each_index do |i|
       #     break if flag > @rules[:vote_limit]
@@ -375,18 +392,18 @@ class Posts
       #   flag = 0 if flag <= @rules[:vote_limit]
       # end
       user = []
-      if flag == 0
-        t.votes.each_index do |i|
-          break if flag >= @rules[:vote_limit]
-          if k = @comp.haschara?(t.votes[i])
-            next if user.index(k)
-            user << k
-            @comp.addt(t.author, t.votes[i], k) # 正常计数
-            flag += 1
-            t.votes[i] = nil
-          end
+      t.votes.each_index do |i|
+        if k = @comp.haschara?(t.votes[i])
+          # logfile.printf "{%s}", t.votes[i]
+          # next if user.index(k)
+          user << k
+          next if user.count(k) > @rules[:vote_limit]
+          @comp.addt(t.author, t.votes[i], k) # 正常计数
+          flag += 1
+          t.votes[i] = nil
         end
       end
+      # t.votes.each {|v| logfile.printf "^[%s] ", v }
       t.votes.delete(nil)
       t.votes.each do |v|
         @comp.addt(t.author, v, MUKOU) # 记录无效票
@@ -395,7 +412,7 @@ class Posts
     if !t.votes.empty?
       logfile.printf "[%s] @%s : ", x, t.author
       # logfile.printf "\n{%s}\n", t.text
-      t.votes.each {|v| logfile.printf "%s ", v }
+      t.votes.each {|v| logfile.printf "[%s] ", v }
       logfile.printf "\n"
     end
     @comp.addpeople if flag != 0
@@ -463,6 +480,7 @@ class Posts
         t.text.scan(@rules[:item_name]) do |uu|
           u = uu[0].to_s.strip
           if u.include?(@rules[:chara_inc])
+            u = u.gsub(ESCAPEGRPS, '').strip
             g.add(u) # 规定的有效票
           elsif u.include?(@rules[:group_inc])
             u = u.gsub(ESCAPEGRPS, '').strip
@@ -476,7 +494,7 @@ class Posts
         @comp.addgroup(Group.new(NISE)) # 伪票组
       end
     else
-      kiroku(t.author, count(t, @rules[:ticket_name]))
+      kiroku(t.author, t.text, count(t, @rules[:ticket_name]))
     end
     @posts.push(t)
   end

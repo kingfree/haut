@@ -53,32 +53,47 @@ pids.each do |pid|
   end
 end
 
+sakuhin = Hash.new
+
+def get_sakuhin(cha)
+    sak = cha.split(/[＠]/)[1]
+    sak.sub(/[<>]{2}/, '')
+end
+
 tot = 0
 ids.each do |id, pou|
   tot += 1 if pou[1].length > 0
   next if pou[1].length > 10
   # print pou[0], "\n"
+  saku = []
   pou[1].each do |cha|
     list[cha] = 0 unless list.key?(cha)
     list[cha] += 1
+    saku << get_sakuhin(cha)
+  end
+  saku.uniq.each do |sak|
+    sakuhin[sak] = 0 unless sakuhin.key?(sak)
+    sakuhin[sak] += 1
   end
 end
 
+chalist = Hash.new
 list = list.sort_by {|k, x| -x }
 i, j = 0, 0
 m = ARGV[2] ? ARGV[2].to_i : list.length
-list.each do |k, e|
+list.each do |cha, e|
   i += 1
   j = i if i <= 1 or e != list[i - 2][1]
-  printf "%2d位 %3d票 %s\n", j, e, k[0..34]
-  break if i > m
+  printf("%2d位 %3d票 %s\n", j, e, cha[0..40]) if i <= m
+  sak = get_sakuhin(cha)
+  chalist[sak] = [] unless chalist.key?(sak)
+  chalist[sak] << cha
 end
 
 printf "投票：%d\n", tot
 
 if ARGV[3]
   a = ARGV[3].encode("UTF-8", "GBK")
-  printf "%s\n", a
   i, j = 0
   list.each do |k, e|
     i += 1
@@ -88,3 +103,30 @@ if ARGV[3]
     end
   end
 end
+
+if ARGV[4]
+  printf "二预算法（洪德法）：\n"
+  fen = Array.new
+  sakuhin.each do |k, e|
+    # printf "%d %s\n", e, k
+    n = e.to_i
+    i = 1
+    w = n
+    while w > 0
+      w = n / i
+      fen << {:name=>k, :value=>w} if w > 0
+      i += 1
+    end
+  end
+  fen = fen.sort_by {|e| -e[:value] }
+  limit = ARGV[4].to_i
+  i = 1
+  fen.each do |e|
+    next if chalist[e[:name]].length < 1
+    printf "%2d位 %3d票 %s\n", i, e[:value], chalist[e[:name]].delete_at(0)
+    i += 1
+    break if i > limit
+  end
+end
+
+#ruby 2ch2014.rb e7 1405691813,1406046352,1406330796,1406656974,1407040643 12 Saki 12
