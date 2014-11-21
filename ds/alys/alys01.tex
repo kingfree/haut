@@ -13,24 +13,24 @@
 \item 掌握复杂循环的设计方法。
 \end{enumerate}
 \section{实验要求}
-任给两个矩阵$A$和$B$，计算它们的乘法。
+任给两个矩阵$\bm A$和$\bm B$，计算它们的乘法。
 
 具体要求：
 
-①每个矩阵输入的格式如下：第一行的两个数字分别表示行$n$和列$m$，随后紧跟包含$m$列的$n$行来表示矩阵。将两个输入矩阵保存在input.txt文件中。举例如下：
+(1)每个矩阵输入的格式如下：第一行的两个数字分别表示行$n$和列$m$，随后紧跟包含$m$列的$n$行来表示矩阵。将两个输入矩阵保存在input.txt文件中。举例如下：
 \begin{quote}
 \verbatiminput{alys01/input.txt}
 \end{quote}
 
-②将两个矩阵的运算结果保存在文件output.txt中。
+(2)将两个矩阵的运算结果保存在文件output.txt中。
 
 \section{程序流程图}
 
 设$\bm A = (a_{ij})_{m \times s}$, $\bm B = (b_{ij})_{s \times n}$，
-矩阵乘法定义为$$\bm C=\bm A\times \bm B,$$
+矩阵乘法定义为$$\bm C=\bm A  \bm B,$$
 其中 $$\bm C=(c_{ij})_{m\times n},$$
 $$c_{ij} = a_{i1}b_{1j} + a_{i2}b_{2j} + \cdots + a_{is}b_{sj}
-= \sum_{k=1}^{s}{a_{ik}b_{kj}}$$
+= \sum_{k=1}^{s}{a_{ik}b_{kj}}.$$
 
 可以得出矩阵乘法的算法，伪代码如图\ref{mul}。
 \begin{figure}[htp]
@@ -42,7 +42,7 @@ $$c_{ij} = a_{i1}b_{1j} + a_{i2}b_{2j} + \cdots + a_{is}b_{sj}
 \li \For $i = 1$ \To $A.l$ \Do
 \li   \For $j = 1$ \To $B.c$ \Do
 \li     \For $k = 1$ \To $A.c(=B.l)$ \Do
-\li       $C_{ij} = A_{ik}\times B_{kj}$
+\li       $C[i][j] = A[i][k]\times B[k][j]$
         \End
       \End
     \End
@@ -77,7 +77,7 @@ $$c_{ij} = a_{i1}b_{1j} + a_{i2}b_{2j} + \cdots + a_{is}b_{sj}
 4 & 5 & 6\\
 7 & 8 & 9
 \end{array}\right]
-\times
+\cdot
 \left[\begin{array}{c}
 1\\
 1\\
