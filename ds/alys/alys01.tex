@@ -1,0 +1,101 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\def\titlee{矩阵乘法}
+\input{source/define}
+\begin{document}
+\input{source/title}\newpage
+
+\section{实验题目}
+矩阵乘法
+\section{实验目的}
+\begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt]
+\item 掌握二维数组的使用方法。 
+\item 掌握文件的读入和输出。 
+\item 掌握复杂循环的设计方法。
+\end{enumerate}
+\section{实验要求}
+任给两个矩阵$A$和$B$，计算它们的乘法。
+
+具体要求：
+
+①每个矩阵输入的格式如下：第一行的两个数字分别表示行$n$和列$m$，随后紧跟包含$m$列的$n$行来表示矩阵。将两个输入矩阵保存在input.txt文件中。举例如下：
+\begin{quote}
+\verbatiminput{alys01/input.txt}
+\end{quote}
+
+②将两个矩阵的运算结果保存在文件output.txt中。
+
+\section{程序流程图}
+
+设$\bm A = (a_{ij})_{m \times s}$, $\bm B = (b_{ij})_{s \times n}$，
+矩阵乘法定义为$$\bm C=\bm A\times \bm B,$$
+其中 $$\bm C=(c_{ij})_{m\times n},$$
+$$c_{ij} = a_{i1}b_{1j} + a_{i2}b_{2j} + \cdots + a_{is}b_{sj}
+= \sum_{k=1}^{s}{a_{ik}b_{kj}}$$
+
+可以得出矩阵乘法的算法，伪代码如图\ref{mul}。
+\begin{figure}[htp]
+\begin{quote}
+\begin{codebox}
+\Procname{\proc{Matrix::$\times$}($A, B$)}
+\li $C.l = A.l$
+\li $C.c = B.c$
+\li \For $i = 1$ \To $A.l$ \Do
+\li   \For $j = 1$ \To $B.c$ \Do
+\li     \For $k = 1$ \To $A.c(=B.l)$ \Do
+\li       $C_{ij} = A_{ik}\times B_{kj}$
+        \End
+      \End
+    \End
+\li \Return $C$
+\end{codebox}
+\end{quote}
+\caption{\label{mul}矩阵乘法的算法}
+\end{figure}
+
+二维数组的输入输出则是比较简单的，流程图\ref{f1}描述了二维数组的输入过程。
+\begin{figure}[htp]
+\centering
+\includegraphics[height=10cm]{alys01/f1.pdf}
+\caption{\label{f1}矩阵输入过程}
+\end{figure}
+
+输出同理，不再赘述。
+
+\section{程序代码}
+{\linespread{1}\lstinputlisting{alys01/alys01.cpp}}
+
+\section{实验结果}
+输出文件output.txt：
+\begin{quote}
+\verbatiminput{alys01/output.txt}
+\end{quote}
+
+实际上该样例即是此式：
+\[
+\left[\begin{array}{ccc}
+1 & 2 & 3\\
+4 & 5 & 6\\
+7 & 8 & 9
+\end{array}\right]
+\times
+\left[\begin{array}{c}
+1\\
+1\\
+1
+\end{array}\right]
+=
+\left[\begin{array}{c}
+   6\\
+  15\\
+  24
+\end{array}\right]
+\]
+
+\section{实验体会}
+这道题目比较适合用于练手，虽然简单但是也有一些细节需要仔细处理。结合最近学习的C++课程，我使用了简单的类来实现这个矩阵乘法的题目。实际上这个程序还不能很好地表现OOP的精髓，比如输入输出逻辑绑定在了类中，应该另外做一个接口的。文件的输入输出则简单的使用了文件重定向，也可在命令行下使用重定向符来重定向输入输出流。
+
+关于程序流程图的问题，我觉得在一定程度上，这个流程图是个累赘，描述算法还是伪代码比较合适。
+
+本来打算用Word随便做做交了的，想到老师实验课上严重的\TeX 痕迹，那就换成\TeX 来排版了。虽然是驾轻就熟的工具，但是改改模板还是费点心思的。
+
+\end{document}
