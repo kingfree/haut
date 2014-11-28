@@ -1,0 +1,154 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\def\titlee{二叉树插入}
+\input{source/define}
+\begin{document}
+\input{source/title}\newpage
+
+\section{实验题目}
+二叉树的插入
+\section{实验目的}
+\begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt]
+\item 实现二叉查找树的插入
+\end{enumerate}
+\section{实验要求}
+给定一系列数，依次插入到二叉树中。
+
+\begin{quote}
+\verbatiminput{alys02/input.txt}
+\end{quote}
+
+\section{程序流程图}
+
+二叉查找树\footnote{本节内容来源于我之前的论文\cite{sbt}。}，是一棵空树，或是具有下列性质的二叉树：
+\begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt]
+\item 若它的左子树不空，则左子树上所有结点的值均小于它的根结点的值；
+\item 若它的右子树不空，则右子树上所有结点的值均大于它的根结点的值；
+\item 它的左、右子树也分别为二叉查找树。
+\end{enumerate}
+
+二叉查找树是递归定义的，如图\ref{aBST}是一棵二叉查找树。
+\begin{figure}[htbp]
+\begin{center}
+\pstree[levelsep=0.8cm]{\Tcircle{8}}{
+    \pstree {\Tcircle{3}} {
+        \Tcircle{1}
+        \pstree {\Tcircle{6}} {
+            \Tcircle{4}
+            \Tcircle{7}
+        }
+    }
+    \pstree {\Tcircle{10}} {
+        \TC
+        \pstree {\Tcircle{14}} {
+            \Tcircle{13}
+            \TC
+        }
+    }
+}
+\end{center}
+\caption{\label{aBST}一棵三层的二叉查找树}
+\end{figure}
+
+我们用链表结构来存储二叉查找树，其中每一个节点都是一个对象。有$data$存储其值，$left$和$right$指向其左右儿子。
+
+对于一个已知的二叉查找树，从小到大输出其节点的值，只需对其进行二叉树的中序遍历，即递归地先输出其左子树，再输出其本身，然后输出其右子树。遍历的时间复杂度为$O(n)$。这里，我们给出这一算法的伪代码，参见图\ref{BST-Inorder}。
+
+\begin{figure}[htp]
+\begin{quote}
+\begin{codebox}
+\Procname{\proc{Inorder}($x$)}
+\li \If $x\ne\const{nil}$ \Then
+\li   \proc{Inorder}($x.left$)
+\li   输出 $x.data$
+\li   \proc{Inorder}($x.right$)
+    \End
+\end{codebox}
+\end{quote}
+\caption{\label{BST-Inorder}中序遍历输出}
+\end{figure}
+
+将一个新值$v$插入到树$T$中，基本方法是类似于线性表中的二分查找，不断地在树中缩小范围定位，最终找到一个合适的位置插入。具体方法如下所述：
+\begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,label=\arabic*.]
+\item 从根节点开始插入；
+\item 如果要插入的值小于等于当前节点的值，在当前节点的左子树中插入；
+\item 如果要插入的值大于当前节点的值，在当前节点的右子树中插入；
+\item 如果当前节点为空节点，在此建立新的节点，该节点的值为要插入的值，左右子树为空，插入成功。
+\end{enumerate}
+
+对于相同的元素，一种方法我们规定把它插入左边，另一种方法是我们在节点上再加一个域，记录重复节点的个数。上述方法为前者。插入的时间复杂度仍为$O(h)$。算法的伪代码参见图\ref{BST-Insert}。
+
+\begin{figure}[htbp]
+\begin{center}
+\def\dedge{\ncline[linestyle=dotted]}
+\pstree[levelsep=0.8cm]{\Tdia{12}}{
+    \pstree {\Tcircle{5}} {
+        \Tcircle{2}
+        \Tcircle{9}
+    }
+    \pstree {\Tdia{18}} {
+        \pstree {\Tdia{15}} {
+            \Tdia[edge=\dedge]{13}
+            \Tcircle{17}
+        }
+        \Tcircle{19}
+    }
+}
+\end{center}
+\caption{\label{iBST}将13插入一棵二叉查找树。菱形表示从根节点开始向下到插入位置的路径，虚线为在树中插入该节点而产生的链接。}
+\end{figure}
+
+\begin{figure}[htp]
+\begin{quote}
+\begin{codebox}
+\Procname{\proc{Insert}($T, v$)}
+\li \If $T=\const{nil}$ \Then
+\li   new $T.key = v$ \Comment 新建节点并插入
+\li \ElseIf $v \le T.key$ \Then
+\li   $T.left.p = T$
+\li   \proc{Insert}($T.left, v$)
+\li \Else
+\li   $T.right.p = T$
+\li   \proc{Insert}($T.right, v$)
+    \End
+\end{codebox}
+\end{quote}
+\caption{\label{BST-Insert}二叉查找树的插入}
+\end{figure}
+
+\section{程序代码}
+{\linespread{1}\lstinputlisting{alys02/alys02.cpp}}
+
+\section{实验结果}
+输出文件output.txt：
+\begin{quote}
+\verbatiminput{alys02/output.txt}
+\end{quote}
+
+\section{实验体会}
+该实验题目说是二叉树的插入，其实准确来讲应该是二叉查找树的插入。关于二叉查找树的问题，无数先人已经探索出来了非常平整的道路了。包括随之拓展出来的二叉平衡树，也是充满了数学之美。三年前我也写过这样的论文，当然并没有什么创新价值，所以就没有发表，不过网络上应该是可以搜索到的。关于二叉树的问题我已经研究过很多了，随之产生的思考也是无穷尽的。
+
+至于程序流程图，我还是一如既往地不画了。描述算法的最好办法依然是伪代码，没有人是用复杂的流程图来描述算法的。
+
+程序是C++编写的，也是为了熟悉面向对象的程序设计方法。我对C++也不是很熟悉，调试也欠缺不少，比如如下的编译警告我暂时还没能解决，希望今后能找到解决办法。
+\begin{quote}
+\small
+\begin{verbatim}
+alys02.cpp: In constructor `BSTree<ElemType>::BSTNode::BSTNode(ElemType) [with E
+lemType = int]':
+alys02.cpp:44:   instantiated from `void BSTree<ElemType>::insert_node(BSTree<El
+emType>::BSTNode*&, const ElemType&) [with ElemType = int]'
+alys02.cpp:24:   instantiated from `void BSTree<ElemType>::insert(const ElemType
+&) [with ElemType = int]'
+alys02.cpp:72:   instantiated from here
+alys02.cpp:13: warning: `BSTree<int>::BSTNode::data' will be initialized after
+alys02.cpp:11: warning:   `BSTree<int>::BSTNode*BSTree<int>::BSTNode::left'
+alys02.cpp:15: warning:   when initialized here
+\end{verbatim}
+\end{quote}
+
+
+\begin{thebibliography}{10}
+\bibitem{sbt}由BST到SBT, 田劲锋, 2011
+\end{thebibliography}
+
+\end{document}
