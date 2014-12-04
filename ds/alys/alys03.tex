@@ -1,0 +1,98 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\def\titlee{归并排序}
+\input{source/define}
+\begin{document}
+\input{source/title}\newpage
+
+\section{实验题目}
+归并排序
+\section{实验目的}
+\begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt]
+\item 掌握分治算法
+\item 实现归并排序
+\end{enumerate}
+\section{实验要求}
+使用归并排序算法对一系列数进行排序。
+
+\begin{quote}
+\verbatiminput{alys03/input.txt}
+\end{quote}
+
+\section{程序流程图}
+
+归并排序基于如下分治算法：
+\begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt]
+\item[\bf 分解] 把$n$个数的序列分成两个子序列；
+\item[\bf 解决] 使用归并排序分别排序两个子序列；
+\item[\bf 合并] 合并两个有序序列。
+\end{enumerate}
+
+如图\ref{Merge}是合并两个有序序列的算法。
+
+\begin{figure}[htp]
+\begin{quote}
+\begin{codebox}
+\Procname{\proc{Merge}($A, p, q, r$)}
+\li $n_1 = q - p + 1$
+\li $n_2 = r - q$
+\li 新建数组 $L[1..n_1+1]$ 和 $R[1..n_2+1]$
+\li \For $i = 1$ \To $n_1$ \Do
+\li   $L[i] = A[p + i -1]$
+     \End
+\li \For $j = 1$ \To $n_2$ \Do
+\li   $R[j] = A[q + j]$
+     \End
+\li $L[n_1 + 1] = R[n_2 + 1] = \infty$
+\li $i = j = 1$
+\li \For $k = p$ \To $r$ \Do
+\li   \If $L[i] \le R[j]$ \Then
+\li     $A[k] = L[i]$
+\li     $i++$
+\li   \Else
+\li     $A[k] = R[j]$
+\li     $j++$
+       \End
+     \End
+\end{codebox}
+\end{quote}
+\caption{\label{Merge}合并算法}
+\end{figure}
+
+如图\ref{Merge-Sort}是归并排序的主算法，分别对两个子序列进行划分。
+
+\begin{figure}[htp]
+\begin{quote}
+\begin{codebox}
+\Procname{\proc{Merge-Sort}($A, p, r$)}
+\li \If $p < r$ \Then
+\li   $q = \lfloor (p + r) / 2 \rfloor$
+\li   \proc{Merge-Sort}($A, p, q$)
+\li   \proc{Merge-Sort}($A, q + 1, r$)
+\li   \proc{Merge}($A, p, q, r$)
+    \End
+\end{codebox}
+\end{quote}
+\caption{\label{Merge-Sort}归并排序主算法}
+\end{figure}
+
+归并排序的时间复杂度是 $O(n\lg n)$，由主定理可证。
+
+\section{程序代码}
+{\linespread{1}\lstinputlisting{alys03/alys03.cpp}}
+
+\section{实验结果}
+\begin{quote}
+\verbatiminput{alys03/output.txt}
+\end{quote}
+
+\section{实验体会}
+
+归并排序是《算法导论》\cite{clrs} 中针对分治算法举出来的一个非常典型的例子，并通过详尽的分析应用主定理再次描述了时间复杂度的计算。程序伪代码来自与算法导论，并按其改写成C++程序。虽然使用了C++的vector标准模板类来简化数组操作，但仍需要注意C++中的数组是以0开始的，而非算法中所描述的下标1开始。其他一些细节，比如$\infty$表示为\verb|INT_MAX|，以及数组的引用传参，也需要注意。
+
+分治算法作为一个重要的算法思想，依然发挥着其不可缺失的作用。
+
+\begin{thebibliography}{10}
+\bibitem{clrs}{\it Introduction to Algorithms}, Third Edition, Thomas H. Cormen and Charles E. Leiserson and Ronald L. Rivest and Clifford Stein, 2011
+\end{thebibliography}
+
+\end{document}
