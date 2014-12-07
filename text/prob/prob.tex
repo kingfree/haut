@@ -2,13 +2,14 @@
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{概率论与数理统计}
-\usepackage[a4paper,margin=1.5cm]{geometry} % 页面设置
+\usepackage[a4paper,margin=1cm]{geometry} % 页面设置
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
 pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \usepackage{latexsym,amsmath,amssymb,bm}
 \usepackage[inline]{enumitem} % 调整列表样式
 \usepackage{multicol} % 分栏
+\usepackage{color,xcolor}
 
 ﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体: 宋体、黑体
 \setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体: 仿宋、中宋
@@ -25,8 +26,15 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \newcommand{\D}{\displaystyle}
 \renewcommand{\d}{{\mathrm{d}\:\!}}
 \newcommand{\e}{{\mathrm{e}}}
+
+\renewcommand{\le}{\leqslant}
+\renewcommand{\ge}{\geqslant}
+
+\DeclareMathOperator{\MSE}{MSE}
 \DeclareMathOperator{\Var}{Var}
 \DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\sh}{sh}
+\DeclareMathOperator{\ch}{ch}
 \setlist{noitemsep}
 \setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
 \setlist[enumerate,2]{label={(\arabic*)}}
@@ -40,8 +48,6 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 %\CTEXnoindent
 
 \begin{multicols}{2}
-
-\section{公式和性质}
 
 \subsection{随机事件}
 
@@ -86,7 +92,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \item 已知连续性随机变量$X$的概率密度$f_X(x)$, 求随机变量$Y=g(X)$的概率密度$f_Y(y)$
 \begin{enumerate}
 \item {\bf 积分转化法} $F_Y(y)=P\{g(X)\le y\}$,\\$f_Y(y)=F'_Y(y)$
-\item {\bf 单调函数公式法} 对函数关系$y=g(x)$, 给出反函数$x=h(y)$. \\
+\item {\bf 单调函数公式法} 反函数$x=h(y)$ \\
 $f_Y(y)=\left\{\begin{array}{cl}
 f(h(y))\cdot|h'(y)|, & a< y< b,\\
 0, & \text{其他}
@@ -103,16 +109,16 @@ f(h(y))\cdot|h'(y)|, & a< y< b,\\
 \begin{enumerate}[label={\sf 性质\arabic*}]
 \item $E(X)=p, D(X)=p(1-p)$
 \end{enumerate}
-$\hat{p}=\overline{X}={\sum{X}}/{n}$是$p$的矩估计和极大似然估计
+%$\hat{p}=\bar{X}={\sum{X}}/{n}$是$p$的矩估计和极大似然估计
 
 \item {\bf 二项分布} $X\sim B(n,p)$ 伯努利实验\\
 \fbox{$b(k;n,p)=P\{X=k\}={{n}\choose{k}}p^k(1-p)^{(n-k)}$}
 \begin{enumerate}[label={\sf 性质\arabic*}]
 \item $E(X)=np, D(X)=np(1-p)$
-\item $X$可以表示成$n$个同分布为$B(1,p)$的独立随机变量$X_i$
+\item $X$可表示成$n$个$X_i\sim B(1,p)$的独立随机变量
 \item 若$X_i$相互独立, 且$X_i\sim B(n_i,p)$, \\则$X=\sum_{i=1}^{m}X_i\sim B(n,p)$
 \end{enumerate}
-$\hat{p}={\overline{X}}/{n}={\sum{X}}/{(nN)}$是$p$的矩估计和极大似然估计
+$\hat{p}={\bar{X}}/{n}={\sum{X}}/{(nN)}$是$p$的矩估计和极大似然估计
 
 \item {\bf 泊松分布} $X\sim P(\lambda)$\\
 \fbox{$\D b(k;\lambda)=P\{X=k\}=\frac{\lambda^k}{k!}e^{-\lambda}$}
@@ -122,8 +128,9 @@ $\hat{p}={\overline{X}}/{n}={\sum{X}}/{(nN)}$是$p$的矩估计和极大似然�
 \item 若$X_1, X_2$相互独立, 且$X_i\sim P(\lambda_i)$, 则条件分布$X_i|(X_1+X_2=n)$是二项分布, 且$X_i|(X_1+X_2=n)\sim B(n, \frac{\lambda_i}{\lambda_1+\lambda_2})$
 \end{enumerate}
 某医院每天前来就诊的病人数, 某地区一段时间间隔内发生火灾的次数, 一段时间间隔内容器内部细菌数, 某地一年内发生暴雨的次数, 每条床单上的疵点数.
+\item \colorbox{lightgray}{$P\{X\ge x\}=\sum_{r=x}^{\infty}\frac{\e^{-r}\lambda^r}{r!}$}
 
-\item 二项分布和泊松分布的近似公式: 当$n\to\infty, p\to0$时, $b(k;n,p)\approx b(k;\lambda), \lambda=np$
+\item 当$n\to\infty, p\to0$时, $b(k;n,p)\approx b(k;\lambda), \lambda=np$
 
 \end{enumerate}
 
@@ -158,20 +165,20 @@ $\hat{p}={\overline{X}}/{n}={\sum{X}}/{(nN)}$是$p$的矩估计和极大似然�
 \fbox{$f(x)=\D\frac{1}{\sqrt{2\pi}\sigma}\e^{-\frac{(x-u)^2}{2\sigma^2}}$\\}
 \begin{enumerate}
 \item 标准正态分布: $X\sim N(0,1)$
-\item 概率密度: $\D\varphi(x)\frac{1}{\sqrt{2\pi}}\e^{-\frac{x^2}{2}}$
-\item 分布函数: $\D\varPhi(x)=\int_{-\infty}^{x}\frac{1}{\sqrt{2\pi}}\e^{-\frac{u^2}{2}}\d u$
+\item 概率密度: $\varphi(x)\frac{1}{\sqrt{2\pi}}\e^{-\frac{x^2}{2}}$
+\item 分布函数: \colorbox{lightgray}{$\varPhi(x)=\int_{-\infty}^{x}\frac{1}{\sqrt{2\pi}}\e^{-\frac{u^2}{2}}\d u$}
 \item $\varPhi(-x)=1-\varPhi(x)$
-\item 标准正态分布上的$\alpha$分位点, $\varPhi(Z_\alpha)=1-\alpha$, \\$\D P\{X>Z_\alpha\}=\int_{Z_\alpha}^{+\infty}\varphi(x)\d x=\alpha$
+\item 标准正态分布上的$\alpha$分位点, $\varPhi(Z_\alpha)=1-\alpha$, \\$P\{X>Z_\alpha\}=\int_{Z_\alpha}^{+\infty}\varphi(x)\d x=\alpha$
 \end{enumerate}
 \begin{enumerate}[label={\sf 性质\arabic*}]
 \item $E(X)=\mu, D(X)=\sigma^2$
-\item $\D \sum_{i=1}^{n}c_iX_i+d\sim N\left(\sum_{i=1}^{n}c_i\mu_i+d,\sum_{i=1}^{n}c_i^2\sigma_i^2\right)$
-\item 若$X\sim N(\mu,\sigma^2)$, 则$Y=\D\frac{X-\mu}{\sigma}\sim N(0,1)$；\\
+\item $\sum_{i=1}^{n}c_iX_i+d\sim N\left(\sum_{i=1}^{n}c_i\mu_i+d,\sum_{i=1}^{n}c_i^2\sigma_i^2\right)$
+\item 若$X\sim N(\mu,\sigma^2)$, 则$Y=\frac{X-\mu}{\sigma}\sim N(0,1)$；\\
 若$X\sim N(0,1)$, 则$Y=\sigma X+\mu\sim N(\mu,\sigma^2)$
-\item $\overline{X}=\D\frac{\sum_{i=1}^{n}X_i}{n}\sim N(\mu, \D\frac{\sigma^2}{n})$
-\item $\D P\{a<X<b\}=\varPhi\Big(\frac{b-\mu}{\sigma}\Big)-\varPhi\Big(\frac{a-\mu}{\sigma}\Big)$\\
-$\D P\{X<b\}=\varPhi\Big(\frac{b-\mu}{\sigma}\Big)$\\
-$\D P\{X>a\}=1-\varPhi\Big(\frac{a-\mu}{\sigma}\Big)$
+\item $\bar{X}=\frac{\sum_{i=1}^{n}X_i}{n}\sim N(\mu, \frac{\sigma^2}{n})$
+\item $P\{a<X<b\}=\varPhi (\frac{b-\mu}{\sigma} )-\varPhi (\frac{a-\mu}{\sigma} )$\\
+$P\{X<b\}=\varPhi (\frac{b-\mu}{\sigma} )$\\
+$P\{X>a\}=1-\varPhi (\frac{a-\mu}{\sigma} )$
 %\item 若$U_1, U_2 \sim U(0,1)$且相互独立, 令\\$X_1=\sqrt{-2\pi\ln U_1}\sin(2\pi U_2)$, \\$X_2=\sqrt{-2\pi\ln U_1}\cos(2\pi U_2)$, \\则$X_1, X_2 \sim N(0,1)$, 且相互独立
 \end{enumerate}
 某地区成年男性的身高, 某零件长度的测量误差, 半导体器件中的热噪声电流.
@@ -300,35 +307,38 @@ $\begin{array}{l}
 \subsection{样本与统计量}
 
 \begin{enumerate}
-\item {\bf 样本均值} $\overline{X}=\frac{1}{n}\sum_{i=1}^{n}X_i$ 是$\mu$的估计
-\item {\bf 样本方差} $S^2=\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\overline{X})^2$ 是$\sigma^2$的估计
-\item 样本标准差 $S=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\overline{X})^2}$
+\item {\bf 样本均值} $\bar{X}=\frac{1}{n}\sum_{i=1}^{n}X_i$ 是$\mu$的估计
+\item {\bf 样本方差} $S^2=\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\bar{X})^2$ 是$\sigma^2$的估计
+\item 样本标准差 $S=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\bar{X})^2}$
 \item {\bf 样本原点矩} $A_k=\frac{1}{n}\sum_{i=1}^{n}X_i^k$
-\item {\bf 样本中心矩} $M_k=\frac{1}{n}\sum_{i=1}^{n}(X_i-\overline{X})^k$
-\item 样本均值的{\bf 大样本分布}: $\D\overline{X}\sim N(\mu,\frac{\sigma^2}{n})$.\\
+\item {\bf 样本中心矩} $M_k=\frac{1}{n}\sum_{i=1}^{n}(X_i-\bar{X})^k$
+\item 样本均值的{\bf 大样本分布}: $\D\bar{X}\sim N(\mu,\frac{\sigma^2}{n})$.\\
 $\D F(x)\approx\varPhi\Big(\frac{x-\mu}{\sigma/\sqrt{n}}\Big)$,\\
-$\D P\{|\overline{X}-\mu|\le c\}\approx 2\varPhi\Big(\frac{c}{\sigma/\sqrt{n}}\Big)-1$
+$\D P\{|\bar{X}-\mu|\le c\}\approx 2\varPhi\Big(\frac{c}{\sigma/\sqrt{n}}\Big)-1$
 
 \end{enumerate}
 
 \subsubsection*{正态总体的抽样分布}
 
 \begin{enumerate}
+
+\item $\D\Gamma\Big(\frac{n}{2}\Big)=\left\{\begin{array}{cl}
+(\frac{n}{2}-1)(\frac{n}{2}-2)\cdots3\cdot2\cdot1, & \text{$n$为偶数},\\
+(\frac{n}{2}-1)(\frac{n}{2}-2)\cdots\frac{3}{2}\cdot\frac{1}{2}\sqrt{\pi}, & \text{$n$为奇数}.
+\end{array}\right.$
+
 \item {\bf $\chi^2$分布} $X\sim \chi^2_n$\\
 $X_i$独立同分布于$N(0,1)$, $X=\sum_{i=1}^{n}X_i^2$\\
 \fbox{$f(x)=\left\{\begin{array}{cl}
 \D\frac{1}{2^{\frac{n}{2}}\Gamma(\frac{n}{2})}x^{\frac{n}{2}-1}\e^{-\frac{x}{2}}, & x > 0,\\
 0, & x \le 0.
-\end{array}\right.$}\\
-$\D\Gamma\Big(\frac{n}{2}\Big)=\left\{\begin{array}{cl}
-(\frac{n}{2}-1)(\frac{n}{2}-2)\cdots3\cdot2\cdot1, & \text{若$n$为偶数},\\
-(\frac{n}{2}-1)(\frac{n}{2}-2)\cdots\frac{3}{2}\cdot\frac{1}{2}\sqrt{\pi}, & \text{若$n$为奇数}.
-\end{array}\right.$
+\end{array}\right.$}
 \begin{enumerate}[label={\sf 性质\arabic*}]
 \item $E(X^k)=2^k\frac{\Gamma(\frac{n}{2}+k)}{\Gamma(\frac{n}{2})}$,\\ $E(X)=n, D(X)=2n$
 \item 若$X_i\sim\chi_{n_i}^2$独立同分布, 则$\sum_{i=1}^{m}X_i\sim\chi_n^2$, \\其中$n=\sum_{i=1}^{m}n_i$
 \end{enumerate}
-\item $\chi_n^2(\alpha)$为$\chi_n^2$分布上的$\alpha$分位点:\\$P\{\chi_n^2>\chi_n^2(\alpha)\}=\int_{\chi_n^2(\alpha)}^{+\infty}f(x)\d x=\alpha$
+\item $\chi_n^2(\alpha)$为$\chi_n^2$分布上的$\alpha$分位点:\\
+\colorbox{lightgray}{$P\{\chi_n^2>\chi_n^2(\alpha)\}=\int_{\chi_n^2(\alpha)}^{+\infty}f(x)\d x=\alpha$}
 
 \item {\bf $t$分布} $T\sim t_n$ 学生分布\\
 $X\sim N(0,1), Y\sim\chi_n^2, T=\D\frac{X}{\sqrt{Y/n}}$\\
@@ -338,7 +348,8 @@ $X\sim N(0,1), Y\sim\chi_n^2, T=\D\frac{X}{\sqrt{Y/n}}$\\
 \item $Y=\D\frac{F_2-F_1}{2\sqrt{F_1F_2/n}}\sim t_n$
 \item $\D\frac{\overline{F}-\mu}{S/\sqrt{n}}\sim t_{n-1}$
 \end{enumerate}
-\item $t_n(\alpha)$为$t_n$分布上的$\alpha$分位点:\\$P\{T>t_n(\alpha)\}=\int_{t_n(\alpha)}^{+\infty}f(x)\d x=\alpha$
+\item $t_n(\alpha)$为$t_n$分布上的$\alpha$分位点:\\
+\colorbox{lightgray}{$P\{T>t_n(\alpha)\}=\int_{t_n(\alpha)}^{+\infty}f(x)\d x=\alpha$}
 
 \item {\bf $F$分布} $F\sim F_{m,n}$\\
 $X\sim\chi_m^2, Y\sim\chi_n^2, F=\D\frac{X/m}{Y/n}$\\
@@ -355,14 +366,15 @@ x^{\frac{m}{2}-1}
 \item $1/F\sim F_{m,n}$
 \item 若$X\sim t_n$, 则$X^2\sim F_{1,n}$
 \end{enumerate}
-\item $F_{m,n}(\alpha)$为$F_{m,n}$分布上的$\alpha$分位点:\\$P\{F>F_{m,n}(\alpha)\}=\int_{F_{m,n}(\alpha)}^{+\infty}f(x)\d x=\alpha$
+\item $F_{m,n}(\alpha)$为$F_{m,n}$分布上的$\alpha$分位点:\\
+\colorbox{lightgray}{$P\{F>F_{m,n}(\alpha)\}=\int_{F_{m,n}(\alpha)}^{+\infty}f(x)\d x=\alpha$}
 
 \item (基本定理) 样本$X_i$来自正态总体$N(\mu,\sigma^2)$
 \begin{enumerate}
-\item $\D \overline{X}\sim N\Big(\mu,\frac{\sigma^2}{n}\Big)$
-\item $\D \frac{(n-1)S^2}{\sigma^2}\sim\chi_{n-1}^2$
-\item $\overline{X}$与$S^2$相互独立
-\item $\D \frac{\overline{X}-\mu}{S/\sqrt{n}}\sim t_{n-1}$
+\item $\bar{X}\sim N (\mu,{\sigma^2}/{n} )$
+\item ${(n-1)S^2}/{\sigma^2}\sim\chi_{n-1}^2$
+\item $\bar{X}$与$S^2$相互独立
+\item $\D\frac{\bar{X}-\mu}{S/\sqrt{n}}\sim t_{n-1}$
 \end{enumerate}
 
 \end{enumerate}
@@ -370,35 +382,210 @@ x^{\frac{m}{2}-1}
 \subsection{参数估计}
 
 \begin{enumerate}
-\item 
+\item 矩估计: $\alpha_m=E(X^m), A_m=\sum X_i^m, \alpha_m(\theta_i)=A_m$
+\begin{enumerate}
+\item 正态分布: $\hat\mu=\bar{X}, \hat\sigma^2=\frac{1}{n}\sum_{i=1}^n(X_i-\bar{X})^2$
+\item 均匀分布: $\hat a=\bar{X}-\sqrt{3}\hat\sigma, \hat b=\bar{X}+\sqrt{3}\hat\sigma$
+\end{enumerate}
+\item 极大似然估计: $\ln L(\theta)=\sum \ln f(x_i; \theta_j), \frac{\partial\ln L(\theta)}{\partial\theta_i}=0$
+\begin{enumerate}
+\item 正态分布: $\mu^*=\bar{X}, \sigma^{2*}=\frac{1}{n}\sum_{i=1}^n(X_i-\bar{X})^2$
+\item 泊松分布: $\lambda^*=\bar{X}$
+\item 均匀分布: $a^*=\min\{X_i\}, b^*=\max\{X_i\}$
+\end{enumerate}
+\item 无偏估计: $E[\hat\theta(X_i)]=\theta$
+\begin{enumerate}
+\item $E(\bar{X})=\mu$
+\item $E(S^2)=\sigma^2$
+\item $S$不是$\sigma$的无偏估计
+\end{enumerate}
+\item 均方误差: $\MSE(\hat\theta)=E[(\hat\theta-\theta)^2]=D(\hat\theta)+[E(\hat\theta)-\theta]^2$
+\begin{enumerate}
+\item 无偏估计: $\MSE(\hat\theta)=D(\hat\theta)$
+\item 两个估计中哪个方差小, 哪个优
+\end{enumerate}
+\item $P\{\theta\in[\hat\theta_1,\hat\theta_2]\}\ge1-\alpha$\\
+置信区间 $[\hat\theta_1,\hat\theta_2]$, 置信系数 $1-\alpha$
+\item $X_i\sim N(\mu,\sigma^2)$, 置信系数为$1-\alpha$
+\begin{enumerate}
+\item $\mu$的置信区间: $[\bar{X}-\frac{\sigma}{\sqrt{n}}Z_{\frac{\alpha}{2}},\bar{X}+\frac{\sigma}{\sqrt{n}}Z_{\frac{\alpha}{2}}]$\\
+$\sigma^2$未知时: $[\bar{X}-\frac{S}{\sqrt{n}}t_{n-1}(\frac{\alpha}{2}),\bar{X}+\frac{S}{\sqrt{n}}t_{n-1}(\frac{\alpha}{2})]$
+\item $\sigma^2$的置信区间: $[\frac{(n-1)S^2}{\chi_{n-1}^2(\frac{\alpha}{2})},\frac{(n-1)S^2}{\chi_{n-1}^2(1-\frac{\alpha}{2})}]$
+\end{enumerate}
+\item $X_i\sim N(\mu_1,\sigma_1^2), Y_i\sim N(\mu_2,\sigma_2^2)$互相独立
+\begin{enumerate}
+\item $\bar{X}-\bar{Y}\sim N(\mu_1-\mu_2,\sigma_1^2/m+\sigma_2^2/n)$,\\
+或$\frac{(\bar{X}-\bar{Y})-(\mu_1-\mu_2)}{\sqrt{\sigma_1^2/m+\sigma_2^2/n}}\sim N(0,1)$
+\item $\frac{(\bar{X}-\bar{Y})-(\mu_1-\mu_2)}{S\sqrt{1/m+1/n}}\sim t_{m+n-2}$,\\
+其中$S^2=\frac{(m-1)S_1^2+(n-1)S_2^2}{m+n-2}$
+\item $\mu_1-\mu_2$的置信区间: $[\bar{X}-\bar{Y}\pm Z_{\frac{\alpha}{2}}\sqrt{\frac{\sigma_1^2}{\sqrt{m}}+\frac{\sigma_2^2}{\sqrt{n}}}]$\\
+$\sigma_1^2=\sigma_2^2=\sigma^2$: $[\bar{X}-\bar{Y}\pm t_{m+n-2}{(\frac{\alpha}{2})}S\sqrt{\frac{1}{\sqrt{m}}+\frac{1}{\sqrt{n}}}]$
+\end{enumerate}
+\item 大样本参数$\mu$的置信区间: $[\bar{X}\pm\frac{\sigma}{\sqrt{n}}Z_{\frac{\alpha}{2}}]$
+\item 二项分布参数$p$的置信区间: $[\hat{p}\pm Z_{\frac{\alpha}{2}}\sqrt{\hat{p}(1-\hat{p})/n}]$,\\
+其中$\hat{p}=Y_n/n=\sum_{i=1}^n X_i/n$
+\item 泊松分布参数$\lambda$的置信区间: $[\bar{X}\pm Z_{\frac{\alpha}{2}}\sqrt{\bar{X}/n}]$
 \end{enumerate}
 
 \subsection{假设检验}
 
 \begin{enumerate}
-\item 
+\item 检验$H_0$有可能犯的两类错误
+\begin{enumerate}
+\item 第一类错误 “弃真”错误: $H_0$正确但是被拒绝了
+\item 第二类错误 “采伪”错误: $H_0$错误但是被接受了
+\end{enumerate}
+\item 检验的显著性水平: $P\{\text{犯第一类错误}\}\le\alpha\in(0,1)$
 \end{enumerate}
 
-\subsection{回归分析与方差分析}
+\subsubsection{正态总体均值的检验}
 
 \begin{enumerate}
-\item 
+
+\item 单个正态总体$N(\mu,\sigma^2)$均值$\mu$的检验
+\begin{enumerate}
+\item $H_0:\mu=\mu_0\leftrightarrow H_1:\mu\neq\mu_0$
+\begin{enumerate}
+\item 拒绝域: $|\bar{X}-\mu_0|\ge\frac{\sigma}{\sqrt{n}}Z_{\frac{\alpha}{2}}$
+\item 拒绝域: $|\bar{X}-\mu_0|\ge\frac{S}{\sqrt{n}}t_{n-1}{(\frac{\alpha}{2})}$
+\end{enumerate}
+\item $H_0:\mu=\mu_0\leftrightarrow H_1:\mu>\mu_0$
+\begin{enumerate}
+\item 拒绝域: $\bar{X}-\mu_0\ge\frac{S}{\sqrt{n}}t_{n-1}{(\alpha)}$
+\end{enumerate}
 \end{enumerate}
 
-\section{重要分布表}
+\item 两个正态总体$N(\mu_1,\sigma_1^2)$和$N(\mu_2,\sigma_2^2)$均值的比较
+\begin{enumerate}
+\item $H_0:\mu_1=\mu_2\leftrightarrow H_1:\mu_1\neq\mu_2$
+\begin{enumerate}
+\item 拒绝域: $|\bar{X}-\bar{Y}|\ge Z_{\frac{\alpha}{2}}\sqrt{\sigma_1^2/m+\sigma_2^2/n}$
+\item 拒绝域: $|\bar{X}-\bar{Y}|\ge t_{m+n-2}{(\frac{\alpha}{2})}\sqrt{\frac{m+n}{mn}}S$
+\end{enumerate}
+\item $H'_0:\mu_1-\mu_2\ge0\leftrightarrow H'_1:\mu_1-\mu_2<0$
+\begin{enumerate}
+\item 拒绝域: $\bar{X}-\bar{Y}\le -t_{m+n-2}{(\alpha)}\sqrt{\frac{m+n}{mn}}S$
+\end{enumerate}
+\item $H''_0:\mu_1-\mu_2\le0\leftrightarrow H''_1:\mu_1-\mu_2>0$
+\begin{enumerate}
+\item 拒绝域: $\bar{X}-\bar{Y}\ge t_{m+n-2}{(\alpha)}\sqrt{\frac{m+n}{mn}}S$
+\end{enumerate}
+\end{enumerate}
+
+\item 成对数据的$t$检验
+\begin{enumerate}
+\item $H_0:\mu=0\leftrightarrow H_1:\mu\neq0$, $d_i=X_i-Y_i$
+\begin{enumerate}
+\item 拒绝域: $|\bar{d}|\ge t_{n-1}{(\frac{\alpha}{2})} \frac{S_d}{\sqrt{n}}$
+\end{enumerate}
+\end{enumerate}
+
+\end{enumerate}
+
+\subsubsection{正态总体方差的检验}
 
 \begin{enumerate}
-\item 泊松分布
-$$P\{X\ge x\}=\sum_{r=x}^{\infty}\frac{\e^{-r}\lambda^r}{r!}$$
-\item 标准正态分布
-$$\varPhi(x)=\int_{-\infty}^{x}\frac{1}{\sqrt{2\pi}}\e^{-\frac{u^2}{2}}\d u$$
-\item $t$ 分布
-\item $\chi^2$ 分布
-\item $F$ 分布
+
+\item 单个正态总体方差的$\chi^2$检验
+\begin{enumerate}
+\item $H_0:\sigma^2=\sigma^2_0\leftrightarrow H_1:\sigma^2\neq\sigma^2_0$
+\begin{enumerate}
+\item 拒绝域: $(n-1)S^2/\sigma^2_0\le\chi^2_{n-1}(1-\frac{\alpha}{2})$
+\item 拒绝域: $(n-1)S^2/\sigma^2_0\ge\chi^2_{n-1}(\frac{\alpha}{2})$
+\end{enumerate}
+\item $H_0:\sigma^2\le\sigma^2_0\leftrightarrow H_1:\sigma^2>\sigma^2_0$
+\begin{enumerate}
+\item 拒绝域: $(n-1)S^2/\sigma^2_0\ge\chi^2_{n-1}(\alpha)$
+\end{enumerate}
+\end{enumerate}
+
+\item 两个正态总体方差比的$F$检验
+\begin{enumerate}
+\item $H_0:\sigma^2_1=\sigma^2_2\leftrightarrow H_1:\sigma^2_1\neq\sigma^2_2$
+\begin{enumerate}
+\item 拒绝域: $S^2_1/S^2_2\le F_{m-1,n-1}(1-\frac{\alpha}{2})$
+\item 拒绝域: $S^2_1/S^2_2\ge F_{m-1,n-1}(\frac{\alpha}{2})$
+\end{enumerate}
+\item $H'_0:\sigma^2_1\le\sigma^2_2\leftrightarrow H'_1:\sigma^2_1>\sigma^2_2$
+\begin{enumerate}
+\item 拒绝域: $S^2_1/S^2_2\ge F_{m-1,n-1}(\alpha)$
+\end{enumerate}
+\end{enumerate}
 
 \end{enumerate}
 
-\section{常用结论}
+\subsubsection{拟合优度检验}
+
+\begin{enumerate}
+\item $H_0:$样本$X_i$的总体分布为$F(x)$
+\begin{enumerate}
+\item 把$(-\infty,+\infty)$分割为$k$个区间:\\$I_1=(a_0,a_1], \cdots, I_k=(a_{k-1},a_k)$
+\item 计算每个区间的实际频数$f_i$
+\item 计算理论频数$p_i(\theta)=F(a_i,\theta)-F(a_{i-1},\theta)$
+\item 计算偏差平方和$\chi^2=\sum_{i=1}^k\frac{[f_i-np_i(\theta^*)]^2}{np_i(\theta^*)}$
+\item 假设$H_0$的水平$\alpha$的检验拒绝域为$\chi^2\ge\chi^2_{k-r-1}(\alpha)$
+\end{enumerate}
+\end{enumerate}
+
+\subsubsection{独立性检验}
+
+\begin{enumerate}
+\item $H_0:p_{ij}=p_{i\cdot}p_{\cdot j}$
+\begin{enumerate}
+\item 拒绝域: $\chi^2\ge\chi^2_{(a-1)(b-1)}(\alpha)$,\\
+其中$\chi^2=\sum_{i=1}^a\sum_{j=1}^b\frac{(nn_{ij}-n_{i\cdot}n_{\cdot j})^2}{n_{ij}n_{i\cdot}n_{\cdot j}}$
+\end{enumerate}
+\end{enumerate}
+
+
+\subsection{回归分析}
+
+\begin{enumerate}
+
+\item 一元线性回归模型 $y_i=\beta_0+\beta_1x_i+e_i$
+\begin{enumerate}[label={\sf 性质\arabic*}]
+\item $E(\hat\beta_0)=\beta_0,E(\hat\beta_1)=\beta_1$为无偏估计
+\item 假设$e_i\sim N(0,\sigma^2)$, $S_{xx}=\sum(x_i-\bar x)^2$,则\\
+$\hat\beta_0\sim N(\beta_0,(1/n+\bar x^2/S_{xx})\sigma^2)$,\\
+$\hat\beta_1\sim N(\beta_1,\sigma^2/S_{xx})$.
+\end{enumerate}
+\item 高斯-马尔可夫假设: $E(e_i)=0$,\\$D(e_i)=\sigma^2, \Cov(e_i,e_j)=0$
+\item 最小二乘估计$\begin{array}{l}
+\hat\beta_0=\bar{y}-\hat\beta_1\bar{x},\\
+\hat\beta_1=\frac{\sum(x_i-\bar x)(y_i-\bar y)}{\sum(x_i-\bar x)^2}
+\end{array}$
+\item 经验回归直线方程 $\hat{Y}=\hat\beta_0+\hat\beta_1X=\bar{y}+\hat\beta_1(X-\bar{x})$
+\item 残差 $\hat e_i=y_i-(\hat\beta_0+\hat\beta_1x_i)$
+\item $\hat\sigma^2=\sum\hat e^2_i/(n-2)$
+\begin{enumerate}
+\item $\hat\sigma^2$是$\sigma^2$的无偏估计
+\item $(n-2)\hat\sigma^2/\sigma^2\sim\chi^2_{n-2}$,且$\hat\sigma^2$与$\hat\beta_0,\hat\beta_1$相互独立
+\end{enumerate}
+
+\item 回归方程的显著性检验
+\begin{enumerate}
+\item $H_0:\beta_1=0\leftrightarrow H_1:\beta_1\neq0$
+\begin{enumerate}
+\item 拒绝域: $|T|=\big|\frac{\hat\beta_1^2}{\hat\sigma/\sqrt{S_{xx}}}\big|\ge t_{n-2}(\frac{\alpha}{2})$
+\item 拒绝域: $F=\frac{\hat\beta_1^2}{\hat\sigma^2/{S_{xx}}}\ge F_{1,n-2}$
+\end{enumerate}
+\end{enumerate}
+
+\item 判定系数/确定系数 $R^2=\frac{\sum(\hat y_i-\bar y)^2}{\sum(y_i-\bar y)^2}$
+\begin{enumerate}
+\item 回归平方和 $SS_{\text{回}}=\sum(\hat y_i-\bar y)^2$
+\item 总平方和 $SS_{\text{总}}=\sum(y_i-\bar y)^2$
+\item 误差平方和 $SS_{\text{误}}=\sum\hat e^2_i=SS_{\text{回}}-SS_{\text{总}}$
+\end{enumerate}
+
+\item 回归参数的区间估计
+$\hat\sigma_{\hat\beta_0}=\sqrt{\frac{1}{n}+\frac{\bar x^2}{S_{xx}}}\hat\sigma$,
+$\hat\sigma_{\hat\beta_1}=\frac{\hat\sigma}{\sqrt{S_{xx}}}$.\\
+$\beta_i$的置信区间: $[\hat\beta_i\pm t_{n-2}(\frac{\alpha}{2})\hat\sigma_{\hat\beta_i}]$
+
+\end{enumerate}
+
+\subsection*{常用结论}
 
 \begin{enumerate}
 \item 人群中有相同生日: $\D P(A)=\frac{A_N^n}{N^n}$
@@ -407,8 +594,146 @@ $$\varPhi(x)=\int_{-\infty}^{x}\frac{1}{\sqrt{2\pi}}\e^{-\frac{u^2}{2}}\d u$$
 
 \item 将$n$个球放入$M$个盒子，有球的盒子数\\$E(X)=M\left[1-(1-1/M)^n\right]$
 
+\item {\bf 基本积分表}
+\begin{enumerate}
+\item $\int k\d x=kx+C$
+\item $\int x^\mu\d x=\frac{x^{\mu+1}}{\mu+1}+C$
+\item $\int \frac{\d x}{x}=\ln |x|+C$
+\item $\int \frac{\d x}{1+x^2}=\arctan x+C$
+\item $\int \frac{\d x}{\sqrt{1-x^2}}=\arcsin x+C$
+\item $\int\cos x\d x=\sin x+C$
+\item $\int\sin x\d x=-\cos x+C$
+%\item $\int \frac{\d x}{\cos^2 x}=\int\sec^2 x\d x=\tan x+C$
+%\item $\int \frac{\d x}{\sin^2 x}=\int\csc^2 x\d x=-\cot x+C$
+%\item $\int\sec x\tan x\d x=\sec x+C$
+%\item $\int\csc x\cot x\d x=-\csc x+C$
+\item $\int\e^x\d x=\e^x+C$
+\item $\int a^x\d x=\frac{a^x}{\ln a}+C$
+%\item $\int\sh x\d x=\ch+C$
+%\item $\int\ch x\d x=\sh+C$
+%\item $\int\tan x\d x=-\ln|\cos x|+C$
+%\item $\int\cot x\d x=\ln|\sin x|+C$
+%\item $\int\sec x\d x=\ln|\sec x+\tan x|+C$
+%\item $\int\csc x\d x=\ln|\csc x-\cot x|+C$
+\iffalse
+\item $\int\frac{\d x}{x^2+a^2}=\frac{1}{a}\arctan\frac{x}{a}+C$
+\item $\int\frac{\d x}{x^2-a^2}=\frac{1}{2a}\ln|\frac{x-a}{x+a}|+C$
+\item $\int\frac{\d x}{\sqrt{a^2-x^2}}=\arcsin\frac{x}{a}+C$
+\item $\int\frac{\d x}{\sqrt{x^2+a^2}}=\ln(x+\sqrt{x^2+a^2})+C$
+\item $\int\frac{\d x}{\sqrt{x^2-a^2}}=\ln|x+\sqrt{x^2-a^2}|+C$
+\fi
+\end{enumerate}
+
+\item 积分换元法\\
+$\int f[\varphi(x)]\varphi'(x)\d x=[\int f(u)\d u]_{u=\varphi(x)}$\\
+$\int f(x)\d x=[f[\psi(t)]\psi'(t)\d t]_{t=\psi^{-1}(x)}$
+
+\item 二重积分的计算\\
+$\iint_D f(x,y)\d\sigma=\int_a^b\d x\int_{\varphi_1(x)}^{\varphi_2(x)}f(x,y)\d y$\\
+$\iint_D f(x,y)\d\sigma=\int_c^d\d y\int_{\psi_1(y)}^{\psi_2(y)}f(x,y)\d x$
+
 \end{enumerate}
 
 \end{multicols}
+
+\newpage
+
+% 离散数学
+
+\begin{multicols}{2}
+
+\begin{enumerate}
+
+\item 逻辑表达式
+\begin{enumerate}
+\item[0] $0000_2$ $\bm F$, 永假
+\item[1] $0001_2$ $A\wedge B$, 合取; $A\& B$, 与; $A\cdot B$; $AB$
+\item[2] $0010_2$ $A\stackrel{c}{\to} B$, 逆条件; $A\wedge\neg B$
+\item[\bf 3] $0011_2$ $A$
+\item[4] $0100_2$ $B\stackrel{c}{\to} A$, 逆条件; $\neg A\wedge B$
+\item[\bf 5] $0101_2$ $B$
+\item[6] $0110_2$ $A\bar\vee B$, 不可兼或取; $A\oplus B$, 异或
+\item[7] $0111_2$ $A\vee B$, 析取; $A|B$, 或; $A+B$
+\item[8] $1000_2$ $A\downarrow B$, 或非; $\neg(A\vee B)$
+\item[9] $1001_2$ $A\leftrightarrow B$, $A\leftrightarrows B$, 双条件; $A\odot B$, 同或; iff %$A=B$; 
+\item[10] $1010_2$ $\neg B$, 非
+\item[11] $1011_2$ $B\to A$, 条件; $A\vee\neg B$
+\item[12] $1100_2$ $\neg A$, 非
+\item[13] $1101_2$ $A\to B$, 条件; $\neg A\vee B$
+\item[14] $1110_2$ $A\uparrow B$, 与非; $\neg(A\wedge B)$
+\item[15] $1111_2$ $\bm T$, 永真
+\end{enumerate}
+
+\item 证明方法
+\begin{enumerate}
+\item[$P$规则] 前提引入: $P$
+\item[$T$规则] 结论引用: $T(i)E, T(i)I$
+\item[$CP$规则] 由$(S\wedge R) \Rightarrow C$, 证$S \Rightarrow (R\to C)$: $CP$
+\end{enumerate}
+
+\item 常用蕴含式
+\begin{enumerate}[label={$I_{\arabic*}$}]
+\item $P\wedge Q \Rightarrow P$
+\item $P\wedge Q \Rightarrow Q$
+\item $P \Rightarrow P\vee Q$
+\item $Q \Rightarrow P\vee Q$
+\item $\neg P \Rightarrow P\to Q$
+\item $Q \Rightarrow P\to Q$
+\item $\neg(P\to Q) \Rightarrow P$
+\item $\neg(P\to Q) \Rightarrow \neg Q$
+\item $P, Q \Rightarrow P\wedge Q$
+\item $\neg P, P\vee Q \Rightarrow Q$
+\item $P, P\to Q \Rightarrow Q$
+\item $\neg Q, P\to Q \Rightarrow \neg P$
+\item $P\to Q, Q\to R \Rightarrow P\to R$
+\item $P\vee Q, P\to R, Q\to R \Rightarrow R$
+\item $A\to B \Rightarrow (A\vee C)\to(B\vee C)$
+\item $A\to B \Rightarrow (A\wedge C)\to(B\wedge C)$
+\item $(\forall x)A(x)\vee(\forall x)B(x) \Rightarrow (\forall x)(A(x)\vee B(x))$
+\item $(\exists x)(A(x)\wedge B(x)) \Rightarrow (\exists x)A(x)\wedge(\exists x)B(x)$
+\item $(\exists x)A(x)\to (\forall x)B(x) \Rightarrow (\forall x)(A(x)\to B(x))$
+\end{enumerate}
+
+\item 常用等价式
+\begin{enumerate}[label={$E_{\arabic*}$}]
+\item (对合律) $\neg\neg P \Leftrightarrow P$
+\item (交换律) $P\wedge Q \Leftrightarrow Q\wedge P$
+\item (交换律) $P\vee Q \Leftrightarrow Q\vee P$
+\item (结合律) $(P\wedge Q)\wedge R \Leftrightarrow P\wedge(Q\wedge R)$
+\item (结合律) $(P\vee Q)\vee R \Leftrightarrow P\vee(Q\vee R)$
+\item (分配律) $P\wedge(Q\vee R) \Leftrightarrow (P\wedge Q)\vee(P\wedge R)$
+\item (分配律) $P\vee(Q\wedge R) \Leftrightarrow (P\vee Q)\wedge(P\vee R)$
+\item (德摩根律) $\neg(P\wedge Q) \Leftrightarrow \neg P\vee \neg Q$
+\item (德摩根律) $\neg(P\vee Q) \Leftrightarrow \neg P\wedge \neg Q$
+\item (幂等律) $P\vee P \Leftrightarrow P$
+\item (幂等律) $P\wedge P \Leftrightarrow P$
+\item (同一律) $R\vee(P\wedge \neg P) \Leftrightarrow R$
+\item (同一律) $R\wedge(P\vee \neg P) \Leftrightarrow R$
+\item (零律) $R\vee(P\vee \neg P) \Leftrightarrow \bm T$
+\item (零律) $R\wedge(P\wedge \neg P) \Leftrightarrow \bm F$
+\item (消去$\to$) $P\to Q \Leftrightarrow \neg P\wedge Q$
+\item (消去$\to$) $\neg(P\to Q) \Leftrightarrow P\wedge\neg Q$
+\item $P\to Q \Leftrightarrow \neg Q\to\neg P$
+\item $P\to (Q\to R) \Leftrightarrow (P\wedge Q)\to R$
+\item $P\leftrightarrow Q \Leftrightarrow (P\to Q)\wedge(Q\to P)$
+\item $P\leftrightarrow Q \Leftrightarrow (P\wedge Q)\wedge(\neg P\wedge \neg Q)$
+\item $\neg(P\leftrightarrow Q) \Leftrightarrow P\leftrightarrow\neg Q$
+\item $(\exists x)(A(x)\vee B(x)) \Leftrightarrow (\exists x)A(x)\vee(\exists x)B(x)$
+\item $(\forall x)(A(x)\wedge B(x)) \Leftrightarrow (\forall x)A(x)\wedge(\forall x)B(x)$
+\item $\neg(\exists x)A(x) \Leftrightarrow (\forall x)\neg A(x)$
+\item $\neg(\forall x)A(x) \Leftrightarrow (\exists x)\neg A(x)$
+\item $(\forall x)(A\vee B(x)) \Leftrightarrow A\vee(\forall x)B(x)$
+\item $(\exists x)(A\wedge B(x)) \Leftrightarrow A\wedge(\exists x)B(x)$
+\item $(\exists x)(A(x)\to B(x)) \Leftrightarrow (\forall x)A(x)\to(\exists x)B(x)$
+\item $(\forall x)A(x)\to B \Leftrightarrow (\exists x)(A(x)\to B)$
+\item $(\exists x)A(x)\to B \Leftrightarrow (\forall x)(A(x)\to B)$
+\item $A\to(\forall x)B(x) \Leftrightarrow (\forall x)(A\to B(x))$
+\item $A\to(\exists x)B(x) \Leftrightarrow (\exists x)(A\to B(x))$
+\end{enumerate}
+
+\end{enumerate}
+
+\end{multicols}
+
 
 \end{document}
