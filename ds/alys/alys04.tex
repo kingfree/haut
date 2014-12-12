@@ -1,0 +1,93 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\def\titlee{快速排序}
+\input{source/define}
+\begin{document}
+\input{source/title}\newpage
+
+\section{实验题目}
+快速排序
+\section{实验目的}
+\begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt]
+\item 掌握分治算法
+\item 实现快速排序
+\end{enumerate}
+\section{实验要求}
+使用快速排序算法对一系列数进行排序。
+
+\begin{quote}
+\verbatiminput{alys04/input.txt}
+\end{quote}
+
+\section{程序流程图}
+
+与归并排序类似，快速排序也是基于分治算法思想的。
+我们还是分三步来对子数组 $A[p..r]$ 进行处理：
+
+\begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt]
+\item[\bf 分解] 把 $A[p..r]$ 分成 $A[p..q - 1]$ 和 $A[q + 1..r]$ 两个子数组，使得
+$A[p.. q - 1]$ 中的每个元素都小于等于 $A[q]$，而 $A[q + 1..r]$ 中的每个元素则
+都大于等于 $A[q]$。此步就是计算这个 $q$ 。
+\item[\bf 解决] 递归对 $A[p..q-1]$ 和 $A[q+1..r]$ 进行排序。
+\item[\bf 合并]  因为子数组已经有序，那么 $A[p..r]$ 排序完成。
+\end{enumerate}
+
+下面的就是快速排序过程：
+\begin{quote}
+\begin{codebox}
+\Procname{\proc{Quicksort}($A, p, r$)}
+\li \If $p < r$ \Then
+\li   $q =$ \proc{Partition}($A, p, r$)
+\li   \proc{Quicksort}($A, p, q - 1$)
+\li   \proc{Quicksort}($A, q + 1, r$)
+    \End
+\end{codebox}
+\end{quote}
+
+对数组 $A$ 排序则调用 \proc{Quicksort}($A, 1, A.length$) 即可。
+
+算法的关键是将 $A[p..r]$ 重新排列的划分过程 \proc{Partition}：
+\begin{quote}
+\begin{codebox}
+\Procname{\proc{Partition}($A, p, r$)}
+\li $x = A[r]$
+\li $i = p - 1$
+\li \For $j = p$ \To $r - 1$ \Do
+\li   \If $A[j] \le x$ \Then
+\li     $i++$
+\li     交换 $A[i] \leftrightarrow A[j]$
+       \End
+     \End
+\li 交换 $A[i + 1] \leftrightarrow A[r]$
+\li \Return i + 1
+\end{codebox}
+\end{quote}
+
+
+\proc{Partition} 每次选择一个元素 $x = A[r]$ 作为比较基准，
+$i$ 和 $j$ 两个指针分别用来分割比 $x$ 小和比 $x$ 大的子数组，
+3--6 行的循环用来把不合适的元素进行交换。
+
+
+快速排序的均摊时间复杂度是 $O(n\lg n)$，在某些特殊情况下会退化成 $O(n^2)$。
+
+\section{程序代码}
+{\linespread{1}\lstinputlisting{alys04/alys04.cpp}}
+
+\section{实验结果}
+\begin{quote}
+\verbatiminput{alys04/output.txt}
+\end{quote}
+
+\section{实验体会}
+
+这次的伪代码依然来自《算法导论》\cite{clrs} 并按其改写成C++程序。
+顾名思义，快速排序的算法在均摊意义上是基于比较的最快的排序算法，因此大多数的排序都采用快速排序。
+快速排序是不稳定的，通过为每个元素分配唯一的辅助键值可以达成稳定排序的目的。
+C \verb|<stdlib.h>| 中提供了 \verb|qsort| 函数，即快速排序；
+C++ STL \verb|<algorithm>| 库中提供了 \verb|sort| 函数，对于大数据采用了快速排序。
+
+\begin{thebibliography}{10}
+\bibitem{clrs}{\it Introduction to Algorithms}, Third Edition, Thomas H. Cormen and Charles E. Leiserson and Ronald L. Rivest and Clifford Stein, 2011
+\end{thebibliography}
+
+\end{document}
