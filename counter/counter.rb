@@ -4,6 +4,23 @@ require "json"
 require "scanf"
 
 CONTFORM = {
+  "元旦" => {
+    :begin_time => /比赛时间为.*(?<month>[0-9]+)年(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})——/,
+    :end_time => /比赛时间为.*——(?<month>[0-9]+)年(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})/,
+    :time_inc => '具体规则',
+    :deban_inc => '回文格式',
+    :item_name => /\s*(<<.+?>>|[^><\s]+)\s*/,
+    :group_inc => '',
+    :chara_inc => '<<',
+    :ticket_name => /<+.+?>+/,
+    :need_pre => '',
+    :need_suf => '',
+    :banmul => false,
+    :vote_limit => 1,
+    :level_limit => 8,
+    :blacklist => '',
+    :whitelist => ''
+  },
   "最燃" => {
     :begin_time => /有效投票时间.*：(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})/,
     :end_time => /有效投票时间.*月.*日.*\-(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})/,
@@ -344,6 +361,7 @@ class Posts
     else
       @did[name] = v
     end
+    return unless @rules.key?("code_format")
     code = text.match(@rules[:code_format])
     return if not code
     code = code[0]
@@ -357,9 +375,11 @@ class Posts
   def mukou(t) # 返回真记为无效票
     # return false
     return "时" if t.date > @comp.time_e or t.date < @comp.time_b
-    code = t.text.match(@rules[:code_format])
-    return "码" if not code or codedid?(code[0])
-    return "伪" unless @comp.incode?(t.text.match(@rules[:code_format])[:code])
+    if @rules.key?("code_format")
+      code = t.text.match(@rules[:code_format])
+      return "码" if not code or codedid?(code[0])
+      return "伪" unless @comp.incode?(t.text.match(@rules[:code_format])[:code])
+    end
     # 超过比赛时间
     return "黑" if @comp.inblack?(t.author)
     return "白" unless @comp.inwhite?(t.author)
