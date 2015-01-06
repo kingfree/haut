@@ -1,0 +1,223 @@
+\subsection{数理逻辑}
+
+\begin{enumerate}
+
+\item 逻辑表达式
+\begin{enumerate}
+\item[0] $0000_2$ $\bm F$永假公式({\bf 矛盾式})
+\item[1] $0001_2$ $A\wedge B$合取; $A\cdot B, AB$与 \hfill $A\cap B$交集
+\item[2] $0010_2$ $A\stackrel{c}{\to} B$逆条件; $A\wedge\neg B$ \hfill $A-B,A\setminus B$差集
+\item[\bf 3] $0011_2$ $A$
+\item[4] $0100_2$ $B\stackrel{c}{\to} A$逆条件; $\neg A\wedge B$
+\item[\bf 5] $0101_2$ $B$
+\item[6] $0110_2$ $A\bar\vee B$不可兼或取; $A\oplus B$异或 \hfill $A\oplus B$对称差
+\item[7] $0111_2$ $A\vee B$析取; $A+B$或 \hfill $A\cup B$并集
+\item[8] $1000_2$ $A\downarrow B$或非; $\neg(A\vee B)$
+\item[9] $1001_2$ $A\leftrightarrow B, A\leftrightarrows B$双条件; $A\odot B$同或; iff %$A=B$; 
+\item[10] $1010_2$ $\neg B$非
+\item[11] $1011_2$ $B\to A$条件; $A\vee\neg B$
+\item[12] $1100_2$ $\neg A$非 \hfill $\sim\! A, \overline{A}, A^\c, A'$补集
+\item[13] $1101_2$ $A\to B$条件; $\neg A\vee B$
+\item[14] $1110_2$ $A\uparrow B$与非; $\neg(A\wedge B)$
+\item[15] $1111_2$ $\bm T$永真公式({\bf 重言式})
+\end{enumerate}
+
+\item 布尔合取(小项): $m_i\wedge m_j=\bm F$, $\sum_{i=0}^{2^n-1} m_i=\bigvee m_i\Leftrightarrow \bm T$\\
+布尔析取(大项): $M_i\vee M_j=\bm T$, $\prod_{i=0}^{2^n-1} M_i=\bigwedge M_i\Leftrightarrow \bm F$
+
+\item 证明方法
+\begin{enumerate}
+\item[P规则] 前提引入 \hfill P, P(附加前提)
+\item[T规则] 结论引用 \hfill T$(i)E$, T$(i)I$
+\item[CP规则] 由$(S\wedge R) \Rightarrow C$, 证得$S \Rightarrow (R\to C)$ \hfill CP
+\item[US规则] 全称指定规则 ${(\forall x)P(x)}, \quad {\therefore P(c)}$  \hfill US$(i)$
+\item[UG规则] 全称推广规则 ${P(c)}, \quad {\therefore (\forall x)P(c)}$  \hfill UG$(i)$
+\item[ES规则] 存在指定规则 ${(\exists x)P(x)}, \quad {\therefore P(c)}$  \hfill ES$(i)$
+\item[EG规则] 存在推广规则 ${P(x)}, \quad {\therefore (\exists x)P(x)}$  \hfill EG$(i)$
+\end{enumerate}
+
+\item 常用蕴含式
+\begin{enumerate}[label={$I_{\arabic*}$}]
+\item $P\wedge Q \Rightarrow P$
+\item $P\wedge Q \Rightarrow Q$
+\item $P \Rightarrow P\vee Q$
+\item $Q \Rightarrow P\vee Q$
+\item $\neg P \Rightarrow P\to Q$
+\item $Q \Rightarrow P\to Q$
+\item $\neg(P\to Q) \Rightarrow P$
+\item $\neg(P\to Q) \Rightarrow \neg Q$
+\item $P, Q \Rightarrow P\wedge Q$
+\item $\neg P, P\vee Q \Rightarrow Q$
+\item $P, P\to Q \Rightarrow Q$
+\item $\neg Q, P\to Q \Rightarrow \neg P$
+\item $P\to Q, Q\to R \Rightarrow P\to R$
+\item $P\vee Q, P\to R, Q\to R \Rightarrow R$
+\item $A\to B \Rightarrow (A\vee C)\to(B\vee C)$
+\item $A\to B \Rightarrow (A\wedge C)\to(B\wedge C)$
+\item $(\forall x)A(x)\vee(\forall x)B(x) \Rightarrow (\forall x)(A(x)\vee B(x))$
+\item $(\exists x)(A(x)\wedge B(x)) \Rightarrow (\exists x)A(x)\wedge(\exists x)B(x)$
+\item $(\exists x)A(x)\to (\forall x)B(x) \Rightarrow (\forall x)(A(x)\to B(x))$
+\end{enumerate}
+
+\item 常用等价式 (改换符号可得集合的运算律)
+\begin{enumerate}[label={$E_{\arabic*}$}]
+\item (对合律) $\neg\neg P \Leftrightarrow P$
+\item (交换律) $P\wedge Q \Leftrightarrow Q\wedge P$
+\item (交换律) $P\vee Q \Leftrightarrow Q\vee P$
+\item (结合律) $(P\wedge Q)\wedge R \Leftrightarrow P\wedge(Q\wedge R)$
+\item (结合律) $(P\vee Q)\vee R \Leftrightarrow P\vee(Q\vee R)$
+\item (分配律) $P\wedge(Q\vee R) \Leftrightarrow (P\wedge Q)\vee(P\wedge R)$
+\item (分配律) $P\vee(Q\wedge R) \Leftrightarrow (P\vee Q)\wedge(P\vee R)$
+\item (德摩根律) $\neg(P\wedge Q) \Leftrightarrow \neg P\vee \neg Q$
+\item (德摩根律) $\neg(P\vee Q) \Leftrightarrow \neg P\wedge \neg Q$
+\item (幂等律) $P\vee P \Leftrightarrow P$
+\item (幂等律) $P\wedge P \Leftrightarrow P$
+\item (同一律) $R\vee(P\wedge \neg P) \Leftrightarrow R$
+\item (同一律) $R\wedge(P\vee \neg P) \Leftrightarrow R$
+\item (零律) $R\vee(P\vee \neg P) \Leftrightarrow \bm T$
+\item (零律) $R\wedge(P\wedge \neg P) \Leftrightarrow \bm F$
+\item $P\to Q \Leftrightarrow \neg P\wedge Q$
+\item $\neg(P\to Q) \Leftrightarrow P\wedge\neg Q$
+\item $P\to Q \Leftrightarrow \neg Q\to\neg P$
+\item $P\to (Q\to R) \Leftrightarrow (P\wedge Q)\to R$
+\item $P\leftrightarrow Q \Leftrightarrow (P\to Q)\wedge(Q\to P)$
+\item $P\leftrightarrow Q \Leftrightarrow (P\wedge Q)\wedge(\neg P\wedge \neg Q)$
+\item $\neg(P\leftrightarrow Q) \Leftrightarrow P\leftrightarrow\neg Q$
+\item $(\exists x)(A(x)\vee B(x)) \Leftrightarrow (\exists x)A(x)\vee(\exists x)B(x)$
+\item $(\forall x)(A(x)\wedge B(x)) \Leftrightarrow (\forall x)A(x)\wedge(\forall x)B(x)$
+\item $\neg(\exists x)A(x) \Leftrightarrow (\forall x)\neg A(x)$
+\item $\neg(\forall x)A(x) \Leftrightarrow (\exists x)\neg A(x)$
+\item $(\forall x)(A\vee B(x)) \Leftrightarrow A\vee(\forall x)B(x)$
+\item $(\exists x)(A\wedge B(x)) \Leftrightarrow A\wedge(\exists x)B(x)$
+\item $(\exists x)(A(x)\to B(x)) \Leftrightarrow (\forall x)A(x)\to(\exists x)B(x)$
+\item $(\forall x)A(x)\to B \Leftrightarrow (\exists x)(A(x)\to B)$
+\item $(\exists x)A(x)\to B \Leftrightarrow (\forall x)(A(x)\to B)$
+\item $A\to(\forall x)B(x) \Leftrightarrow (\forall x)(A\to B(x))$
+\item $A\to(\exists x)B(x) \Leftrightarrow (\exists x)(A\to B(x))$
+\end{enumerate}
+
+\end{enumerate}
+
+
+\subsection{集合论}
+
+\begin{enumerate}
+
+%\item 空集$\varnothing$; 全集$U,E$.
+%\item 基数$|A|=\card(A)$.
+%\item 相等$A=B$, 不相等$A\neq B$.
+%\item 子集$A\subseteq B$,$B\supseteq A$, 真子集$A\subset B$.
+%\item 罗素悖论 $S=\{A|A\notin A\}$.
+%\item 交集$A\cap B$; 并集$A\cup B$; 差集$A-B$;\\ 补集$\sim\! A, \overline{A}, A^{\rm c}, A'$; 对称差$A+B, A\oplus B$.
+\item 幂集$\mathscr{P}(A)=\{X|X\subseteq A\}$, $|\mathscr{P}(A)|=2^{|A|}$.\
+\item 序偶$\<x,y\>\defeq \big\{\{x\}, \{x,y\}\big\}$, $\<x,y,z\>\defeq \big\<\<x,y\>,z\big\>$.
+\item 笛卡尔积(直积): $A\times B=\{\<u,v\>|u\in A\wedge v\in B\}$.
+\begin{enumerate}
+\item $A^n=A\times A\times\cdots\times A$
+\item $A\times \varnothing=\varnothing$, $\varnothing\times A=\varnothing$
+\item $A\times B\neq B\times A, (A\times B)\times C\neq A\times(B\times C)$
+\item $*\defeq \cup, \cap, -$,\\
+左分配 $A\times(B*C)=(A\times B)*(A\times C)$\\
+右分配 $(B*C)\times A=(B\times A)*(C\times A)$
+\item $A\subseteq B\Leftrightarrow A\times C\subseteq B\times C\Leftrightarrow C\times A\subseteq C\times B$
+\item $A\times B\subseteq C\times D\Leftrightarrow A\subseteq C, B\subseteq D$
+\end{enumerate}
+\item 覆盖$\bigcup S_i=A$; 划分$\bigcup S_i=A$, 且$S_i\cap S_j=\varnothing$.
+\item 鸽笼原理: 把$n$个物体放入$m$个盒子, \\则至少有一个盒子里有$\lceil n/m \rceil$个物体.
+\item 容斥原理(加法原理): $|A\cup B|=|A|+|B|-|A\cap B|$,\\
+$|A\cup B\cup C|=|A|+|B|+|C|-|A\cap B|-|B\cap C|-|C\cap A|+|A\cap B\cap C|$.
+
+\item 关系$xRy\defeq \<x,y\>\in R$. 恒等关系$I_A=\{\<x,x\>|x\in A\}$.
+\item 定义域$\dom R$, 值域$\ran R$, 域$\FLD R=\dom R\cup\ran R$.
+%\item 关系矩阵$M_R=(r_{ij})_{m\times n}$, 关系图$G_R$.
+\item 逆关系$R^\c=\{\<b,a\>|\<a,b\>\in R\}$, $\<a,b\>\in R\Leftrightarrow\<b,a\>\in R_\c$.
+\item 复合关系$R_1\circ R_2$, $R^{(m)}=R\circ\cdots\circ R$.\\
+$c_{ij}=\bigvee_{k=1}^n(a_{ik}\wedge b_{kj})$. $(R_1\circ R_2)^\c=R_1^\c\circ R_2^\c$.
+
+\item 关系的基本类型
+\begin{enumerate}
+\item[自反] iff $I_A\subseteq R \Leftrightarrow r(R)=R$ \hfill 如$\cong$ \\
+    $\Leftrightarrow$ $(\forall x)(x\in A\to xRx)$\\
+    $\Leftrightarrow$ $M_R$的主对角元全为1\\
+    $\Leftrightarrow$ $G_R$每一结点有自回路
+\item[对称] iff $R^\c=R \Leftrightarrow s(R)=R$ \hfill 如$=$,等势,同余 \\
+    $\Leftrightarrow$ $(\forall x, y)(x, y\in A\wedge xRy\to yRx)$\\
+    $\Leftrightarrow$ $M_R$是对称矩阵\\
+    $\Leftrightarrow$ $G_R$有向边成对出现
+\item[传递] iff $R\circ R\subseteq R \Leftrightarrow t(R)=R$ \hfill 如$=$,$<$,$\le$,$\subset$,$\subseteq$,整除,等势,同余 \\
+    $\Leftrightarrow$ $(\forall x, y, z)(x,y,z\in A\wedge xRy\wedge yRz\to xRz)$\\
+    $\Leftrightarrow$ $G_R$若从$a$到$b$有一条路径，则从$a$到$b$有一条弧
+\item[反自反] iff $R\cap I_A=\varnothing$ \hfill 如$<$,$>$ \\
+    $\Leftrightarrow$ $(\forall x)(x\in A\to x\net R x)$\\
+    $\Leftrightarrow$ $M_R$的主对角元全为0\\
+    $\Leftrightarrow$ $G_R$每一结点无自回路
+\item[反对称] iff $R\cap R^\c\subseteq I_A$ \hfill 如$\le$,$\subseteq$ \\
+    $\Leftrightarrow$ $(\forall x,y)(x,y\in A\wedge xRy\wedge yRx\to x=y)$\\
+    $\Leftrightarrow$ $M_R$中$i\neq j\wedge(a_{ij}=1)\to(a_{ji}=0)$\\
+    $\Leftrightarrow$ $G_R$若从$a$到$b$有一条弧，则必无$b$到$a$的弧
+\end{enumerate}
+
+\item 关系的闭包运算和构造闭包的方法
+\begin{enumerate}
+\item 自反闭包 $r(R)=R\cup I_A$,\\
+$M_r=M+I$;
+\item 对称闭包 $s(R)=R\cup R^\c$,\\
+$M_s=M+M^\T$;
+\item 传递闭包 $t(R)=\bigcup_{i=1}^{\infty}R^i\defeq R^+$,\\
+$M_t=M+M^2+M^3+\cdots$,\\
+Warshall-Floyd算法: $A[i,j]\gets A[i,k]+A[k,j]$.
+\end{enumerate}
+
+\item
+\begin{enumerate}
+\item $rs(R)=sr(R)$;
+\item $rt(R)=tr(R)$;
+\item $st(R)\subseteq ts(R)$.
+\end{enumerate}
+
+\item 等价关系$R$: 自反、对称、传递.
+\begin{enumerate}
+\item 等价类: $[a]_R=\{x|x\in A\wedge aRx\}$. $aRb\Leftrightarrow [a]_R=[b]_R$.
+\item 商集$A/R=\{[a]_R|a\in A\}$. $R_1=R_2$ iff $A/R_1=A/R_2$.
+\item 一个等价关系确定一个划分, 一个划分确定一个等价关系.
+\end{enumerate}
+
+\item 相容关系$r$: 自反、对称.
+\begin{enumerate}
+\item 相容类: $a_1 r a_2$.
+\item 最大相容类: $(\forall C) C\subseteq C_r$.
+\item 完全覆盖: $C_r(A)$.
+\item 覆盖$\{A_i\}$确定的关系$r=\bigcup A_i\times A_i$是相容关系.
+\end{enumerate}
+
+\item 偏序关系$\preccurlyeq$: 自反、反对称且传递; 偏序集$\<A,\preccurlyeq\>$.
+\item 哈斯图: 表达盖住关系. $\COV A=\{\<x,y\>|x,y\in A; $\\$x\preccurlyeq y, x\neq y; (  z\in A)(x\preccurlyeq z\preccurlyeq y)\}$
+\item 
+\begin{enumerate}
+\item 极大元$b$: $(\forall x\in B)(b\preccurlyeq x\to x=b)$. 最末端的元素;
+\item 极小元$b$: $(\forall x\in B)(x\preccurlyeq b\to x=b)$. 最底层的元素.
+\end{enumerate}
+\item 
+\begin{enumerate}
+\item 最大元$b$: $(\forall x)(x\in B\to x\preccurlyeq b)$;
+\item 最小元$b$: $(\forall x)(x\in B\to b\preccurlyeq x)$.
+\end{enumerate}
+\item 设$\<A,\preccurlyeq\>, B\subseteq A, a\in A$:
+\begin{enumerate}
+\item 上界$a$: $(\forall x)(x\in B\to x\preccurlyeq a)$, 上确界$\LUB B=\{a\}$;
+\item 下界$b$: $(\forall x)(x\in B\to b\preccurlyeq x)$, 下确界$\GLB B=\{b\}$.
+\end{enumerate}
+
+\item 良序: 每一非空子集总含有最小元. 良序集合:$\<A,\preccurlyeq\>$.\\
+良序集合一定是全序集合, 有限全序集合一定是良序集合.
+
+\end{enumerate}
+
+
+\subsection{图论}
+
+\begin{enumerate}
+
+\item 
+
+\end{enumerate}

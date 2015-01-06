@@ -2,11 +2,12 @@
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{概率论与数理统计}
-\usepackage[a4paper,margin=1cm]{geometry} % 页面设置
+\usepackage[papersize={11cm,32cm},text={10.5cm,27cm}]{geometry} % 页面设置
+% 22*18->7*18->10.5*27
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
 pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
-\usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage{latexsym,amsmath,amssymb,bm,mathrsfs}
 \usepackage[inline]{enumitem} % 调整列表样式
 \usepackage{multicol} % 分栏
 \usepackage{color,xcolor}
@@ -21,40 +22,53 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \widowpenalty=10000
 \linespread{1} % 行距
 
-\pagestyle{empty}
+\pagestyle{plain}
 
 \newcommand{\D}{\displaystyle}
 \renewcommand{\d}{{\mathrm{d}\:\!}}
 \newcommand{\e}{{\mathrm{e}}}
+\renewcommand{\c}{{\mathrm{c}}}
+\renewcommand{\T}{{\mathrm{T}}}
 
 \renewcommand{\le}{\leqslant}
 \renewcommand{\ge}{\geqslant}
+
+\newcommand{\defeq}{\stackrel{\rm def}{=}}
+\newcommand{\<}{\langle}
+\renewcommand{\>}{\rangle}
+
+\newcommand{\net}{\backslash\!\!\!\!}
+%\newcommand{\nexists}{\,\net\,\exists}
 
 \DeclareMathOperator{\MSE}{MSE}
 \DeclareMathOperator{\Var}{Var}
 \DeclareMathOperator{\Cov}{Cov}
 \DeclareMathOperator{\sh}{sh}
 \DeclareMathOperator{\ch}{ch}
+
+\DeclareMathOperator{\card}{card}
+\DeclareMathOperator{\dom}{dom}
+\DeclareMathOperator{\ran}{ran}
+\DeclareMathOperator{\FLD}{FLD}
+\DeclareMathOperator{\COV}{COV}
+\DeclareMathOperator{\LUB}{LUB}
+\DeclareMathOperator{\GLB}{GLB}
+
 \setlist{noitemsep}
 \setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
 \setlist[enumerate,2]{label={(\arabic*)}}
 
-\CTEXsetup[beforeskip={0ex},afterskip={0ex},number={\chinese{section}},format={\centering\Large\sf\bfseries}]{section}
-\CTEXsetup[beforeskip={0ex},afterskip={1ex},name={第,章},number={\chinese{subsection}}]{subsection}
+\CTEXsetup[beforeskip={0ex},afterskip={0ex},name={第,章},number={\chinese{subsection}}]{subsection}
 \CTEXsetup[beforeskip={0ex},afterskip={0ex},name={,.},number={\arabic{subsubsection}}]{subsubsection}
 
 \begin{document}
 
 %\CTEXnoindent
-
-\begin{multicols}{2}
+\section*{概率论与数理统计}
 \input{content}
-\end{multicols}
-
 \newpage
-
-\begin{multicols}{2}
+\setcounter{subsection}{0}
+\section*{离散数学}
 \input{lx}
-\end{multicols}
 
 \end{document}
