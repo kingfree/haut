@@ -4,9 +4,25 @@ require "json"
 require "scanf"
 
 CONTFORM = {
+  "新星萌" => {
+    :time_b => Time.new(2015, 1, 04, 22, 00, 00),
+    :time_e => Time.new(2015, 1, 05, 22, 00, 00),
+    :deban_inc => '萌王决定战：',
+    :item_name => /\s*(\[.+?\])\s*/,
+    :group_inc => '战：',
+    :chara_inc => '[',
+    :ticket_name => /\[+.+?\]+/,
+    :need_pre => '',
+    :need_suf => '',
+    :banmul => false,
+    :vote_limit => 1,
+    :level_limit => 8,
+    :blacklist => '',
+    :whitelist => ''
+  },
   "元旦" => {
-    :begin_time => /比赛时间为.*(?<month>[0-9]+)年(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})——/,
-    :end_time => /比赛时间为.*——(?<month>[0-9]+)年(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})/,
+    :begin_time => /比赛时间为.*(?<year>[0-9]+)年(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})——/,
+    :end_time => /比赛时间为.*——(?<year>[0-9]+)年(?<month>[0-9]+)月(?<day>[0-9]+)日(?<hour>[0-9]+)[：:](?<min>[0-9]{,2})/,
     :time_inc => '具体规则',
     :deban_inc => '回文格式',
     :item_name => /\s*(<<.+?>>|[^><\s]+)\s*/,
@@ -83,7 +99,7 @@ ALIAS = {
   "<<Saber>>" => "<<阿尔托莉亚>>"
 }
 
-ESCAPECHARS = /[<>【】　 ]/
+ESCAPECHARS = /[<>【】\[\]　 ]|(urlhttp:\/\/)|(\/url)/
 ESCAPEGRPS = /(出场阵容|队员名单|[<>【】：:　 ]|（(主|客)场）)/
 
 def match_to_time(t, sc = 00)
@@ -474,6 +490,7 @@ class Posts
 
   def parse(page)
     op = @posts.length
+    t = []
     page.css('.d')[0].css('.i').each do |post|
       tmp = post
       tmp.search('br').each {|n| n.replace("\n") } # 把 <br> 替换成换行
@@ -481,9 +498,10 @@ class Posts
       floor = tmp.match(/^([0-9]+?)楼\./)[1].to_i
       name = post.css('.g')[0].content
       date = post.css('.b')[0].content
-      t = Post.new(name,floor,date,tmp)
-      record!(t)
+      t << Post.new(name,floor,date,tmp)
     end
+    t.sort_by! {|e| e.floor}
+    t.each {|e| record!(e) }
     ed = @posts.length - 1
     return op, ed
   end
@@ -541,7 +559,7 @@ class Posts
   def fetch(pid = 0, url = "http://wapp.baidu.com/p/")
     return if pid == 0
     clear
-    page = Nokogiri::HTML(open("#{url}#{pid}"))
+    page = Nokogiri::HTML(open("#{url}#{pid}?pn=1"))
 
     @comp.title = page.css('.bc > strong')[0].text
     CONTFORM.each do |k, v|
@@ -553,10 +571,12 @@ class Posts
         break
       end
     end
+    @comp.time_b = @rules[:time_b]
+    @comp.time_e = @rules[:time_e]
     $stderr.printf "\n%s\n", @comp.title
     logfile.printf "\n%s\n", @comp.title
 
-    pager = page.css('.h')[0].text
+    pager = page.css('.h').text
     lastpn = pager.match(/第\s*([0-9]+?)\/([0-9]+?)\s*页/)[2].to_i
     $stderr.print "共#{lastpn}页 "
 
