@@ -1,0 +1,73 @@
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{《面向对象程序设计》实验报告}
+\def\MyEnvironment{GNU C++ version 3.4.5 (mingw-vista special r3)}
+\usepackage[top=2.54cm,bottom=2.54cm,left=3.17cm,right=3.17cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+\usepackage{tikz} % 画图
+\usetikzlibrary{shapes,arrows}
+\usepackage{multicol} % 分栏
+\usepackage{multirow} % 跨行
+\usepackage{longtable} % 长表格
+\usepackage{tabularx} % 变宽表格
+\usepackage{booktabs} % 表格画线
+\usepackage{graphicx} % 图形
+\usepackage{color} % 颜色
+\usepackage{xcolor} % 颜色
+\usepackage{wallpaper} % 背景图片
+\usepackage{listings} % 排版代码
+\lstset{language=C++,
+  numbers=left,
+  numberstyle=\tiny,
+  basicstyle=\small\tt,
+  commentstyle=\itshape\color{gray},
+  keywordstyle=\bfseries\color{blue},
+  stringstyle=\color{red},
+  showstringspaces=false,
+}
+\usepackage{amsmath,bm}
+\usepackage{verbatim} % 排版代码
+\usepackage{url} % 排版链接
+\usepackage{shortvrb}
+\usepackage{pstricks} % 绘图
+\usepackage{pst-tree} % 画树
+% \usepackage{pst-uml} % 画 UML
+\usepackage{uml} % 画 UML
+\usepackage{clrscode3e} % CLRS 伪代码
+\usepackage{smartdiagram} % 智能画图
+\usepackage{nameref}
+\usepackage{rotating} % 横排大图
+\usepackage{caption}
+\captionsetup{font={small}} % 标题字体大小
+\usepackage[inline]{enumitem} % 调整列表样式
+
+﻿%\setmainfont{Times New Roman}
+﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+\setCJKfamilyfont{msyh}[BoldFont={* Bold}]{微软雅黑} \newcommand{\msyh}{\CJKfamily{msyh}} % 微软雅黑
+\setCJKfamilyfont{micro}{文泉驿微米黑} \newcommand{\micro}{\CJKfamily{micro}} % 文泉驿微米黑
+\setCJKfamilyfont{yaoti}{方正姚体} \newcommand{\yaoti}{\CJKfamily{yaoti}}
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2}
+\setlength{\parskip}{2pt plus 2pt}
+\renewcommand{\baselinestretch}{1.5}
+
+\setlength{\abovecaptionskip}{1pt}
+\setlength{\belowcaptionskip}{0pt}
+\setlength{\intextsep}{8pt}
+
+\makeindex
+\pagestyle{plain}
+
+\CTEXsetup[number=\chinese{part}, name={实验单元,}, format={\large\bfseries\centering}]{part}
+\CTEXsetup[number=\chinese{section}, name={实验,}, format={\large\bfseries\centering}]{section}
+\CTEXsetup[format={\normalsize\bfseries}]{subsection}
+
+\newcommand{\ctli}[2]{{\bf #1}：\underline{{~#2~}}\hfill}
