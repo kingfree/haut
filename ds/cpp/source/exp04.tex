@@ -1,0 +1,72 @@
+\section{创建 Date 类}
+\hfill\ctli{实验时间}{~2015~年~1~月~8~日}
+\subsection*{【实验目的】}
+\begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,label={\arabic*、}]
+\item 掌握创建类的方法。
+\item 熟悉成员函数的使用方法。
+\item 掌握函数和指针的概念
+\item 掌握函数和指针的使用方法。
+\end{enumerate}
+\subsection*{【实验环境】}
+\MyEnvironment
+\subsection*{【实验内容】}
+\begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,label={\arabic*、}]
+\item P89：3.15
+\item P348：8.12
+\item P354：8.20
+\end{enumerate}
+
+\subsection{Date 类}
+\subsubsection*{【详细分析】}
+创建一个名为 Date 的类，包括了作为数据成员的三部分信息：年月日，都为 int 类型。包括一个具有三个参数的构造函数，用以初始化年月日。假定给出的年、日是正确的，对于不在 1--12 的月，默认设置为 1。对每个数据成员都提供 set/get 函数。提供 displayDate 功能显示格式化后的日期。
+\subsubsection*{【实验源码】}
+{\linespread{1}\lstinputlisting[caption={\tt Date.h}]{exp04/Date.h}}
+{\linespread{1}\lstinputlisting[caption={\tt Date.cpp}]{exp04/Date.cpp}}
+{\linespread{1}\lstinputlisting[caption={\tt exp01.cpp}]{exp04/exp01.cpp}}
+\subsubsection*{【实验结果】}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=\textwidth]{exp04/exp01.png}
+\caption{\label{out04_01}Date 类}
+\end{figure}
+
+\subsection{P348：8.12}
+\subsubsection*{【详细分析】}
+修改课本上的程序，使发牌函数发一手 5 张牌，完成任务：
+\begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,label={\alph*)}]
+\item 确定手上是否有一对牌
+\item 确定手上是否有两对牌
+\item 确定手上是否有 3 张同号牌
+\item 确定手上是否有 4 张同号牌
+\item 确定手上是否有同花
+\item 确定手上是否有顺子
+\end{enumerate}
+
+程序对花色和点数分别进行累计，然后循环数出数量。
+\subsubsection*{【实验源码】}
+{\linespread{1}\lstinputlisting[caption={\tt DeckOfCards.h}]{exp04/DeckOfCards.h}}
+{\linespread{1}\lstinputlisting[caption={\tt DeckOfCards.cpp}]{exp04/DeckOfCards.cpp}}
+{\linespread{1}\lstinputlisting[caption={\tt exp02.cpp}]{exp04/exp02.cpp}}
+\subsubsection*{【实验结果】}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=\textwidth]{exp04/exp02.png}
+\caption{\label{out04_02}发牌和判断程序}
+\end{figure}
+
+\subsection{P354：8.20}
+\subsubsection*{【详细分析】}
+修改洗牌和发牌程序，使之由同一个函数实现。
+\subsubsection*{【实验源码】}
+{\linespread{1}\lstinputlisting[caption={\tt DeckOfCards\_plus.cpp}]{exp04/DeckOfCards_plus.cpp}}
+{\linespread{1}\lstinputlisting[caption={\tt exp03.cpp}]{exp04/exp03.cpp}}
+\subsubsection*{【实验结果】}
+\begin{figure}[htp]
+\centering
+\includegraphics[width=\textwidth]{exp04/exp03.png}
+\caption{\label{out04_03}发牌程序}
+\end{figure}
+
+
+\subsection*{【实验体会】}
+（至少150字）
