@@ -1,0 +1,94 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{猜数字游戏}
+\def\titlee{Standardized Examination System}
+\usepackage[top=2.5cm,bottom=2.5cm,left=3.1cm,right=3.1cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
+\usepackage{tikz} % 画图
+\usetikzlibrary{shapes,arrows}
+\usepackage{multicol} % 分栏
+\usepackage{multirow} % 跨行
+\usepackage{longtable} % 长表格
+\usepackage{tabularx} % 变宽表格
+\usepackage{booktabs} % 表格画线
+\usepackage{graphicx} % 图形
+\usepackage{color} % 颜色
+\usepackage{xcolor} % 颜色
+\usepackage{wallpaper} % 背景图片
+\usepackage{listings} % 排版代码
+\usepackage{verbatim} % 排版代码
+\usepackage{url} % 排版链接
+\usepackage{shortvrb}
+\usepackage{uml} % 画 UML
+\usepackage{smartdiagram} % 智能画图
+\usepackage{nameref}
+\usepackage{rotating} % 横排大图
+\usepackage{caption}
+\captionsetup{font={small}} % 标题字体大小
+\usepackage[inline]{enumitem} % 调整列表样式
+\usepackage{paralist} % 排序列表环境
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,shadows} % for pgf-umlsd
+\usepackage[underline=true,rounded corners=false]{pgf-umlsd}
+\usepackage{tikz-uml}
+
+﻿\setmainfont{Times New Roman}
+﻿\setCJKmainfont[BoldFont={SimHei},ItalicFont={STFangsong}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+\setCJKfamilyfont{liti}{隶书} \newcommand{\liti}{\CJKfamily{liti}}
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.5} % 1.5 倍行距
+\setlength{\parskip}{2pt plus 2pt}
+\renewcommand{\baselinestretch}{1.5}
+
+% \setlength{\abovecaptionskip}{1pt}
+% \setlength{\belowcaptionskip}{0pt}
+\setlength{\intextsep}{8pt}
+\setlist{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+%\setlist[enumerate,1]{label=（\Alph*）}
+
+\makeindex
+\pagestyle{plain}
+
+\begin{document}
+\include{source/common}
+
+%%%% 开始 %%%%
+\include{source/title}
+
+{\linespread{1}
+\tableofcontents
+\vfill\centering
+%\includegraphics[height=5cm]{image/saki.png}
+\vfill}\newpage
+
+\include{source/task}
+
+\include{source/design}
+\include{source/classes}
+\include{source/algorithms}
+
+\include{source/program}
+
+\include{source/testcase}
+
+\include{source/conclusion}
+
+\appendix
+\include{source/reference}
+
+\include{source/another}
+
+
+%%%% 结束 %%%%
+
+\end{document}

@@ -1,0 +1,24 @@
+\subsection{类的设计说明}
+
+\newcommand\method[2]{{#1}:~{\it #2}}
+\newcommand\vart[2]{{#1}:~{\it #2}}
+\newcommand\argu[2]{{\sf #2}:~{\it #1}}
+\newcommand\comt[1]{\hfill\quad{\tt //#1}}
+\newcommand\comtn[1]{\\\comt{#1}}
+
+\begin{figure}[htp]
+  \pictext\small
+\begin{tikzpicture}
+\umlclass{Number}{
+\# \argu{int}{number} \comt{待猜的数}\\
+-- \argu{short[]}{numbers} \comt{数的拆分数组}\\
+}{
++ \method{Number()}{} \comt{初始化产生随机数}\\
++ \method{Number(\argu{int}{number})}{} \comt{以指定数字初始化}\\
++ \method{guess(\argu{int}{number})}{\argu{int}{x}, \argu{int}{y}} \comt{猜数并返回提示信息}\\
++ \method{detail(\argu{int}{number})}{int[]} \comt{猜数并返回正确的位数组}\\
++ \method{$\sim$Number()}{} \comt{析构函数}\\
+}
+\end{tikzpicture}
+  \caption{\label{list}Number 类}
+\end{figure}

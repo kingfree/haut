@@ -1,0 +1,18 @@
+\section{总体方案设计}
+
+\subsection{总体功能框图}
+
+\begin{figure}[htp]
+  \pictext\small
+\begin{tikzpicture}
+\umlemptyclass{UI}
+\umlemptyclass[x=5, y=0]{Number}
+\umlemptyclass[x=-5, y=0]{Score}
+\umlemptyclass[x=0, y=-3]{TestCase}
+\umlcompo[geometry=|-|]{TestCase}{Score}
+\umlcompo[geometry=|-|]{TestCase}{Number}
+\umldep[geometry=|-]{UI}{Score}
+\umldep[geometry=|-]{UI}{Number}
+\end{tikzpicture}
+  \caption{\label{classes}各个类之间的关系}
+\end{figure}
