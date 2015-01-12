@@ -9,19 +9,24 @@ using std::endl;
 using std::min;
 using std::max;
 
+#include <ctime>
+
 #include "Date.h"
 
-const int Date::MONTHS[2][13] = {
-    { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
-    { 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
-};
 const std::string Date::WEEKS[8] = { "星期日",
     "星期一", "星期二", "星期三",
     "星期四", "星期五", "星期六"
 };
 
+Date::Date(int num)
+{
+    time(&t);
+    t = num;
+}
+
 Date::Date(int y, int m, int d)
 {
+    time(&t);
     setYear(y);
     setMonth(m);
     setDay(d);
@@ -35,61 +40,75 @@ Date::Date(int year, int days)
 
 void Date::setYear(int year)
 {
-    this->year = year;
+    struct tm *m = localtime(&t);
+    m->tm_year = year - 1900;
+    t = mktime(m);
 }
 
-void Date::setMonth(int m)
+void Date::setMonth(int mon)
 {
-    if (m < 1 || m > 12) {
-        m = 1;
+    if (mon < 1 || mon > 12) {
+        mon = 1;
     }
-    this->month = m;
+    struct tm *m = localtime(&t);
+    m->tm_mon = mon - 1;
+    t = mktime(m);
 }
 
 void Date::setDay(int day)
 {
-    if (day < 1 || day > Date::MONTHS[isLeap()][this->month]) {
+    if (day < 1 || day > 31) {
         day = 1;
     }
-    this->day = day;
+    struct tm *m = localtime(&t);
+    m->tm_mday = day;
+    t = mktime(m);
+}
+
+int Date::getYear() const
+{
+    struct tm *m = localtime(&t);
+    return m->tm_year + 1900;
+}
+
+int Date::getMonth() const
+{
+    struct tm *m = localtime(&t);
+    return m->tm_mon + 1;
+}
+
+int Date::getDay() const
+{
+    struct tm *m = localtime(&t);
+    return m->tm_mday;
 }
 
 void Date::displayDate()
 {
-    cout << year << "年" << month << "月" << day << "日";
+    cout << getYear() << "年" << getMonth() << "月" << getDay() << "日";
 }
 
-Date& Date::operator+(const int day)
+Date& Date::operator+(int day)
 {
-    return Date(this->year, this->getDays() + day);
+    static Date newdate(this->t + day * Date::DAY);
+    return newdate;
+}
+
+Date& Date::operator-(int day)
+{
+    static Date newdate(this->t - day * Date::DAY);
+    return newdate;
 }
 
 int Date::operator-(const Date& rhs)
 {
-    int d = 0;
-    for (int i = rhs.year; i < this->year; i++) {
-        d += 365 + (int) yearIsLeap(i);
-    }
-    d += this->getDays();
-    return d;
-}
-
-Date& Date::operator-(const int day)
-{
-    return Date(this->year, this->getDays() - day);
+    return (int) difftime(t, rhs.getTime()) / 60 / 60 / 24;
 }
 
 int Date::getWeekday() const
 {
-    int y = this->year;
-    int m = this->month;
-    int d = this->day;
-    if (m < 3) {
-        m += 12;
-        y -= 1;
-    }
-    int week = (d + 2 * m + 3 * (m + 1) / 5 + y + y / 4 - y / 100 + y / 400) % 7;
-    return (week + 1) % 7;
+    struct tm *m = localtime(&t);
+    return m->tm_wday;
 }
 
 int Date::getWeek() const
@@ -99,7 +118,7 @@ int Date::getWeek() const
 
 bool Date::isLeap() const
 {
-    return Date::yearIsLeap(this->year);
+    return Date::yearIsLeap(getYear());
 }
 
 bool Date::yearIsLeap(int year)
@@ -109,32 +128,17 @@ bool Date::yearIsLeap(int year)
 
 void Date::setDays(int d)
 {
-    int y = 365;
-    while (d > y) {
-        d -= y + (int) yearIsLeap(++this->year);
-    }
-    while (d < 0) {
-        d += y + (int) yearIsLeap(--this->year);
-    }
-
-    int i;
-    for (i = 0; i <= 12; i++) {
-        if (d <= Date::MONTHS[isLeap()][i]) {
-            break;
-        }
-        d -= Date::MONTHS[isLeap()][i];
-    }
-    this->setMonth(i);
-    this->setDay(d);
+    struct tm *m = localtime(&t);
+    m->tm_mon = 0;
+    m->tm_mday = 1;
+    t = mktime(m);
+    t += (d - 1) * Date::DAY;
 }
 
 int Date::getDays() const
 {
-    int d = this->day;
-    for (int i = 1; i < this->month; i++) {
-        d += Date::MONTHS[isLeap()][i];
-    }
-    return d;
+    struct tm *m = localtime(&t);
+    return m->tm_yday + 1;
 }
 
 std::string Date::weekday2s(int weekday)
