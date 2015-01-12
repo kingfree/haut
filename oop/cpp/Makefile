@@ -1,4 +1,4 @@
-MAIN = zip
+MAIN = cpp
 
 all:
 	xelatex $(MAIN)
