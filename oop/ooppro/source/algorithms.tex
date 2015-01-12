@@ -1,1 +1,29 @@
 \subsection{主要算法流程图}
+
+\begin{figure}[htp]
+\begin{quote}
+\begin{codebox}
+\Procname{\proc{Number::genRand}()}
+\li $S = \{\}$
+\li $T = \{1, 2, \cdots, 9\}$
+\li $S[0] = T.\proc{remove}(\proc{rand}(T.length))$
+\li $T = T + \{0\}$
+\li \For $i = 1$ \To $3$ \Do
+\li   $S[i] = T.\proc{remove}(\proc{rand}(T.length))$
+	\End
+\li $number = \overline{S_0S_1S_2S_3}$
+\li \Return $number$
+\end{codebox}
+\end{quote}
+\caption{\label{Number::genRand}生成符合要求的随机数}
+\end{figure}
+
+% \begin{figure}[htp]
+% \begin{quote}
+% \begin{codebox}
+% \Procname{\proc{Number::genInt}()}
+
+% \end{codebox}
+% \end{quote}
+% \caption{\label{Number::genInt}根据给的的数生成符合要求的数}
+% \end{figure}

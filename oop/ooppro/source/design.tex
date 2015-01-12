@@ -2,17 +2,19 @@
 
 \subsection{总体功能框图}
 
+图~\ref{classes}~展示了各个类之间的关系。
+
 \begin{figure}[htp]
   \pictext\small
 \begin{tikzpicture}
-\umlemptyclass{UI}
-\umlemptyclass[x=5, y=0]{Number}
-\umlemptyclass[x=-5, y=0]{Score}
-\umlemptyclass[x=0, y=-3]{TestCase}
-\umlcompo[geometry=|-|]{TestCase}{Score}
-\umlcompo[geometry=|-|]{TestCase}{Number}
-\umldep[geometry=|-]{UI}{Score}
-\umldep[geometry=|-]{UI}{Number}
+\umlemptyclass{Score}
+\umlemptyclass[x=-4, y=0]{Number}
+\umlemptyclass[x=4, y=0]{UI}
+\umlunicompo[geometry=--,mult=0..*]{Score}{Number}
+\umluniassoc[geometry=--,mult=1]{UI}{Score}
+% \umlemptyclass[x=-2, y=-2]{TestCase}
+% \umldep[geometry=-|]{TestCase}{Score}
+% \umldep[geometry=-|]{TestCase}{Number}
 \end{tikzpicture}
   \caption{\label{classes}各个类之间的关系}
 \end{figure}
