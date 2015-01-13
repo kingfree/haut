@@ -1,8 +1,8 @@
-/* User.h
- * ÃèÊö: ÓÃ»§Àà
- * ×÷Õß: Ìï¾¢·æ
- * ´´½¨Ê±¼ä: 2015Äê1ÔÂ11ÈÕ
- * ĞŞ¸ÄÊ±¼ä: 2015Äê1ÔÂ11ÈÕ
+ï»¿/* User.h
+ * æè¿°: ç”¨æˆ·ç±»
+ * ä½œè€…: ç”°åŠ²é”‹
+ * åˆ›å»ºæ—¶é—´: 2015å¹´1æœˆ11æ—¥
+ * ä¿®æ”¹æ—¶é—´: 2015å¹´1æœˆ11æ—¥
  */
 #pragma once
 
@@ -41,11 +41,11 @@ public:
     friend istream& operator>>(istream&, const User&);
 
 protected:
-    int id; // Î¨Ò»±êÊ¶ÔªËØµÄ ID
+    int id; // å”¯ä¸€æ ‡è¯†å…ƒç´ çš„ ID
     string username;
     string password;
-    double money; // ÓÃ»§ÊÖÉÏµÄÇ®
-    bool admin; // ÊÇ·ñÎª¹ÜÀíÔ±
-    vector<Cash> cashes; // ÓÃ»§³ÖÓĞµÄ¹ÉÆ±
-    double amount; // ÓÃ»§³ÖÓĞ¹ÉÆ±µÄ×Ü½ğ¶î
+    double money; // ç”¨æˆ·æ‰‹ä¸Šçš„é’±
+    bool admin; // æ˜¯å¦ä¸ºç®¡ç†å‘˜
+    vector<Cash> cashes; // ç”¨æˆ·æŒæœ‰çš„è‚¡ç¥¨
+    double amount; // ç”¨æˆ·æŒæœ‰è‚¡ç¥¨çš„æ€»é‡‘é¢
 };

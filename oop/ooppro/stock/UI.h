@@ -1,8 +1,8 @@
-/* UI.h
-* ÃèÊö: ÓÃ»§½çÃæÀà£¬ÓÃÓÚÓÃ»§½»»¥
-* ×÷Õß: Ìï¾¢·æ
-* ´´½¨Ê±¼ä: 2015Äê1ÔÂ11ÈÕ
-* ĞŞ¸ÄÊ±¼ä: 2015Äê1ÔÂ11ÈÕ
+ï»¿/* UI.h
+* æè¿°: ç”¨æˆ·ç•Œé¢ç±»ï¼Œç”¨äºç”¨æˆ·äº¤äº’
+* ä½œè€…: ç”°åŠ²é”‹
+* åˆ›å»ºæ—¶é—´: 2015å¹´1æœˆ11æ—¥
+* ä¿®æ”¹æ—¶é—´: 2015å¹´1æœˆ11æ—¥
 */
 #pragma once
 
@@ -22,22 +22,22 @@ public:
     void MainMenu();
 
     void UserMenu();
-    void RegistUser(); // ×¢²áĞÂÓÃ»§
-    void LoginUser(); // ÓÃ»§µÇÂ¼
+    void RegistUser(); // æ³¨å†Œæ–°ç”¨æˆ·
+    void LoginUser(); // ç”¨æˆ·ç™»å½•
 
     void StockMenu();
-    void ListStock(); // ÏÔÊ¾¹ÉÆ±ÁĞ±í
-    void ListStockByCode(); // °´½»Ò×´úÂëË³ĞòÏÔÊ¾¹ÉÆ±ÁĞ±í
-    void ListStockByPrice(); // °´¼Û¸ñË³ĞòÏÔÊ¾¹ÉÆ±ÁĞ±í
+    void ListStock(); // æ˜¾ç¤ºè‚¡ç¥¨åˆ—è¡¨
+    void ListStockByCode(); // æŒ‰äº¤æ˜“ä»£ç é¡ºåºæ˜¾ç¤ºè‚¡ç¥¨åˆ—è¡¨
+    void ListStockByPrice(); // æŒ‰ä»·æ ¼é¡ºåºæ˜¾ç¤ºè‚¡ç¥¨åˆ—è¡¨
     void ListStockByTotal();
-    void BuyStock(); // ÂòÈë¹ÉÆ±
-    void SaleStock(); // Âô³ö¹ÉÆ±
+    void BuyStock(); // ä¹°å…¥è‚¡ç¥¨
+    void SaleStock(); // å–å‡ºè‚¡ç¥¨
 
     void AdminMenu();
-    void AddNewStock(); // Ôö¼ÓĞÂ¹ÉÆ±
-    void DeleteOldStock(); // É¾³ı¾É¹ÉÆ±
-    void HangUpStock(); // ¹ÒÆğ¹ÉÆ±£¬Í£Ö¹½»Ò×
-    void ModifyStock(); // ĞŞ¸Ä¹ÉÆ±µÄÃû³Æ¡¢´úÂë
+    void AddNewStock(); // å¢åŠ æ–°è‚¡ç¥¨
+    void DeleteOldStock(); // åˆ é™¤æ—§è‚¡ç¥¨
+    void HangUpStock(); // æŒ‚èµ·è‚¡ç¥¨ï¼Œåœæ­¢äº¤æ˜“
+    void ModifyStock(); // ä¿®æ”¹è‚¡ç¥¨çš„åç§°ã€ä»£ç 
 
 protected:
     Database& db;

@@ -1,8 +1,8 @@
-/* Stock.h
- * ÃèÊö: ¹ÉÆ±Àà
- * ×÷Õß: Ìï¾¢·æ
- * ´´½¨Ê±¼ä: 2015Äê1ÔÂ11ÈÕ
- * ĞŞ¸ÄÊ±¼ä: 2015Äê1ÔÂ11ÈÕ
+ï»¿/* Stock.h
+ * æè¿°: è‚¡ç¥¨ç±»
+ * ä½œè€…: ç”°åŠ²é”‹
+ * åˆ›å»ºæ—¶é—´: 2015å¹´1æœˆ11æ—¥
+ * ä¿®æ”¹æ—¶é—´: 2015å¹´1æœˆ11æ—¥
  */
 #pragma once
 
@@ -39,12 +39,12 @@ public:
     friend istream& operator>>(istream&, const Stock&);
 
 protected:
-    int id; // Î¨Ò»±êÊ¶ÔªËØµÄ ID
-    string code; // ½»Ò×´úÂë
+    int id; // å”¯ä¸€æ ‡è¯†å…ƒç´ çš„ ID
+    string code; // äº¤æ˜“ä»£ç 
     string name;
-    bool valid; // ÊÇ·ñ¿É½»Ò× / ¹ÒÆğ
-    double price; // ¹É¼Û
-    int total; // ¹ÉÆ±ÊıÁ¿
-    vector<User&> users; // ³ÖÓĞ¸Ã¹ÉÆ±µÄÓÃ»§
+    bool valid; // æ˜¯å¦å¯äº¤æ˜“ / æŒ‚èµ·
+    double price; // è‚¡ä»·
+    int total; // è‚¡ç¥¨æ•°é‡
+    vector<User&> users; // æŒæœ‰è¯¥è‚¡ç¥¨çš„ç”¨æˆ·
 };
 

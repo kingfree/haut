@@ -61,17 +61,17 @@
 \function{Number::guess}
 {int number}
 {std::pair<int, int>}{提示信息$(x,y)$}
-{猜数。用户猜的是 number，判断是否正确并返回提示信息$(x,y)$ ，$x$表示数字、位置都匹配的个数，$y$表示数字匹配但位置不匹配的个数。全部正确时应该返回$(4,0)$。每调用该方法时 this$\to$count 应该自增 1。}
+{猜数。用户猜的是 number，判断是否正确并返回提示信息$(x,y)$ ，$x$表示数字、位置都匹配的个数，$y$表示数字匹配但位置不匹配的个数。全部正确时应该返回$(4,0)$。每调用该方法时 this$\to$count 应该自增 1。算法见第~\pageref{Number::guess}~页的图~\ref{Number::guess}。}
 
 \function{Number::detail}
 {int number}
 {std::vector<int>}{详细信息的数组}
-{对应 8888 键的功能。用户上一次猜的是 number，返回一个数组，数组的每个元素表示哪一位正确了。全部正确时应该返回$\{1,2,3,4\}$。每调用该方法时 this$\to$count 应该自增 1。}
+{对应 8888 键的功能。用户上一次猜的是 number，返回一个数组，数组的每个元素表示哪一位正确了。全部正确时应该返回$\{1,2,3,4\}$。每调用该方法时 this$\to$count 应该自增 1。算法见第~\pageref{Number::detail}~页的图~\ref{Number::detail}。}
 
 \function{Number::answer}
 {}
 {int}{正确答案}
-{对应 7777 键的功能。返回正确答案的 this$\to$numbers。每调用该方法时 this$\to$count 应该自增 1。}
+{对应 7777 键的功能。返回正确答案的 this$\to$number。每调用该方法时 this$\to$count 应该自增 1。}
 
 \subsubsection{Score 类}
 
@@ -112,6 +112,11 @@
 {}
 {static Score\&}{唯一的 Score 实例引用}
 {单例模式中，获取唯一的 Score 实例。这是个静态方法。}
+
+\function{Score::$\sim$Score}
+{}
+{}{析构函数}
+{调用 this$\to$write() 向文件中写出得分。释放所有申请的动态内存。}
 
 \function{Score::newGame}
 {}
@@ -211,10 +216,10 @@
 {void}{无}
 {7777 功能。首先调用 UI::InputPassword() 来进行密码输入和验证，允许三次密码输入，如果验证失败则直接返回；如果验证成功，则调用 Score 实例的 guess() 方法，并显示提示字符串。}
 
-\function{UI::ShowScore}
-{}
-{void}{无}
-{显示得分。}
+%\function{UI::ShowScore}
+%{}
+%{void}{无}
+%{显示得分。}
 
 \function{UI::InputPassword}
 {}

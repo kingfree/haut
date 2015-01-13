@@ -2,11 +2,10 @@
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{猜数字游戏}
-\def\titlee{Standardized Examination System}
 \usepackage[top=2.5cm,bottom=2.5cm,left=3.1cm,right=3.1cm]{geometry} % 页面设置
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
-pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \usepackage{tikz} % 画图
 \usetikzlibrary{shapes,arrows}
 \usepackage{multicol} % 分栏
@@ -29,7 +28,7 @@ pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
 \usepackage{caption}
 \captionsetup{font={small}} % 标题字体大小
 \usepackage[inline]{enumitem} % 调整列表样式
-\usepackage{paralist} % 排序列表环境
+%\usepackage{paralist} % 排序列表环境
 
 \usepackage{tikz}
 \usetikzlibrary{arrows,shadows} % for pgf-umlsd
@@ -62,34 +61,40 @@ pdftitle={\titlec},pdfauthor={\tjf},pdfsubject={\titlee}]{hyperref}
 \pagestyle{plain}
 
 \begin{document}
-\include{source/common}
+\input{source/common}
 
 %%%% 开始 %%%%
-\include{source/title}
+\input{source/title}
 
 {\linespread{1}
 \tableofcontents
 \vfill\centering
-%\includegraphics[height=5cm]{image/saki.png}
+%\inputgraphics[height=5cm]{image/saki.png}
 \vfill}\newpage
 
-\include{source/task}
+\input{source/task}
+\newpage
 
-\include{source/design}
-\include{source/classes}
-\include{source/algorithms}
+\input{source/design}
+\input{source/classes}
+\input{source/algorithms}
+\newpage
 
-\include{source/program}
+\input{source/program}
+\newpage
 
-\include{source/testcase}
+\input{source/testcase}
+\newpage
 
-\include{source/conclusion}
+\input{source/conclusion}
+\newpage
 
 \appendix
-\include{source/reference}
 
-\include{source/another}
+\input{source/another}
+\newpage
 
+\input{source/reference}
 
 %%%% 结束 %%%%
 

@@ -1,9 +1,9 @@
 ﻿/* Number.h
-* 描述: 猜数字类
-* 作者: 田劲锋
-* 创建时间: 2015年1月11日
-* 修改时间: 2015年1月12日
-*/
+ * 描述: 猜数字类
+ * 作者: 田劲锋
+ * 创建时间: 2015年1月11日
+ * 修改时间: 2015年1月13日
+ */
 #pragma once
 
 #include <vector>
@@ -13,7 +13,6 @@ class Number
 {
 public:
     Number();
-    Number(int);
     virtual ~Number();
 
     std::pair<int, int> guess(int);
@@ -26,7 +25,4 @@ protected:
 private:
     short numbers[4];
     int genRand();
-    int genInt(int);
-    bool isGood(int);
-    void setNumber(int);
 };

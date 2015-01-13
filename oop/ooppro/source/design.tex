@@ -2,19 +2,25 @@
 
 \subsection{总体功能框图}
 
+考虑猜数功能的实现，为了实现最大程度的解耦，将与用户交互的操作全部封装在 UI 类中。
+
+考虑对于全局唯一的用户，需要一个全局唯一的计分器，这里设计为单例模式的 Score 类。
+
+考虑到每次运行程序用户会进行多次猜数，对于每次猜数都实例化一个 Number 对象，并提供对猜数的检查功能。
+
 图~\ref{classes}~展示了各个类之间的关系。
 
 \begin{figure}[htp]
   \pictext\small
 \begin{tikzpicture}
-\umlemptyclass{Score}
-\umlemptyclass[x=-4, y=0]{Number}
-\umlemptyclass[x=4, y=0]{UI}
+\umlemptyclass{UI}
+\umlemptyclass[x=4, y=3]{Score}
+\umlemptyclass[x=-4, y=3]{Number}
 \umlunicompo[geometry=--,mult=0..*]{Score}{Number}
-\umluniassoc[geometry=--,mult=1]{UI}{Score}
+\umluniassoc[geometry=-|,mult=1]{UI}{Score}
 % \umlemptyclass[x=-2, y=-2]{TestCase}
 % \umldep[geometry=-|]{TestCase}{Score}
 % \umldep[geometry=-|]{TestCase}{Number}
 \end{tikzpicture}
-  \caption{\label{classes}各个类之间的关系}
+  \caption{\label{classes}猜数字游戏各个类之间的关系}
 \end{figure}

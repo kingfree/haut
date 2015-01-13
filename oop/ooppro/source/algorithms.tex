@@ -1,21 +1,68 @@
 \subsection{主要算法流程图}
 
+产生一个指定的随机数的 Number::genRand() 方法，即每次从 0..9 中选取一个数放到数组里。由于产生的是四位数，要求千位不能为 0，所以产生千位时采用了特殊处理。具体算法的伪代码描述见图~\ref{Number::genRand}。
+
 \begin{figure}[htp]
 \begin{quote}
 \begin{codebox}
 \Procname{\proc{Number::genRand}()}
 \li $S = \{\}$
 \li $T = \{1, 2, \cdots, 9\}$
-\li $S[0] = T.\proc{remove}(\proc{rand}(T.length))$
-\li $T = T + \{0\}$
+\li $S[0] = $从 $T$ 中随机选取一个数
+\li $T = T - \{S_0\} + \{0\}$
 \li \For $i = 1$ \To $3$ \Do
-\li   $S[i] = T.\proc{remove}(\proc{rand}(T.length))$
+\li   $S[i] = $从 $T$ 中随机选取一个数
+\li   $T = T - \{S_i\}$
 	\End
-\li $number = \overline{S_0S_1S_2S_3}$
-\li \Return $number$
+\li $n = \overline{S_0S_1S_2S_3}$
+\li \Return $n$
 \end{codebox}
 \end{quote}
 \caption{\label{Number::genRand}生成符合要求的随机数}
+\end{figure}
+
+验证猜数并返回指定的 $(x, y)$ 的 Number::guess() 方法，首先需要从 this$\to$numbers 获取答案的分解，然后把传进来的数字也进行分解。分解后的两个数组按位比较，累加后得 $x$。两个数组求交集之后得到 $x + y$。具体算法见图~\ref{Number::guess}。
+
+\begin{figure}[htp]
+\begin{quote}
+\begin{codebox}
+\Procname{\proc{Number::guess}($n$)}
+\li $x = 0$
+\li $y = 0$
+\li $S = $ this$\to$numbers
+\li $\overline{A_0A_1A_2A_3} = n$
+\li \For $i = 0$ \To $3$ \Do
+\li   \If $A[i] == S[i]$ \Then
+\li     $x++$
+      \End
+    \End
+\li $y = |S \cap A| - x$
+\li this$\to$count $++$
+\li \Return $(x, y)$
+\end{codebox}
+\end{quote}
+\caption{\label{Number::guess}验证猜数并返回指定的 $(x, y)$}
+\end{figure}
+
+验证猜数并返回详细信息的 Number::detail() 方法，和 Number::guess() 非常类似，只是这回返回的是一个数组。由于要求首位表示为 1，所以需要加一处理。具体算法伪代码见图~\ref{Number::detail}。
+
+\begin{figure}[htp]
+\begin{quote}
+\begin{codebox}
+\Procname{\proc{Number::detail}($n$)}
+\li $V = \{\}$
+\li $S = $ this$\to$numbers
+\li $\overline{A_0A_1A_2A_3} = n$
+\li \For $i = 0$ \To $3$ \Do
+\li   \If $A[i] == S[i]$ \Then
+\li     $V = V + \{i + 1\}$
+      \End
+    \End
+\li this$\to$count $++$
+\li \Return $V$
+\end{codebox}
+\end{quote}
+\caption{\label{Number::detail}验证猜数并返回详细信息}
 \end{figure}
 
 % \begin{figure}[htp]
@@ -27,3 +74,5 @@
 % \end{quote}
 % \caption{\label{Number::genInt}根据给的的数生成符合要求的数}
 % \end{figure}
+
+语言细节相关的实现，不是前提设计的重点，这里不再赘述算法具体应该怎样用语言实现，请参考语言相关文档和标准库文档。

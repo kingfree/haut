@@ -1,8 +1,8 @@
-/* UserStock.h
-* ÃèÊö: ÓÃ»§¹ÉÆ±Àà£¬´æ´¢
-* ×÷Õß: Ìï¾¢·æ
-* ´´½¨Ê±¼ä: 2015Äê1ÔÂ11ÈÕ
-* ĞŞ¸ÄÊ±¼ä: 2015Äê1ÔÂ11ÈÕ
+ï»¿/* UserStock.h
+* æè¿°: ç”¨æˆ·è‚¡ç¥¨ç±»ï¼Œå­˜å‚¨
+* ä½œè€…: ç”°åŠ²é”‹
+* åˆ›å»ºæ—¶é—´: 2015å¹´1æœˆ11æ—¥
+* ä¿®æ”¹æ—¶é—´: 2015å¹´1æœˆ11æ—¥
 */
 #pragma once
 
@@ -33,12 +33,12 @@ public:
     friend istream& operator>>(istream&, const UserStock&);
 
 protected:
-    int id; // Î¨Ò»±êÊ¶ÔªËØµÄ ID
+    int id; // å”¯ä¸€æ ‡è¯†å…ƒç´ çš„ ID
     int userId;
     int StockId;
-    int num; // ¹ÉÆ±ÊıÁ¿
-    double price; // ¹ºÈë¼Û / Âô³ö¼Û£¨¸º£©
-    time_t timestamp; // ½»Ò×Ê±¼ä
+    int num; // è‚¡ç¥¨æ•°é‡
+    double price; // è´­å…¥ä»· / å–å‡ºä»·ï¼ˆè´Ÿï¼‰
+    time_t timestamp; // äº¤æ˜“æ—¶é—´
 private:
     User& user;
     Stock& stock;

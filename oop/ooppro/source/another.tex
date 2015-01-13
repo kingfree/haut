@@ -1,1 +1,85 @@
-\section{股票交易系统}
+﻿\section{股票交易系统}
+
+这个附录是股票交易系统的设计文档。当初最开始的选题是难度系数为 1.2 的股票交易系统，着手设计了类和头文件之后，发现代码量有点大，不是同组成员可以一周之内可以完成的，于是抛弃了这个项目，改换了代码量较小的猜数字游戏。为了使劳动成果不至于白白浪费，就在这里把设计好的文档和代码一并放在课程设计的附录之中，以供参考。
+
+\subsection{设计类图}
+
+\begin{figure}[htp]
+  \pictext\small
+\begin{tikzpicture}
+\umlemptyclass[x=0, y=3]{Database}
+\umlemptyclass[x=0, y=0]{List}
+\umlunicompo[geometry=--,mult=3]{Database}{List}
+
+\umlemptyclass[x=-4, y=-3]{UserList}
+\umlinherit[geometry=|-]{UserList}{List}
+\umlemptyclass[x=0, y=-3]{UserStockList}
+\umlinherit[geometry=--]{UserStockList}{List}
+\umlemptyclass[x=4, y=-3]{StockList}
+\umlinherit[geometry=|-]{StockList}{List}
+
+\umldep[geometry=--]{UserStockList}{UserList}
+\umldep[geometry=--]{UserStockList}{StockList}
+
+\umlemptyclass[x=-4, y=-7]{User}
+\umlunicompo[geometry=--,mult=0..*]{UserList}{User}
+\umlemptyclass[x=0, y=-6]{UserStock}
+\umlunicompo[geometry=--,mult=0..*]{UserStockList}{UserStock}
+\umlemptyclass[x=4, y=-7]{Stock}
+\umlunicompo[geometry=--,mult=0..*]{StockList}{Stock}
+
+\umldep[geometry=-|-]{UserStock}{User}
+\umldep[geometry=-|-]{UserStock}{Stock}
+
+\umlassoc[geometry=--]{Stock}{User}
+
+\umlemptyclass[x=-4, y=-10]{Cash}
+\umlunicompo[geometry=--,mult=0..*]{User}{Cash}
+
+\end{tikzpicture}
+  \caption{\label{stock}股票交易系统各个类之间的关系}
+\end{figure}
+
+\subsection{题目内容}
+
+\begin{enumerate}[label={（\arabic*）}]
+\item 修改数据结构，增加现金成员，每只股票增加牌价；每个用户的数据库中同样也增加现金数目的成员。 
+\item 增加股票交易系统的接口程序，新增如下设计： 
+\begin{itemize}[label={}]
+\item AddNewStock( )   增加新股票
+\item DeleteOldStock( )  删除旧股票
+\item HangUpStock( )   挂起股票，停止交易
+\item ModifyStock( )    修改股票的名称、代码
+\end{itemize}
+以上修改均须输入密码，密码吻合后才能进入数据库进行修改，结果均存入Stock\_File.dat中。
+\item 将股票数据的处理由数组改为链表，可以处理多只股票的交易，链表以交易代码的序号进行排序，也可根据需要以股票的牌价进行排序。(1.2)
+\end{enumerate}
+
+
+\subsection{头文件}
+
+\lstset{language=C++,
+  numbers=left,
+  numberstyle=\tiny,
+  basicstyle=\tiny\tt,
+  commentstyle=\color{gray},
+  keywordstyle=\bfseries\color{violet},
+  stringstyle=\color{teal},
+  showstringspaces=false,
+  frame=trBL,
+  morekeywords=[1]{cout,cin,cerr,pair,vector,strincg},
+  morekeywords=[2]{Cash,User,Stock,UserStock,List,UserList,StockList,UserStockList,Database,TestCase},
+}
+\linespread{1}
+
+\lstinputlisting{stock/Database.h}
+\lstinputlisting{stock/List.h}
+\lstinputlisting{stock/UserList.h}
+\lstinputlisting{stock/StockList.h}
+\lstinputlisting{stock/UserStockList.h}
+\lstinputlisting{stock/User.h}
+\lstinputlisting{stock/Stock.h}
+\lstinputlisting{stock/UserStock.h}
+\lstinputlisting{stock/Cash.h}
+\lstinputlisting{stock/UI.h}
+\lstinputlisting{stock/cli.cpp}

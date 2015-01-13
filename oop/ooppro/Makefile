@@ -2,6 +2,7 @@ MAIN = ooppro
 
 all:
 	xelatex $(MAIN)
+	bibtex $(MAIN)
 	xelatex $(MAIN)
 
 clean:
