@@ -1,5 +1,6 @@
 RM=rm -f
-CC= g++
+CC= gcc
+CXX= g++
 DEFS= 
 PROGNAME= number
 INCLUDES= -I.
@@ -14,18 +15,22 @@ endif
 DEFINES= $(INCLUDES) $(DEFS) $(OSDEF)
 CFLAGS= -Wall -g $(DEFINES)
 
-SRCS = Number.cpp Score.cpp UI.cpp Password.cpp cli.cpp
+SRCS = Number.cpp Score.cpp UI.cpp mylib.c cli.cpp
 
-OBJS = Number.o Score.o UI.o Password.o
+OBJS = Number.o Score.o UI.o mylib.o
 
 .c.o:
 	$(RM) $@
-	$(CC) $(CFLAGS) -c $*.cpp
+	$(CC) $(CFLAGS) -c $*.c
+
+.cpp.o:
+	$(RM) $@
+	$(CXX) $(CFLAGS) -c $*.cpp
 
 all: $(PROGNAME)
 
 $(PROGNAME) : $(OBJS)
-	$(CC) $(CFLAGS) -o $(PROGNAME) $(OBJS) $(LIBS)
+	$(CXX) $(CFLAGS) -o $(PROGNAME) $(OBJS) $(LIBS)
 
 clean:
 	$(RM) $(OBJS) $(PROGNAME) core *~

@@ -1,4 +1,5 @@
 CC= cl
+CXX= cl
 #DEFS= -nologo -DSTRICT -G3 -Ow -W3 -Zp -Tp
 DEFS= -nologo
 PROGNAME= numbers.exe
@@ -10,11 +11,14 @@ DEFINES= $(INCLUDES) $(DEFS) -DWINNT=1 -DWIN32=1
 
 CFLAGS= $(DEFINES)
 
-SRCS = Number.cpp Score.cpp UI.cpp Password.cpp cli.cpp
+SRCS = Number.cpp Score.cpp UI.cpp mylib.c cli.cpp
 
-OBJS = Number.obj Score.obj UI.obj Password.obj
+OBJS = Number.obj Score.obj UI.obj mylib.obj
 
 .c.obj:
+	$(CC) $(CFLAGS) -c $< -Fo$@
+
+.cpp.obj:
 	$(CC) $(CFLAGS) -c $< -Fo$@
 
 all: $(PROGNAME)

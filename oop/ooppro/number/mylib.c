@@ -1,4 +1,4 @@
-/* Password.cpp
+﻿/* mylib.c
 * 描述: 提供密码的输入功能
 * 作者: 田劲锋
 * 创建时间: 2015年1月12日
@@ -8,8 +8,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "Password.h"
 
 #ifdef WIN32
 #include <conio.h>
