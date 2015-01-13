@@ -10,7 +10,17 @@
 \subsection*{【实验内容】}
 P522：12.10
 \subsection*{【详细分析】}
-（此项由学生自己完成）
+创建一个银行账户的继承层次，表示银行的所有客户账户。所有的客户都能在他们的银行账户存钱、取钱，但是账户也可以分成更具体的类型。例如，一方面存款账户 SavingsAccount 依靠存款生利；另一方面，支票账户 CheckingAccount 对每笔交易（即存款或取款）收取费用。
+
+创建一个类层次，以 Account 作为基类，SavingsAccount 和 CheckingAccount 作为派生类。基类 Account 应该包括一个 double 类型的数据成员 balance，表示账户的余额。该类应提供一个构造函数，接受一个初始余额值并用它初始化数据成员 balance。而且构造函数确认初始金额的有效性，保证它大于等于 0。如果小于 0，则需将其置为 0，并显示出错信息，表明该初始化余额是一个无效的值。该类应该提供三个成员函数：成员函数 credit 可以向当前余额加钱；成员函数 debit 负责从账户中取钱，并且保证账户不会透支。如果提取金额大于账户余额，函数将保持 balance 不变，并打印信息“取钱金额超过账户余额”；成员函数 getBalance 则返回当前 balance 的值。
+
+派生类 SavingsAccount 不仅继承了基类 Account 的功能，而且还应提供一个附加的 double 类型数据成员 interestrate 表示这个账户的利率（百分比）。SavingsAccount 的构造函数应接受初始余额值和初始利率值，还应提供一个 pubilc 成员函数 calculateInterest，返回代表账户的利息的一个 double 值，这个值是 balance 和 interestrate 的乘积。注意：类 SavingsAccount 应继承成员函数 credit 和 debit，不需要重新定义。
+
+派生类 CheckingAccount 不仅继承了基类 Account 的功能，还应提供一个附加的 double 类型数据成员 feechargepertransaction 表示每笔交易的费用。CheckingAccount 的构造函数应接受初始金额值和交易费用值。类 CheckingAccount 需要重新定义成员函数 credit 和 debit，当每笔交易完成时，从 balance 中减去 feechargepertransaction。重新定义这些函数时应用到基类 Account 的这两个函数来执行账户余额的更新。CheckingAccount 的 debit 函数只有当钱被成功提取时才应收取交易费。提示：定义 Account 的 debit 函数使它返回一个 bool 类型值，表示钱是否被成功提取。然后利用该值决定是否需要扣除交易费。
+
+当这个层次中的泪定义完毕后，编写一个程序，要求创建每个类的对象并测试它们的成员函数。将利息加到 SavingsAccount 对象的方法是：先调用它的成员函数 calculateInterest，然后将返回的利息传递给该对象的 credit 值。
+
+（以上手敲）
 \subsection*{【实验源码】}
 （此项由学生自己完成）
 \subsection*{【实验结果】}

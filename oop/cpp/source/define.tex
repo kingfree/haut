@@ -1,7 +1,10 @@
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{《面向对象程序设计》实验报告}
-\def\MyEnvironment{gcc version 4.9.2 (tdm64-1)}
+\def\MyEnvironment{\begin{itemize}
+\item gcc version 4.9.2 (tdm64-1)
+\item Microsoft Visual Studio 2013% Express for Desktop
+\end{itemize}}
 \usepackage[top=2.54cm,bottom=2.54cm,left=3.17cm,right=3.17cm]{geometry} % 页面设置
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
@@ -43,13 +46,12 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \captionsetup{font={small}} % 标题字体大小
 \usepackage[inline]{enumitem} % 调整列表样式
 
-﻿%\setmainfont{Times New Roman}
+﻿\setmainfont{Times New Roman}
 ﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
 \setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
 \setCJKmonofont{KFKai} % 等宽字体：楷体
 \setCJKfamilyfont{msyh}[BoldFont={* Bold}]{微软雅黑} \newcommand{\msyh}{\CJKfamily{msyh}} % 微软雅黑
 \setCJKfamilyfont{micro}{文泉驿微米黑} \newcommand{\micro}{\CJKfamily{micro}} % 文泉驿微米黑
-\setCJKfamilyfont{yaoti}{方正姚体} \newcommand{\yaoti}{\CJKfamily{yaoti}}
 
 \CJKsetecglue{\hspace{0.1em}}
 \renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
@@ -71,3 +73,6 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \CTEXsetup[format={\normalsize\bfseries}]{subsection}
 
 \newcommand{\ctli}[2]{{\bf #1}：\underline{{~#2~}}\hfill}
+
+\setlength{\intextsep}{8pt}
+\setlist{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
