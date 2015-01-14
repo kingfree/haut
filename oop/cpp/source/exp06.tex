@@ -1,5 +1,5 @@
 \section{创建 Account 继承层次}
-\hfill\ctli{实验时间}{~2015~年~1~月~7~日}
+\hfill\ctli{实验时间}{~2015~年~1~月~14~日}
 \subsection*{【实验目的】}
 \begin{enumerate}[topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,label={\arabic*、}]
 \item 掌握继承的概念。
@@ -18,12 +18,24 @@ P522：12.10
 
 派生类 CheckingAccount 不仅继承了基类 Account 的功能，还应提供一个附加的 double 类型数据成员 feechargepertransaction 表示每笔交易的费用。CheckingAccount 的构造函数应接受初始金额值和交易费用值。类 CheckingAccount 需要重新定义成员函数 credit 和 debit，当每笔交易完成时，从 balance 中减去 feechargepertransaction。重新定义这些函数时应用到基类 Account 的这两个函数来执行账户余额的更新。CheckingAccount 的 debit 函数只有当钱被成功提取时才应收取交易费。提示：定义 Account 的 debit 函数使它返回一个 bool 类型值，表示钱是否被成功提取。然后利用该值决定是否需要扣除交易费。
 
-当这个层次中的泪定义完毕后，编写一个程序，要求创建每个类的对象并测试它们的成员函数。将利息加到 SavingsAccount 对象的方法是：先调用它的成员函数 calculateInterest，然后将返回的利息传递给该对象的 credit 值。
+当这个层次中的类定义完毕后，编写一个程序，要求创建每个类的对象并测试它们的成员函数。将利息加到 SavingsAccount 对象的方法是：先调用它的成员函数 calculateInterest，然后将返回的利息传递给该对象的 credit 值。
 
 （以上手敲）
 \subsection*{【实验源码】}
-（此项由学生自己完成）
+{\linespread{1}
+\lstinputlisting[caption={\tt Account.h}]{exp06/Account.h}
+\lstinputlisting[caption={\tt Account.cpp}]{exp06/Account.cpp}
+\lstinputlisting[caption={\tt SavingsAccount.h}]{exp06/SavingsAccount.h}
+\lstinputlisting[caption={\tt SavingsAccount.cpp}]{exp06/SavingsAccount.cpp}
+\lstinputlisting[caption={\tt CheckingAccount.h}]{exp06/CheckingAccount.h}
+\lstinputlisting[caption={\tt CheckingAccount.cpp}]{exp06/CheckingAccount.cpp}
+\lstinputlisting[caption={\tt exp01.cpp}]{exp06/exp01.cpp}
+}
 \subsection*{【实验结果】}
-（截图给出实验结果）
+\begin{figure}[htp]
+\centering
+\includegraphics[width=\textwidth]{exp06/exp01.png}
+\caption{\label{out06_01}Account 继承层次}
+\end{figure}
 \subsection*{【实验体会】}
-（至少150字）
+这是一个掌握 C++ 继承的练习题。一个要注意的地方，和其他面向对象语言不同的是，C++ 在父类需要用 virtual 关键字来声明有可能在子类中重载的方法（并且声称这是为了性能）。子类的构造函数中可以调用父类的构造函数，子类的方法也可以调用父类的同名方法。这些特性减少了代码量，避免了代码冗余的产生。这个例子也很好地巩固了继承的概念。
