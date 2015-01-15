@@ -142,8 +142,6 @@ void Score::write()
 		fout << this->score;
 		fout << this->password;
 	}
-	else
-		cout << "文件写入失败";
 }
 
 bool Score::checkPassword( string word)

@@ -71,6 +71,7 @@ pair<int, int> Number::guess(int n)
 	v[0] = n / 1000;
 
 	int a[10] = {0};
+	int s[10] = {0};
 
 	int x = 0; //表示数字，位置都匹配的个数
 	int y = 0; //表示数字匹配但是位置不匹配的个数
@@ -79,11 +80,11 @@ pair<int, int> Number::guess(int n)
 			x++;
 		}	
 		a[v[i]]++; 
-		a[numbers[i]]++;
+		s[numbers[i]]++;
 	}
 	//求两个集合中元素的交集
 	for (int i = 0; i < 10; i++){
-		if (a[i] == 2)
+		if (a[i] && s[i])
 			y++;
 	}
 	y = y - x;

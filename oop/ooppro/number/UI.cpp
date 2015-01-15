@@ -36,6 +36,7 @@ void UI::Main()
 		 { 
 			 break; 
 		 } 
+		 cout << "                        ";
 		  pause();   
 	 } 
 }
@@ -68,6 +69,7 @@ void UI::NewGame()
 	while (judge == 0){
 		cout << "\n                      请输入四位不重复的正整数:" << endl;
 		int number;
+		cout << "                                ";
 		cin >> number;
 		if (number <= 0)
 			{
