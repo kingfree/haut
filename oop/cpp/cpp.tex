@@ -1,24 +1,28 @@
-\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\documentclass[cs4size,a4paper,nofonts,twoside]{ctexart}
 \input{source/define}
 \begin{document}
 
+\newcounter{unit}
+\newcommand{\unit}[1]{\stepcounter{unit}\begin{center}\Large\bfseries 实验单元\chinese{unit}\quad #1\end{center}}
+
 \input{source/title}
-\part{类和对象}
+\unit{类和对象}
 \input{source/exp01} \clearpage
 \input{source/exp02} \clearpage
-\input{source/exp03} \clearpage
+\input{source/exp03} \cleardoublepage
 
 \input{source/title}
-\part{运算符重载}
+\unit{运算符重载}
 \input{source/exp04} \clearpage
-\input{source/exp05} \clearpage
+\input{source/exp05} \cleardoublepage
 
 \input{source/title}
-\part{继承}
-\input{source/exp06} \clearpage
+\unit{继承}
+\input{source/exp06} \cleardoublepage
 
 \input{source/title}
-\part{多态性和虚函数}
+\unit{多态性和虚函数}
 \input{source/exp07} \clearpage
+% \input{source/exp08} \clearpage
 
 \end{document}

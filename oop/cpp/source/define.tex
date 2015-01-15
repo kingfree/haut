@@ -21,15 +21,22 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \usepackage{xcolor} % 颜色
 \usepackage{wallpaper} % 背景图片
 \usepackage{listings} % 排版代码
+
 \lstset{language=C++,
   numbers=left,
   numberstyle=\tiny,
   basicstyle=\small\tt,
-  commentstyle=\itshape\color{gray},
-  keywordstyle=\bfseries\color{blue},
-  stringstyle=\color{red},
+  commentstyle=\color{gray},
+  keywordstyle=\bfseries\color{violet},
+  stringstyle=\color{red!80!black},
   showstringspaces=false,
+  frame=trBL,
+  morekeywords=[1]{cout,cin,cerr,std,stdin,printf,scanf,perror},
+  keywordstyle=[1]{\color{blue}},
+  morekeywords=[2]{SHAPE,POINT,RECTANGLE,ELLIPSE,CIRCLE,CYLINDER,string,vector,ifstream,ofstream,pair},
+  keywordstyle=[2]{\color{teal}},
 }
+
 \usepackage{amsmath,bm}
 \usepackage{verbatim} % 排版代码
 \usepackage{url} % 排版链接
@@ -45,6 +52,11 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \usepackage{caption}
 \captionsetup{font={small}} % 标题字体大小
 \usepackage[inline]{enumitem} % 调整列表样式
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,shadows} % for pgf-umlsd
+\usepackage[underline=true,rounded corners=false]{pgf-umlsd}
+\usepackage{tikz-uml}
 
 ﻿\setmainfont{Times New Roman}
 ﻿\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
@@ -68,9 +80,8 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \makeindex
 \pagestyle{plain}
 
-\CTEXsetup[number=\chinese{part}, name={实验单元,}, format={\large\bfseries\centering}]{part}
 \CTEXsetup[number=\chinese{section}, name={实验,}, format={\large\bfseries\centering}]{section}
-\CTEXsetup[format={\normalsize\bfseries}]{subsection}
+\CTEXsetup[format={\normalsize\bfseries},beforeskip={1.25ex plus 1ex minus .2ex},afterskip={0.5ex plus .2ex}]{subsection}
 
 \newcommand{\ctli}[2]{{\bf #1}：\underline{{~#2~}}\hfill}
 
