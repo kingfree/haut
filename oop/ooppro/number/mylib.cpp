@@ -1,13 +1,15 @@
-﻿/* mylib.c
+﻿/* mylib.cpp
 * 描述: 提供密码的输入功能
 * 作者: 田劲锋
-* 创建时间: 2015年1月12日
-* 修改时间: 2015年1月12日
+* 创建时间: 2015-1-12
+* 修改时间: 2015-1-15
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "mylib.h"
 
 #ifdef WIN32
 #include <conio.h>
@@ -51,4 +53,22 @@ char *getpass(char *prompt)
     }
 #endif
     return passwd;
+}
+
+void cls()
+{
+#ifdef WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+void pause()
+{
+#ifdef WIN32
+    system("pause");
+#else
+    system("read -p \"请按任意键继续. . .\"");
+#endif
 }

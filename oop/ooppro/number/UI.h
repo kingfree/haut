@@ -1,8 +1,8 @@
 ﻿/* UI.h
 * 描述: 用户界面类，用于用户交互
 * 作者: 田劲锋
-* 创建时间: 2015年1月11日
-* 修改时间: 2015年1月12日
+* 创建时间: 2015-1-11
+* 修改时间: 2015-1-15
 */
 #pragma once
 
@@ -17,7 +17,7 @@ public:
 
     static void NewGame();
 
-    static bool GuessNumber();
+    static bool GuessNumber(int n);
 
     static void ViewDetail();
 
@@ -26,4 +26,6 @@ public:
     static void ShowScore();
 
     static bool InputPassword();
+
+    static void ReadHelp();
 };

@@ -1,4 +1,4 @@
-\subsection{类的设计说明}
+﻿\subsection{类的设计说明}
 
 \newcommand\method[2]{{#1}:~{\it #2}}
 \newcommand\vart[2]{{#1}:~{\it #2}}
@@ -13,11 +13,11 @@
 \begin{tikzpicture}
 \umlclass{Number}{
 \# \argu{int}{number} \comt{待猜的数}\\
--- \argu{short[]}{numbers} \comt{数的拆分数组}\\
+-- \argu{int[]}{numbers} \comt{数的拆分数组}\\
 \# \argu{int}{count} \comt{猜数次数}\\
 }{
 + {Number()} \comt{初始化产生随机数}\\
-% + {Number(\argu{int}{number})} \comt{以指定数字初始化}\\
++ \method{setNumber(\argu{int}{number})}{void} \comt{拆分}\\
 -- \method{genRand()}{int} \comt{产生符合要求的随机数}\\
 + \method{guess(\argu{int}{number})}{\argu{int}{x}, \argu{int}{y}} \comt{猜数并返回提示信息}\\
 + \method{detail(\argu{int}{number})}{int[]} \comt{猜数并返回正确的位数组}\\
@@ -91,7 +91,7 @@
 \underline{+ \method{getInstance()}{Score\&}} \comt{获取实例}\\
 + {$\sim$Score()} \comt{析构函数}\\
 + \method{newGame()}{void} \comt{新建游戏}\\
-+ \method{newGame(\argu{int}{number})}{void} \comt{指定数字新建游戏}\\
+%+ \method{newGame(\argu{int}{number})}{void} \comt{指定数字新建游戏}\\
 + \method{guess(\argu{int}{number})}{bool, string} \comt{猜数}\\
 \# \method{plus()}{void} \comt{加分}\\
 \# \method{minus()}{void} \comt{减分}\\
@@ -106,7 +106,7 @@
 \function{Score::Score}
 {}
 {}{构造函数}
-{单例模式的构造函数是 private 的。构造函数尝试调用 this$\to$read() 从文件中读取分数和密码，初始化 this$\to$score 和 this$\to$password。}
+{单例模式的构造函数是 private 的。构造函数尝试调用 this$\to$read() 从文件中读取分数和密码，初始化 this$\to$score 和 this$\to$password。初始化 this$\to$lastNumber 为特殊值表示用户还没有输入任何数。}
 
 \function{Score::getInstance}
 {}
@@ -123,19 +123,19 @@
 {void}{无}
 {创建一个新的 Number 实例，添加到 this$\to$numbers 数组的尾部。}
 
-\function{Score::newGame}
-{int number}
-{void}{无}
-{以指定的 number 为参数，创建一个新的 Number 实例，并添加到 this$\to$numbers 数组的尾部。}
+%\function{Score::newGame}
+%{int number}
+%{void}{无}
+%{以指定的 number 为参数，创建一个新的 Number 实例，并添加到 this$\to$numbers 数组的尾部。}
 
 \function{Score::guess}
 {int number}
 {std::pair<bool, std::string>}{是否猜对以及提示信息}
 {用户输入了 number。
 
-对于特殊情况，如果 number 是 8888，则调用当前 Number 对象（即 this$\to$numbers 数组的最后一个元素）的 detail() 方法，参数为 this$\to$lastNumber，并返回猜数失败和详细的帮助信息，即“第 $a,b,c$ 位数字正确”；如果是 7777，则调用 answer() 方法来查看答案，并返回猜数失败和正确答案，即“正确答案是 $number$”。特殊情况不加减分数。
+对于特殊情况，如果 number 是 8888，则调用当前 Number 对象（即 this$\to$numbers 数组的最后一个元素）的 detail() 方法，参数为 this$\to$lastNumber，并返回猜数失败和详细的帮助信息，即“第 $a,b,c$ 位数字正确”，注意如果 this$\to$lastNumber 被标记成特殊值则表示用户直接输入了 8888 来作弊，这时候应该返回猜数失败和错误提示，而不应该调用 detail() 来返回帮助信息；如果是 7777，则调用 answer() 方法来查看答案，并返回猜数失败和正确答案，即“正确答案是 $number$”。特殊情况不加减分数。
 
-对于一般的猜数，则调用 guess() 进行正常的猜数流程，如果猜对则返回猜数成功和祝贺信息；猜错则返回猜数失败和提示信息 $(x,y)$，即“数位匹配 $x$ 个，数匹配位不符 $y$ 个”。猜对的加分，猜错的则减分。}
+对于一般的猜数，则置 this$\to$lastNumber 为 number，并调用 guess() 进行正常的猜数流程，如果猜对则返回猜数成功和祝贺信息；猜错则返回猜数失败和提示信息 $(x,y)$，即“数位匹配 $x$ 个，数匹配位不符 $y$ 个”。猜对的加分，猜错的则减分。}
 
 \function{Score::plus}
 {}
@@ -150,12 +150,12 @@
 \function{Score::read}
 {}
 {int}{读入的得分}
-{从文件中读取得分和密码，分别放到 this$\to$score 和 this$\to$password 里。}
+{从文件中读取得分和密码，分别放到 this$\to$score 和 this$\to$password 里。如果文件不存在，则初始化 this$\to$score 为 0，初始化 this$\to$password 为 “root”，并调用 this$\to$write() 方法将其写出。写出后再尝试读入。}
 
 \function{Score::write}
 {}
 {void}{无}
-{向文件中写出得分 this$\to$score 和密码 this$\to$password。}
+{向文件中写出得分 this$\to$score 和密码 this$\to$password。要写入的文件名应该和 this$\to$read() 中的读入文件保持一致，为了避免 Magic Number 是使用，这里应该使用一个全局的常量或者静态变量来存储。}
 
 \function{Score::checkPassword}
 {std::string password}
@@ -172,11 +172,12 @@
 \underline{+ \method{Main()}{void}} \comt{主循环}\\
 \underline{+ \method{MainMenu()}{int}} \comt{主菜单}\\
 \underline{+ \method{NewGame()}{void}} \comt{新游戏}\\
-\underline{+ \method{GuessNumber()}{bool}} \comt{猜数字}\\
+\underline{+ \method{GuessNumber(int)}{bool}} \comt{猜数字}\\
 \underline{+ \method{ViewDetail()}{void}} \comt{8888}\\
 \underline{+ \method{ViewAnswer()}{void}} \comt{7777}\\
 \underline{+ \method{ShowScore()}{void}} \comt{显示得分}\\
 \underline{+ \method{InputPassword()}{bool}} \comt{输入密码}\\
+\underline{+ \method{ReadHelp()}{void}} \comt{查阅帮助}\\
 }
 \end{tikzpicture}
   \caption{\label{UI}UI 类}
@@ -192,19 +193,19 @@
 {void}{无}
 {显示主菜单，等待用户输入选项，输入后返回选项值。
 
-定义：(1) 新游戏；(2) 显示得分；(0) 退出。
+定义：(1) 新游戏；(2) 显示得分；(3) 显示帮助；(0) 退出。
 
 对于用户的其他不合理输入，一律解析为 0，表示退出。}
 
 \function{UI::NewGame}
 {}
 {void}{无}
-{开始新游戏。首先调用单例 Score 的 newGame 方法，然后显示提示信息，调用 UI::GuessNumber() 进入猜数流程。循环调用直到该方法返回真表示猜对，显示祝贺信息。}
+{开始新游戏。首先调用单例 Score 的 newGame 方法，然后显示提示信息，等待用户输入。判断用户的输入，如果是小于等于 0 的数 则返回上一级表示结束本轮游戏；否则调用 UI::GuessNumber() 进入猜数流程，循环这个过程直到该方法返回真表示猜对，显示祝贺信息。}
 
 \function{UI::GuessNumber}
 {}
 {bool}{是否猜对}
-{等待用户输入。判断用户的输入，如果是 8888 则调用 UI::ViewDetail()，如果是 7777 则调用 UI::ViewAnswer，如果是 0000 则返回上一级，如果是负数则直接退出程序。对于正常的输入，则直接调用 Score 实例的 guess() 方法，显示其返回的提示字符串，显示当前得分。}
+{判断用户的输入，如果是 8888 则调用 UI::ViewDetail()，如果是 7777 则调用 UI::ViewAnswer()。对于正常的输入，则直接调用 Score 实例的 guess() 方法，显示其返回的提示字符串，显示当前得分。}
 
 \function{UI::ViewDetail}
 {}
@@ -216,29 +217,27 @@
 {void}{无}
 {7777 功能。首先调用 UI::InputPassword() 来进行密码输入和验证，允许三次密码输入，如果验证失败则直接返回；如果验证成功，则调用 Score 实例的 guess() 方法，并显示提示字符串。}
 
-%\function{UI::ShowScore}
-%{}
-%{void}{无}
-%{显示得分。}
+\function{UI::ShowScore}
+{}
+{void}{无}
+{显示得分。}
 
 \function{UI::InputPassword}
 {}
 {bool}{密码是否验证通过}
 {提示用户输入密码，设置控制台属性，等待用户输入。在 Windows 下，密码输入后回显成星号 “*”；在 Linux 下，密码输入不回显，但退格键仍应可用。这些操作可以调用 getpass() 函数，在 {\tt Password.h} 中提供。密码输入后，调用 Score 实例的 checkPassword() 方法来验证密码的正确性。}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+\function{UI::ReadHelp}
+{}
+{void}{无}
+{显示如下帮助提示信息：
+\begin{enumerate}
+\item 游戏目的是猜一个四位数，且这个四位数每位都不相同
+\item 每次猜数都会有提示\\
+   分别表示数字、位置都匹配的个数，数字匹配但位置不匹配的个数
+\item 猜对了加 20 分，猜错了减 40 分
+\item 猜 8888 可以得到详细的提示
+\item 猜 7777 可以直接看答案，但需要密码
+\item 猜 0 或负数会退出该轮游戏，但仍会计分哦
+\end{enumerate}
+}

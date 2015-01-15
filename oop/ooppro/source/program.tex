@@ -8,10 +8,47 @@
   basicstyle=\tiny\tt,
   commentstyle=\color{gray},
   keywordstyle=\bfseries\color{violet},
-  stringstyle=\color{teal},
+  stringstyle=\color{red!80!black},
   showstringspaces=false,
   frame=trBL,
-  morekeywords=[1]{perror,assert,printf,fprintf,scanf,sscanf},
-  morekeywords=[2]{},
+  morekeywords=[1]{cout,cin,cerr,std,stdin,printf,scanf,perror},
+  keywordstyle=[1]{\color{blue}},
+  morekeywords=[2]{Score,Number,UI,string,vector,ifstream,ofstream,pair},
+  keywordstyle=[2]{\color{teal}},
 }
-\linespread{1}
+
+\subsection{许可证}
+\begin{quote}
+\tiny
+\verbatiminput{number/LICENSE}
+\end{quote}
+
+\subsection{工程文件}
+
+{\linespread{1}\lstinputlisting[language=bash,caption={\tt Makefile}]{number/Makefile}}
+{\linespread{1}\lstinputlisting[language=bash,caption={\tt Makefile.vs}]{number/Makefile.vs}}
+
+\subsection{头文件}
+{\linespread{1}\lstinputlisting[caption={\tt Number.h}]{number/Number.h}}
+{\linespread{1}\lstinputlisting[caption={\tt Score.h}]{number/Score.h}}
+{\linespread{1}\lstinputlisting[caption={\tt UI.h}]{number/UI.h}}
+
+\subsection{主程序}
+{\linespread{1}\lstinputlisting[caption={\tt cli.cpp}]{number/cli.cpp}}
+
+\subsection{邢志鹏的实现}
+%{\linespread{1}\lstinputlisting[caption={\tt Number.cpp}]{number/Number.cpp}}
+%{\linespread{1}\lstinputlisting[caption={\tt Score.cpp}]{number/Score.cpp}}
+%{\linespread{1}\lstinputlisting[caption={\tt UI.cpp}]{number/UI.cpp}}
+
+\subsection{田劲锋的实现}
+{\linespread{1}\lstinputlisting[caption={\tt Number\_tjf.cpp}]{number/Number_tjf.cpp}}
+{\linespread{1}\lstinputlisting[caption={\tt Score\_tjf.cpp}]{number/Score_tjf.cpp}}
+{\linespread{1}\lstinputlisting[caption={\tt UI\_tjf.cpp}]{number/UI_tjf.cpp}}
+
+\subsection{辅助文件}
+这个是用 C 语言一些跨平台控制台控制的代码，提供在这里供调用。
+{\linespread{1}\lstinputlisting[caption={\tt mylib.h}]{number/mylib.h}}
+{\linespread{1}\lstinputlisting[caption={\tt mylib.cpp}]{number/mylib.cpp}}
+
+

@@ -13,15 +13,11 @@ OSDEF= -DSYS_UNIX=1
 endif
 
 DEFINES= $(INCLUDES) $(DEFS) $(OSDEF)
-CFLAGS= -Wall -g $(DEFINES)
+CFLAGS= $(DEFINES)
 
-SRCS = Number.cpp Score.cpp UI.cpp mylib.c cli.cpp
+SRCS = Number.cpp Score.cpp UI.cpp mylib.cpp cli.cpp
 
-OBJS = Number.o Score.o UI.o mylib.o
-
-.c.o:
-	$(RM) $@
-	$(CC) $(CFLAGS) -c $*.c
+OBJS = Number.o Score.o UI.o mylib.o cli.o
 
 .cpp.o:
 	$(RM) $@
