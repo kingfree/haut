@@ -82,7 +82,7 @@ void UI::NewGame()
     bool flag = false;
     while (!flag) {
         cout << "请猜一个四位数: " << endl;
-        cout << "--> ";
+        cout << "==> ";
         int n = geti();
         if (n <= 0) {
             cout << "结束本轮游戏！" << endl;
