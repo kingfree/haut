@@ -64,14 +64,15 @@ pair<int, int> Number::guess(int number)
     int x = 0, y = 0;
     vector<int> s = itov(this->number);
     vector<int> a = itov(number);
+    int u[10] = { 0 };
     int v[10] = { 0 };
     for (int i = 0; i < 4; i++) {
         x += (a[i] == s[i]);
-        v[a[i]]++;
+        u[a[i]]++;
         v[s[i]]++;
     }
     for (int i = 0; i < 10; i++) {
-        y += (v[i] == 2);
+        y += (u[i] && v[i]);
     }
     y = y - x;
     this->count++;

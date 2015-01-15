@@ -61,7 +61,7 @@ pair<bool, string> Score::guess(int number)
         for (size_t i = 0; i < a.size() - 1; i++) {
             s << (i + 1) << ",";
         }
-        s << a.back() << "位数字正确";
+        s << a.back() << " 位数字正确";
         return make_pair(false, s.str());
     } else if (number == 7777) {
         int a = n.answer();

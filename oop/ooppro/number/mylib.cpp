@@ -52,6 +52,10 @@ char *getpass(char *prompt)
         return NULL;
     }
 #endif
+    size_t l = strlen(passwd) - 1;
+    while (passwd[l] == '\r' || passwd[l] == '\n') {
+        passwd[l--] = '\0';
+    }
     return passwd;
 }
 
