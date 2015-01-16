@@ -1,4 +1,4 @@
-\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\documentclass[cs4size,a4paper,nofonts,twoside]{ctexart}
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\xzp{{\tt{邢志鹏}}}
@@ -67,13 +67,17 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 
 %%%% 开始 %%%%
 
+\pagestyle{empty}
 \input{source/title}
+\cleardoublepage
 
+\setcounter{page}{0}
+\pagestyle{plain}
 {\linespread{1}
 \tableofcontents
 \vfill\centering
 %\inputgraphics[height=5cm]{image/saki.png}
-\vfill}\clearpage
+\vfill}\cleardoublepage
 
 \input{source/task}
 \clearpage
