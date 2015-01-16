@@ -2,7 +2,7 @@
 * 描述: 用户界面类的实现，用于用户交互
 * 作者: 邢志鹏
 * 创建时间: 2015-1-12
-* 修改时间: 2015-1-15
+* 修改时间: 2015-1-16
 */
 
 #include <iostream>
@@ -40,6 +40,14 @@ void UI::Main()
 		  pause();   
 	 } 
 }
+int geti()
+{
+	cin.clear();
+	string str;
+	getline(cin, str);
+	int n = atoi(str.c_str());
+	return n;
+} //读入数字采用字符串形式读入，再调用库函数自动转化为整数,否则在输入四位数字的时候会把回车读入。
 
 int UI::MainMenu()
 {
@@ -57,9 +65,10 @@ int UI::MainMenu()
 	cout << endl;
 	cout <<	"				---> ";
 
-	cin >> selection;
+	selection = geti();
 	return selection;
 }
+
 
 void UI::NewGame()
 {
@@ -70,7 +79,7 @@ void UI::NewGame()
 		cout << "\n                      请输入四位不重复的正整数:" << endl;
 		int number;
 		cout << "                                ";
-		cin >> number;
+		number = geti();
 		if (number <= 0)
 			{
 				cout << "                          结束本轮游戏" << endl;
@@ -150,7 +159,7 @@ void UI::ReadHelp()
 		<< "★3.猜对了加 20 分，猜错了减 40 分                                          ★\n"
 		<< "★4.猜 8888 可以得到详细的提示                                              ★\n"
 		<< "★5.猜 7777 可以直接看答案，但需要密码                                      ★\n"
-		<< "★6.猜 0 或负数会退出该轮游戏，但仍会计分哦                                 ★\n"
+		<< "★6.猜 0 或负数或无效字符会退出该轮游戏，但仍会计分哦                       ★\n"
 		<< "═══════════════════════════════════════" << endl;
 	
 }
