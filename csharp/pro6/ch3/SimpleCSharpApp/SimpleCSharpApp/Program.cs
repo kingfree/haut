@@ -8,8 +8,20 @@ namespace SimpleCSharpApp
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
+            Console.WriteLine("***** C# 控制台应用 *****");
+            Console.WriteLine("Hello, 世界");
+            Console.WriteLine();
+
+            for (int i = 0; i < args.Length; i++)
+                Console.WriteLine("参数 {0}: {1}", i, args[i]);
+            
+            foreach (string arg in args)
+                Console.WriteLine("参数: {0}", arg);
+
+            Console.ReadLine();
+            return 0;
         }
     }
 }
