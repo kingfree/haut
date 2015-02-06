@@ -3,7 +3,7 @@
 ### 计算机系统和原理
 
 * **csapp**：《深入理解计算机系统》 *Computer Systems: A Programmer's Perspective*
-* *sicp*
+* **sicp**
 * 《编译原理》
 * 《操作系统》
 
@@ -20,6 +20,7 @@
 * **js_mm**：《JavaScript 和 jQuery 实践手册》
 * **wbdev**：《Web 开发秘方》
 * **tlpi**：《Linux/UNIX 系统编程手册》 *The Linux Programming Interface*
+* **devlang**：《自制编程语言》 *「プログラミング言語を作る」*
 * **clang**：C 语言
 * **clang/exp**：课程《程序设计基础（C 语言）》实验报告
 * **clang/exam**：课程《程序设计实践》课程设计：*标准化考试系统*
@@ -62,3 +63,4 @@
 * **counter**：萌战吧战队联赛计票器
 * **saimoe**：日萌相关总结
 * **mini**：难以分类的小程序
+
