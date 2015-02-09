@@ -7,8 +7,8 @@
     int int_value;
     double double_value;
 }
-%token <double_value>      DOUBLE_LITERAL
-%token ADD SUB MUL DIV CR
+%token <double_value> DOUBLE_LITERAL
+%token ADD SUB MUL DIV CR LP RP
 %type <double_value> expression term primary_expression
 %%
 line_list
@@ -44,6 +44,9 @@ term
     ;
 primary_expression
     : DOUBLE_LITERAL
+    | LP expression RP {
+        $$ = $2;
+    }
     ;
 %%
 int yyerror(char const *str)

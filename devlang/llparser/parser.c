@@ -28,14 +28,23 @@ double parse_expression();
 static double parse_primary_expression()
 {
     Token token;
+    double value;
 
     my_get_token(&token);
     if (token.kind == NUMBER_TOKEN) {
         return token.value;
+    } else if (token.kind == LEFT_PAREN_TOKEN) {
+        value = parse_expression();
+        my_get_token(&token);
+        if (token.kind != RIGHT_PAREN_TOKEN) {
+            fprintf(stderr, "缺少右括号。\n");
+            exit(1);
+        }
+        return value;
+    } else {
+        unget_token(&token);
+        return 0.0;
     }
-    fprintf(stderr, "语法错误。\n");
-    exit(1);
-    return 0.0;
 }
 
 static double parse_term()
