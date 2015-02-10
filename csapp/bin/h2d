@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+# 将十六进制转换为十进制
+
+for ($i = 0; $i < @ARGV; $i++) {
+    $val = hex($ARGV[$i]);
+    printf("0x%x = %d\n", $val, $val);
+}
+
