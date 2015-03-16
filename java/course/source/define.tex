@@ -2,9 +2,12 @@
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{《Java编程基础》实验报告}
 \def\MyEnvironment{\begin{itemize}
-\item javac 1.7.0_71
+\item javac 1.8.0\_40
+\item java version "1.8.0\_40"
+\item Java(TM) SE Runtime Environment (build 1.8.0\_40-b25)
+\item Java HotSpot(TM) 64-Bit Server VM (build 25.40-b25, mixed mode)
 \end{itemize}}
-\usepackage[top=2.54cm,bottom=2.54cm,left=3.17cm,right=3.17cm]{geometry} % 页面设置
+\usepackage[top=1.45cm,bottom=1.2cm,left=2.22cm,right=2.59cm,includeheadfoot,head=.05cm,foot=.55cm]{geometry} % 页面设置
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
 pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
@@ -36,7 +39,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
   % keywordstyle=[2]{\color{teal}},
 }
 
-\usepackage{amsmath,bm}
+\usepackage{latexsym,amsmath,amssymb,bm}
 \usepackage{verbatim} % 排版代码
 \usepackage{url} % 排版链接
 \usepackage{shortvrb}
@@ -70,7 +73,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \widowpenalty=10000
 \linespread{1.2}
 \setlength{\parskip}{2pt plus 2pt}
-\renewcommand{\baselinestretch}{1.5}
+\renewcommand{\baselinestretch}{1.2}
 
 \setlength{\abovecaptionskip}{1pt}
 \setlength{\belowcaptionskip}{0pt}
@@ -79,10 +82,11 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \makeindex
 \pagestyle{plain}
 
-\CTEXsetup[number=\Roman{section}, name={实验,}, format={\large\bfseries\centering}]{section}
-\CTEXsetup[format={\normalsize\bfseries},beforeskip={1.25ex plus 1ex minus .2ex},afterskip={0.5ex plus .2ex}]{subsection}
+\CTEXsetup[number=\chinese{section}, name={实验,}, format={\zihao{4}\bfseries\centering}, beforeskip={.1ex plus 1ex minus .2ex}, afterskip={.1ex plus .2ex minus .1ex}]{section}
+\CTEXsetup[number=\chinese{subsection}, name={,.}, format={\normalsize\bfseries}, beforeskip={.1ex plus 1ex minus .2ex}, afterskip={.1ex plus .2ex minus .1ex}]{subsection}
 
-\newcommand{\ctli}[2]{{\bf #1}：\underline{{~#2~}}\hfill}
+\newcommand{\ctli}[2]{{#1}：\underline{{~#2~}}\hfill}
+\newcommand{\ctliw}[3]{{#1}：\underline{\makebox[#3][c]{~#2~}}}
 
 \setlength{\intextsep}{8pt}
 \setlist{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
