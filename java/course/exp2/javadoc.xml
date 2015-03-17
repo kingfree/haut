@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="javadoc">
     <target name="javadoc">
-        <javadoc access="package" additionalparam="-encoding utf-8 -charset utf-8 " author="true" classpath="." destdir="doc" doctitle="实验二 Java基本语法" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="maxElement,matrix,pi,prime" source="1.8" sourcepath="src" splitindex="true" use="true" version="true"/>
+        <javadoc access="package" additionalparam="-encoding utf-8 -charset utf-8 " author="true" classpath="." destdir="doc" doctitle="实验二 Java基本语法" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="fibonacci,maxElement,matrix,max2ndElement,pi,prime,perfect,narcissistic" source="1.8" sourcepath="src" splitindex="true" use="true" version="true"/>
     </target>
 </project>
