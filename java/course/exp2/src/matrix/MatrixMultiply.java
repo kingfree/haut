@@ -14,10 +14,8 @@ public class MatrixMultiply {
     /**
      * 计算矩阵乘法（叉积）
      * 
-     * @param a
-     *            矩阵 A
-     * @param b
-     *            矩阵 B
+     * @param a 矩阵 A
+     * @param b 矩阵 B
      * @return 乘积的二维数组 C。无法相乘则返回一个0×0的数组
      */
     public static double[][] multiply(double[][] a, double[][] b) {
@@ -41,12 +39,9 @@ public class MatrixMultiply {
     /**
      * 输入一个二维数组
      * 
-     * @param in
-     *            输入来源
-     * @param m
-     *            高度
-     * @param n
-     *            宽度
+     * @param in 输入来源
+     * @param m 高度
+     * @param n 宽度
      * @return 读入的二维数组
      */
     public static double[][] inputArray(Scanner in, int m, int n) {
@@ -62,8 +57,7 @@ public class MatrixMultiply {
     /**
      * 输出一个二维数组
      * 
-     * @param c
-     *            要输出的数组
+     * @param c 要输出的数组
      */
     public static void outputArray(double[][] c) {
         for (double[] a : c) {

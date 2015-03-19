@@ -2,25 +2,27 @@ package shape;
 
 /**
  * 圆
- * @version 2015-3-18
+ * 
+ * @date 2015-3-18
+ * @version 2015-3-19
  * @author Kingfree
  */
 public class Circle implements Shape {
 
     private double radius;
-    
+
     public void setRadius(double radius) {
         this.radius = radius;
     }
-    
+
     public double getRadius() {
         return this.radius;
     }
-    
+
     public Circle(double radius) {
         setRadius(radius);
     }
-    
+
     /**
      * @see shape.Shape#area()
      */
@@ -37,11 +39,7 @@ public class Circle implements Shape {
         return 2 * Math.PI * getRadius();
     }
 
-    /**
-     * @see shape.Shape#info()
-     */
-    @Override
-    public String info() {
+    public String toString() {
         return "圆[半径=" + getRadius() + "]";
     }
 

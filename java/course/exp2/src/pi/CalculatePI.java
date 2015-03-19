@@ -13,8 +13,7 @@ public class CalculatePI {
     /**
      * 依公式计算 π
      * 
-     * @param e
-     *            计算的精度
+     * @param e 计算的精度
      * @return 按精度计算的 π 值
      */
     public static double calcpi(double e) {

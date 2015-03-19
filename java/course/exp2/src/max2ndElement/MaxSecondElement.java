@@ -12,8 +12,7 @@ public class MaxSecondElement {
     /**
      * 计算数组中的最大值和次大值
      * 
-     * @param a
-     *            待查找的数组
+     * @param a 待查找的数组
      * @return 数组的最大值和次大值组成的含有两个元素的数组
      */
     public static double[] max2ndelement(double[] a) {
@@ -37,7 +36,7 @@ public class MaxSecondElement {
             System.out.print(a[i] + " ");
         }
         System.out.println();
-        
+
         double[] result = max2ndelement(a);
         System.out.println("最大值: " + result[0]);
         System.out.println("次大值: " + result[1]);

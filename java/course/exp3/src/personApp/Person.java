@@ -1,7 +1,8 @@
 package personApp;
 
 /**
- * @version 2015-3-18
+ * @date 2015-3-18
+ * @version 2015-3-19
  * @author Kingfree
  */
 public class Person {
@@ -15,7 +16,7 @@ public class Person {
     }
 
     public void setAge(int age) {
-        this.age = age;
+        this.age = Math.abs(age) % 150;
     }
 
     public void setSex(char sex) {

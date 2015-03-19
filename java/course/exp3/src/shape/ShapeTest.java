@@ -5,7 +5,8 @@
 package shape;
 
 /**
- * @version 2015-3-18
+ * @date 2015-3-18
+ * @version 2015-3-19
  * @author Kingfree
  */
 public class ShapeTest {
@@ -13,16 +14,13 @@ public class ShapeTest {
     public static void main(String[] args) {
         
         Circle c = new Circle(1.5);
-        System.out.println(c.info());
-        System.out.println("面积: " + c.area() + " 周长: " + c.perimeter());
+        System.out.println(c + " 面积: " + c.area() + " 周长: " + c.perimeter());
         
         Rectangle r = new Rectangle(3, 4);
-        System.out.println(r.info());
-        System.out.println("面积: " + r.area() + " 周长: " + r.perimeter());        
+        System.out.println(r + " 面积: " + r.area() + " 周长: " + r.perimeter());        
         
         Triangle t = new Triangle(3, 4, 5);
-        System.out.println(t.info());
-        System.out.println("面积: " + t.area() + " 周长: " + t.perimeter());        
+        System.out.println(t + " 面积: " + t.area() + " 周长: " + t.perimeter());        
         
     }
 

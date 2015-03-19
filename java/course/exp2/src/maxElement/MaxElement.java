@@ -13,8 +13,7 @@ public class MaxElement {
     /**
      * 计算数组中的最大值
      * 
-     * @param a
-     *            待查找的数组
+     * @param a 待查找的数组
      * @return 数组的最大值
      */
     public static double max_element(double[] a) {

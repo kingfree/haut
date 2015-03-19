@@ -3,7 +3,8 @@ package shape;
 /**
  * 矩形类
  * 
- * @version 2015-3-18
+ * @date 2015-3-18
+ * @version 2015-3-19
  * @author Kingfree
  */
 public class Rectangle implements Shape {
@@ -48,11 +49,7 @@ public class Rectangle implements Shape {
         return 2 * (getHeight() + getWidth());
     }
 
-    /**
-     * @see shape.Shape#info()
-     */
-    @Override
-    public String info() {
+    public String toString() {
         return "矩形[长=" + getHeight() + ",宽=" + getWidth() + "]";
     }
 

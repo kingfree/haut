@@ -17,7 +17,7 @@ public class Fibonacci {
         for (int i = 3; i <= n; i++) {
             f[i] = f[i - 1] + f[i - 2];
         }
-        
+
         for (int i = 1; i <= n; i++) {
             System.out.printf("%10d ", f[i]);
             if (i % 8 == 0) {

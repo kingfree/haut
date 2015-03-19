@@ -8,9 +8,10 @@ package perfect;
  * @author Kingfree
  */
 public class PerfectNumber {
-    
+
     /**
      * 判断是否为完美数
+     * 
      * @param n 待判断的数
      * @return 是否为完美数
      */
@@ -27,7 +28,7 @@ public class PerfectNumber {
     public static void main(String[] args) {
         int n = 1000;
         for (int i = 1; i <= n; i++) {
-            if(isPerfectNumber(i)) {
+            if (isPerfectNumber(i)) {
                 System.out.println(i);
             }
         }

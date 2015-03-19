@@ -3,7 +3,8 @@ package shape;
 /**
  * 三角形类，继承于矩形类
  * 
- * @version 2015-3-18
+ * @date 2015-3-18
+ * @version 2015-3-19
  * @author Kingfree
  */
 public class Triangle extends Rectangle {
@@ -42,14 +43,9 @@ public class Triangle extends Rectangle {
         return getHeight() + getWidth() + getThird();
     }
 
-    /**
-     * @see shape.Shape#info()
-     */
-    @Override
-    public String info() {
-        return "三角形[a=" + getHeight()
-                + ",b=" + getWidth()
-                + ",c=" + getThird() + "]";
+    public String toString() {
+        return "三角形[a=" + getHeight() + ",b=" + getWidth() + ",c=" + getThird()
+                + "]";
     }
 
 }

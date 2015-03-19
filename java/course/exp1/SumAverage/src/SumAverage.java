@@ -3,7 +3,8 @@ import java.util.Scanner;
 /**
  * 求数组的和、平均值
  * 
- * @version 2015-3-9
+ * @date 2015-3-9
+ * @version 2015-3-19
  * @author Kingfree
  */
 
@@ -13,6 +14,7 @@ public class SumAverage {
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
+        System.out.println("请输入一个整数：");
         int n = in.nextInt();
         in.close();
 

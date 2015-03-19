@@ -4,24 +4,33 @@
 package narcissistic;
 
 /**
- * @version 2015-3-17
+ * @date 2015-3-17
+ * @version 2015-3-19
  * @author Kingfree
  */
 public class NarcissisticNumbers {
 
+    public static boolean isNarciss(int n) {
+        int m = n;
+        int[] a = new int[32];
+        int i = 0;
+        while (n != 0) {
+            a[i++] = n % 10;
+            n /= 10;
+        }
+
+        int s = 0;
+        for (int j = 0; j < i; j++) {
+            s += Math.pow(a[j], i);
+        }
+
+        return m == s;
+    }
+
     public static void main(String[] args) {
         int a = 100, b = 999;
         for (int i = a; i <= b; i++) {
-            int n = i;
-            
-            int s = 0;
-            while (n > 0) {
-                int r = n % 10;
-                n /= 10;
-                s += Math.pow(r, 3);
-            }
-
-            if (i == s) {
+            if (isNarciss(i)) {
                 System.out.print(i + " ");
             }
         }
