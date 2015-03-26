@@ -1,4 +1,4 @@
-package personApp;
+package student;
 
 /**
  * @date 2015-3-18
@@ -9,7 +9,6 @@ public class Person {
 
     private String name;
     private int    age;
-    private char   sex;
 
     public void setName(String name) {
         this.name = name;
@@ -17,10 +16,6 @@ public class Person {
 
     public void setAge(int age) {
         this.age = Math.abs(age) % 180;
-    }
-
-    public void setSex(char sex) {
-        this.sex = (sex == 'f' || sex == 'F') ? 'f' : 'm';
     }
 
     public String getName() {
@@ -31,18 +26,13 @@ public class Person {
         return this.age;
     }
 
-    public String getSex() {
-        return this.sex == 'f' ? "女" : "男";
-    }
-
-    public Person(String name, int age, char sex) {
+    public Person(String name, int age) {
         setName(name);
         setAge(age);
-        setSex(sex);
     }
 
-    public String show() {
-        return getName() + " " + getSex() + " " + getAge();
+    public String toString() {
+        return getName() + " " + getAge();
     }
 
 }
