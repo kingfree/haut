@@ -1,0 +1,114 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{考勤管理系统需求规格说明书}
+\def\version{（一）}
+\usepackage[b5paper,margin=2cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
+%\CTEXsetup[number=\chinese{section}, format={\large\sf\bfseries}]{section}
+\usepackage{latexsym,amsmath,amssymb,bm}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2} % 行距
+
+\usepackage[inline]{enumitem} % 调整列表样式
+\setlist{noitemsep}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate,2]{label={(\arabic*)}}
+
+%\makeindex
+\pagestyle{plain}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\title{\titlec~\version}
+\author{软件工程1305班~\tjf~201316920311}
+\maketitle
+
+\section{业务需求}
+
+\subsection{背景}
+
+大学课堂上，教师需要有一套有效的考勤办法来记录学生的出勤情况。传统的人工点名办法存在一些缺点。
+
+\subsection{业务机遇}
+
+在软件工程课堂上，王珂老师提出利用一套软硬件设施进行考勤的需求，希望能够利用这一系统做到有效的考勤。
+
+\subsection{业务目标}
+
+系统初期要做到基本的考勤功能，随着扩展性的增强发展出一套可以商用的有效考勤系统。
+
+\subsection{提供给客户的价值}
+
+产品可以实现有效的考勤功能，并能够自动生成考勤结果，为任课教师减轻考勤负担和统计负担，减少课堂时间的浪费，使教育教学能够更加有效地进行。
+
+\subsection{业务风险}
+
+实验教学项目，风险极小，在理论上不会因为项目拖延或失败导致非常严重的问题。
+
+\section{用户需求}
+
+\subsection{产品用户分析}
+
+产品的用户为大学的任课教师，也可以用于公司和其他情况的考勤。
+
+\subsection{用户一览表}
+
+教师：控制和使用该产品，管理和设置产品的运行。
+
+学生：使用该产品系统，经受系统的检测，其行为记录在系统中。
+
+\subsection{用户环境}
+
+拥有前后门的大学教室。
+
+\subsection{用户需求}
+
+教师需要通过系统对学生来到教室的时间进行记录，并判断其是否旷课、迟到或早退。
+
+学生要求尽可能简单地通过该系统，不必做过多的验证过程。
+
+\section{系统需求}
+
+\subsection{功能需求}
+
+\begin{enumerate}
+\item 检测学生是否按时到班，是否迟到。
+\item 检测学生在上课时间是否在教室听课，是否早退。
+\item 记录学生数据和到课情况，提供接口生成考勤报表。
+\item 提供接口用以添加、删除和修改学生数据。
+\item 要求有一定的容错性，能够排除非当课学生的情况。
+\item 其他暂未考虑到的功能需求。
+\end{enumerate}
+
+\subsection{非功能需求}
+
+\begin{enumerate}
+\item 硬件系统要求便携，方便教师携带。
+\item 要求系统安装和设置便捷，方便随时开启和关闭。
+\item 检测过程不对学生和教师产生干扰，或干扰很小且无害。
+\item 持续检测的电池续航能力和充电能力。
+\item 系统界面的友好性和易操作性。
+\item 可以通过移动设备访问。
+\item 其他暂未考虑到的非功能需求。
+\end{enumerate}
+
+\begin{thebibliography}{10}
+\bibitem{sre} 需求工程：实践者之路. Christof Ebert. 机械工业出版社, 2013.
+\bibitem{se} 软件工程：实践者的研究方法. Roger S. Pressman. 机械工业出版社, 2011.
+\end{thebibliography}
+
+\end{document}
