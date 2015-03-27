@@ -1,33 +1,33 @@
-package cat;
+package copy;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 /**
- * 将标准输入的内容写出到文件
+ * 用 Reader/Writer 拷贝文件
  * 
- * @date 2015-3-26
  * @version 2015-3-27
  * @author Kingfree
  */
-public class CatToFile {
+public class CopyText {
 
 	public static void main(String[] args) {
 
-		if (args.length < 1) {
-			System.out.println("用法: java cat.CatToFile <文件名>");
+		if (args.length < 2) {
+			System.out.println("用法: java copy.CopyText <来源文件> <目的文件>");
 			return;
 		}
 
 		try {
-			InputStreamReader in = new InputStreamReader(System.in);
-			FileOutputStream out = new FileOutputStream(args[0]);
+			FileReader in = new FileReader(args[0]);
+			FileWriter out = new FileWriter(args[1]);
 			int b;
 			while ((b = in.read()) != -1) {
 				out.write(b);
 			}
+			in.close();
 			out.close();
 		} catch (FileNotFoundException e) {
 			System.err.println("错误: 找不到文件！");
@@ -37,4 +37,5 @@ public class CatToFile {
 			System.err.println("错误: 输入输出发生异常！");
 		}
 	}
+
 }

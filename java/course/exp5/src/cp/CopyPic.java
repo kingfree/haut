@@ -1,33 +1,34 @@
-package cat;
+package cp;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 /**
- * 将标准输入的内容写出到文件
+ * 用 Stream 拷贝较大的文件如图片
  * 
- * @date 2015-3-26
  * @version 2015-3-27
  * @author Kingfree
  */
-public class CatToFile {
+public class CopyPic {
 
 	public static void main(String[] args) {
 
-		if (args.length < 1) {
-			System.out.println("用法: java cat.CatToFile <文件名>");
+		if (args.length < 2) {
+			System.out.println("用法: java cp.CopyPic <来源文件> <目的文件>");
 			return;
 		}
 
 		try {
-			InputStreamReader in = new InputStreamReader(System.in);
-			FileOutputStream out = new FileOutputStream(args[0]);
-			int b;
-			while ((b = in.read()) != -1) {
+			FileInputStream in = new FileInputStream(args[0]);
+			FileOutputStream out = new FileOutputStream(args[1]);
+			// 利用读入字节数组的办法可以加快速度
+			byte[] b = new byte[in.available()];
+			while (in.read(b) != -1) {
 				out.write(b);
 			}
+			in.close();
 			out.close();
 		} catch (FileNotFoundException e) {
 			System.err.println("错误: 找不到文件！");
@@ -37,4 +38,5 @@ public class CatToFile {
 			System.err.println("错误: 输入输出发生异常！");
 		}
 	}
+
 }
