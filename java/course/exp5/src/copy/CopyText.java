@@ -20,15 +20,12 @@ public class CopyText {
 			return;
 		}
 
-		try {
-			FileReader in = new FileReader(args[0]);
-			FileWriter out = new FileWriter(args[1]);
+		try (FileReader in = new FileReader(args[0]);
+				FileWriter out = new FileWriter(args[1])) {
 			int b;
 			while ((b = in.read()) != -1) {
 				out.write(b);
 			}
-			in.close();
-			out.close();
 		} catch (FileNotFoundException e) {
 			System.err.println("错误: 找不到文件！");
 		} catch (SecurityException e) {

@@ -20,16 +20,13 @@ public class CopyPic {
 			return;
 		}
 
-		try {
-			FileInputStream in = new FileInputStream(args[0]);
-			FileOutputStream out = new FileOutputStream(args[1]);
+		try (FileInputStream in = new FileInputStream(args[0]);
+				FileOutputStream out = new FileOutputStream(args[1])) {
 			// 利用读入字节数组的办法可以加快速度
 			byte[] b = new byte[in.available()];
 			while (in.read(b) != -1) {
 				out.write(b);
 			}
-			in.close();
-			out.close();
 		} catch (FileNotFoundException e) {
 			System.err.println("错误: 找不到文件！");
 		} catch (SecurityException e) {

@@ -21,14 +21,12 @@ public class CatToFile {
 			return;
 		}
 
-		try {
-			InputStreamReader in = new InputStreamReader(System.in);
-			FileOutputStream out = new FileOutputStream(args[0]);
+		try (InputStreamReader in = new InputStreamReader(System.in);
+				FileOutputStream out = new FileOutputStream(args[0])) {
 			int b;
 			while ((b = in.read()) != -1) {
 				out.write(b);
 			}
-			out.close();
 		} catch (FileNotFoundException e) {
 			System.err.println("错误: 找不到文件！");
 		} catch (SecurityException e) {
