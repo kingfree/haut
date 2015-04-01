@@ -1,4 +1,4 @@
-package studentManager;
+package ssys;
 
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -6,6 +6,8 @@ import java.awt.Font;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
 
 /**
  * 主窗口
@@ -27,6 +29,10 @@ public class MainWindow {
 				"软件1305班" };
 		JComboBox<String> combobox = new JComboBox<String>(classes);
 		frame.add(combobox);
+		
+		JList<String> list = new JList<>(classes);
+		JScrollPane listPane = new JScrollPane(list); 
+		frame.add(listPane);
 
 		WindowFeature.modifyWindow(frame, new Font("微软雅黑", Font.PLAIN, 12));
 		frame.setVisible(true);

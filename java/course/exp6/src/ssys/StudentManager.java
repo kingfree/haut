@@ -1,4 +1,4 @@
-package studentManager;
+package ssys;
 
 import javax.swing.SwingUtilities;
 
@@ -48,7 +48,7 @@ public class StudentManager {
 			test();
 			break;
 		default:
-			System.out.println("用法: java studentManager.StudentManager [参数]");
+			System.out.println("用法: java ssys.StudentManager [参数]");
 			System.out.println("参数: \t-gui \t图形界面（默认）");
 			System.out.println("     \t-cli \t命令行界面");
 			System.out.println("     \t-test \t测试模式");
