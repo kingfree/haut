@@ -8,19 +8,9 @@ import java.sql.*;
  */
 public class UnitTest {
 
-	@Override
-	public String toString() {
-		return "UnitTest []";
-	}
-
-	public UnitTest() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
 	/**
 	 * @param args
-	 * @throws ClassNotFoundException 
+	 * @throws ClassNotFoundException
 	 */
 	public static void main(String[] args) throws ClassNotFoundException {
 		// load the sqlite-JDBC driver using the current class loader
@@ -33,16 +23,17 @@ public class UnitTest {
 			Statement statement = connection.createStatement();
 			statement.setQueryTimeout(30); // set timeout to 30 sec.
 
-			statement.executeUpdate("drop table if exists person");
+			statement.executeUpdate("drop table if exists students");
 			statement
-					.executeUpdate("create table person (id integer, name string)");
-			statement.executeUpdate("insert into person values(1, 'leo')");
-			statement.executeUpdate("insert into person values(2, 'yui')");
-			ResultSet rs = statement.executeQuery("select * from person");
+					.executeUpdate("create table students (id integer, name string, "
+							+ "math integer, os integer, java integer)");
+			statement
+					.executeUpdate("insert into students values(12, '张三', 90, 90, 90)");
+			ResultSet rs = statement.executeQuery("select * from students");
 			while (rs.next()) {
-				// read the result set
-				System.out.println("name = " + rs.getString("name"));
-				System.out.println("id = " + rs.getInt("id"));
+				System.out.printf("%s %d os:%d java:%d math:%d",
+						rs.getString("name"), rs.getInt("id"), rs.getInt("os"),
+						rs.getInt("java"), rs.getInt("math"));
 			}
 		} catch (SQLException e) {
 			// if the error message is "out of memory",
@@ -57,6 +48,16 @@ public class UnitTest {
 				System.err.println(e);
 			}
 		}
+	}
+
+	public UnitTest() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public String toString() {
+		return "UnitTest []";
 	}
 
 }
