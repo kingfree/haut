@@ -1,0 +1,43 @@
+-*- Fundamental -*-
+
+Version 1.33 - 2011/August/19
+=============================
+1. Fixed wrong extra parameter in unique_copy().
+   Error reported by: Tommy Olsson <tommy.olsson@liu.se>.
+
+Version 1.32 - 2009/July/10
+===========================
+Suggested by Antonio Araujo <antonio vazquez araujo AT gmail DOT com>
+1. Fix header names (drop multi{map,set}.h). (2nd try)
+
+Version 1.31 - 2009/July/10
+===========================
+All suggested by Antonio Araujo <antonio vazquez araujo AT gmail DOT com>
+1. Fix header names (drop multi{map,set}.h).
+2. Added missing '_' in key_compare.
+3. Drop wrong 'void' in stack::top(). 
+
+Version 1.30 - 2009/April/11
+============================
+1. Fix random_shuffle parameter name 
+   (Hendrik van Antwerpen <hendrikATvanDASHantwerpenDOTnet).
+2. Fix resetting of \footrulewidth ( setlength -> setlength ).
+
+
+Version 1.29 - 2007/April/20
+============================
+1. Fix list<T>::unique() 
+
+
+Version 1.28 - 2006/June/05
+===========================
+1. New E-Mail address
+2  Example can be compiled by g++-4.0.2.
+3. Relase pdf format as well.
+4. Fix or remove obsolete template classes. input_iterator, and more.
+5. Avoid underscore char in generated files.
+6. Do not use macros to bypass underscore.
+7. New patseg.py (in Python) instead of patseg (in Perl).
+8. Separate relase to source in stlqr-<ver>.tar.gz and PostScript + PDF files.
+
+

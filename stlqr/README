@@ -1,0 +1,23 @@
+# $Id: README,v 1.5 2006/06/05 17:13:53 yotam Exp $
+This is a README file for the STL-quick reference.
+
+Files released:
+  README              This very file.
+  stlqr-{a4,letter}.{ps.gz,pdf}  
+                    4=2x2 versions of the 8-pages STL-Quick-Reference.
+                    For A4 or US-Letter size papaer, and in 
+	            compressed PostsCript and PDF formats.
+  stlqr-letter.tex  The LaTeX source driver for Letter size paper.
+  stlqr-a4.tex      The LaTeX source driver for A4 size paper.
+  stlcard.tex       The main LaTeX source
+  examples.c        Ready to compile and run C++/STL code
+                    with examples used in the Quick-Reference.
+  Makefile          Bunch of rules.
+  ver               Where version is defined
+  patseg            Perl script to extarct segment between pattern lines
+  ChangeLog         Reversed history started from 1.28.
+------------------------------------------------------------------------
+Yotam Medini (C) 1998 - 2006
+http:/www.medini.org.net/stl/stl.html
+yotam.medini@gmail.com
+

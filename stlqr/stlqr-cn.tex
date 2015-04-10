@@ -1,0 +1,3066 @@
+% $Id: stlqr-a4.tex,v 1.2 2006/06/03 07:40:11 yotam Exp $
+\documentclass[c5size,landscape,twoside,a4paper]{ctexart}
+\newif\ifafour
+\newif\ifletter
+\let\ifafour\iftrue
+\let\ifletter\iffalse
+\newcommand{\papername}{A4}
+% $Id: stlcard.tex,v 1.13 2009/07/10 15:54:35 yotam Exp yotam $
+% xdvi -xoffset 1cm -yoffset 1cm -paper usr stlcard.dvi
+%
+% private notes:
+% for comments may be use font: pncri8r ?
+%
+% This file is inputted via slqr-<letter|a4>.tex
+% \documentclass[landscape,twoside]{article}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The s[sub[sub]]section variants of article.cls %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newcommand\section{\@startsection {section}{1}{\z@}%
+%                                   {-3.5ex \@plus -1ex \@minus -.2ex}%
+%                                   {2.3ex \@plus.2ex}%
+%                                   {\normalfont\Large\bfseries}}
+%\newcommand\subsection{\@startsection{subsection}{2}{\z@}%
+%                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+%                                     {1.5ex \@plus .2ex}%
+%                                     {\normalfont\large\bfseries}}
+%\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+%                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+%                                     {1.5ex \@plus .2ex}%
+%                                     {\normalfont\normalsize\bfseries}}
+%
+
+% We make @ signs act like letters, temporarily, to avoid conflict
+% between user names and internal control sequences of plain format.
+\makeatletter
+\catcode`\_\active
+\DeclareRobustCommand{\myunderscore}{\ifmmode\sb\else
+  \leavevmode\nobreak\hskip\z@skip
+  \_\-\nobreak\hskip\z@skip \fi}
+\let_\myunderscore
+\ifletter
+ \newcommand\ssection{\@startsection {section}{1}{\z@}%
+                                    {-.1ex \@plus -.1ex \@minus -.1ex}%
+                                    {1.2ex \@plus.1ex}%
+                                    {\normalfont\Large\bfseries}}
+ \newcommand\ssubsection{\@startsection{subsection}{2}{\z@}%
+                                      {-2ex\@plus -.3ex \@minus -.2ex}%
+                                      {1.1ex \@plus .2ex}%
+                                      {\normalfont\large\bfseries}}
+ \newcommand\ssubsubsection{\@startsection{subsubsection}{3}{0pt}%
+                                      {-2ex\@plus -.8ex \@minus -.2ex}%
+                                      {1.ex \@plus .2ex \@minus .2ex}%
+                                      {\normalfont\normalsize\bfseries}}
+ \newcommand\sssubsection{\@startsection{subsection}{2}{\z@}%
+                                      {-1.2ex\@plus -.1ex}%
+                                      {1.1ex \@plus .2ex}%
+                                      {\normalfont\large\bfseries}}
+ \newcommand\sssubsubsection{\@startsection{subsubsection}{3}{0pt}%
+                                      {-1.1ex\@plus -.2ex}%
+                                      {1.ex \@plus .2ex \@minus .2ex}%
+                                      {\normalfont\normalsize\bfseries}}
+\else %  ! letter
+
+ \renewcommand\section{\@startsection {section}{1}{\z@}%
+                                    {-1.2ex \@plus -.1ex \@minus -.2ex}%
+                                    {1.6ex \@plus.2ex}%
+                                    {\normalfont\Large\bfseries}}
+ \renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+                                      {-1.1ex\@plus -.1ex \@minus -.2ex}%
+                                      {1.5ex \@plus .2ex}%
+                                      {\normalfont\large\bfseries}}
+ \renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+                                      {-1ex\@plus -.1ex \@minus -.2ex}%
+                                      {1.5ex \@plus .2ex}%
+                                      {\normalfont\normalsize\bfseries}}
+ \renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+                                     {-1ex \@plus-.1ex}%
+                                     {-1em}%
+                                     {\normalfont\normalsize\bfseries}}
+
+ \newcommand\ssection{\@startsection {section}{1}{\z@}%
+                                    {-.1ex \@plus -.1ex \@minus -.1ex}%
+                                    {1.2ex \@plus.1ex}%
+                                    {\normalfont\Large\bfseries}}
+ \newcommand\ssubsection{\@startsection{subsection}{2}{\z@}%
+                                      {-2ex\@plus -.3ex \@minus -.2ex}%
+                                      {.9ex \@plus .2ex \@minus .2ex}%
+                                      {\normalfont\large\bfseries}}
+ \newcommand\ssubsubsection{\@startsection{subsubsection}{3}{0pt}%
+                                      {-1.2ex\@plus -.8ex \@minus -.2ex}%
+                                      {0.9ex \@plus .2ex \@minus .2ex}%
+                                      {\normalfont\normalsize\bfseries}}
+ \newcommand\sssubsection{\@startsection{subsection}{2}{\z@}%
+                                      {-.1ex\@plus -.1ex}%
+                                      {0.3ex \@plus .1ex \@minus .1ex}%
+                                      {\normalfont\large\bfseries}}
+ \newcommand\sssubsubsection{\@startsection{subsubsection}{3}{0pt}%
+                                      {-1.1ex\@plus -.2ex}%
+                                      {1.ex \@plus .2ex \@minus .2ex}%
+                                      {\normalfont\normalsize\bfseries}}
+\fi
+\makeatother
+
+%% \tracingmacros=1
+% \usepackage{amstex}
+\usepackage{amssymb}
+\usepackage{array}
+% \usepackage{color}
+\usepackage{fancyheadings}
+% \usepackage{layout}
+% \usepackage{moreverb}
+\usepackage{fancyvrb}
+\usepackage{multicol}
+\usepackage{pifont}
+\usepackage{listings}
+
+\typeout{packages loaded}
+
+%\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei},ItalicFont={STFangsong}]{SimSun}
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong}
+\setCJKmonofont{KFKai}
+
+\linespread{1.0}
+\setlength{\parskip}{1pt plus 2pt}
+
+\title{STL 参考卡片}
+\author{Yotam Medini}
+
+% typeout
+\newcommand{\sectionTypeOut}[1]{\typeout{#1}\section{#1}}
+\newcommand{\ssectionTypeOut}[1]{\typeout{#1}\ssection{#1}}
+\newcommand{\subsectionTypeOut}[1]{\typeout{#1}\subsection{#1}}
+\newcommand{\ssubsectionTypeOut}[1]{\typeout{#1}\ssubsection{#1}}
+\newcommand{\sssubsectionTypeOut}[1]{\typeout{#1}\sssubsection{#1}}
+
+% Currently hashstuff is SGI only and not standard.
+\newcommand{\ifhash}{\iffalse}
+
+% template '<' and '>' signs.
+% The follownig angle brackets are used since thet are thinner 
+% than the regulat less and greater than signs.
+\newcommand{\<}{\ensuremath{\langle}}
+\renewcommand{\>}{\ensuremath{\rangle}}
+\newcommand{\TP}[1]{\<#1\>}
+\newcommand{\TPT}{\TP{\T}}
+
+% template names
+\newcommand{\bvector}{\textbf{vector}}
+\newcommand{\bdeque}{\textbf{deque}}
+\newcommand{\blist}{\textbf{list}}
+\newcommand{\bset}{\textbf{set}}
+\newcommand{\bmultiset}{\textbf{multiset}}
+\newcommand{\bmap}{\textbf{map}}
+\newcommand{\bmultimap}{\textbf{multimap}}
+\newcommand{\bhashSet}{\textbf{hash_set}}
+\newcommand{\bhashMultiset}{\textbf{hash_multiset}}
+\newcommand{\bhashMap}{\textbf{hash_map}}
+\newcommand{\bhashMultimap}{\textbf{hash_multimap}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Template class parameters -- with leading BlackBoard font %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newfont{\bbfont}{msbm10 at 10pt}
+\newfont{\concfont}{ccr10 at 10pt}
+\newcommand{\Alloc}{{{\bbfont A}{\hs}\concfont lloc}}
+%\newcommand{\Allocator}{{{\bbfont A}{\hs}\concfont llocator}}
+\newcommand{\Arg}{{{\bbfont A}{\hs}\concfont rg}}
+\newcommand{\BidirectionalIterator}{{{\bbfont B}\hs
+            \concfont idirectionalIterator}}
+\newcommand{\BinaryOperation}{{\bbfont B}\hs\concfont inaryOperation}
+\newcommand{\BinaryPredicate}{{{\bbfont B}\hs\concfont inaryPredicate}}
+\newcommand{\Category}{{{\bbfont C}\concfont ategory}}
+\newcommand{\Compare}{{{\bbfont C}\concfont ompare}}
+\newcommand{\Container}{{\bbfont C}{\concfont ontainer}}
+\newcommand{\Distance}{{\bbfont D}{\hs}{\concfont istance}}
+\newcommand{\EqualKey}{{\bbfont E}{\concfont qualKey}}
+\newcommand{\Foo}{{\bbfont F}{\concfont oo}}
+\newcommand{\ForwardIterator}{{\bbfont F}{\concfont orwardIterator}}
+\newcommand{\Function}{{\bbfont F}{\concfont unction}}
+\newcommand{\Generator}{{\bbfont G}\hs{\concfont enerator}}
+\newcommand{\HashFcn}{{\bbfont H}{\concfont ashFcn}}
+\newcommand{\InputIterator}{{\bbfont I}{\concfont nputIterator}}
+\newcommand{\I}{{\bbfont I}}
+\newcommand{\Iter}{{\bbfont I}{\concfont ter}}
+\newcommand{\Iterator}{{\bbfont I}{\concfont terator}}
+\newcommand{\Key}{{{\bbfont K}\concfont ey}}
+\newcommand{\Operation}{{\bbfont O}{\hs}{\concfont peration}}
+\newcommand{\OutputIterator}{{\bbfont O}{\hs}{\concfont utputIterator}}
+\newcommand{\Pointer}{{{\bbfont P}\concfont ointer}}
+\newcommand{\Predicate}{{{\bbfont P}\concfont redicate}}
+\newcommand{\RandomAccessIterator}{{{\bbfont R}\concfont andomAccessIterator}}
+\newcommand{\RandomGenerator}{{{\bbfont R}\concfont andomGenerator}}
+\newcommand{\Reference}{{{\bbfont R}\concfont{\kern-.1em}eference}}
+\newcommand{\Result}{{{\bbfont R}\concfont{\kern-.1em}esult}}
+\newcommand{\Size}{{{\bbfont S}\hs\concfont ize}}
+\newcommand{\seeExample}{{\normalsize\Pisymbol{pzd}{43}}}
+\renewcommand{\T}{{\bbfont T}}
+\newcommand{\UnaryOperation}{{\bbfont U}\concfont naryOperation}
+
+% unglue: _i _n _r
+\newcommand{\hs}[1][1]{\hskip #1pt}
+
+% negatibve kerning before capitals
+% Should have been in the font...
+\newcommand{\nVal}{n{\kern-.1em}Val}
+\newcommand{\newVal}{new{\kern-.1em}Val}
+
+% C++ comment
+% \newfont{\commfnt}{pnssi10 at 8pt}
+% \newcommand{\slsl}{\textrm{/\kern-.2em/}}
+\newcommand{\slsl}{\ensuremath{/\kern-.2em/}} % math prevents pslatex bad kern
+% \newcommand{\CppComm}[1]{\enskip\slsl{\commfnt\color[named]{Blue}\enskip#1}}
+\newcommand{\textComm}[1]{\textsl{\textsf{#1}}}
+\newcommand{\Cppslsl}{\enskip\slsl\enskip}
+\newcommand{\CppComm}[1]{\Cppslsl\textComm{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Abstract category of templates %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\bA}{\textsf{A}}
+\newcommand{\bH}{\textsf{H}}
+\newcommand{\bS}{\textsf{S}}
+\newcommand{\bX}{\textsf{X}}
+
+%%%%%%%%%%%
+% operators
+%%%%%%%%%%%
+\typeout{Operators}
+% plus
+\newcommand{\operp}{\StrongClrBf{operator}{\normalsize\texttt{+}}}
+\newcommand{\operpp}{\StrongClrBf{operator}{\normalsize\texttt{+{\hs}+}}}
+\newcommand{\operpe}{\StrongClrBf{operator}{\normalsize\texttt{+{\hs}=}}}
+% minus
+\newcommand{\operm}{\StrongClrBf{operator}{\normalsize\texttt{-}}}
+\newcommand{\opermm}{\StrongClrBf{operator}{\normalsize\texttt{-{\hs}-}}}
+\newcommand{\operme}{\StrongClrBf{operator}{\normalsize\texttt{-{\hs}=}}}
+% set assignment
+\newcommand{\operass}{\StrongClrBf{operator}{\normalsize\texttt{=}}}
+% equality
+\newcommand{\opereq}{\StrongClrBf{operator}{\normalsize\texttt{={\hs}=}}}
+% less than
+\newcommand{\operlt}{\StrongClrBf{operator}{\normalsize\texttt{<}}}
+% level star 
+\newcommand{\levstar}{\lower.5ex\hbox{*}}
+% star operator
+% \newcommand{\operstar}{\StrongClrBf{operator\lower.5ex\hbox{*}}}
+\newcommand{\operstar}{\StrongClrBf{operator\levstar}}
+% (NON-emphasized) index operator []
+\newcommand{\indop}{{operator[{\hskip .1em}]}}
+
+
+
+\typeout{shortenings}
+\newcommand{\const}{\mbox{}\raise.7ex\hbox{{%
+                    \tiny \underline{\underline{\textsf{const}}}}}\hskip.2em}
+\newcommand{\ret}{\ensuremath{\curvearrowleft}}
+\newcommand{\symdiff}{{\mkern-1.5mu
+                       {\raise2pt\hbox{\ensuremath{\vartriangle}}}
+                       \mkern-1mu
+                     }}
+\newcommand{\symenvelop}{%
+   {\nullfont a}\relax\lower.2ex\hbox{\large\Pisymbol{pzd}{41}}}
+\newcommand{\symweb}{{\large\Pisymbol{pzd}{100}}}
+%\newcommand{\symweb}{%
+% {\(\bigcirc\)\kern-.9em\lower.35ex\hbox{\large\Pisymbol{pzd}{100}}}}
+\newcommand{\symrunout}{%
+   {\Pisymbol{pzd}{39}\thinspace}\lower.3ex\hbox{\large\Pisymbol{pzd}{224}}}
+\newcommand{\asbutusing}{同上但用}
+\newcommand{\butcomp}{\asbutusing\ \textsl{comp}}
+\newcommand{\butbinop}{\asbutusing\ \textsl{binop}}
+\newcommand{\butpred}{\asbutusing\ \textsl{pred}}
+
+% regular Comma and a newline
+% \newcommand{\commcr}{{\textrm{,}} \\}
+\newcommand{\commcr}{{\normalfont{,}} \\}
+% \newcommand{\commcr}{, \\}
+
+% coloring
+% \iftrue
+% \iffalse
+\iffalse
+ \newcommand{\doColorNamed}[2]{\color[named]{#1}{#2}}
+\else
+ \newcommand{\doColorNamed}[2]{#2}
+\fi
+
+% \definecolor{DarkSlateGrey}{rgb}{{47./255.},{79./255},{79./255.}}
+% \definecolor{DarkSlateGrey}{rgb}{0.184,0.309,0.309}
+
+\newcommand{\StrongClr}[1]{{\doColorNamed{Red}#1}}
+\newcommand{\StrongClrBf}[1]{{\small\doColorNamed{Red}\textbf{#1}}}
+\newcommand{\tplCls}[1]{{\doColorNamed{Plum}\textsf#1}}
+
+\newcommand{\setskip}{{\phantom{mm}}}
+
+
+% make itemize items closer
+\newcommand{\itemCondense}{
+  \setlength{\parskip}{1pt plus 1pt}
+  \setlength{\parsep}{0pt}
+  \setlength{\itemsep}{0pt}
+  \setlength{\topsep}{0pt}
+  \setlength{\partopsep}{0pt}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% funcdec environment %%
+%%%%%%%%%%%%%%%%%%%%%%%%
+\newenvironment{funcdec}
+ { % \addtolength{\baselineskip}{-10pt}
+   % \addtolength{\parskip}{-10pt}
+   \ifletter
+     \setlength{\extrarowheight}{-2pt}
+   \else
+     \setlength{\extrarowheight}{-4pt}
+   \fi
+        \setlength{\tabcolsep}{0pt}
+   % \ifafour\renewcommand{\arraystretch}{0.5}
+   \begin{tabular}{ll @{\quad}>{\slshape}l}}
+ {\end{tabular}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% template environment %
+%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\phantemp}{\phantom{template\<}}
+\newenvironment{templdec}{
+ \setlength{\topsep}{0pt}
+ \begin{center}
+        \setlength{\tabcolsep}{4pt}
+        \setlength{\extrarowheight}{-2pt}
+        \begin{tabular}{|l|}\hline\tabularnewline[-5pt]}
+ {\hline\end{tabular}\end{center}}
+%\framebox{\usebox{\templbox}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+% example environment %
+%%%%%%%%%%%%%%%%%%%%%%%
+% \newcommand{\examplesize}{\scriptsize} % \tiny
+%\ifletter
+% \newcommand{\examplestretch}{1}
+%\else
+% \newcommand{\examplestretch}{1}
+%\fi
+%   \VerbatimInput[fontsize=\scriptsize,baselinestretch=\examplestretch]{#1}}
+%\newcommand{\exampleinput}[1]{\VerbatimInput[fontsize=\scriptsize]{#1}}
+
+\lstset{language=C++,
+  numbers=left,
+  numberstyle=\tiny,
+  basicstyle=\scriptsize\tt,
+  showstringspaces=false,
+}
+\newcommand{\exampleinput}[1]{\lstinputlisting{#1}}
+\newcommand{\outputinput}[1]{{\symrunout}\quad\vbox{\VerbatimInput[fontsize=\scriptsize]{#1}}}
+
+
+\newcommand{\lp}{(}
+\newcommand{\rp}{)}
+\newcommand{\lbrk}{[}
+\newcommand{\rbrk}{]}
+\newcommand{\parVal}[2]{{\slshape#1}{\textnormal#2}}
+\newcommand{\lastPar}[1]{\parVal{#1}{\rp;}}
+
+\typeout{Setting geometry}
+\ifafour
+ \usepackage[a4paper, landscape, twoside=true,
+     top=0.4in, bottom=0.2in, headsep=10pt, footskip=30pt,
+     left=2cm, right=1cm,
+     verbose=true
+ ]{geometry}
+\fi
+\ifletter
+ \usepackage[letterpaper, landscape, twoside=true, nomarginpar,
+     top=.5in, bottom=0.1in, headsep=10pt, footskip=24pt,
+     left=1.8cm, right=1cm,
+     verbose=true
+ ]{geometry}
+ \setlength{\columnsep}{7pt}
+\fi
+
+\setlength{\textheight}{.85\paperheight}
+\setlength{\parindent}{0pt}
+\setlength{\floatsep}{1pt}
+
+% fancyheadings stuff
+\pagestyle{fancyplain}
+\renewcommand{\footrulewidth}{\headrulewidth}
+
+\newcommand\headin{\textbf{STL} 快速参考 -- 版本 %
+                   \input{ver}{\tiny[\papername]}\quad{\footnotesize\today}}
+
+\lhead[\fancyplain{}{\thepage}]{\fancyplain{}\headin}
+% \chead{\today}  %%%%%%%%%%%%  debug only!!
+\rhead[\fancyplain{}\headin]{\fancyplain{}{\thepage}}
+
+\lfoot{Yotam Medini \copyright\ 1998-2011, Kingfree 中文化 2015}
+\cfoot{}
+%                       http://yotam.freehosting.net/stl/stl.html
+% \cfoot{\symweb\ \texttt{http://hammer.prohosting.com/\~{}yotam/stl/stl.html}}
+%\cfoot{\symweb\ \texttt{http://www.medini.org/stl/stl.html}}
+%\rfoot{\symenvelop\ \texttt{yotam.medini@gmail.com}}
+
+\setlength{\normallineskip}{0pt plus .2pt}
+\setlength{\parskip}{3pt plus 1pt minus 1.5pt}
+
+\baselineskip=8pt
+\normalbaselineskip=8pt
+
+% math shortcuts
+\newcommand{\mblt}{\(\bullet\)}
+\newcommand{\lra}{\(\Leftrightarrow\)}
+\newcommand{\ra}{\(\Rightarrow\)}
+\newcommand{\lb}{\(\{\)} % left brace
+\newcommand{\rb}{\(\}\)} % right brace
+% \newcommand{\mtilde}{\(\tilde\)} % ~
+% \newcommand{\mtilde}{\verb+~+} % ~
+
+% Stl range
+\newcommand{\range}[2]{\lbrk#1,#2\rp}
+% \newcommand{\mrange}[2]{\lbrk#1,#2\rp}  % assuming math
+\newcommand{\flRange}{\range{{\textsl{first}}}{{\textsl{last}}}}
+\newcommand{\fliRange}[1]{\range{{\textsl{first}_{#1}}}{{\textsl{last}_{#1}}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\smalltitle}[1]{{\normalsize\textbf{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+%  \obeylines  ): but it breaks multicolumn
+\raggedright
+% \setlength{\baselineskip}{8pt}
+% \setlength{\normalbaselineskip}{8pt}
+\setlength{\columnseprule}{.5pt}
+
+% \layout
+% \maketitle
+
+\begin{multicols}{4}
+\raggedright
+% \small
+\footnotesize
+\baselineskip=8pt
+\normalbaselineskip=8pt
+
+\typeout{=== Show Dimensions ===}
+\typeout{parskip \the\parskip}
+\typeout{lineskip \the\lineskip}
+\typeout{baselineskip \the\baselineskip}
+\typeout{multicolbaselineskip \the\multicolbaselineskip}
+\typeout{normalbaselineskip \the\normalbaselineskip}
+\typeout{normallineskip \the\normallineskip}
+\typeout{extrarowheight \the\extrarowheight}
+% \typeout{arraystretch \the\arraystretch}
+\typeout{floatsep \the\floatsep}
+\typeout{partopsep \the\partopsep}
+\typeout{parsep \the\parsep}
+\typeout{topsep \the\topsep}
+\typeout{itemsep \the\itemsep}
+\typeout{marginparsep \the\marginparsep}
+\typeout{marginparwidth \the\marginparwidth}
+\typeout{textheight \the\textheight}
+\typeout{textwidth \the\textwidth}
+\typeout{headheight \the\headheight}
+\typeout{headsep \the\headsep}
+% \typeout{colsep \the\colsep}
+\typeout{columnsep \the\columnsep}
+\typeout{multicolsep \the\multicolsep}
+\typeout{linewidth \the\linewidth}
+\typeout{}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionTypeOut{记号}
+
+\begin{list}{\mblt}{
+    \setlength{\leftmargin}{12pt}
+   % \setlength{\parsep}{0pt}
+   % \setlength{\itemsep}{0pt}
+   % \setlength{\parskip}{10.5pt}
+  }
+
+ \item 用 \const\ 标识 \texttt{const}.
+
+ \item 用 \ret\ 标识 \emph{函数返回值}.
+
+ \item 模板类参数 % are written with first 
+       首字母大写. 如:
+        \T, \Key, \Compare. 用于
+        \texttt{template} 定义.
+
+ % frequently <-> sometimes
+ \item 有时省略 \texttt{class}, \texttt{typename}.
+
+ \item 模板类参数省略, 如 % \newline
+       \textsf{C} 有时用来替代 \textsf{C}\TPT.
+
+ \item ``示例'' 如 \seeExample,
+        输出如 \symrunout.
+
+\end{list}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionTypeOut{容器}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ssubsectionTypeOut{对} \label{Pair}
+
+\#include $<$utility$>$
+
+\begin{templdec}
+template\TP{class \T1, class \T2}\\
+struct \StrongClrBf{pair} \lb\\
+\phantom{ABC}\T1\ \StrongClrBf{first};\quad\T2\ \StrongClrBf{second};\\
+\phantom{ABC}pair() \lb\rb\\
+\phantom{ABC}pair(\const\ \T1\&\ a, \const\ \T2\&\ b):\\
+\phantom{ABCpair}first(a), second(b) \lb\rb\quad\rb; \\
+\end{templdec}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ssubsubsection{类型}
+
+pair::\StrongClrBf{first_type} \newline
+pair::\StrongClrBf{second_type} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ssubsubsection{函数 \& 操作符} \label{PairFunction}
+
+参见 \ref{ContainerCompare}.
+
+pair\TP{\T1,\T2}\newline
+\StrongClrBf{make_pair}(\const\ \T1\&, \const\ \T2\&);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{容器 --- 公用} \label{CommonContainers}
+
+% \textsf{Compare} blabla
+
+这里 \bX\ 表示下列类之一 \newline
+\setskip\lb\bvector, \bdeque, \blist,\newline
+\setskip\phantom{\lb }\bset, \bmultiset, \bmap, 
+\ifhash
+                                                \bmultimap,\newline
+\setskip\phantom{\lb }\bhashSet, \bhashMultiset,\newline
+\setskip\phantom{\lb }\bhashMap, \bhashMultimap\rb
+\else
+                                                \bmultimap\rb
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{类型}
+
+\bX::\StrongClrBf{value_type}
+
+\bX::\StrongClrBf{reference}
+
+\bX::\StrongClrBf{const_reference}
+
+\bX::\StrongClrBf{iterator}
+
+\bX::\StrongClrBf{const_iterator}
+
+\bX::\StrongClrBf{reverse_iterator}
+
+\bX::\StrongClrBf{const_reverse_iterator}
+
+\bX::\StrongClrBf{difference_type}
+
+\bX::\StrongClrBf{size_type}
+
+迭代器引用 value_type\ (见 \ref{Iterators}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ssubsubsection{成员函数 \& 操作符}
+
+\StrongClr{\bX::\bX}();
+
+\StrongClr{\bX::\bX}(\const\ \bX\&);
+
+\StrongClr{\bX::}\verb+~+\StrongClr{\bX}();
+
+\bX\& \bX::\operass(\const\ \bX\&);
+
+{
+\setlength{\tabcolsep}{0pt}
+\begin{tabular}{l@{\quad}l@{\quad}l}
+\bX::iterator               & \bX::\StrongClrBf{begin}();          \\
+\bX::const_iterator         & \bX::\StrongClrBf{begin}()  & \const; \\
+\bX::iterator               & \bX::\StrongClrBf{end}();            \\
+\bX::const_iterator         & \bX::\StrongClrBf{end}()    & \const; \\
+\bX::reverse_iterator       & \bX::\StrongClrBf{rbegin}();        \\
+\bX::const_reverse_iterator & \bX::\StrongClrBf{rbegin}() & \const; \\
+\bX::reverse_iterator       & \bX::\StrongClrBf{rend}();          \\
+\bX::const_reverse_iterator & \bX::\StrongClrBf{rend}()   & \const; \\
+\end{tabular}
+
+
+\begin{tabular}{l@{\quad}l}
+X::size_type & \bX::\StrongClrBf{size}() \const; \\
+X::size_type & \bX::\StrongClrBf{max_size}() \const; \\
+bool         & \bX::\StrongClrBf{empty}() \const; \\
+void         & \bX::\StrongClrBf{swap}(\bX\& x); \\
+\end{tabular}
+}
+
+\iffalse % 2000May29
+void \bX::\StrongClrBf{erase}(\bX::iterator \enskip \emph{elemPosition});
+
+\begin{funcdec}
+void \bX::\StrongClrBf{erase}\lp & \bX::const_iterator & first\commcr
+                                 & \bX::const_iterator & \lastPar{last}
+\end{funcdec}
+\fi
+
+void \bX::\StrongClrBf{clear}();
+
+%\vskip 5pt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ssubsubsection{比较操作符} \label{ContainerCompare}
+
+令, \quad \bX \enskip \textit{v}, \textit{w}.
+\bX\ 可以是 \textbf{pair} (\ref{Pair}).
+%We have 6 \texttt{bool} operators:
+% \begin{tabular}{@{\quad}>{\slshape}l@{\quad}<{slshape}c@{\quad}<{\slshape}l}
+% \begin{tabular}{@{\quad}l@{\quad}c@{\quad}l}
+% \begin{tabular}{@{\quad}>{\itshape}l@{\quad}>{\ttfamily}c@{\quad}>{\itshape}l}
+\begin{tabular}{
+   @{\quad}>{\itshape}l@{\quad}>{\ttfamily}c@{\quad}>{\itshape}l
+   @{\quad\quad}
+   @{\quad}>{\itshape}l@{\quad}>{\ttfamily}c@{\quad}>{\itshape}l
+}
+v & == & w  &  v & != & w \\
+v & <  & w  &  v & >  & w \\
+v & <= & w  &  v & >= & w \\
+\end{tabular}
+
+按字典序且 \ret\texttt{bool}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ssubsectionTypeOut{顺序容器} \label{SequenceContainers}
+
+\bS\ 是以下类之一 \lb\bvector, \bdeque, \blist\rb 
+% \([i,j)\) input interator range
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ssubsubsection{构造器}
+\begin{funcdec}
+\bS::\bS\lp & \bS::size_type           & n\commcr
+          & \const\ \bS::value_type\&  & \lastPar{t} \\
+\end{funcdec}
+\begin{funcdec}
+\bS::\bS\lp & \bS::const_iterator  & first\commcr
+            & \bS::const_iterator  & \lastPar{last} 
+  \quad\seeExample\ref{ListSplice}, \ref{SortExample} \\
+\end{funcdec}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ssubsubsection{方法}
+
+\begin{funcdec}
+\multicolumn{3}{l}{\bS::iterator \CppComm{插入复制}} \\
+\bS::\StrongClrBf{insert}\lp & \bS::iterator           & before\commcr
+                           & \const\ \bS::value_type\& & \lastPar{val}
+\end{funcdec}
+
+\begin{funcdec}
+\multicolumn{3}{l}{\bS::iterator \CppComm{插入复制}} \\
+\bS::\StrongClrBf{insert}\lp & \bS::iterator             & before\commcr
+                             & \bS::size_type            & \nVal\commcr
+                             & \const\ \bS::value_type\& & \lastPar{val}
+\end{funcdec}
+
+\begin{funcdec}
+\multicolumn{3}{l}{\bS::iterator \CppComm{插入复制}} \\
+\bS::\StrongClrBf{insert}\lp & \bS::iterator      & before\commcr
+                           & \bS::const_iterator & first\commcr
+                           & \bS::const_iterator & \lastPar{last}
+\end{funcdec}
+
+\bS:iterator 
+\bS::\StrongClrBf{erase}(\bS::iterator \enskip \emph{position});
+
+\begin{funcdec}
+\bS:iterator
+\bS::\StrongClrBf{erase}\lp & \bS::const_iterator & first\commcr
+% {\ret\commfnt post erased} & \bS::const_iterator & \lastPar{last}
+\ret\ \textComm{最后移除的} & \bS::const_iterator & \lastPar{last}
+\end{funcdec}
+
+void\enskip \bS::\StrongClrBf{push_back}(\const \bS::value_type\& \emph{x});
+
+void\enskip \bS::\StrongClrBf{pop_back}();
+
+\bS::reference\enskip \bS::\StrongClrBf{front}();
+
+\bS::const_reference\enskip \bS::\StrongClrBf{front}() \const;
+
+\bS::reference\enskip \bS::\StrongClrBf{back}();
+
+\bS::const_reference\enskip \bS::\StrongClrBf{back}() \const;
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sssubsectionTypeOut{向量} \label{Vector}
+%
+\#include $<$vector$>$
+
+\begin{templdec}
+template\<class \T,\\
+\phantemp class \Alloc=allocator\>\\
+class \StrongClrBf{vector};\\
+\end{templdec}
+
+参见 \ref{CommonContainers} 和 \ref{SequenceContainers}.
+
+size_type\enskip vector::\StrongClrBf{capacity}() \const;
+
+void\enskip vector::\StrongClrBf{reserve}(size_type\ \emph{n});
+
+vector::reference \newline
+vector::\StrongClrBf{\indop}(size_type\ \emph{i});
+
+vector::const_reference \newline
+vector::\StrongClrBf{\indop}(size_type\ \emph{i}) \const;
+
+\iffalse
+vector::reference\enskip vector::\StrongClrBf{front}();
+
+vector::const_reference\enskip vector::\StrongClrBf{front}() \const;
+
+vector::reference\enskip vector::\StrongClrBf{back}();
+
+vector::const_reference\enskip vector::\StrongClrBf{back}() \const;
+\fi
+
+\seeExample\ \ref{VectorExample}.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sssubsectionTypeOut{双向队列} \label{Deque}
+%
+\#include $<$deque$>$
+
+\begin{templdec}
+template\<class \T,\\
+\phantemp class \Alloc=allocator\>\\
+class \StrongClrBf{deque};\\
+\end{templdec}
+
+包含 \textbf{vector} 所有方法 (见 \ref{Vector}).
+
+void\enskip  deque::\StrongClrBf{push_front}(\const\ \T\& \emph{x});
+
+void\enskip  deque::\StrongClrBf{pop_front}();
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sssubsectionTypeOut{链表} \label{List}
+%
+\#include $<$list$>$
+
+\begin{templdec}
+template\<class \T,\\
+\phantemp class \Alloc=allocator\>\\
+class \StrongClrBf{list};\\
+\end{templdec}
+
+参见 \ref{CommonContainers} 和 \ref{SequenceContainers}.
+
+\iffalse
+list::reference\enskip list::\StrongClrBf{front}();
+
+list::const_reference\enskip list::\StrongClrBf{front}() \const;
+
+list::reference\enskip list::\StrongClrBf{back}();
+
+list::const_reference\enskip list::\StrongClrBf{back}() \const;
+\fi
+
+void\enskip list::\StrongClrBf{pop_front}();
+
+void\enskip list::\StrongClrBf{push_front}(\const\  \T\& \emph{x});
+
+%\subsubsection{Special List operations}
+
+void \CppComm{移动 \textit{pos} 前的所有 \textit{x} (\(\texttt{\&x}\neq\texttt{this}\))
+                      }\newline
+list::\StrongClrBf{splice}(iterator \textit{pos}, 
+                           list\TPT\&  \textit{x}); 
+\enskip\seeExample\ref{ListSplice}
+
+\begin{funcdec}
+\multicolumn{3}{l}{%
+void \CppComm{移动 \textit{pos} 前 \textit{x} 的 \textit{xElemPos}}}\\
+list::\StrongClrBf{splice}
+   ( & iterator        & pos\commcr
+     & list\TPT\&      & x\commcr
+     & iterator        & \lastPar{xElemPos} \quad\seeExample\ref{ListSplice}
+\end{funcdec}
+
+\begin{funcdec}
+\multicolumn{3}{l}{%
+void \CppComm{移动 \textit{pos} 前 \textit{x} 的 [\textit{xFirst},\textit{xLast})
+              }}\\
+list::\StrongClrBf{splice}
+   ( & iterator        & pos\commcr
+     & list\TPT\&      & x\commcr
+     & iterator        & xFirst\commcr
+     & iterator        & \lastPar{xLast} \quad\seeExample\ref{ListSplice}
+\end{funcdec}
+
+void\enskip list::\StrongClrBf{remove}(\const\  \T\& \emph{value});
+
+void\enskip list::\StrongClrBf{remove_if}(\Predicate\ \emph{pred});
+
+\CppComm{调用后: \(\forall\ \texttt{this}\ \textrm{迭代器}\ p,
+                       *p \neq *(p+1)\)}\newline
+void\enskip list::\StrongClrBf{unique}(); \CppComm{移除重复}
+
+
+void\CppComm{同上, 但 \(\lnot\textit{binPred}(*p,*(p+1))\)}\newline
+list::\StrongClrBf{unique}(\BinaryPredicate\ \emph{binPred});
+
+\CppComm{假定 \texttt{this} 和 \textit{x} 有序}\newline
+void\enskip list::\StrongClrBf{merge}(list\TPT\& \emph{x});
+
+\CppComm{合并且假设以 \textit{cmp} 排序}\newline
+\mbox{void\enskip 
+list::\StrongClrBf{merge}(list\TPT\& \emph{x}, 
+                          \Compare\ \emph{cmp});}
+% list::\StrongClrBf{merge}(list\TPT\& \emph{x}, \Compare\ \emph{cmp});
+
+void\enskip list::\StrongClrBf{reverse}();
+
+void\enskip list::\StrongClrBf{sort}();
+
+% template$<$class \Compare$>$\newline
+void\enskip list::\StrongClrBf{sort}(\Compare\ \emph{cmp});
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sssubsectionTypeOut{有序集合} \label{SortedAssociative}
+%
+这里 \bA\ 是以下类之一 \newline % \(\in\)
+\ifhash
+\setskip\lb\bset, \bmultiset, \bmap, \bmultimap\newline
+\setskip\phantom{\lb}\bhashSet, \bhashMultiset,\newline
+\setskip\phantom{\lb}\bhashMap, \bhashMultimap\rb\newline
+(见 \ref{HashAssociative}).
+\else
+\setskip\lb\bset, \bmultiset, \bmap, \bmultimap\rb.
+\fi
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sssubsubsection{类型}
+%
+对 \bA=[multi]set 都有
+\begin{tabular}{l@{\quad}l}
+\bA::\StrongClrBf{key_type}    & \bA::\StrongClrBf{value_type} \\
+\bA::\StrongClrBf{key_compare} & \bA::\StrongClrBf{value_compare} \\
+\end{tabular}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sssubsubsection{构造器}
+%
+\bA::\bA(\tplCls{\Compare} \emph{c}=\tplCls{\Compare}())
+
+\begin{funcdec}
+\bA::\bA(&\bA::const_iterator & first\commcr
+         &\bA::const_iterator & last\commcr
+         &\tplCls{\Compare}    & c{\normalfont=\tplCls{\Compare}());}
+\end{funcdec}
+\nopagebreak[4]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sssubsubsection{成员函数}
+
+{\setlength{\extrarowheight}{-2pt}\setlength{\tabcolsep}{0pt}
+\begin{tabular}{l@{\quad}l}
+\bA::key_compare\enskip   & \bA::\StrongClrBf{key_comp}() \const;   \\
+\bA::value_compare\enskip & \bA::\StrongClrBf{value_comp}() \const; \\
+\end{tabular}}
+
+\begin{funcdec}
+\bA::iterator\enskip \\
+\bA::\StrongClrBf{insert}\lp&\bA::iterator  & hint\commcr
+                    &\const \bA::value_type\& & \lastPar{val}
+\end{funcdec}
+
+\begin{funcdec}
+void\enskip \bA::\StrongClrBf{insert}\lp&\bA::iterator  & first\commcr
+                                        &\bA::iterator & \lastPar{last}
+\end{funcdec}
+
+\bA::size_type \CppComm{\# 移除的} \newline
+\bA::\StrongClrBf{erase}(\const\ \bA::key_type\& \emph{k});
+
+void\enskip \bA::\StrongClrBf{erase}(\bA::iterator\ \emph{p});
+\begin{funcdec}
+void\enskip \bA::\StrongClrBf{erase}\lp&\bA::iterator  & first\commcr
+                                       &\bA::iterator & \lastPar{last}
+\end{funcdec}
+
+\bA::size_type\newline
+\bA::\StrongClrBf{count}(\const\ \bA::key_type\& \emph{k}) \const;
+
+\bA::iterator\enskip 
+\bA::\StrongClrBf{find}(\const\ \bA::key_type\& \emph{k}) \const;
+
+\bA::iterator\newline
+\bA::\StrongClrBf{lower_bound}(\const\ \bA::key_type\& \emph{k}) \const;
+
+\bA::iterator\newline
+\bA::\StrongClrBf{upper_bound}(\const\ \bA::key_type\& \emph{k}) \const;
+
+pair\TP{\bA::iterator, \bA::iterator} 
+   \CppComm{\textrm{见 \ref{BinarySearch}}}\newline
+\bA::\StrongClrBf{equal_range}(\const\ \bA::key_type\& \emph{k}) \const;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ssubsectionTypeOut{集合} \label{Set}
+
+\#include $<$set$>$
+
+\begin{templdec}
+template\<class \Key,\\
+\phantom{template\<}class \Compare=less\TP{\Key},\\
+\phantom{template\<}class \Alloc=allocator\>\\
+class \StrongClrBf{set};\\
+\end{templdec}
+
+参见 \ref{CommonContainers} 和 \ref{SortedAssociative}.
+
+\StrongClrBf{set}::\StrongClrBf{set}(\const\ \Compare\& \emph{cmp}=\Compare());
+
+pair\TP{set::iterator, bool}\CppComm{\texttt{bool} = 是否为新}\newline
+set::\StrongClrBf{insert}(\const\  set::value_type\& \emph{x});
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ssubsectionTypeOut{多重集合} \label{Multiset}
+
+\#include $<$set$>$
+
+\begin{templdec}
+template\<class \Key,\\
+\phantom{template\<}class \Compare=less\TP{\Key},\\
+\phantom{template$<$}class \Alloc=allocator\>\\
+class \StrongClrBf{multiset};\\
+\end{templdec}
+
+参见 \ref{CommonContainers} 和 \ref{SortedAssociative}.
+
+\StrongClrBf{multiset}::\StrongClrBf{multiset}(\newline
+\phantom{ABC}\const \Compare\& \emph{cmp}=\Compare());
+
+\begin{funcdec}
+\multicolumn{3}{l}{\StrongClrBf{multiset}::\StrongClrBf{multiset}(}\\
+\phantom{ABC} &\InputIterator    &first\commcr
+              &\InputIterator    &last\commcr
+              &\const \Compare\& &\normalfont\emph{cmp}=\Compare());
+\end{funcdec}
+
+multiset::iterator \CppComm{插入复制} \\
+multiset::\StrongClrBf{insert}(\const multiset::value_type\& \emph{x});
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ssubsectionTypeOut{映射} \label{Map}
+
+\#include $<$map$>$
+
+\begin{templdec}
+template\<class \Key, class \T,\\
+\phantom{template$<$}class \Compare=less\TP{\Key},\\
+\phantom{template$<$}class \Alloc=allocator\>\\
+class \StrongClrBf{map};\\
+\end{templdec}
+
+参见 \ref{CommonContainers} 和 \ref{SortedAssociative}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{类型}  \label{MapTypes}
+
+map::\StrongClrBf{value_type} \quad\slsl\ pair\TP{\const\Key,\T}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{成员函数}
+
+\StrongClrBf{map}::\StrongClrBf{map}(\newline
+\phantom{ABC}\const\ \Compare\& \emph{cmp}=\Compare());
+
+pair\TP{map::iterator, bool}\CppComm{\texttt{bool} = 是否为新}\newline
+map::\StrongClrBf{insert}(\const\ map::value_type\& \emph{x});
+
+\T\&\quad map:\StrongClrBf{\indop}(\const map::key_type\&);
+
+
+map::const_iterator\newline
+map::\StrongClrBf{lower_bound}(\newline
+\phantom{map}\const\ map::key_type\&\ \emph{k}) \const;
+
+map::const_iterator \newline
+map::\StrongClrBf{upper_bound}(\newline
+\phantom{map}\const\ map::key_type\&\ \emph{k}) \const;
+
+% \begin{tabbing}
+% pair$<$\=map::const_iterator,\\
+%        \>map::const_iterator$>$ \\
+% map::\StrongClrBf{equal_range}(\\
+%        \>\const\ map::key_type\&\ \emph{k}) \const;
+% \end{tabbing}
+pair\TP{map::const_iterator, map::const_iterator} \\
+map::\StrongClrBf{equal_range}(\\
+\phantom{map::}\const\ map::key_type\&\ \emph{k}) \const;
+
+\smalltitle{例}
+{\exampleinput{map.exm}}
+%{\footnotesize{outputs:}}
+
+{\outputinput{map.exout}}
+% {\verbatiminput{map.exout}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{多重映射} \label{Multimap}
+
+\#include $<$map$>$
+
+\begin{templdec}
+template\<class \Key, class \T,\\
+\phantom{template$<$}class \Compare=less\TP{\Key},\\
+\phantom{template$<$}class \Alloc=allocator\>\\
+class \StrongClrBf{multimap};\\
+\end{templdec}
+
+参见 \ref{CommonContainers} 和 \ref{SortedAssociative}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{类型}  \label{MultimapTypes}
+
+multimap::\StrongClrBf{value_type} \slsl\ pair\TP{\const\Key,\T}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{成员函数}
+
+\StrongClrBf{multimap}::\StrongClrBf{multimap}(\newline
+\phantom{ABC}\const \Compare\& \emph{cmp}=\Compare());
+
+\begin{funcdec}
+\multicolumn{3}{l}{\StrongClrBf{multimap}::\StrongClrBf{multimap}(}\\
+\phantom{ABC} &\InputIterator    &first\commcr
+              &\InputIterator    &last\commcr
+              &\const \Compare\& &\normalfont\emph{cmp}=\Compare());
+\end{funcdec}
+
+multimap::const_iterator\newline
+multimap::\StrongClrBf{lower_bound}(\newline
+\phantom{multimap}\const\ multimap::key_type\&\ \emph{k}) \const;
+
+multimap::const_iterator \enskip
+multimap::\StrongClrBf{upper_bound}(\newline
+\phantom{multimap}\const\ multimap::key_type\&\ \emph{k}) \const;
+
+\vbox{
+pair\<multimap::const_iterator, \newline
+\phantom{pair\<}multimap::const_iterator\> \newline
+multimap::\StrongClrBf{equal_range}(\newline
+\phantom{multimap}\const\ multimap::key_type\&\ \emph{k}) \const;
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionTypeOut{容器适配器}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{栈}
+
+\#include $<$stack$>$
+
+\begin{templdec}
+template\<class \T,\\
+\phantom{template$<$}class \Container=deque\TPT\ \>\\
+class \StrongClrBf{stack};\\
+\end{templdec}
+
+默认构造器. \Container\ 要有
+\texttt{back()}, 
+\texttt{push_back()}, 
+\texttt{pop_back()}.
+所以 
+\textbf{vector},
+\textbf{list} 和
+\textbf{deque}
+可用.
+
+bool\enskip stack::\StrongClrBf{empty}() \const;
+
+\Container::size_type\enskip stack::\StrongClrBf{size}() \const;
+
+void\newline
+stack::\StrongClrBf{push}(\const\ \Container::value_type\& x);
+
+void\enskip stack::\StrongClrBf{pop}();
+
+\const \Container::value_type\&\newline
+stack::\StrongClrBf{top}() \const;
+
+\Container::value_type\& stack::\StrongClrBf{top}();
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\smalltitle{比较操作符}}
+
+bool\enskip \opereq(\const\  stack\& \textsl{s0},
+\phantom{bool\enskip \opereq\lp}\const\  stack\& \textsl{s1});
+
+bool\enskip \operlt(\const\  stack\& \textsl{s0},
+\phantom{bool\enskip \operlt\lp}\const\  stack\& \textsl{s1});
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{队列}
+
+\#include $<$queue$>$
+
+\begin{templdec}
+template\<class \T,\\
+\phantom{template$<$}class \Container=deque\TPT\ \>\\
+class \StrongClrBf{queue};\\
+\end{templdec}
+
+默认构造器. \Container\ 要有
+\texttt{empty()}, 
+\texttt{size()}, 
+\texttt{back()}, 
+\texttt{front()}, 
+\texttt{push_back()} 和
+{\small\texttt{pop_front()}}.
+所以 
+\textbf{list} 和
+\textbf{deque}
+可用.
+
+bool\enskip queue::\StrongClrBf{empty}() \const;
+
+\Container::size_type\ queue::\StrongClrBf{size}() \const;
+
+void \newline
+queue::\StrongClrBf{push}(\const\  \Container::value_type\& x);
+
+void queue::\StrongClrBf{pop}();
+
+\const\ \Container::value_type\&\newline
+queue::\StrongClrBf{front}() \const;
+
+\Container::value_type\& queue::\StrongClrBf{front}();
+
+\const\ \Container::value_type\&\newline
+queue::\StrongClrBf{back}() \const;
+
+\Container::value_type\& queue::\StrongClrBf{back}();
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\smalltitle{比较操作符}}
+
+bool\enskip \opereq(\const\  queue\& \textsl{q0},
+\phantom{bool\enskip \opereq\lp}\const\  queue\& \textsl{q1});
+
+bool\enskip \operlt(\const\  queue\& \textsl{q0},
+\phantom{bool\enskip \operlt\lp}\const\  queue\& \textsl{q1});
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{优先队列}
+
+\#include $<$queue$>$
+
+\begin{templdec}
+template\<class \T,\\
+\phantom{template$<$}class \Container=vector\TPT,\\
+\phantom{template$<$}class \Compare=less\TPT\ \>\\
+class \StrongClrBf{priority_queue};\\
+\end{templdec}
+
+\Container\ 必须
+提供随机访问迭代器且有
+\texttt{empty()}, 
+\texttt{size()}, 
+\texttt{front()}, 
+\texttt{push_back()} 和
+\texttt{pop_back()}.
+所以 
+\textbf{vector} 和
+\textbf{deque}
+可用.
+
+多以 \emph{堆} 实现.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{构造器}
+
+explicit \StrongClrBf{priority_queue::priority_queue}(\newline
+\phantom{ABC}\const \Compare\& comp=\Compare());
+
+\begin{funcdec}
+\multicolumn{3}{l}{\StrongClrBf{priority_queue::priority_queue}\lp}\\
+\phantom{ABC} & \InputIterator & first\commcr
+\phantom{ABC} & \InputIterator & last\commcr
+              & \const \Compare\& & comp{\normalfont=\Compare()\rp};
+\end{funcdec}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{成员函数}
+
+bool\enskip priority_queue::\StrongClrBf{empty}() \const;
+
+\Container::size_type\newline
+priority_queue::\StrongClrBf{size}() \const;
+
+\const\ \Container::value_type\&\newline
+priority_queue::\StrongClrBf{top}() \const;
+
+\Container::value_type\&\enskip priority_queue::\StrongClrBf{top}();
+
+void\enskip priority_queue::\StrongClrBf{push}(\newline
+\phantom{void\enskip ABC}\const\  \Container::value_type\& x);
+
+void priority_queue::\StrongClrBf{pop}();
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\vskip 3pt
+\emph{无} 比较操作符.
+
+%\vfill
+%\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionTypeOut{算法} \label{Algorithms}
+
+\#include $<$algorithm$>$
+%\vskip 3pt
+
+\textbf{STL} 算法使用迭代器类型参数.
+\emph{名}适应类 (见 \ref{IteratorsCategories}).
+
+% to be used in next paragraph
+\newsavebox{\templex}
+\begin{lrbox}{\templex}
+\texttt{template \TP{class \Foo, ...}}
+\end{lrbox}
+
+声明 \fbox{\usebox{\templex}} 
+省略, 用首字母大写表示 \texttt{template}.
+
+\textbf{注意:}\quad 以下两个序列: 
+\(S_1=\fliRange1\) 和 
+\(S_2=\range{\textsl{first}_2}{?}\) 
+或 \(S_2=\range{?}{\textsl{last}_2}\) ---
+表示调用函数不会超过 \(S_2\).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \ssubsectionTypeOut{Non Mutating Algorithms} \label{NonMutating}
+\ssubsectionTypeOut{查询算法}
+
+\begin{funcdec}
+\multicolumn{3}{l}{\Function \CppComm{\textsl{f} 不改变
+                            $[$\textsl{first}, \textsl{last}$)$}}\\
+\StrongClrBf{for_each}\lp&\InputIterator & first\commcr
+                         &\InputIterator & last\commcr
+                         &\Function      & \lastPar{f}
+\quad\seeExample\ref{StreamIteratorsExample}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\InputIterator
+ \CppComm{首个 \textsl{i} 满足 \textsl{i\texttt{==}last} 或 
+                              \texttt{*\textsl{i}==\textsl{val}}}}\\
+\StrongClrBf{find}\lp&\InputIterator & first\commcr
+                         &\InputIterator & last\commcr
+                         &\const\ \T     & \lastPar{val}
+\quad\seeExample\ref{ListSplice}
+\end{funcdec}
+
+\begin{funcdec}
+\multicolumn{3}{l}{\InputIterator
+ \CppComm{首个 \textsl{i} 满足 \textsl{i\texttt{==}last} 或 
+                              \texttt{\textsl{pred}(\textsl{i})}}}\\
+\StrongClrBf{find_if}\lp&\InputIterator  & first\commcr
+                         &\InputIterator & last\commcr
+                         &\Predicate     & \lastPar{pred}
+\quad\seeExample \ref{IteratorBinder}
+\end{funcdec}
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator \CppComm{首个重复}}\\
+\StrongClrBf{adjacent_find}\lp& \ForwardIterator & first\commcr
+                              & \ForwardIterator & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator 
+                   \CppComm{首个 \textsl{binPred}-定义重复}}\\
+\StrongClrBf{adjacent_find}\lp& \ForwardIterator & first\commcr
+                              & \ForwardIterator & last\commcr
+                              & \BinaryPredicate & \lastPar{binPred}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void 
+                   \CppComm{\textsl{n} $=$ \#  等于 \textsl{val}}}\\
+\StrongClrBf{count}\lp& \ForwardIterator & first\commcr
+                      & \ForwardIterator & last\commcr
+                      & \const\ \T       & val\commcr
+                      & \Size\&          & \lastPar{n}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void 
+             \CppComm{\textsl{n} $=$ \#  满足 \textsl{pred}}}\\
+\StrongClrBf{count_if}\lp& \ForwardIterator & first\commcr
+                        & \ForwardIterator & last\commcr
+                        & \Predicate       & pred\commcr
+                        & \Size\&          & \lastPar{n}
+\end{funcdec}
+
+\begin{funcdec}
+\multicolumn{3}{l}{\CppComm{\ret\ 首个 \texttt{!=} 值对}}\\
+\multicolumn{3}{l}{pair\TP{\InputIterator1, \InputIterator2}}\\
+\StrongClrBf{mismatch}\lp& \InputIterator1 & first1\commcr
+                         & \InputIterator1  & last1\commcr
+                         & \InputIterator2  & \lastPar{first2}
+\end{funcdec}
+
+\begin{funcdec}
+\multicolumn{3}{l}{\CppComm{\ret\ 首个 \textsl{binPred}-定义不匹配 值对}}\\
+\multicolumn{3}{l}{pair\TP{\InputIterator1, \InputIterator2}}\\
+\StrongClrBf{mismatch}\lp& \InputIterator1  & first1\commcr
+                         & \InputIterator1  & last1\commcr
+                         & \InputIterator2  & first2\commcr
+                         & \BinaryPredicate & \lastPar{binPred}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{bool}\\
+\StrongClrBf{equal}\lp& \InputIterator1 & first1\commcr
+                      & \InputIterator1 & last1\commcr
+                      & \InputIterator2 & \lastPar{first2}
+\end{funcdec}
+
+\begin{funcdec}
+\multicolumn{3}{l}{bool}\\
+\StrongClrBf{equal}\lp& \InputIterator1  & first1\commcr
+                      & \InputIterator1  & last1\commcr
+                      & \InputIterator2  & first2\commcr
+                      & \BinaryPredicate & \lastPar{binPred}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\CppComm{ \(\fliRange2 \sqsubseteq \fliRange1\)}}\\
+\multicolumn{3}{l}{\ForwardIterator1}\\
+\StrongClrBf{search}\lp& \ForwardIterator1 & first1\commcr
+                       & \ForwardIterator1  & last1\commcr
+                       & \ForwardIterator2  & first2\commcr
+                       & \ForwardIterator2  & \lastPar{last2}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\CppComm{ 
+                   \(\fliRange2 \sqsubseteq_{\textsl{binPred}} \fliRange1\)}}\\
+\multicolumn{3}{l}{\ForwardIterator1}\\
+\StrongClrBf{search}\lp& \ForwardIterator1 & first1\commcr
+                       & \ForwardIterator1  & last1\commcr
+                       & \ForwardIterator2  & first2\commcr
+                       & \ForwardIterator2  & last2\commcr
+                       & \BinaryPredicate   & \lastPar{binPred}
+\end{funcdec}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{修改算法} \label{Mutating}
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator\CppComm{\ret\ %
+                   \(\textsl{first}_2+(\textsl{last}_1-\textsl{first}_1)\)}}\\
+\StrongClrBf{copy}\lp& \InputIterator & first1\commcr
+                     & \InputIterator & last1\commcr
+                     & \OutputIterator & \lastPar{first2}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\CppComm{\ret\ %
+                   \(\textsl{last}_2-(\textsl{last}_1-\textsl{first}_1)\)}}\\
+\multicolumn{3}{l}{\BidirectionalIterator2}\\
+\multicolumn{3}{l}{\StrongClrBf{copy_backward}\lp}\\
+\phantom{ABC} & \BidirectionalIterator1 & first1\commcr
+              & \BidirectionalIterator1 & last1\commcr
+              & \BidirectionalIterator2 & \lastPar{last2}
+\end{funcdec}
+
+
+void \StrongClrBf{swap}(\T\& x, \T\& y);
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator2\CppComm{\ret\ %
+                   \(\textsl{first}_2+\#\fliRange1\)}}\\
+\StrongClrBf{swap_ranges}\lp& \ForwardIterator1 & first1\commcr
+                           & \ForwardIterator1 & last1\commcr
+                           & \ForwardIterator2 & \lastPar{first2}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator\CppComm{\ret\ %
+                   \(\textsl{result}+(\textsl{last}_1-\textsl{first}_1)\)}}\\
+\StrongClrBf{transform}\lp& \InputIterator & first\commcr
+                          & \InputIterator & last\commcr
+                          & \OutputIterator & result\commcr
+                          & \UnaryOperation & \lastPar{op} 
+  \quad\seeExample\ref{NumericExample}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator
+      \Cppslsl\(\forall s^k_i \in S_k\enskip
+                   r_i=\textsl{bop}(s^1_i, s^2_i)\)}\\
+\StrongClrBf{transform}\lp& \InputIterator1 & first1\commcr
+                          & \InputIterator1 & last1\commcr
+                          & \InputIterator2 & first2\commcr
+                          & \OutputIterator & result\commcr
+                          & \BinaryOperation & \lastPar{bop}
+\end{funcdec}
+
+\begin{funcdec}
+% \multicolumn{3}{l}{void}\\
+void\enskip \StrongClrBf{replace}\lp& \ForwardIterator & first\commcr
+                        & \ForwardIterator & last\commcr
+                        & \const\ \T\&     & oldVal\commcr
+                        & \const\ \T\&     & \lastPar{\newVal}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void}\\
+\StrongClrBf{replace_if}\lp& \ForwardIterator & first\commcr
+                          & \ForwardIterator & last\commcr
+                          & \Predicate\&     & pred\commcr
+                          & \const\ \T\&     & \lastPar{\newVal}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator\CppComm{\ret\ %
+                   \(\textsl{result}_2+\#\flRange\)}}\\
+\StrongClrBf{replace_copy}\lp& \InputIterator  & first\commcr
+                             & \InputIterator  & last\commcr
+                             & \OutputIterator & result\commcr
+                             & \const\ \T\&     & oldVal\commcr
+                             & \const\ \T\&     & \lastPar{\newVal}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator\CppComm{\butpred}}\\
+\StrongClrBf{replace_copy_if}\lp& \InputIterator  & first\commcr
+                               & \InputIterator  & last\commcr
+                               & \OutputIterator & result\commcr
+                               & \Predicate\&     & pred\commcr
+                               & \const\ \T\&     & \lastPar{\newVal}
+\end{funcdec}
+
+
+\begin{funcdec}
+% \multicolumn{3}{l}{void}\\
+void\enskip \StrongClrBf{fill}\lp& \ForwardIterator & first\commcr
+                     & \ForwardIterator & last\commcr
+                     & \const\ \T\&     & \lastPar{value}
+\end{funcdec}
+
+
+\begin{funcdec}
+% \multicolumn{3}{l}{void}\\
+void\enskip \StrongClrBf{fill_n}\lp& \ForwardIterator & first\commcr
+                     & \Size             & n\commcr
+                     & \const\ \T\&      & \lastPar{value}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void \CppComm{区间调用 \textsl{gen}\textrm{()}}}\\
+\StrongClrBf{generate}\lp& \ForwardIterator & first\commcr
+                         & \ForwardIterator & last\commcr
+                         & \Generator       & \lastPar{gen}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void \CppComm{\textsl{n} 次调用 \textsl{gen}\textrm{()}}}\\
+\StrongClrBf{generate_n}\lp& \ForwardIterator & first\commcr
+                           & \Size            & n\commcr
+                           & \Generator       & \lastPar{gen}
+\end{funcdec}
+
+\vbox{
+所有 \StrongClrBf{remove} 和 \StrongClrBf{unique} 的变体
+% template functions
+返回指向\emph{新的末端}或\emph{上次复制}的迭代器.
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator
+  \CppComm{\range{\ret}{\textsl{last}} is all \textsl{value}}}\\
+\StrongClrBf{remove}\lp& \ForwardIterator & first\commcr
+                       & \ForwardIterator & last\commcr
+                       & \const\ \T\&     & \lastPar{value}
+\end{funcdec}
+
+}
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator \CppComm{\butpred}}\\
+\StrongClrBf{remove_if}\lp& \ForwardIterator & first\commcr
+                          & \ForwardIterator & last\commcr
+                          & \Predicate       & \lastPar{pred}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator \CppComm{\ret\ 上次复制}}\\
+\StrongClrBf{remove_copy}\lp& \InputIterator  & first\commcr
+                            & \InputIterator  & last\commcr
+                            & \OutputIterator & result\commcr
+                            & \const\ \T\&    & \lastPar{value}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator \CppComm{\butpred}}\\
+\StrongClrBf{remove_copy_if}\lp& \InputIterator  & first\commcr
+                             & \InputIterator  & last\commcr
+                             & \OutputIterator & result\commcr
+                             & \Predicate      & \lastPar{pred}
+\end{funcdec}
+
+
+所以 \StrongClrBf{unique} 模板函数的变体
+移除\emph{连续} (\textsl{binPred}-) 重复.
+排序后很有用 (见 \ref{Sort}).
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator 
+   \CppComm{\range{\ret}{\textsl{last}} 得重复 }}\\
+\StrongClrBf{unique}\lp& \ForwardIterator & first\commcr
+                       & \ForwardIterator & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator \CppComm{\asbutusing\ \textsl{binPred}}}\\
+\StrongClrBf{unique}\lp& \ForwardIterator & first\commcr
+                       & \ForwardIterator & last\commcr
+                       & \BinaryPredicate & \lastPar{binPred}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator \CppComm{\ret\ 上次复制}}\\
+\StrongClrBf{unique_copy}\lp& \InputIterator  & first\commcr
+                            & \InputIterator  & last\commcr
+                            & \OutputIterator & \lastPar{result}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator \CppComm{\asbutusing\ \textsl{binPred}}}\\
+\StrongClrBf{unique_copy}\lp& \InputIterator   & first\commcr
+                            & \InputIterator   & last\commcr
+                            & \OutputIterator  & result\commcr
+                            & \BinaryPredicate & \lastPar{binPred}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void}\\
+\StrongClrBf{reverse}\lp& \BidirectionalIterator  & first\commcr
+                        & \BidirectionalIterator  & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator \CppComm{\ret\ 上次复制}}\\
+\StrongClrBf{reverse_copy}\lp& \BidirectionalIterator  & first\commcr
+                             & \BidirectionalIterator  & last\commcr
+                             & \OutputIterator         & \lastPar{result}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void 
+                   \CppComm{将 \textsl{first} 移动到 \textsl{middle}}}\\
+\StrongClrBf{rotate}\lp& \ForwardIterator  & first\commcr
+                       & \ForwardIterator  & middle\commcr
+                       & \ForwardIterator  & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator
+                   \CppComm{\textsl{first} 到 \textsl{middle}} 位置}\\
+\StrongClrBf{rotate_copy}\lp& \ForwardIterator & first\commcr
+                            & \ForwardIterator & middle\commcr
+                            & \ForwardIterator & last\commcr
+                            & \OutputIterator  & \lastPar{result}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void}\\
+\multicolumn{3}{l}{\StrongClrBf{random_shuffle}\lp}\\
+\phantom{ABC} & \RandomAccessIterator & first\commcr
+              & \RandomAccessIterator & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void 
+                   \CppComm{\textsl{rand}\textrm{()} 返回
+                            \(\range{0}{1}\) 间的 \texttt{double}}}\\
+\multicolumn{3}{l}{\StrongClrBf{random_shuffle}\lp}\\
+\phantom{ABC} & \RandomAccessIterator & first\commcr
+              & \RandomAccessIterator & last\commcr
+              & \RandomGenerator\     & \lastPar{rand}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\BidirectionalIterator \CppComm{以 \texttt{true} 开始}}\\
+\StrongClrBf{partition}\lp
+              & \BidirectionalIterator & first\commcr
+              & \BidirectionalIterator & last\commcr
+              & \Predicate             & \lastPar{pred}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\BidirectionalIterator \CppComm{以 \texttt{true} 开始}}\\
+\multicolumn{3}{l}{\StrongClrBf{stable_partition}\lp}\\
+\phantom{ABC} & \BidirectionalIterator & first\commcr
+              & \BidirectionalIterator & last\commcr
+              & \Predicate             & \lastPar{pred}
+\end{funcdec}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{排序和应用} \label{Sort}
+
+
+\begin{funcdec}
+% \multicolumn{3}{l}{void}\\
+void\enskip \StrongClrBf{sort}\lp&\RandomAccessIterator & first\commcr
+                                 &\RandomAccessIterator & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+% \multicolumn{3}{l}{void}\\
+void\enskip \StrongClrBf{sort}\lp&\RandomAccessIterator & first\commcr
+                                 &\RandomAccessIterator & last\commcr
+\quad\seeExample\ref{SortExample}&\Compare              & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void}\\
+\StrongClrBf{stable_sort}\lp&\RandomAccessIterator & first\commcr
+                            &\RandomAccessIterator & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void}\\
+\StrongClrBf{stable_sort}\lp&\RandomAccessIterator & first\commcr
+                            &\RandomAccessIterator & last\commcr
+                            &\Compare              & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void \hfill\CppComm{
+   \range{\textsl{first}}{\textsl{middle}} 有序,}}\\
+\multicolumn{3}{l}{\StrongClrBf{partial_sort}\lp
+   \hfill\CppComm{\range{\textsl{middle}}{\textsl{last}} 大于等于}}\\
+\phantom{ABC}&\RandomAccessIterator & first\commcr
+             &\RandomAccessIterator & middle\commcr
+             &\RandomAccessIterator & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void 
+    \CppComm{\asbutusing\ \(\textsl{comp}(e_i,e_j)\)}} \\
+\multicolumn{3}{l}{\StrongClrBf{partial_sort}\lp}\\
+\phantom{ABC}&\RandomAccessIterator & first\commcr
+             &\RandomAccessIterator & middle\commcr
+             &\RandomAccessIterator & last\commcr
+             &\Compare              & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\RandomAccessIterator} \CppComm{上次排序}\\
+\multicolumn{3}{l}{\StrongClrBf{partial_sort_copy}\lp}\\
+\phantom{ABC}&\InputIterator & first\commcr
+             &\InputIterator        & last\commcr
+             &\RandomAccessIterator & resultFirst\commcr
+             &\RandomAccessIterator & \lastPar{resultLast}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\RandomAccessIterator}\\
+\multicolumn{3}{l}{\StrongClrBf{partial_sort_copy}\lp}\\
+\phantom{ABC}&\InputIterator & first\commcr
+             &\InputIterator        & last\commcr
+             &\RandomAccessIterator & resultFirst\commcr
+             &\RandomAccessIterator & resultLast\commcr
+             &\Compare              & \lastPar{comp}
+\end{funcdec}
+
+令 \(n=\textsl{position}-\textsl{first}\), 
+\StrongClrBf{nth_element} 划分 
+\(\range{\textsl{first}}{\textsl{last}}\)
+到:
+\(L=\range{\textsl{first}}{\textsl{position}}\),
+\(e_n\),
+\(R=\range{\textsl{position}+1}{\textsl{last}}\)
+使得
+\(\forall l\in L, \forall r\in R \quad l \not> e_n \leq r\).
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void}\\
+\multicolumn{3}{l}{\StrongClrBf{nth_element}\lp}\\
+\phantom{ABC}&\RandomAccessIterator & first\commcr
+             &\RandomAccessIterator & position\commcr
+             &\RandomAccessIterator & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void 
+    \CppComm{\asbutusing\ \(\textsl{comp}(e_i,e_j)\)}} \\
+\multicolumn{3}{l}{\StrongClrBf{nth_element}\lp}\\
+\phantom{ABC}&\RandomAccessIterator & first\commcr
+             &\RandomAccessIterator & position\commcr
+             &\RandomAccessIterator & last\commcr
+             &\Compare              & \lastPar{comp}
+\end{funcdec}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{二分查找} \label{BinarySearch}
+
+\begin{funcdec}
+\multicolumn{3}{l}{bool}\\
+\StrongClrBf{binary_search}\lp
+             &\ForwardIterator & first\commcr
+             &\ForwardIterator & last\commcr
+             &\const\ \T\&     & \lastPar{value}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{bool}\\
+\StrongClrBf{binary_search}\lp
+             &\ForwardIterator & first\commcr
+             &\ForwardIterator & last\commcr
+             &\const\ \T\&     & value\commcr
+             &\Compare         & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator}\\
+\StrongClrBf{lower_bound}\lp
+             &\ForwardIterator & first\commcr
+             &\ForwardIterator & last\commcr
+             &\const\ \T\&     & \lastPar{value}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{ForwardIterator}\\
+\StrongClrBf{lower_bound}\lp
+             &\ForwardIterator & first\commcr
+             &\ForwardIterator & last\commcr
+             &\const\ \T\&     & value\commcr
+             &\Compare         & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator}\\
+\StrongClrBf{upper_bound}\lp
+             &\ForwardIterator & first\commcr
+             &\ForwardIterator & last\commcr
+             &\const\ \T\&     & \lastPar{value}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{ForwardIterator}\\
+\StrongClrBf{upper_bound}\lp
+             &\ForwardIterator & first\commcr
+             &\ForwardIterator & last\commcr
+             &\const\ \T\&     & value\commcr
+             &\Compare         & \lastPar{comp}
+\end{funcdec}
+
+equal_range\ 返回
+lower_bound\ 和 upper_bound\ 返回的迭代器对.
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{pair\TP{\ForwardIterator,\ForwardIterator}}\\
+\StrongClrBf{equal_range}\lp
+             &\ForwardIterator & first\commcr
+             &\ForwardIterator & last\commcr
+             &\const\ \T\&     & \lastPar{value}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{pair\TP{\ForwardIterator,\ForwardIterator}}\\
+\StrongClrBf{equal_range}\lp
+             &\ForwardIterator & first\commcr
+             &\ForwardIterator & last\commcr
+             &\const\ \T\&     & value\commcr
+             &\Compare         & \lastPar{comp}
+\end{funcdec}
+
+\seeExample\ \ref{equalRangeExample}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{合并}
+
+假设 \(S_1=\fliRange1\) 和 \(S_2=\fliRange2\) 有序,
+稳定合并入 \(\range{\textsl{result}}{\textsl{result}+N}\)
+其中 \(N=|S_1|+|S_2|\).
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator}\\
+\StrongClrBf{merge}\lp& \InputIterator1   & first1\commcr
+                      & \InputIterator1   & last1\commcr
+                      & \InputIterator2   & first2\commcr
+                      & \InputIterator2   & last2\commcr
+                      & \OutputIterator  & \lastPar{result}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator}\\
+\StrongClrBf{merge}\lp& \InputIterator1  & first1\commcr
+                      & \InputIterator1  & last1\commcr
+                      & \InputIterator2  & first2\commcr
+                      & \InputIterator2  & last2\commcr
+                      & \OutputIterator  & result\commcr
+                      & \Compare         & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void 
+   \CppComm{区间  \range{\textsl{first}}{\textsl{middle}}
+                    \range{\textsl{middle}}{\textsl{last}}} }\\
+\multicolumn{3}{l}{\StrongClrBf{inplace_merge}\lp 
+   \CppComm{到 \range{\textsl{first}}{\textsl{last}}} }\\
+\phantom{ABC} & \BidirectionalIterator   & first\commcr
+              & \BidirectionalIterator   & middle\commcr
+              & \BidirectionalIterator   & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void \CppComm{\butcomp}}\\
+\multicolumn{3}{l}{\StrongClrBf{inplace_merge}\lp}\\
+\phantom{ABC} & \BidirectionalIterator   & first\commcr
+              & \BidirectionalIterator   & middle\commcr
+              & \BidirectionalIterator   & last\commcr
+              & \Compare                 & \lastPar{comp}
+\end{funcdec}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{函数和集合}
+
+用于操作\emph{有序集合}容器 (见 \ref{SortedAssociative}).
+对于 \textbf{multiset} 的操作 --- 
+\emph{union}, \emph{intersection} 和 \emph{difference} 取决于: 
+\emph{maximum}, \emph{minimum} 和 \emph{substraction} 的行为.
+
+令 \(S_i=\fliRange{i}\) 对于 \(i=1,2\).
+
+\begin{funcdec}
+\multicolumn{3}{l}{bool \CppComm{\(S_1 \supseteq S_2\)}}\\
+\StrongClrBf{includes}\lp& \InputIterator1   & first1\commcr
+                         & \InputIterator1   & last1\commcr
+                         & \InputIterator2   & first2\commcr
+                         & \InputIterator2   & \lastPar{last2}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{bool \CppComm{\butcomp}}\\
+\StrongClrBf{includes}\lp& \InputIterator1   & first1\commcr
+                         & \InputIterator1   & last1\commcr
+                         & \InputIterator2   & first2\commcr
+                         & \InputIterator2   & last2\commcr
+                         & \Compare          & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator \CppComm{\(S_1 \cup S_2\), \ret 上次结尾}}\\
+\StrongClrBf{set_union}\lp& \InputIterator1   & first1\commcr
+                          & \InputIterator1   & last1\commcr
+                          & \InputIterator2   & first2\commcr
+                          & \InputIterator2   & last2\commcr
+                          & \OutputIterator   & \lastPar{result}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator \CppComm{\butcomp}}\\
+\StrongClrBf{set_union}\lp& \InputIterator1   & first1\commcr
+                          & \InputIterator1   & last1\commcr
+                          & \InputIterator2   & first2\commcr
+                          & \InputIterator2   & last2\commcr
+                          & \OutputIterator   & result\commcr
+                          & \Compare          & \lastPar{comp}
+\end{funcdec}
+
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator \CppComm{\(S_1 \cap S_2\), \ret 上次结尾}}\\
+\StrongClrBf{set_intersection}\lp& \InputIterator1   & first1\commcr
+                                & \InputIterator1   & last1\commcr
+                                & \InputIterator2   & first2\commcr
+                                & \InputIterator2   & last2\commcr
+                                & \OutputIterator   & \lastPar{result}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator \CppComm{\butcomp}}\\
+\StrongClrBf{set_intersection}\lp& \InputIterator1   & first1\commcr
+                                 & \InputIterator1   & last1\commcr
+                                 & \InputIterator2   & first2\commcr
+                                 & \InputIterator2   & last2\commcr
+                                 & \OutputIterator   & result\commcr
+                                 & \Compare          & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator \CppComm{\(S_1 \setminus S_2\), \ret 上次结尾}}\\
+\StrongClrBf{set_difference}\lp& \InputIterator1   & first1\commcr
+                               & \InputIterator1   & last1\commcr
+                               & \InputIterator2   & first2\commcr
+                               & \InputIterator2   & last2\commcr
+                               & \OutputIterator   & \lastPar{result}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator \CppComm{\butcomp}}\\
+\StrongClrBf{set_difference}\lp& \InputIterator1   & first1\commcr
+                               & \InputIterator1   & last1\commcr
+                               & \InputIterator2   & first2\commcr
+                               & \InputIterator2   & last2\commcr
+                               & \OutputIterator   & result\commcr
+                               & \Compare          & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator 
+                   \CppComm{\(S_1 \symdiff S_2\), \ret 上次结尾}}\\
+\multicolumn{3}{l}{\StrongClrBf{set_symmetric_difference}\lp}\\
+\phantom{ABC}& \InputIterator1   & first1\commcr
+             & \InputIterator1   & last1\commcr
+             & \InputIterator2   & first2\commcr
+             & \InputIterator2   & last2\commcr
+             & \OutputIterator   & \lastPar{result}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator \CppComm{\butcomp}}\\
+\multicolumn{3}{l}{\StrongClrBf{set_symmetric_difference}\lp}\\
+\phantom{ABC}& \InputIterator1   & first1\commcr
+             & \InputIterator1   & last1\commcr
+             & \InputIterator2   & first2\commcr
+             & \InputIterator2   & last2\commcr
+             & \OutputIterator   & result\commcr
+             & \Compare          & \lastPar{comp}
+\end{funcdec}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{堆}
+
+\begin{funcdec}
+\multicolumn{3}{l}{void \CppComm{\((\textsl{last}-1)\) 压入}}\\
+\StrongClrBf{push_heap}\lp& \RandomAccessIterator   & first\commcr
+                          & \RandomAccessIterator   & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void \CppComm{\butcomp}}\\
+\StrongClrBf{push_heap}\lp& \RandomAccessIterator & first\commcr
+                          & \RandomAccessIterator & last\commcr
+                          & \Compare              & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void \CppComm{\textsl{first} 弹出}}\\
+\StrongClrBf{pop_heap}\lp& \RandomAccessIterator   & first\commcr
+                         & \RandomAccessIterator   & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void \CppComm{\butcomp}}\\
+\StrongClrBf{pop_heap}\lp& \RandomAccessIterator & first\commcr
+                         & \RandomAccessIterator & last\commcr
+                         & \Compare              & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void 
+  \CppComm{\range{\textsl{first}}{\textsl{last}} 乱序}}\\
+\StrongClrBf{make_heap}\lp& \RandomAccessIterator   & first\commcr
+                          & \RandomAccessIterator   & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void \CppComm{\butcomp}}\\
+\StrongClrBf{make_heap}\lp&\RandomAccessIterator&first\commcr
+                          &\RandomAccessIterator&last\commcr
+                          &\Compare             &\lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void 
+  \CppComm{排序 \range{\textsl{first}}{\textsl{last}} 堆}}\\
+\StrongClrBf{sort_heap}\lp& \RandomAccessIterator   & first\commcr
+                          & \RandomAccessIterator   & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{void \CppComm{\butcomp}}\\
+\StrongClrBf{sort_heap}\lp& \RandomAccessIterator & first\commcr
+                          & \RandomAccessIterator & last\commcr
+                          & \Compare              & \lastPar{comp}
+\end{funcdec}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\vskip 30pt
+%\vfill
+\subsubsection{最大和最小}
+
+\const\ \T\&\enskip \StrongClrBf{min}(\const\ \T\& \textsl{x0}, 
+                                      \const\ \T\& \textsl{x1});
+
+\begin{funcdec}
+\const\ \T\&\enskip \StrongClrBf{min}\lp & \const\ \T\& & x0\commcr
+                                         & \const\ \T\& & x1\commcr
+                                         & \Compare     & \lastPar{comp}
+\end{funcdec}
+
+\const\ \T\&\enskip \StrongClrBf{max}(\const\ \T\& \textsl{x0}, 
+                              \const\ \T\& \textsl{x1});
+
+\begin{funcdec}
+\const\ \T\&\enskip \StrongClrBf{max}\lp & \const\ \T\& & x0\commcr
+                                         & \const\ \T\& & x1\commcr
+                                         & \Compare     & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator}\\
+\StrongClrBf{min_element}\lp & \ForwardIterator & first\commcr
+                             & \ForwardIterator & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator}\\
+\StrongClrBf{min_element}\lp & \ForwardIterator & first\commcr
+                             & \ForwardIterator & last\commcr
+                             & \Compare         & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator}\\
+\StrongClrBf{max_element}\lp & \ForwardIterator & first\commcr
+                             & \ForwardIterator & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\ForwardIterator}\\
+\StrongClrBf{max_element}\lp & \ForwardIterator & first\commcr
+                             & \ForwardIterator & last\commcr
+                             & \Compare         & \lastPar{comp}
+\end{funcdec}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \vfill
+\subsubsection{排列}
+
+所有排列, 开始于递增, 结束于递减.
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{bool \CppComm{\ret\ 当且仅当可用}}\\
+\multicolumn{3}{l}{\StrongClrBf{next_permutation}\lp}\\
+\phantom{ABC}& \BidirectionalIterator  & first\commcr
+             & \BidirectionalIterator  & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{bool \CppComm{\butcomp}}\\
+\multicolumn{3}{l}{\StrongClrBf{next_permutation}\lp}\\
+\phantom{ABC}& \BidirectionalIterator  & first\commcr
+             & \BidirectionalIterator  & last\commcr
+             & \Compare                & \lastPar{comp}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{bool \CppComm{\ret\ 当且仅当可用}}\\
+\multicolumn{3}{l}{\StrongClrBf{prev_permutation}\lp}\\
+\phantom{ABC}& \BidirectionalIterator  & first\commcr
+             & \BidirectionalIterator  & \lastPar{last}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{bool \CppComm{\butcomp}}\\
+\multicolumn{3}{l}{\StrongClrBf{prev_permutation}\lp}\\
+\phantom{ABC}& \BidirectionalIterator  & first\commcr
+             & \BidirectionalIterator  & last\commcr
+             & \Compare                & \lastPar{comp}
+\end{funcdec}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{字典序}
+
+\begin{funcdec}
+% \multicolumn{3}{l}{bool \CppComm{}}\\
+\multicolumn{3}{l}{bool \StrongClrBf{lexicographical_compare}\lp}\\
+\phantom{ABCDEF}& \InputIterator1   & first1\commcr
+                & \InputIterator1   & last1\commcr
+                & \InputIterator2   & first2\commcr
+                & \InputIterator2   & \lastPar{last2}
+\end{funcdec}
+
+
+\begin{funcdec}
+% \multicolumn{3}{l}{bool \CppComm{\butcomp}}\\
+\multicolumn{3}{l}{bool \StrongClrBf{lexicographical_compare}\lp}\\
+\phantom{ABCDEF}& \InputIterator1   & first1\commcr
+                & \InputIterator1   & last1\commcr
+                & \InputIterator2   & first2\commcr
+                & \InputIterator2   & last2\commcr
+                & \Compare          & \lastPar{comp}
+\end{funcdec}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{计算} \label{Computational}
+
+\#include $<$numeric$>$
+\vskip 3pt
+
+\begin{funcdec}
+\multicolumn{3}{l}{\T
+   \CppComm{\(\sum_{\range{\textsl{first}}{\textsl{last}}}\)} 
+   \quad \seeExample\ref{NumericExample}}\\
+\StrongClrBf{accumulate}\lp&\InputIterator & first\commcr
+   &\InputIterator & last\commcr
+   &\T             & \lastPar{initVal}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\T\ \CppComm{\butbinop}}\\
+\StrongClrBf{accumulate}\lp
+   &\InputIterator   & first\commcr
+   &\InputIterator   & last\commcr
+   &\T               & initVal\commcr
+   &\BinaryOperation & \lastPar{binop}
+\end{funcdec}
+
+
+\begin{funcdec}
+% \multicolumn{3}{l}{\T\ \CppComm{\(\sum_{S_1,S_2}{{e^1_i}\times{e^2_i}}\)}}\\
+\multicolumn{3}{l}{\T\ \CppComm{\(\sum_i{{e^1_i}\times{e^2_i}}\)\quad
+                                其中 \(e^k_i\in S_k, (k=1,2)\)}}\\
+\StrongClrBf{inner_product}\lp
+   &\InputIterator1 & first1\commcr
+   &\InputIterator1 & last1\commcr
+   &\InputIterator2 & first2\commcr
+   &\T              & \lastPar{initVal}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\T\ 
+ \CppComm{类似地, 使用 \(\sum^{(\textsl{sum})}\) 和
+                         \(\times_{\textsl{mult}}\) }}\\
+\StrongClrBf{inner_product}\lp
+   &\InputIterator1  & first1\commcr
+   &\InputIterator1  & last1\commcr
+   &\InputIterator2  & first2\commcr
+   &\T               & initVal\commcr
+   &\BinaryOperation & sum\commcr
+   &\BinaryOperation & \lastPar{mult}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator\ 
+   \CppComm{ \(r_k = \sum_{i=\textsl{first}}^{\textsl{first}+k} e_i\)
+           } } \\
+\StrongClrBf{partial_sum}\lp & \InputIterator  & first\commcr
+                             & \InputIterator  & last\commcr
+                             & \OutputIterator & \lastPar{result}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator\ \CppComm{\butbinop}}\\
+\multicolumn{3}{l}{\StrongClrBf{partial_sum}\lp}\\
+\phantom{ABC} & \InputIterator   & first\commcr
+              & \InputIterator   & last\commcr
+              & \OutputIterator  & result\commcr
+              & \BinaryOperation & \lastPar{binop}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator
+  \hfill\CppComm{\(r_k = s_k - s_{k-1}\) 其中 \(k>0\)}}\\
+\multicolumn{3}{l}{\StrongClrBf{adjacent_difference}\lp
+              \hfill\CppComm{\(r_0=s_0\)}}\\
+\phantom{ABC} & \InputIterator   & first\commcr
+              & \InputIterator  & last\commcr
+              & \OutputIterator & \lastPar{result}
+\end{funcdec}
+
+
+\begin{funcdec}
+\multicolumn{3}{l}{\OutputIterator\ \CppComm{\butbinop}}\\
+\multicolumn{3}{l}{\StrongClrBf{adjacent_difference}\lp}\\
+\phantom{ABC} & \InputIterator   & first\commcr
+              & \InputIterator   & last\commcr
+              & \OutputIterator  & result\commcr
+              & \BinaryOperation & \lastPar{binop}
+\end{funcdec}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionTypeOut{函数对象} \label{FunctionObjects}
+
+\#include $<$\textbf{functional}$>$
+
+\begin{templdec}
+template\TP{class \Arg, class \Result}\\
+struct \StrongClrBf{unary_function} \lb\\
+\phantom{A} typedef \Arg\ \StrongClrBf{argument_type};\\
+\phantom{A} typedef \Result\ \StrongClrBf{result_type};\rb\\
+\end{templdec}
+
+\newcommand{\funstruct}[1]{struct \StrongClrBf{#1}\TPT;}
+
+预定义的一元对象:\newline
+\funstruct{negate}\newline
+\funstruct{logical_not}\newline
+\seeExample\ \ref{NumericExample}
+
+\begin{templdec}
+template\<class \Arg1, class \Arg2,\\
+\phantom{template$<$}class \Result\>\\
+struct \StrongClrBf{binary_function} \lb\\
+\phantom{A}typedef \Arg1\ \StrongClrBf{first_argument_type};\\
+\phantom{A}typedef \Arg2\ \StrongClrBf{second_argument_type};\\
+\phantom{A}typedef \Result\ \StrongClrBf{result_type};\rb\\
+\end{templdec}
+
+以下预定义模板对象接受两个操作数.
+结果如其名.
+
+\funstruct{plus}\newline
+\funstruct{minus}\newline
+\funstruct{multiplies}\newline
+\funstruct{divides}\newline
+\funstruct{modulus}\newline
+\funstruct{equal_to}\newline
+\funstruct{not_equal_to}\newline
+\funstruct{greater}\newline
+\funstruct{less}\newline
+\funstruct{greater_equal}\newline
+\funstruct{less_equal}\newline
+\funstruct{logical_and}\newline
+\funstruct{logical_or}\newline
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{函数适配器} \label{FunctionAdaptors}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{取反}
+
+\begin{templdec}
+template\TP{class \Predicate}\\
+class \StrongClrBf{unary_negate} : public\\ 
+\phantom{A}unary_function\<\Predicate::argument_type,\\
+\phantom{Aunary_function$<$}bool\>;\\
+\end{templdec}
+
+unary_negate::\StrongClrBf{unary_negate}(\newline
+\phantom{ABC}\Predicate\ \textsl{pred});
+
+bool \CppComm{negate \textsl{pred}}\newline
+unary_negate::\StrongClrBf{operator()}(\newline
+\phantom{ABC}\Predicate::argument_type\ \textsl{x});
+
+unary_negate\TP{\Predicate}\newline
+\StrongClrBf{not1}(\const\ \Predicate\ \textsl{pred});
+
+\begin{templdec}
+template\TP{class \Predicate}\\
+class \StrongClrBf{binary_negate} : public\\ 
+\phantom{A}binary_function\<\\
+\phantom{ABC}\Predicate::first_argument_type,\\
+\phantom{ABC}\Predicate::second_argument_type\>;\\
+\phantom{ABC}bool\>;\\
+\end{templdec}
+
+binary_negate::\StrongClrBf{binary_negate}(\newline
+\phantom{ABC}\Predicate\ \textsl{pred});
+
+\begin{funcdec}
+\multicolumn{3}{l}{bool \CppComm{取反 \textsl{pred}}}\\
+\multicolumn{3}{l}{binary_negate::\StrongClrBf{operator()}\lp}\\
+\phantom{ABC} & \Predicate::first_argument_type   & x \\
+\phantom{ABC} & \Predicate::second_argument_type\ & \lastPar{y}\\
+\end{funcdec}
+
+
+binary_negate\TP{\Predicate}\newline
+\StrongClrBf{not2}(\const\ \Predicate\ \textsl{pred});
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{绑定}
+
+\begin{templdec}
+template\TP{class \Operation}\\
+class \StrongClrBf{binder1st}: public\\
+\phantom{A}unary_function\<\\
+\phantom{ABC}\Operation::second_argument_type,\\
+\phantom{ABC}\Operation::result_type\>;\\
+\end{templdec}
+
+\begin{funcdec}
+\multicolumn{3}{l}{binder1st::\StrongClrBf{binder1st}\lp}\\
+\phantom{A} & \const\ \Operation\&                    & op\commcr
+            & \const\ \Operation::first_argument_type\ & \lastPar{y}
+\end{funcdec}
+
+
+\CppComm{\textrm{argument_type} 来自 \textrm{unary_function}}\newline
+\Operation::result_type\newline
+binder1st::\StrongClrBf{operator()}(\newline
+\phantom{ABC}\const\ binder1st::argument_type\ \textsl{x});
+
+
+binder1st\TP{\Operation}\newline
+\StrongClrBf{bind1st}(\const \Operation\& \textsl{op}, \const \T\& \textsl{x});
+
+
+\begin{templdec}
+template\TP{class \Operation}\\
+class \StrongClrBf{binder2nd}: public\\
+\phantom{A}unary_function\<\\
+\phantom{ABC}\Operation::first_argument_type,\\
+\phantom{ABC}\Operation::result_type\>;\\
+\end{templdec}
+
+\begin{funcdec}
+\multicolumn{3}{l}{binder2nd::\StrongClrBf{binder2nd}\lp}\\
+\phantom{A} & \const\ \Operation\&                    & op\commcr
+            & \const\ \Operation::second_argument_type\ & \lastPar{y}
+\end{funcdec}
+
+
+\CppComm{\textrm{argument_type} 来自 \textrm{unary_function}}\newline
+\Operation::result_type\newline
+binder2nd::\StrongClrBf{operator()}(\newline
+\phantom{ABC}\const\ binder2nd::argument_type\ \textsl{x});
+
+
+binder2nd\TP{\Operation}\newline
+\StrongClrBf{bind2nd}(\const \Operation\& \textsl{op}, \const \T\& \textsl{x});
+
+\seeExample\ \ref{IteratorBinder}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{函数指针}
+
+\begin{templdec}
+template\TP{class \Arg, class \Result}\\
+class \StrongClrBf{pointer_to_unary_function} :\\
+\phantom{A}public unary_function\TP{\Arg, \Result};\\
+\end{templdec}
+
+pointer_to_unary_function\TP{\Arg, \Result}\newline
+\StrongClrBf{ptr_fun}(\Result (*\textsl{x})(\Arg));
+
+\begin{templdec}
+template$<$class \Arg1, class \Arg2,\\
+\phantom{template\<}class \Result$>$\\
+class \StrongClrBf{pointer_to_binary_function} :\\
+\phantom{A}public binary_function\<\Arg1, \Arg2,\\
+\phantom{Apublic binary_function\<}\Result\>;\\
+\end{templdec}
+
+pointer_to_binary_function\<\Arg1, \Arg2,\newline
+\phantom{pointer_to_binary_function\<}\Result\>\newline
+\StrongClrBf{ptr_fun}(\Result (*\textsl{x})(\Arg1, \Arg2));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sectionTypeOut{迭代器} \label{Iterators}
+
+\#include $<$\textbf{iterator}$>$
+%\vskip -10pt
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\vskip-10pt
+\subsectionTypeOut{迭代器分类} \label{IteratorsCategories}
+
+这里我们用:
+\begin{itemize} \itemCondense
+ \item[\texttt{X}] 迭代器类型.
+ \item[\texttt{a}, \texttt{b}] 迭代器值.
+ \item[\texttt{r}] 迭代器引用 (\verb+X& r+).
+ \item[\texttt{t}] 一个 \texttt{T} 类型的值.
+\end{itemize}
+
+用空的 \texttt{struct} 标签.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{输入、输出、前引用}
+
+struct \textbf{input_iterator_tag} \lb\rb 
+                                   \seeExample\ \ref{IteratorTraits} \newline
+struct \textbf{output_iterator_tag} \lb\rb\newline
+struct \textbf{forward_iterator_tag} \lb\rb
+
+下表显示
+\textbf{I}nput,
+\textbf{O}utput 和
+\textbf{F}orward
+迭代器.
+
+
+{
+\setlength{\tabcolsep}{1pt}
+\raggedright
+% The 2 dummy p{0pt} columns, solve a problem with 1st multicolumn
+\begin{tabular}{|p{0pt} @{\enskip}>{\raggedright\ttfamily}p{.9cm}@{\enskip}|
+                 @{\enskip}>{\raggedright}p{3.5cm} p{0pt}|c|c|c|}
+\hline
+&\textbf{表达式} & \textbf{条件} && \textbf{I} & \textbf{O} & \textbf{F} \\ \hline
+&X() \mbox{X u} & 可单用      &&       &       & \mblt \\ \hline
+&X(a) & \ra \texttt{X(a) == a}           && \mblt &       & \mblt \\ \cline{3-7}
+&     & \texttt{*a=t \lra\ *X(a)=t}      &&       & \mblt &       \\ \hline
+&\mbox{X u(a)}
+\mbox{X u=a} & \ra\ \texttt{u == a}      && \mblt &       & \mblt \\ \cline{3-7}
+&%\mbox{X u(a)} \mbox{X u=a}
+             & \texttt{u} copy of
+               \texttt{a}                &&       & \mblt &       \\ \hline
+&a==b         & equivalence relation     && \mblt &       & \mblt \\ \hline
+&a!=b         & \lra \texttt{!(a==b)}    && \mblt &       & \mblt \\ \hline
+&r = a        & \ra\ \texttt{r == a}     &&       &       & \mblt \\ \hline
+&*a         & convertible to \texttt{T}.
+       \mbox{\texttt{a==b \lra\ *a==*b}} && \mblt &       & \mblt \\ \hline
+&*a=t         & (for \emph{forward},
+                if \texttt{X} mutable)   &&       & \mblt & \mblt \\ \hline
+&++r        & result is dereferenceable
+               or \emph{past-the-end}.
+               \texttt{\&r == \&++r}     && \mblt & \mblt & \mblt \\ \cline{3-7}
+&             & convertible to
+               \texttt{const X\&}        && \mblt & \mblt &       \\ \cline{3-7}
+&          & convertible to \texttt{X\&}
+ \mbox{\texttt{r==s}\lra\ \texttt{++r==++s}}  
+                                         &&       &       & \mblt \\ \hline
+
+&r++        & convertible to \texttt{X\&}
+   \mbox{\lra\hs\texttt{\lb X x=r;++r;return x;\rb}} 
+                                         && \mblt  & \mblt & \mblt \\ \hline
+&*++r *r++  & convertible to \texttt{T}  && \mblt  & \mblt & \mblt \\ \hline
+\end{tabular}
+}
+
+\seeExample\ \ref{IteratorBinder}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Bidirectional Iterators}
+
+struct \textbf{bidirectional_iterator_tag} \lb\rb
+
+The \textbf{forward} requirements and:
+\begin{itemize}
+ \item[\texttt{--r}]
+  Convertible to \texttt{\const\  X\&}.
+  If \(\exists\)\ \texttt{r=++s} then \texttt{--r}
+  refers same as \texttt{s}. \texttt{\&r==\&--r}.
+  \texttt{--(++r)==r}. (\texttt{--r == --s} \ra\ \texttt{r==s}.
+ \item[\texttt{r--}] \lra\ \texttt{\lb X x=r; --r; return x;\rb}.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Random Access Iterator}
+
+\vbox{
+struct \textbf{random_access_iterator_tag} \lb\rb
+
+The \textbf{bidirectional} requirements and\\
+(\texttt{m,n} iterator's \emph{distance} (integral) value):
+}
+\begin{itemize}
+     \itemCondense
+  \item[\texttt{r+=n}]
+     \texttt{\lra\ \lb for (m=n; m-->0; ++r); \newline
+    \phantom{\lra\ \lb}for (m=n; m++<0; --r); \newline
+    \phantom{\lra\ \lb}return r;\rb} \slsl  but \(\textrm{time}=O(1)\).
+
+  \item[\texttt{a+n}] \lra\ \texttt{n+a} \lra\ \texttt{\lb X x=a; return a+=n]\rb}
+
+  \item[\texttt{r-=n}] \lra\ \texttt{r += -n}.
+
+  \item[\texttt{a-n}] \lra\ \texttt{a+(-n)}.
+
+  \item[\texttt{b-a}] Returns iterator's \emph{distance} value $n$,
+                      such that \texttt{a+n == b}.
+
+  \item[\texttt{a[n]}] \lra\ \texttt{*(a+n)}.
+
+  \item[\texttt{a<b}]  Convertible to \texttt{bool}, \texttt{<} total ordering.
+
+  \item[\texttt{a<b}]  Convertible to \texttt{bool},
+                       \texttt{>} opposite to \texttt{<}.
+
+  \item[\texttt{a<=b}]  \lra\ \texttt{!(a>b)}.
+  \item[\texttt{a>=b}]  \lra\ \texttt{!(a<b)}.
+
+
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{Stream Iterators} \label{StreamIterators}
+
+\begin{templdec}
+template\<class \T,\\
+\phantemp class \Distance=ptrdiff_t\>\\
+class \StrongClrBf{istream_iterator} :\\
+\phantom{class }pubic iterator\TP{input_iterator_tag, \T, \Distance};\\
+\end{templdec}
+
+\CppComm{end of stream}\quad\seeExample\ref{StreamIteratorsExample}\newline
+istream_iterator::\StrongClrBf{istream_iterator}(); 
+
+istream_iterator::\StrongClrBf{istream_iterator}(\newline
+\phantom{ABC}istream\& \emph{s}); \quad\seeExample\ref{StreamIteratorsExample}
+
+istream_iterator::\StrongClrBf{istream_iterator}(\newline
+\phantom{ABC}\const\ istream_iterator\TP{\T, \Distance}\&);
+
+istream_iterator::\verb+~+\StrongClrBf{istream_iterator}();
+
+\const\ \T\&\enskip istream_iterator::\operstar() \const;
+
+istream_iterator\& \CppComm{Read and store \T\ value}\newline
+istream_iterator::\operpp() \const;
+
+bool \CppComm{all end-of-streams are equal}\newline
+\opereq\lp\const\ istream_iterator,\newline
+\phantom{\opereq\lp}\const\ istream_iterator\rp;
+
+\begin{templdec}
+template\TP{class \T}\\
+class \StrongClrBf{ostream_iterator} : \\
+\phantom{class }public iterator\TP{output_iterator_tag, void, \ldots};\\
+\end{templdec}
+
+% \CppComm{\(\forall\) write, Add \textit{delim}}\\
+\CppComm{If \(\textit{delim}\neq0\) add after each write}\\
+\begin{funcdec}
+\multicolumn{3}{l}{ostream_iterator::\StrongClrBf{ostream_iterator}\lp}\\
+\phantom{ABC} & ostream\&     & s,\\
+              & \const\ char\levstar & \lastPar{delim\textrm{=0}}\\
+\end{funcdec}
+
+ostream_iterator::\StrongClrBf{ostream_iterator}(\newline
+\phantom{ABC}\const\ ostream_iterator\ \emph{s});
+
+ostream_iterator\& \CppComm{Assign \& write (\texttt{*o=t})}\newline
+ostream_iterator::\operstar() \const;
+
+ostream_iterator\&\newline
+ostream_iterator::\operass(\newline
+\phantom{ABC}\const\ ostream_iterator\ \emph{s});
+
+ostream_iterator\& \CppComm{No-op}\newline
+ostream_iterator::\operpp();
+
+ostream_iterator\& \CppComm{No-op}\newline
+ostream_iterator::\operpp(int);
+
+\seeExample\ \ref{StreamIteratorsExample}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\columnbreak
+\subsectionTypeOut{类型定义 \& 适配器}
+
+\begin{templdec}
+template\<\Category, \T,\\
+\phantemp \Distance=ptrdiff_t,\\
+\phantemp \Pointer=\T*, \Reference = \T\&\>\\
+class \StrongClrBf{iterator} \lb\\
+\hbox{
+\begin{tabular}{ll}
+\phantom{A} \Category\  & \StrongClrBf{iterator_category}; \\
+\phantom{A} \T\         & \StrongClrBf{value_type};\\
+\phantom{A} \Distance\  & \StrongClrBf{difference_type};\\
+\phantom{A} \Pointer\   & \StrongClrBf{pointer};\\
+\phantom{A} \Reference\ & \StrongClrBf{reference};\rb\\
+\end{tabular}
+} \\
+\end{templdec}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Traits}
+
+\begin{templdec}
+template\<\I\>\\
+class \StrongClrBf{iterator_traits} \lb\\
+\hbox{
+\begin{tabular}{ll}
+\I::iterator_category & \\ % too side :( \StrongClrBf{iterator_category};
+            \multicolumn{2}{r}{\StrongClrBf{iterator_category};} \\
+\I::value_type  & \StrongClrBf{value_type};\\
+\I::difference_type  & \StrongClrBf{difference_type};\\
+\I::pointer  & \StrongClrBf{pointer};\\
+\I::reference  & \StrongClrBf{reference};\rb\\
+\end{tabular}
+} \\
+\end{templdec}
+
+Pointer specilaizations: \seeExample\ \ref{IteratorTraits}
+
+\begin{templdec}
+template\<\T\>\\
+class \StrongClrBf{iterator_traits}\<\T*\> \lb\\
+\hbox{
+\begin{tabular}{ll}
+\multicolumn{2}{l}{random_access_iterator_tag} \\
+ \multicolumn{2}{r}{\StrongClrBf{iterator_category}} ;\\
+\T                         & \StrongClrBf{value_type};\\
+ptrdiff_t                  & \StrongClrBf{difference_type};\\
+\T*                        & \StrongClrBf{pointer};\\
+\T\&                       & \StrongClrBf{reference};\rb\\
+\end{tabular}
+} \\
+\end{templdec}
+
+
+\begin{templdec}
+template\<\T\>\\
+class \StrongClrBf{iterator_traits}\<\const\ \T*\> \lb\\
+\hbox{
+\begin{tabular}{ll}
+\multicolumn{2}{l}{random_access_iterator_tag} \\
+ \multicolumn{2}{r}{\StrongClrBf{iterator_category}} ;\\
+\T                         & \StrongClrBf{value_type};\\
+ptrdiff_t                  & \StrongClrBf{difference_type};\\
+\const\ \T*                        & \StrongClrBf{pointer};\\
+\const\ \T\&                       & \StrongClrBf{reference};\rb\\
+\end{tabular}
+} \\
+\end{templdec}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Reverse Iterator}
+
+Transform 
+\([i {\nearrow}{\kern-.5em}, j) \mapsto\ [ j-1 ,{\kern-.5em}{\searrow} i-1)\).
+
+\begin{templdec}
+template\<\Iter\> \\
+class \StrongClrBf{reverse_iterator} : public iterator\<\\
+\phantom{A} iterator_traits\<\Iter\>::iterator_category,\\
+\phantom{A} iterator_traits\<\Iter\>::value_type,\\
+\phantom{A} iterator_traits\<\Iter\>::difference_type,\\
+\phantom{A} iterator_traits\<\Iter\>::pointer,\\
+\phantom{A} iterator_traits\<\Iter\>::reference\>;\\
+\end{templdec}
+
+
+
+\newcommand{\bRI}{\textsf{RI}}
+\newcommand{\bAI}{{\bbfont AI}}
+Denote\newline
+\phantom{or}\bRI\ = \StrongClrBf{reverse_iterator}\newline
+\phantom{or}\bAI\ = \StrongClrBf{\RandomAccessIterator}.
+
+Abbreviate:\newline
+typedef \bRI$<$\bAI, \T,\newline
+\phantom{typedef \bRI\<}\Reference, \Distance\> \StrongClrBf{self};
+
+% \paragraph{Constructors}
+
+\CppComm{Default constructor \ra\ singular value}\newline
+self::\bRI();
+
+explicit\CppComm{Adaptor Constructor}\newline
+self::\bRI(\bAI \textit{i});
+
+\bAI\ self::\StrongClrBf{base}(); \CppComm{adpatee's position}
+
+\CppComm{so that:\quad \texttt{\&*(\bRI(\textsl{i})) == \&*(\textsl{i}-1)}}
+\Reference\ self::\operstar();
+
+self\CppComm{position to \& return\, \textrm{base()-1}}
+\bRI::\operpp();
+
+self\&\CppComm{return old position and move}\newline
+\bRI::\operpp(int);\CppComm{to \textrm{base()-1}}
+
+self\CppComm{position to \& return\, \textrm{base()+1}}
+\bRI::\opermm();
+
+self\&\CppComm{return old position and move}\newline
+\bRI::\opermm(int);\CppComm{to \textrm{base()+1}}
+
+bool \CppComm{\lra\quad 
+       \textrm{\textsl{s0}.base() \texttt{==} \textsl{s1}.base()}}\newline
+\opereq(\const\  self\& \textit{s0}, \const\ self\& \textsl{s1});
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\smalltitle{reverse_iterator\ Specific}}
+
+self\CppComm{returned value positioned at \textrm{base()-\textsl{n}}}\newline
+reverse_iterator::\operp(\newline
+\phantom{ABC}\Distance\ \textsl{n}) \const;
+
+self\&\CppComm{change \& return position to \textrm{base()-\textsl{n}}}\newline
+reverse_iterator::\operpe(\Distance\ \textsl{n});
+
+self\CppComm{returned value positioned at \textrm{base()+\textsl{n}}}\newline
+reverse_iterator::\operm(\newline
+\phantom{ABC}\Distance\ \textsl{n}) \const;
+
+self\&\CppComm{change \& return position to \textrm{base()+\textsl{n}}}\newline
+reverse_iterator::\operme(\Distance\ \textsl{n});
+
+\Reference\CppComm{\texttt{*(*this + \textsl{n})}}\newline
+reverse_iterator::\StrongClrBf{\indop}(\Distance\ \textsl{n});
+
+\Distance\CppComm{\textrm{\textsl{r0}.base() - \textsl{r1}.base()}}\newline
+\operm(\const\  self\& \textsl{r0}, \const\  self\& \textsl{r1});
+
+self\CppComm{\textrm{\textsl{n} + \textsl{r}.base()}}\newline
+\operm(\Distance\ \textsl{n}, \const\  self\& \textsl{r});
+
+bool\CppComm{\textrm{\textsl{r0}.base() $<$ \textsl{r1}.base()}}\newline
+\operlt(\const\  self\& \textsl{r0}, \const\  self\& \textsl{r1});
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Insert Iterators}
+
+\begin{center}
+ %\setlength{\tabcolsep}{4pt}
+ %\setlength{\extrarowheight}{-2pt}
+\setlength{\topsep}{5pt}
+ \begin{tabular}{|l|}
+   \hline\tabularnewline[-7pt]
+   template\TP{class \Container}\\
+   class \StrongClrBf{back_insert_iterator} :\\
+   \phantom{class }public output_iterator;\\
+   \hline\multicolumn{1}{c}{}\\\hline\tabularnewline[-7pt]
+   template\TP{class \Container}\\
+   class \StrongClrBf{front_insert_iterator} :\\
+   \phantom{class }public output_iterator;\\
+   \hline\multicolumn{1}{c}{}\\\hline\tabularnewline[-7pt]
+   template\TP{class \Container}\\
+   class \StrongClrBf{insert_iterator} :\\
+   \phantom{class }public output_iterator;\\
+   \hline
+ \end{tabular}
+\end{center}
+
+Here \T\ will denote the \Container::value_type.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\smalltitle{Constructors}}
+
+explicit \CppComm{\(\exists\)
+                 \textrm{\Container::push_back(\const\ \T\&)}}\newline
+back_insert_iterator::back_insert_iterator(
+\phantom{ABC}\Container\& \textsl{x});
+
+explicit \CppComm{\(\exists\)
+                 \textrm{\Container::push_front(\const\ \T\&)}}\newline
+front_insert_iterator::front_insert_iterator(
+\phantom{ABC}\Container\& \textsl{x});
+
+\CppComm{\(\exists\)
+                 \textrm{\Container::insert(\const\ \T\&)}}\newline
+\begin{funcdec}
+\multicolumn{3}{l}{insert_iterator::insert_iterator\lp}\\
+\phantom{ABC} & \Container           & \textsl{x}\commcr
+              & \Container::iterator & \lastPar{i}
+\end{funcdec}
+
+\newcommand{\bII}{\textsf{InsIter}}
+\newcommand{\bInsFunc}{\textsf{insFunc}}
+\newcommand{\biterMaker}{\textsf{iterMaker}}
+\vbox{
+Denote\newline
+\phantom{or}\bII\ = \StrongClrBf{back_insert_iterator}\newline
+\phantom{or}\bInsFunc\ = \StrongClrBf{push_back}\newline
+\phantom{or}\biterMaker\ = \StrongClrBf{back_inserter} 
+                           \quad\seeExample\ref{StreamIteratorsExample}\newline
+or\newline
+\phantom{or}\bII\ = \StrongClrBf{front_insert_iterator}\newline
+\phantom{or}\bInsFunc\ = \StrongClrBf{push_front}\newline
+\phantom{or}\biterMaker\ = \StrongClrBf{front_inserter}\newline
+or\newline
+\phantom{or}\bII\ = \StrongClrBf{insert_iterator}\newline
+\phantom{or}\bInsFunc\ = \StrongClrBf{insert}\newline
+} % \phantom{or}\biterMaker\ = \StrongClrBf{inserter}\newline
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\vskip 10pt
+\vbox{
+{\smalltitle{Member Functions \& Operators}}
+
+\bII\& \CppComm{calls \textsl{x}.\bInsFunc(\textsl{val})}\newline
+\bII::\operass(\const\ \T\& \textsl{val});
+}
+
+\bII\&\CppComm{return \texttt{*this}}\newline
+\bII::\operstar();
+
+\bII\&\CppComm{no-op, just \texttt{return *this}}\newline
+\bII::\operpp();
+
+\bII\&\CppComm{no-op, just \texttt{return *this}}\newline
+\bII::\operpp(int);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\smalltitle{Template Function}}
+
+\bII\CppComm{return \bII\TP{\Container}(\textsl{x})}
+\biterMaker(\Container\& \textsl{x});
+
+\CppComm{return 
+ \textrm{insert_iterator\TP{\Container}(\textsl{x}, \textsl{i})}}\newline
+insert_iterator\TP{\Container}\newline
+\StrongClrBf{inserter}(\Container\& \textsl{x}, \Iterator\ \textsl{i});
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\vfill
+% \newpage % [4]
+\ssectionTypeOut{示例} \label{Examples}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sssubsectionTypeOut{向量} \label{VectorExample}
+%
+{\exampleinput{vector.exm}}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sssubsectionTypeOut{链表分割} \label{ListSplice}
+%
+{\exampleinput{splicehelp.exm}}
+{\exampleinput{spliceexample.exm}}
+
+%\vskip -3pt
+\outputinput{spliceexample.exout}
+
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{比较对象排序} \label{SortExample}
+%
+{\exampleinput{sorthelp.exm}}
+{\exampleinput{sortexample.exm}}
+%\newline
+\outputinput{sortexample.exout}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{流迭代器} \label{StreamIteratorsExample}
+%
+{\exampleinput{unitroot.exm}}
+{\exampleinput{istriter.exm}}
+ %{\footnotesize yields:}
+{\outputinput{uroot.exout}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\pagebreak[1]
+\subsectionTypeOut{二分查找} \label{equalRangeExample}
+%
+% {\smalltitle{Example:}}
+{\exampleinput{eqrange.exm}
+%{\footnotesize yields:}
+
+\outputinput{eqrange.exout}
+}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{转换 \& 计算} \label{NumericExample}
+
+{\exampleinput{numerichelp.exm}}
+{\exampleinput{numericexample.exm}}
+ %{\footnotesize yields:}
+{\outputinput{numericexample.exout}}
+
+% \vfill
+% \vskip 170pt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{迭代和绑定} \label{IteratorBinder}
+
+{\exampleinput{interfermat.exm}}
+{\exampleinput{fermat.exm}}
+ %{\footnotesize yields:}
+{\outputinput{fermat.exout}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsectionTypeOut{特征迭代} \label{IteratorTraits}
+
+{\exampleinput{itertraitshelp.exm}}
+{\exampleinput{itertraits.exm}}
+ %{\footnotesize yields:}
+{\outputinput{itertraits.exout}}
+
+
+%\vfill
+
+
+%\vfill
+%\vskip 20in
+
+\iffalse
+%% kludge temporary way
+%% to have the page large enough, so previous example
+%% will expand to one big column.
+{\nullfont
+\vskip 5in
+vs0
+\vskip 5in
+vs1
+\vskip 5in
+vs2
+\vskip 5in
+vs3
+}
+\fi
+
+% Endddddd
+
+
+
+\end{multicols}
+
+\end{document}

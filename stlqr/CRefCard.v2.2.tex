@@ -1,0 +1,768 @@
+% Reference Card for C
+
+% Copyright (c) 1998 Joseph H. Silverman. May be freely distributed.
+% Created Friday, July 24, 1998
+% Thanks to Stephen Gildea for the multicolumn macro package
+% which I modified from his GNU emacs reference card
+% Thanks for Andrew Ford <andrew@icarus.demon.co.uk> for corrections and
+% the page size (letter versus a4) macros
+%
+% Compile with the command line
+% pdftex "\pdfpagewidth=11in \pdfpageheight=8.5in \input CRefCard.v2.2.tex"
+%
+% Smaller (97%) pdf file  with horizontal offset 1.5in
+% dvipdfm -l -m 0.97 -x 1.5in -o CRefCard.v2.2.pdf CRefCard.v2.2.dvi
+
+%**start of header
+\newcount\columnsperpage
+\def\afour{a4}
+\def\letter{letter}
+
+% This file can be printed with 1, 2, or 3 columns per page (see below).
+% [For 2 or 3 columns, you'll need 6 and 8 point fonts.]
+% Specify how many you want here.  Nothing else needs to be changed.
+% This file can be printed on letter (8.5in x 11in) paper or a4 paper
+% To print on a4 paper, comment out the \let\paper=\letter line.
+
+\columnsperpage=3
+\let\paper=\afour
+\let\paper=\letter
+
+% Copyright (c) 1998 Joseph H. Silverman
+
+% This reference card is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+% This file is intended to be processed by plain TeX (TeX82).
+%
+% The final reference card has six columns, three on each side.
+% This file can be used to produce it in any of three ways:
+% 1 column per page
+%    produces six separate pages, each of which needs to be reduced to 80%.
+%    This gives the best resolution.
+% 2 columns per page
+%    produces three already-reduced pages.
+%    You will still need to cut and paste.
+% 3 columns per page
+%    produces two pages which must be printed sideways to make a
+%    ready-to-use 8.5 x 11 inch reference card.
+%    For this you need a dvi device driver that can print sideways.
+% Which mode to use is controlled by setting \columnsperpage above.
+%
+% Author:
+%  Joseph H. Silverman
+%  Brown University Mathematics Department
+%  Providence, RI 02912 USA
+%  Internet:  jhs@math.brown.edu
+%  (reference card macros due to Stephen Gildea)
+%  (page size macros due to Andrew Ford)
+%
+% Thanks: Andrew Davis
+%         Andrew Ford (for reformatting and corrections)
+%         Arthur O'Dwyer and others (for numerous corrections)
+%
+% History:
+%  Version 1.0 - July 1998, first general distribution
+%  Version 1.1 - November 1998, minor corrections
+%  Version 1.2 - April 1999, minor corrections
+%  Version 1.3 - May 1999, minor corrections
+%  Version 2.0 - January 2003, reformatting and corrections (joint 
+%  with A. Ford)
+%  Version 2.0r - August 2004, revised for accuracy by Arthur O'Dwyer
+%  Version 2.1 - January 2007, minor corrections
+%  Version 2.2 - January 2007, minor corrections (thanks to C. Bastoul)
+
+\def\versionnumber{2.2}  % Version of this reference card
+\def\year{2007}
+\def\month{January}
+\def\version{\month\ \year\ v\versionnumber}
+
+\def\shortcopyrightnotice{\vskip .5ex plus 2 fill
+   \centerline{\small \copyright\ \year\ Joseph H. Silverman
+   Permissions on back.  v\versionnumber}}
+
+\def\copyrightnotice{
+\vskip 1ex plus 50 fill\begingroup\small
+\centerline{\version. Copyright \copyright\ \year\ Joseph H. Silverman}
+
+Permission is granted to make and distribute copies of
+this card provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Send comments and corrections to J.H. Silverman, Math.\ Dept.,
+Brown Univ., Providence, RI 02912 USA.
+$\langle$jhs@math.brown.edu$\rangle$
+
+\endgroup}
+
+% make \bye not \outer so that the \def\bye in the \else clause below
+% can be scanned without complaint.
+\def\bye{\par\vfill\supereject\end}
+
+\newdimen\intercolumnskip
+\newbox\columna
+\newbox\columnb
+
+\def\ncolumns{\the\columnsperpage}
+
+\message{[\ncolumns\space
+   column\if 1\ncolumns\else s\fi\space per \ifx\paper\afour A4 \else 
+US letter \fi page]}
+
+\def\scaledmag#1{ scaled \magstep #1}
+
+% This multi-way format was designed by Stephen Gildea
+% October 1986.
+\if 1\ncolumns
+   \hsize 4in
+   \vsize 10in
+   \voffset -.7in
+   \font\titlefont=\fontname\tenbf \scaledmag3
+   \font\headingfont=\fontname\tenbf \scaledmag2
+                 \font\headingfonttt=\fontname\tentt \scaledmag2
+   \font\smallfont=\fontname\sevenrm
+   \font\smallsy=\fontname\sevensy
+
+   \footline{\hss\folio\hss}
+   \def\makefootline{\baselineskip10pt\hsize4in\line{\the\footline}}
+\else
+   \ifx\paper\letter
+     \hsize 3.2in
+     \vsize 7.95in
+     \hoffset -.75in
+     \voffset -.745in
+     \intercolumnskip=.35in
+   \else
+     \hsize 81.28mm
+     \vsize 201.93mm
+     \hoffset -16.54mm
+     \voffset -21.823mm
+     \intercolumnskip=17.72mm
+   \fi
+   \font\titlefont=cmbx10 \scaledmag2
+   \font\headingfont=cmbx10 \scaledmag1
+                 \font\headingfonttt=cmtt10 \scaledmag1
+   \font\smallfont=cmr6
+   \font\smallsy=cmsy6
+   \font\eightrm=cmr8
+   \font\eightbf=cmbx8
+   \font\eightit=cmti8
+   \font\eighttt=cmtt8
+   \font\eightsy=cmsy8
+   \font\eightsl=cmsl8
+   \font\eighti=cmmi8
+   \font\eightex=cmex10 at 8pt
+   \textfont0=\eightrm
+   \textfont1=\eighti
+   \textfont2=\eightsy
+   \textfont3=\eightex
+   \def\rm{\fam0 \eightrm}
+   \def\bf{\eightbf}
+   \def\it{\eightit}
+   \def\tt{\eighttt}
+   \def\sl{\eightsl}
+   \normalbaselineskip=.8\normalbaselineskip
+   \normallineskip=.8\normallineskip
+   \normallineskiplimit=.8\normallineskiplimit
+   \normalbaselines\rm           %make definitions take effect
+
+   \if 2\ncolumns
+     \let\maxcolumn=b
+     \footline{\hss\rm\folio\hss}
+     \def\makefootline{\vskip 2in \hsize=6.86in\line{\the\footline}}
+   \else \if 3\ncolumns
+     \let\maxcolumn=c
+     \nopagenumbers
+   \else
+     \errhelp{You must set \columnsperpage equal to 1, 2, or 3.}
+     \errmessage{Illegal number of columns per page}
+   \fi\fi
+
+   \def\abc{a}
+   \output={%
+       % This next line is useful when designing the layout.
+       %\immediate\write16{Column \folio\abc\space starts with \firstmark}
+       \if \maxcolumn\abc \multicolumnformat \global\def\abc{a}
+       \else\if a\abc
+         \global\setbox\columna\columnbox \global\def\abc{b}
+         %% in case we never use \columnb (two-column mode)
+         \global\setbox\columnb\hbox to -\intercolumnskip{}
+       \else
+         \global\setbox\columnb\columnbox \global\def\abc{c}\fi\fi}
+   \def\multicolumnformat{\shipout\vbox{\makeheadline
+       \hbox{\box\columna\hskip\intercolumnskip
+         \box\columnb\hskip\intercolumnskip\columnbox}
+       \makefootline}\advancepageno}
+   \def\columnbox{\leftline{\pagebody}}
+
+   \def\bye{\par\vfill\supereject
+     \if a\abc \else\null\vfill\eject\fi
+     \if a\abc \else\null\vfill\eject\fi
+     \end}
+\fi
+
+% we won't be using math mode much, so redefine some of the characters
+% we might want to talk about
+%\catcode`\^=12
+%\catcode`\_=12
+\catcode`\~=12
+
+\chardef\\=`\\
+\chardef\{=`\{
+\chardef\}=`\}
+\chardef\underscore=`\_
+\chardef\caret=`\^
+\chardef\'="0D % These are upright quote marks
+
+
+\hyphenation{}
+
+\parindent 0pt
+\parskip .85ex plus .35ex minus .5ex
+
+\def\small{\smallfont\textfont2=\smallsy\baselineskip=.8\baselineskip}
+
+\outer\def\newcolumn{\vfill\eject}
+
+\outer\def\title#1{{\titlefont\centerline{#1}}\vskip 1ex plus .5ex}
+
+\outer\def\section#1{\par\filbreak
+   \vskip .5ex  minus .1ex {\headingfont #1}\mark{#1}%
+   \vskip .3ex  minus .1ex}
+
+\outer\def\librarysection#1#2{\par\filbreak
+   \vskip .5ex  minus .1ex {\headingfont #1}\quad{\headingfonttt<#2>}\mark{#1}%
+   \vskip .3ex  minus .1ex}
+
+
+\newdimen\keyindent
+
+\def\beginindentedkeys{\keyindent=1em}
+\def\endindentedkeys{\keyindent=0em}
+\def\begindoubleindentedkeys{\keyindent=2em}
+\def\enddoubleindentedkeys{\keyindent=1em}
+\endindentedkeys
+
+\def\paralign{\vskip\parskip\halign}
+
+\def\<#1>{$\langle${\rm #1}$\rangle$}
+
+\def\kbd#1{{\tt#1}\null}        %\null so not an abbrev even if period follows
+
+%\def\beginexample{\par\vskip1\jot
+%\hrule width.5\hsize
+%\vskip1\jot
+%\begingroup\parindent=2em
+%  \obeylines\obeyspaces\parskip0pt\tt}
+%\def\endexample{\endgroup}
+
+{\obeyspaces\global\let =\ }
+
+\def\beginexample#1{%
+\hbox to \hsize\bgroup
+\hbox to .4\hsize{#1\hfill}\hbox to .6\hsize\bgroup\vtop\bgroup\begingroup
+   \obeylines\obeyspaces\parskip-1pt\tt}
+\def\endexample{\endgroup\egroup\hss\egroup\egroup\par\vskip1\jot}
+
+\def\Example{\qquad{\sl Example\/}.\enspace\ignorespaces}
+
+\def\key#1#2{\leavevmode\hbox to \hsize{\vtop
+   {\hsize=.75\hsize\rightskip=1em
+   \hskip\keyindent\relax#1}\kbd{#2}\hfil}}
+
+\newbox\metaxbox
+\setbox\metaxbox\hbox{\kbd{M-x }}
+\newdimen\metaxwidth
+\metaxwidth=\wd\metaxbox
+
+\def\metax#1#2{\leavevmode\hbox to \hsize{\hbox to .75\hsize
+%\def\metax#1#2{\leavevmode\hbox to \hsize{\hbox to .667\hsize
+   {\hskip\keyindent\relax#1\hfil}%
+   \hskip -\metaxwidth minus 1fil
+   \kbd{#2}\hfil}}
+
+\def\threecol#1#2#3{\hskip\keyindent\relax#1\hfil&\kbd{#2}\quad
+   &\kbd{#3}\quad\cr}
+
+% Define Italic Names
+\def\makedef#1 {%
+\expandafter\edef\csname#1\endcsname{\hbox{\it#1\/}}}
+\makedef ap
+\makedef arg
+\makedef chr
+\makedef const
+\makedef declarations
+\makedef dim
+\makedef expr
+\makedef filename
+\makedef fnc
+\makedef format
+\makedef fp
+\makedef label
+\makedef lastarg
+\makedef member
+\makedef mode
+\makedef name
+\makedef object
+\makedef pointer
+\makedef statement
+\makedef statements
+\makedef string
+\makedef tag
+\makedef text
+\makedef type
+\makedef value
+\makedef var
+
+%**end of header
+
+
+\title{C Reference Card (ANSI)}
+
+\section{Program Structure/Functions}
+\halign{\tt#\hfil&\qquad#\hfil\cr
+%\#include <\filename>&include library files\cr
+%\#include "\filename"&include user files\cr
+%\#define \name\ \value&constant \& macro definitions\cr
+\type\ \fnc(\type$_1$, \dots);&function prototype\cr
+\type\ \name;&variable declaration\cr
+int main(void) \{&main routine\cr
+\quad\declarations&local variable declarations\cr
+\quad\statements\cr
+\}\cr
+\type\ \fnc(\arg$_1$, \dots) \{&function definition\cr
+\quad\declarations&local variable declarations\cr
+\quad\statements\cr
+\quad return \value;\cr
+\}\cr
+/*\quad*/ & comments\cr
+int main(int argc, char *argv[])&main with args\cr
+exit(\arg);&terminate execution\cr
+}
+
+\section{C Preprocessor}
+\metax{include library file}{\#include <\filename>}
+\metax{include user file}{\#include "\filename"}
+\metax{replacement text}{\#define \name\ \text}
+\metax{replacement macro}{\#define \name(\var) \text}
+\metax{\Example {\tt\#define max(A,B) ((A)>(B) ? (A) {:} (B))}\hidewidth}{}
+\metax{undefine}{\#undef \name}
+\metax{quoted string in replace}{\#}
+\metax{\Example {\tt\#define msg(A) printf("\%s = \%d", \#A, (A))}\hidewidth}{}
+\metax{concatenate args and rescan}{\#\#}
+\metax{conditional execution}{\#if, \#else, \#elif, \#endif}
+\metax{is \name\ defined, not defined?}{\#ifdef, \#ifndef}
+\metax{\name\ defined?}{defined(\name)}
+\metax{line continuation char}{\\}
+
+\section{Data Types/Declarations}
+\metax{character (1 byte)}{char}
+\metax{integer}{int}
+\metax{real number (single, double precision)}{float, double}
+\metax{short (16 bit integer)}{short}
+\metax{long (32 bit integer)}{long}
+\metax{double long (64 bit integer)}{long long}
+\metax{positive or negative}{signed}
+\metax{non-negative modulo $2^m$}{unsigned}
+\metax{pointer to \kbd{int}, \kbd{float},\dots}{int*, float*,\dots}
+\metax{enumeration constant}{enum \tag\ \{\name$_1$=\value$_1$,\dots\};}
+\metax{constant (read-only) value}{\type\ const \name;}
+\metax{declare external variable}{extern}
+\metax{internal to source file}{static}
+\metax{local persistent between calls}{static}
+\metax{no value}{void}
+\metax{structure}{struct \tag\ \{\dots\};}
+\metax{create new name for data type}{typedef \type\ \name;}
+\metax{size of an object (type is \kbd{size\underscore{}t})}{sizeof \object}
+\metax{size of a data type (type is \kbd{size\underscore{}t})}{sizeof(\type)}
+
+\section{Initialization}
+\metax{initialize variable}{\type\ \name=\value;}
+\metax{initialize array}{\type\ \name[]=\{\value$_1$,\dots\};}
+\metax{initialize char string}{char \name[]="\string";}
+
+
+
+% ****************************************
+% This goes at the bottom of page 1
+\shortcopyrightnotice
+
+\section{Constants}
+\metax{suffix: long, unsigned, float}{65536L, -1U, 3.0F}
+\metax{exponential form}{4.2e1}
+\metax{prefix: octal, hexadecimal}{0, 0x {\rm or} 0X}
+\metax{\Example {{\tt 031} is 25, {\tt 0x31} is 49 decimal}\hidewidth}{}
+\metax{character constant (char, octal, hex)}{\'a\', \'\\{\it 
+ooo\/}\', \'\\x{\it hh\/}\'}
+\metax{newline, cr, tab, backspace}{\\n, \\r, \\t, \\b}
+\metax{special characters}{\\\\, \\?, \\\', \\"}
+\metax{string constant (ends with \kbd{\'\\0\'})}{"abc\dots de"}
+
+\section{Pointers, Arrays \& Structures}
+\metax{declare pointer to \type}{\type\ *\name;}
+\metax{declare function returning pointer to \type}{\type\ *f();}
+\metax{declare pointer to function returning \type}{\type\ (*pf)();}
+\metax{generic pointer type}{void *}
+\metax{null pointer constant}{NULL}
+\metax{object pointed to by \pointer}{*\pointer}
+\metax{address of object \name}{\&\name}
+\metax{array}{\name[\dim]}
+\metax{multi-dim array}{\name[\dim$_1$][\dim$_2$]\dots}
+%\metax{structure pointer}{\pointer->\member}
+%\metax{\bf Pointer Declarations}{}
+%\metax{pointer to \type}{\type\ *\name}
+\metax{\bf Structures}{}
+\halign{\tt\qquad#\hfil&\qquad\qquad#\hidewidth\hfil\cr
+struct \tag\ \{&structure template\cr
+\quad\declarations&declaration of members\cr
+\};\cr
+}
+\metax{create structure}{struct \tag\ \name}
+\metax{member of structure from template}{\name.\member}
+\metax{member of pointed-to structure}{\pointer\ -> \member}
+\metax{\Example {\tt(*p).x} and {\tt p->x} are the same\hidewidth}{}
+\metax{single object, multiple possible types}{union}
+\metax{bit field with $b$ bits}{unsigned \member:\ $b$;}
+
+
+\section{Operators (grouped by precedence)}
+
+\def\seprule{\vskip.5\jot\hrule width\hsize height .2pt}
+% 1. l-r   () [] -> .
+\seprule
+\metax{struct member operator}{\name.\member}
+\metax{struct member through pointer}{\pointer->\member}
+% 2.   r-l   ! ~ ++ -- + - * & (type) sizeof
+\seprule
+\metax{increment, decrement}{++, --}
+\metax{plus, minus, logical not, bitwise not}{+, -, !, ~}
+\metax{indirection via pointer, address of object}{*\pointer, \&\name}
+\metax{cast expression to type}{(\type) \expr}
+\metax{size of an object}{sizeof}
+% 3.   l-r   * / %
+\seprule
+\metax{multiply, divide, modulus (remainder)}{*, /, \%}
+% 4.   l-r   + -
+\seprule
+\metax{add, subtract}{+, -}
+% 5.   l-r   << >>
+\seprule
+\metax{left, right shift [bit ops]}{<<, >>}
+% 6.   l-r   < <= > >=
+\seprule
+\metax{relational comparisons}{>, >=, <, <=}
+% 7.   l-r   == !=
+\seprule
+\metax{equality comparisons}{==, !=}
+% 8.   l-r   &
+\seprule
+\metax{and [bit op]}{\&}
+% 9.   l-r   ^
+\seprule
+\metax{exclusive or [bit op]}{\caret}
+% 10.  l-r   |
+\seprule
+\metax{or (inclusive) [bit op]}{|}
+% 11.  l-r   &&
+\seprule
+\metax{logical and}{\&\&}
+% 12.  l-r   ||
+\seprule
+\metax{logical or}{||}
+% 13.  r-l   ?:
+\seprule
+\metax{conditional expression}{\expr$_1$\ {?}\ \expr$_2$\ {:}\ \expr$_3$}
+% 14.  r-l   = += -= ...
+\seprule
+\metax{assignment operators}{+=, -=, *=, \dots}
+% 15.  l-r   ,
+\seprule
+\metax{expression evaluation separator}{,}
+\seprule
+Unary operators, conditional expression and assignment operators group
+right to left; all others group left to right.
+
+\section{Flow of Control}
+\metax{statement terminator}{;}
+\metax{block delimiters}{\{\quad\}}
+\metax{exit from \kbd{switch}, \kbd{while}, \kbd{do}, \kbd{for}}{break;}
+\metax{next iteration of \kbd{while}, \kbd{do}, \kbd{for}}{continue;}
+\metax{go to}{goto \label;}
+\metax{label}{\label: statement}
+\metax{return value from function}{return \expr}
+\metax{{\bf Flow Constructions}}{}
+\beginexample{{\tt if} statement}
+if (\expr$_1$)\quad\statement$_1$
+else if (\expr$_2$)\quad\statement$_2$
+else\quad\statement$_3$
+\endexample
+\beginexample{{\tt while} statement}
+while (\expr)
+\quad\statement
+\endexample
+\beginexample{{\tt for} statement}
+for (\expr$_1$; \expr$_2$; \expr$_3$)
+\quad\statement
+\endexample
+\beginexample{{\tt do} statement}
+do\quad \statement
+while(\expr);
+\endexample
+\beginexample{{\tt switch} statement}
+switch (\expr) \{
+\quad case \const$_1$: \statement$_1$ break;
+\quad case \const$_2$: \statement$_2$ break;
+\quad default: \statement
+\}
+\endexample\par
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% LIBRARIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{ANSI Standard Libraries}
+\halign{&\tt<#.h>\hfil\quad\cr
+assert&ctype&errno&float&limits\cr
+locale&math&setjmp&signal&stdarg\cr
+stddef&stdio&stdlib&string&time\cr
+}
+
+\librarysection{Character Class Tests}{ctype.h}
+\metax{alphanumeric?}{isalnum(c)}
+\metax{alphabetic?}{isalpha(c)}
+\metax{control character?}{iscntrl(c)}
+\metax{decimal digit?}{isdigit(c)}
+\metax{printing character (not incl space)?}{isgraph(c)}
+\metax{lower case letter?}{islower(c)}
+\metax{printing character (incl space)?}{isprint(c)}
+\metax{printing char except space, letter, digit?}{ispunct(c)}
+\metax{space, formfeed, newline, cr, tab, vtab?}{isspace(c)}
+\metax{upper case letter?}{isupper(c)}
+\metax{hexadecimal digit?}{isxdigit(c)}
+\metax{convert to lower case}{tolower(c)}
+\metax{convert to upper case}{toupper(c)}
+
+\librarysection{String Operations}{string.h}
+\leftline{\quad \kbd{s} is a string; \kbd{cs}, \kbd{ct} are 
+constant strings\hidewidth}{}
+\metax{length of \kbd{s}}{strlen(s)}
+\metax{copy \kbd{ct} to \kbd{s}}{strcpy(s,ct)}
+\metax{concatenate \kbd{ct} after \kbd{s}}{strcat(s,ct)}
+\metax{compare \kbd{cs} to \kbd{ct}}{strcmp(cs,ct)}
+\metax{\qquad only first \kbd{n} chars}{strncmp(cs,ct,n)}
+\metax{pointer to first \kbd{c} in \kbd{cs}}{strchr(cs,c)}
+\metax{pointer to last \kbd{c} in \kbd{cs}}{strrchr(cs,c)}
+\metax{copy \kbd{n} chars from \kbd{ct} to \kbd{s}}{memcpy(s,ct,n)}
+\metax{copy \kbd{n} chars from \kbd{ct} to \kbd{s} (may 
+overlap)}{memmove(s,ct,n)}
+\metax{compare \kbd{n} chars of \kbd{cs} with \kbd{ct}}{memcmp(cs,ct,n)}
+\metax{pointer to first \kbd{c} in first \kbd{n} chars of 
+\kbd{cs}}{memchr(cs,c,n)}
+\metax{put \kbd{c} into first \kbd{n} chars of \kbd{s}}{memset(s,c,n)}
+
+
+% This goes at the top of page 4 (=1st column on back of reference card)
+\newcolumn
+\title{C Reference Card (ANSI)}
+
+
+\librarysection{Input/Output}{stdio.h}
+\metax{\bf Standard I/O}{}
+\metax{standard input stream}{stdin}
+\metax{standard output stream}{stdout}
+\metax{standard error stream}{stderr}
+\metax{end of file (type is \kbd{int})}{EOF}
+\metax{get a character}{getchar()}
+\metax{print a character}{putchar(\chr)}
+\metax{print formatted data}{printf("\format",\arg$_1$,\dots)}
+\metax{print to string \kbd{s}}{sprintf(s,"\format",\arg$_1$,\dots)}
+\metax{read formatted data}{scanf("\format",\&\name$_1$,\dots)}
+\metax{read from string \kbd{s}}{sscanf(s,"\format",\&\name$_1$,\dots)}
+\metax{print string \kbd{s}}{puts(s)}
+\metax{\bf File I/O}{}
+\metax{declare file pointer}{FILE *\fp;}
+\metax{pointer to named file}{fopen("\name","\mode")}
+\metax{\qquad modes: \kbd{r} (read), \kbd{w} (write), \kbd{a} 
+(append), \kbd{b} (binary)\hidewidth}{}
+\metax{get a character}{getc(\fp)}
+\metax{write a character}{putc(\chr,\fp)}
+\metax{write to file}{fprintf(\fp,"\format",\arg$_1$,\dots)}
+\metax{read from file}{fscanf(\fp,"\format",\arg$_1$,\dots)}
+\metax{read and store \kbd{n} elts to \kbd{*ptr}}
+      {fread(\kbd{*ptr},eltsize,\kbd{n},\fp)}
+\metax{write \kbd{n} elts from \kbd{*ptr} to file}
+      {fwrite(\kbd{*ptr},eltsize,\kbd{n},\fp)}
+\metax{close file}{fclose(\fp)}
+\metax{non-zero if error}{ferror(\fp)}
+\metax{non-zero if already reached EOF}{feof(\fp)}
+\metax{read line to string \kbd{s} ($<$ \kbd{max} chars)}{fgets(s,max,\fp)}
+\metax{write string \kbd{s}}{fputs(s,\fp)}
+\metax{{\bf Codes for Formatted I/O}: \kbd{"\%-+ 0$w.pmc$"\hidewidth}}{}
+\halign{\qquad\hfil\kbd{#}\enspace\hfil&#\hfil\cr
+-&left justify\cr
++&print with sign\cr
+{\it space}&print space if no sign\cr
+0&pad with leading zeros\cr
+$w$&min field width\cr
+$p$&precision\cr
+$m$&conversion character:\cr
+&\qquad\kbd{h}\quad short,\qquad \kbd{l}\quad long,
+\qquad \kbd{L}\quad long double\cr
+$c$&conversion character:\cr}
+\halign{\qquad#&&\qquad\hfil\kbd{#}\enspace\hfil&#\hfil\cr
+&d,i&integer&u&unsigned\cr
+&c&single char&s&char string\cr
+&f&double (\kbd{printf})&e,E&exponential\cr
+&f&float (\kbd{scanf})&lf&double (\kbd{scanf})\cr
+&o&octal&x,X&hexadecimal\cr
+&p&pointer&n&number of chars written\cr
+&g,G&same as \kbd{f} or \kbd{e,E} depending on exponent\hidewidth\cr}
+
+\librarysection{Variable Argument Lists}{stdarg.h}
+\metax{declaration of pointer to arguments}{va\underscore{}list \ap;}
+\metax{initialization of argument 
+pointer}{va\underscore{}start(\ap,\lastarg);}
+\metax{\qquad \lastarg\ is last named parameter of the function\hidewidth}{}
+\metax{access next unnamed arg, update pointer}{va\underscore{}arg(\ap,\type)}
+\metax{call before exiting function}{va\underscore{}end(\ap);}
+
+
+
+\librarysection{Standard Utility Functions}{stdlib.h}
+\metax{absolute value of \kbd{int n}}{abs(n)}
+\metax{absolute value of \kbd{long n}}{labs(n)}
+\metax{quotient and remainder of \kbd{int}s \kbd{n},\kbd{d}}{div(n,d)}
+\metax{\qquad returns structure with \kbd{div\underscore{}t.quot}
+    and \kbd{div\underscore{}t.rem}\hidewidth}{}
+\metax{quotient and remainder of \kbd{long}s \kbd{n},\kbd{d}}{ldiv(n,d)}
+\metax{\qquad returns structure with \kbd{ldiv\underscore{}t.quot}
+    and \kbd{ldiv\underscore{}t.rem}\hidewidth}{}
+\metax{pseudo-random integer {\tt[0,RAND\underscore{}MAX]}}{rand()}
+\metax{set random seed to \kbd{n}}{srand(n)}
+\metax{terminate program execution}{exit(status)}
+\metax{pass string \kbd{s} to system for execution}{system(s)}
+\metax{\bf Conversions}{}
+\metax{convert string \kbd{s} to double}{atof(s)}
+\metax{convert string \kbd{s} to integer}{atoi(s)}
+\metax{convert string \kbd{s} to long}{atol(s)}
+\metax{convert prefix of \kbd{s} to \kbd{double}}{strtod(s,\&endp)}
+\metax{convert prefix of \kbd{s} (base \kbd{b}) to 
+\kbd{long}}{strtol(s,\&endp,b)}
+\metax{\qquad same, but \kbd{unsigned long}}{strtoul(s,\&endp,b)}
+\metax{\bf Storage Allocation}{}
+\metax{allocate storage}{malloc(size), calloc(nobj,size)}
+\metax{change size of storage}{newptr = realloc(ptr,size);}
+\metax{deallocate storage}{free(ptr);}
+\metax{\bf Array Functions}{}
+\metax{search \kbd{array} for \kbd{key}}{bsearch(key,array,n,size,cmpf)}
+\metax{sort \kbd{array} ascending order}{qsort(array,n,size,cmpf)}
+
+
+
+
+\librarysection{Time and Date Functions}{time.h}
+\metax{processor time used by program}{clock()}
+\metax{\Example \kbd{clock()/CLOCKS\underscore{}PER\underscore{}SEC} 
+is time in seconds\hidewidth}{}
+\metax{current calendar time}{time()}
+\metax{\kbd{time$_2$-time$_1$} in seconds 
+(\kbd{double})}{difftime(time$_2$,time$_1$)}
+\metax{arithmetic types representing 
+times}{clock\underscore{}t,time\underscore{}t}
+\key{structure type for calendar time comps}{struct tm}
+\halign{\qquad\tt#\hfil&\qquad#\hfil\cr
+tm\underscore{}sec&seconds after minute\cr
+tm\underscore{}min&minutes after hour\cr
+tm\underscore{}hour&hours since midnight\cr
+tm\underscore{}mday&day of month\cr
+tm\underscore{}mon&months since January\cr
+tm\underscore{}year&years since 1900\cr
+tm\underscore{}wday&days since Sunday\cr
+tm\underscore{}yday&days since January 1\cr
+tm\underscore{}isdst&Daylight Savings Time flag\cr}
+\metax{convert local time to calendar time}{mktime(tp)}
+\metax{convert time in \kbd{tp} to string}{asctime(tp)}
+\metax{convert calendar time in \kbd{tp} to local time}{ctime(tp)}
+\metax{convert calendar time to GMT}{gmtime(tp)}
+\metax{convert calendar time to local time}{localtime(tp)}
+\metax{format date and time info}{strftime(s,smax,"\format",tp)}
+\metax{\qquad \kbd{tp} is a pointer to a structure of type 
+\kbd{tm}\hidewidth}{}
+
+\librarysection{Mathematical Functions}{math.h}
+\leftline{Arguments and returned values are {\tt double}}
+\metax{trig functions}{sin(x), cos(x), tan(x)}
+\metax{inverse trig functions}{asin(x), acos(x), atan(x)}
+\metax{arctan$(y/x)$}{atan2(y,x)}
+\metax{hyperbolic trig functions}{sinh(x), cosh(x), tanh(x)}
+\metax{exponentials \& logs}{exp(x), log(x), log10(x)}
+\metax{exponentials \& logs (2 power)}{ldexp(x,n), frexp(x,\&e)}
+\metax{division \& remainder}{modf(x,ip), fmod(x,y)}
+\metax{powers}{pow(x,y), sqrt(x)}
+\metax{rounding}{ceil(x), floor(x), fabs(x)}
+
+\librarysection{Integer Type Limits}{limits.h}
+
+The numbers given in parentheses are typical values for the
+constants on a 32-bit Unix system, followed by minimum required
+values (if significantly different).
+
+\halign{\hfil\tt#\underscore&\tt#\hfil\quad&#\hfil&\hfill#\cr
+CHAR&BIT&bits in \kbd{char}&(8)\cr
+CHAR&MAX&max value of \kbd{char}&(\kbd{SCHAR\underscore{}MAX} or 
+\kbd{UCHAR\underscore{}MAX})\cr
+CHAR&MIN&min value of \kbd{char}&(\kbd{SCHAR\_MIN} or 0)\cr
+SCHAR&MAX&max \kbd{signed char}&(+127)\cr
+SCHAR&MIN&min \kbd{signed char}&($-$128)\cr
+SHRT&MAX&max value of \kbd{short}&(+32,767)\cr
+SHRT&MIN&min value of \kbd{short}&($-$32,768)\cr
+INT&MAX&max value of \kbd{int}&(+2,147,483,647) (+32,767)\cr
+INT&MIN&min value of \kbd{int}&($-$2,147,483,648) ($-$32,767)\cr
+LONG&MAX&max value of \kbd{long}&(+2,147,483,647)\cr
+LONG&MIN&min value of \kbd{long}&($-$2,147,483,648)\cr
+UCHAR&MAX&max \kbd{unsigned char}&(255)\cr
+USHRT&MAX&max \kbd{unsigned short}&(65,535)\cr
+UINT&MAX&max \kbd{unsigned int}&(4,294,967,295) (65,535)\cr
+ULONG&MAX&max \kbd{unsigned long}&(4,294,967,295)\cr}
+
+
+%\def\E#1{\!\times\!10^{#1}}
+\def\E#1{\hbox{\small E}#1}
+
+\librarysection{Float Type Limits}{float.h}
+
+The numbers given in parentheses are typical values for the
+constants on a 32-bit Unix system.
+
+\halign{\quad\tt#\hfil\quad&#\hfil&\hfill#\cr
+FLT\underscore{}RADIX&radix of exponent rep&(2)\cr
+FLT\underscore{}ROUNDS&floating point rounding mode&\cr
+FLT\underscore{}DIG&decimal digits of precision&(6)\cr
+FLT\underscore{}EPSILON&smallest $x$ so
+$1.0{\rm f}+x\ne1.0{\rm f}$&($1.1\E{-7}$)\cr
+FLT\underscore{}MANT\underscore{}DIG&number of digits in mantissa&\cr
+FLT\underscore{}MAX&maximum \kbd{float} number&($3.4\E{38}$)\cr
+FLT\underscore{}MAX\underscore{}EXP&maximum exponent&\cr
+FLT\underscore{}MIN&minimum \kbd{float} number&($1.2\E{-38}$)\cr
+FLT\underscore{}MIN\underscore{}EXP&minimum exponent&\cr
+DBL\underscore{}DIG&decimal digits of precision&(15)\cr
+DBL\underscore{}EPSILON&smallest $x$ so 
+$1.0+x\ne1.0$&($2.2\E{-16}$)\cr
+DBL\underscore{}MANT\underscore{}DIG&number of digits in mantissa&\cr
+DBL\underscore{}MAX&max \kbd{double} number&($1.8\E{308}$)\cr
+DBL\underscore{}MAX\underscore{}EXP&maximum exponent&\cr
+DBL\underscore{}MIN&min \kbd{double} number&($2.2\E{-308}$)\cr
+DBL\underscore{}MIN\underscore{}EXP&minimum exponent&\cr}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% END LIBRARIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% This goes at the bottom of the last page (column 6)
+\copyrightnotice
+%
+
+\bye
+
+% Local variables:
+% compile-command: "tex CRefCard.2.2"
+% End:
