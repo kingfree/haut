@@ -17,7 +17,7 @@ inline int64 fn(int64 n)
 	long double b = pow((1 - sqrt5) / 2, nn);
 	long double s = (a - b) / sqrt5;
 	// fprintf(stderr, "%lf %lf %lf %lf \n", sqrt5, a, b, s);
-	return (int64) (s);
+	return (int64)s;
 }
 
 int main()
