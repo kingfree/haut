@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{企业应用集成系统}
-\def\version{V0.0.2}
+\def\version{V0.0.3}
 \usepackage[b5paper,margin=2cm]{geometry} % 页面设置
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
@@ -83,8 +83,6 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 %\paragraph{客户服务系统}
 
-\section{系统需求}
-
 \subsection{功能需求}
 
 \begin{enumerate}
@@ -121,15 +119,25 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 \end{enumerate}
 
+\section{需求建模}
+
+图~\ref{dfd0}~描述了系统最顶层的数据流。Web 服务器从用户处接收业务处理请求的消息，在记录如数据库的同时将组合业务逻辑转发给 EAI 后台，后台将业务分解到各个子系统中，并记录数据库。
+
 \begin{figure}[htp]
 \includegraphics[width=\textwidth,page=1]{images/dfd.pdf}
 \caption{\label{dfd0}系统顶级数据流图}
 \end{figure}
 
+顶级数据流包含两个主要的处理逻辑，这里将其描述为一级数据流图。
+
+图~\ref{dfd1.1}~描述了用户请求的数据流程，也就是 Web 服务器的处理流程。
+
 \begin{figure}[htp]
 \includegraphics[width=\textwidth,page=2]{images/dfd.pdf}
 \caption{\label{dfd1.1}一级数据流图：用户请求的处理}
 \end{figure}
+
+图~\ref{dfd1.2}~描述了 EAI 系统的后端处理的数据流程。
 
 \begin{figure}[htp]
 \includegraphics[width=\textwidth,page=3]{images/dfd.pdf}
