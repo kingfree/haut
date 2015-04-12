@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{企业应用集成系统}
-\def\version{V0.1}
+\def\version{V0.0.2}
 \usepackage[b5paper,margin=2cm]{geometry} % 页面设置
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
@@ -91,7 +91,7 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \item 【平台通用】
 系统处理来自各方的请求，该机制不会限制用户或其他系统，也不限制开发环境、编程语言和操作系统。
 \item 【调用接口】
-系统提供一个不依赖于环境的交互接口，使用可扩展标记语言（XML）可以提供一个这样的中间平台。
+系统提供一个不依赖于环境的交互接口，使用机器和人皆可读的 XML 或者 JSON 格式可以提供一个这样的中间平台。
 \item 【日志记录】
 要求详细记录经过系统产生的一切处理过程，包括但不限于这些信息：编号、处理情况、提交和解决时间、处理方案和步骤。
 \item 【日志查询】
@@ -122,8 +122,18 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \end{enumerate}
 
 \begin{figure}[htp]
-\includegraphics[width=\textwidth]{images/dfd0.pdf}
+\includegraphics[width=\textwidth,page=1]{images/dfd.pdf}
 \caption{\label{dfd0}系统顶级数据流图}
+\end{figure}
+
+\begin{figure}[htp]
+\includegraphics[width=\textwidth,page=2]{images/dfd.pdf}
+\caption{\label{dfd1.1}一级数据流图：用户请求的处理}
+\end{figure}
+
+\begin{figure}[htp]
+\includegraphics[width=\textwidth,page=3]{images/dfd.pdf}
+\caption{\label{dfd1.2}一级数据流图：EAI 系统的后端处理}
 \end{figure}
 
 \end{document}
