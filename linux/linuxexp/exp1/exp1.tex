@@ -1,0 +1,163 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{实验一\quad 虚拟机上安装Linux系统}
+\usepackage[a4paper,margin=2.2cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+%\CTEXsetup[number=\chinese{section}, format={\large\sf\bfseries}]{section}
+\usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage{graphicx}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2} % 行距
+
+\usepackage[inline]{enumitem} % 调整列表样式
+\setlist{noitemsep}
+\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,label={(\arabic*)}}
+\setlist[enumerate,2]{label*={.\arabic*}}
+
+%\makeindex
+\pagestyle{plain}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\title{\bf\titlec}
+\author{软件工程1305班~\quad\tjf\quad~201316920311}
+\maketitle
+
+{\bf 实验题目：}虚拟机上安装 Linux 系统
+
+{\bf 实验目的：}了解虚拟机软件，掌握在虚拟机上安装 Linux 系统的方法。
+
+{\bf 实验内容：}在虚拟机 VMware\footnote{这里我使用 Oracle VM VirtualBox。}上安装 Ubuntu Linux 系统；在虚拟机上使用和操作 Ubuntu Linux 系统。
+
+{\bf 实验步骤：}（将安装过程按照步骤写出，并将安装过程的重要环节截图）
+
+\newcommand{\image}[2]{\begin{minipage}[t]{0.5\textwidth}
+\centering
+\includegraphics[height=6cm]{images/#1.png}
+\caption{#2}
+\label{fig:#2}
+\end{minipage}}
+
+\begin{enumerate}
+
+\item 首先到 Ubuntu 的官方网站（\url{http://www.ubuntu.org.cn}）下载最新版的系统安装光盘镜像文件，这里我选择了 Ubuntu Kylin 14.10 的 32 位版本，如图~\ref{fig:下载系统安装镜像}。
+
+\item 要安装系统并截图，需要使用虚拟机软件，这里我使用的是 Oracle VM VirtualBox，宿主机是运行在 Intel 处理器上的 Windows 8.1 的 64 位版本。如图~\ref{fig:启动虚拟机}，我启动了虚拟机，可以看到，我已经在其中安装了 5 个虚拟的操作系统，分别用于不同的用途。
+
+\begin{figure}[htp]
+\image{Image-2015-04-13-19-27-13}{下载系统安装镜像}
+\image{Image-2015-04-13-20-21-52}{启动虚拟机}
+\end{figure}
+
+\item 新建一个虚拟电脑，弹出如图~\ref{fig:新建虚拟电脑}~的对话框，这里我选择 Linux 类型，版本为 Ubuntu，虚拟机命名为“Ubuntu”。下一步是配置内存大小，如图~\ref{fig:内存大小}~，我采用了默认的 512MB。
+
+\begin{figure}[htp]
+\image{Image-2015-04-13-20-22-17}{新建虚拟电脑}
+\image{Image-2015-04-13-20-22-28}{内存大小}
+\end{figure}
+
+\item 接下来要求创建虚拟硬盘，这里我创建了一个 20GB VDI 格式的动态分配虚拟硬盘，如图~\ref{fig:虚拟硬盘}--\ref{fig:文件位置和大小}~所示。
+
+\begin{figure}[htp]
+\image{Image-2015-04-13-20-22-34}{虚拟硬盘}
+\image{Image-2015-04-13-20-22-43}{虚拟硬盘文件类型}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Image-2015-04-13-20-23-04}{存储在物理硬盘上}
+\image{Image-2015-04-13-20-23-21}{文件位置和大小}
+\end{figure}
+
+\item 为了满足高版本 Ubuntu 图形界面的流畅运行，这里我特意配置了系统的显存和 3D 加速，如图~\ref{fig:显卡设置}。
+
+\item 
+
+\begin{figure}[htp]
+\image{Image-2015-04-13-20-27-18}{显卡设置}
+\image{Image-2015-04-13-20-24-01}{启动Ubuntu}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Image-2015-04-13-20-24-06}{选择启动盘}
+\image{Image-2015-04-13-20-25-10}{选择虚拟光盘文件}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Image-2015-04-13-20-35-19}{启动安装选项}
+\image{Image-2015-04-13-21-36-46}{启动闪屏}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Ubuntu-2015-04-13-20-37-09}{欢迎：选择语言}
+\image{Ubuntu-2015-04-13-20-38-06}{准备安装 Ubuntu Kylin}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Ubuntu-2015-04-13-20-38-43}{安装类型}
+\image{Ubuntu-2015-04-13-20-39-23}{空的分区表}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Ubuntu-2015-04-13-20-39-47}{新建分区表}
+\image{Ubuntu-2015-04-13-20-40-34}{建立根分区}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Ubuntu-2015-04-13-20-41-13}{建立主分区}
+\image{Ubuntu-2015-04-13-20-41-39}{建立交换分区}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Ubuntu-2015-04-13-20-42-00}{现在安装}
+\image{Ubuntu-2015-04-13-20-42-16}{确认写入磁盘}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Ubuntu-2015-04-13-20-42-58}{选择地区}
+\image{Ubuntu-2015-04-13-20-43-23}{选择键盘布局}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Ubuntu-2015-04-13-20-44-00}{设置用户信息}
+\image{Ubuntu-2015-04-13-20-44-40}{正在复制文件}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Ubuntu-2015-04-13-21-00-44}{正在下载语言包等}
+\image{Ubuntu-2015-04-13-21-11-50}{安装完成}
+\end{figure}
+
+\begin{figure}[htp]
+%\image{Ubuntu-2015-04-13-21-13-41}{Grub 2 启动菜单}
+\image{Ubuntu-2015-04-13-21-14-17}{Ubuntu Kylin 启动闪屏}
+\image{Ubuntu-2015-04-13-21-15-51}{登录}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Ubuntu-2015-04-13-21-19-37}{首次进入桌面}
+\image{Ubuntu-2015-04-13-21-20-22}{关于这台计算机}
+\end{figure}
+
+\begin{figure}[htp]
+\image{Ubuntu-2015-04-13-21-21-16}{系统进程占用}
+\image{Ubuntu-2015-04-13-21-21-53}{关机}
+\end{figure}
+
+\end{enumerate}
+
+\end{document}
