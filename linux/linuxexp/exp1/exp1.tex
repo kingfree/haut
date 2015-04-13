@@ -85,7 +85,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 
 \item 为了满足高版本 Ubuntu 图形界面的流畅运行，这里我特意配置了系统的显存和 3D 加速，如图~\ref{fig:显卡设置}。
 
-\item 
+\item 这时我们启动 Ubuntu 的虚拟机，由于没有写引导，虚拟机软件会提示选择启动盘（如图~\ref{fig:选择启动盘}），这里我选择刚刚下载的镜像文件（如图~\ref{fig:选择虚拟光盘文件}）。
 
 \begin{figure}[htp]
 \image{Image-2015-04-13-20-27-18}{显卡设置}
@@ -97,15 +97,23 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \image{Image-2015-04-13-20-25-10}{选择虚拟光盘文件}
 \end{figure}
 
+\item 鼠标键盘被虚拟机捕获后，在等待界面按下任意键，显示出如图~\ref{fig:启动安装选项}~的启动安装选项。由于我的宿主机配置并不高，所以选择“安装 Ubuntu Kylin”而不是“试用 Ubuntu Kylin 而不安装”（虽然这在旧版本的 Ubuntu 上可以流畅运行）。同样由于配置低的缘故，可以看到启动闪屏也是文字界面而非图形渲染，如图~\ref{fig:启动闪屏}。
+
 \begin{figure}[htp]
 \image{Image-2015-04-13-20-35-19}{启动安装选项}
 \image{Image-2015-04-13-21-36-46}{启动闪屏}
 \end{figure}
 
+\item 等待一段时间后终于进入安装界面，首先是选择语言，这里我选择“中文（简体）”，如图~\ref{fig:欢迎：选择语言}。
+
+\item 安装程序检测硬件和网络环境后，提示如图~\ref{fig:}。因为这是一个演示系统，所以我们不安装附加的用于播放 MP3 和 Flash 等的专有解码器等，这需要另外下载占用安装时间和系统资源。
+
 \begin{figure}[htp]
 \image{Ubuntu-2015-04-13-20-37-09}{欢迎：选择语言}
 \image{Ubuntu-2015-04-13-20-38-06}{准备安装 Ubuntu Kylin}
 \end{figure}
+
+\item 如图~\ref{fig:安装类型}~我选择自定义硬盘分区。按通常的习惯，我建立了三个分区：10 GB 的根分区（\verb|/|）、10 GB 主分区（\verb|/home|）和约 1 GB 的交换分区，并且写引导到本地磁盘。如图~\ref{fig:空的分区表}--\ref{fig:确认写入磁盘}~展示了具体的分区过程。
 
 \begin{figure}[htp]
 \image{Ubuntu-2015-04-13-20-38-43}{安装类型}
@@ -127,6 +135,8 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \image{Ubuntu-2015-04-13-20-42-16}{确认写入磁盘}
 \end{figure}
 
+\item 分区之后，系统开始安装，这时可以做一些不影响安装的配置操作。如选择地区（图~\ref{fig:选择地区}）、键盘布局（图~\ref{fig:选择键盘布局}），以及设置主机名、用户名和密码（图~\ref{fig:设置用户信息}）。
+
 \begin{figure}[htp]
 \image{Ubuntu-2015-04-13-20-42-58}{选择地区}
 \image{Ubuntu-2015-04-13-20-43-23}{选择键盘布局}
@@ -137,10 +147,16 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \image{Ubuntu-2015-04-13-20-44-40}{正在复制文件}
 \end{figure}
 
+\item 配置完成后显示安装进度，如图~\ref{fig:正在复制文件}~和图~\ref{fig:正在下载}~。在等待了约 20 min 之后，安装程序提示安装完成，如图~\ref{fig:安装完成}~重启系统。
+
 \begin{figure}[htp]
-\image{Ubuntu-2015-04-13-21-00-44}{正在下载语言包等}
+\image{Ubuntu-2015-04-13-21-00-44}{正在下载}
 \image{Ubuntu-2015-04-13-21-11-50}{安装完成}
 \end{figure}
+
+\item 再次启动即可进入安装好的系统，可以看到漂亮的 Ubuntu Kylin 启动闪屏，就像图~\ref{fig:Ubuntu Kylin 启动闪屏}~那样炫酷。
+
+\item 之后进入登录界面，如图~\ref{fig:登录}，选择用户名并输入密码登入系统桌面。
 
 \begin{figure}[htp]
 %\image{Ubuntu-2015-04-13-21-13-41}{Grub 2 启动菜单}
@@ -148,10 +164,16 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \image{Ubuntu-2015-04-13-21-15-51}{登录}
 \end{figure}
 
+\item 首次进入桌面有些卡顿，右下角弹出建议安装软件的对话框，如图~\ref{fig:首次进入桌面}，它推荐我们安装 WPS 办公套件、搜狗拼音输入法和快盘，这里我并不需要，将其关闭。
+
+\item 如图~\ref{fig:关于这台计算机}，我尝试查看了系统信息。我尝试打开了终端，输入 \verb|top| 查看当前运行的进程列表，如图~\ref{fig:系统进程占用}，这里可以看到处理图形界面的进程占用了大量 CPU 和内存资源。
+
 \begin{figure}[htp]
 \image{Ubuntu-2015-04-13-21-19-37}{首次进入桌面}
 \image{Ubuntu-2015-04-13-21-20-22}{关于这台计算机}
 \end{figure}
+
+\item 最后我们关闭计算机，如图~\ref{fig:关机}。
 
 \begin{figure}[htp]
 \image{Ubuntu-2015-04-13-21-21-16}{系统进程占用}
