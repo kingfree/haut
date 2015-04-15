@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{企业应用集成系统}
-\def\version{V0.0.4}
+\def\version{V0.0.5}
 \usepackage[b5paper,margin=2cm]{geometry} % 页面设置
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
@@ -23,8 +23,9 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 \usepackage[inline]{enumitem} % 调整列表样式
 \setlist{noitemsep}
-\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
-\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,label={\arabic{section}.\arabic{subsection}.\arabic*}}
+\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,labelindent=\parindent,leftmargin=*,align=left}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,labelindent=\parindent,leftmargin=*,align=left}
+\setlist[enumerate,1]{label={\arabic{section}.\arabic{subsection}.\arabic*}}
 \setlist[enumerate,2]{label*={.\arabic*}}
 
 %\makeindex
@@ -82,6 +83,8 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 %\paragraph{销售管理系统}
 
 %\paragraph{客户服务系统}
+
+\section{系统需求}
 
 \subsection{功能需求}
 
@@ -143,5 +146,112 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \includegraphics[width=\textwidth,page=3]{images/dfd.pdf}
 \caption{\label{dfd1.2}一级数据流图：EAI 系统的后端处理}
 \end{figure}
+
+\section{用例描述}
+
+\newcommand{\usecasedes}[9]{\CTEXnoindent
+%\begin{minipage}{\textwidth}
+{\bf 用例：}#1
+\begin{enumerate}[label={\arabic*.}]
+\item 目标
+
+#2
+\item 事件流
+\begin{enumerate}[label*={\arabic*}]
+\item 基本流程
+
+#3
+\begin{enumerate}[label={(\arabic*)}]
+#4
+\end{enumerate}
+\item 可选流程
+
+#5
+\begin{enumerate}[label={(\arabic*)}]
+#6
+\end{enumerate}
+\end{enumerate}
+\item 特殊需求
+
+#7
+\item 前提条件
+
+#8
+\item 后置条件
+
+#9
+\end{enumerate}
+%\end{minipage}
+\CTEXindent}
+
+\usecasedes{} % #1 用例
+{} % #2 目标
+{} % #3 基本流程
+{
+\item ttt
+} % #4 基本流程列表
+{} % #5 可选流程
+{
+\item sss
+} % #6 可选流程列表
+{} % #7 特殊需求
+{} % #8 前提条件
+{} % #9 后置条件
+
+\usecasedes{} % #1 用例
+{} % #2 目标
+{} % #3 基本流程
+{
+\item ttt
+} % #4 基本流程列表
+{} % #5 可选流程
+{
+\item sss
+} % #6 可选流程列表
+{} % #7 特殊需求
+{} % #8 前提条件
+{} % #9 后置条件
+
+\usecasedes{} % #1 用例
+{} % #2 目标
+{} % #3 基本流程
+{
+\item ttt
+} % #4 基本流程列表
+{} % #5 可选流程
+{
+\item sss
+} % #6 可选流程列表
+{} % #7 特殊需求
+{} % #8 前提条件
+{} % #9 后置条件
+
+\usecasedes{} % #1 用例
+{} % #2 目标
+{} % #3 基本流程
+{
+\item ttt
+} % #4 基本流程列表
+{} % #5 可选流程
+{
+\item sss
+} % #6 可选流程列表
+{} % #7 特殊需求
+{} % #8 前提条件
+{} % #9 后置条件
+
+\usecasedes{} % #1 用例
+{} % #2 目标
+{} % #3 基本流程
+{
+\item ttt
+} % #4 基本流程列表
+{} % #5 可选流程
+{
+\item sss
+} % #6 可选流程列表
+{} % #7 特殊需求
+{} % #8 前提条件
+{} % #9 后置条件
 
 \end{document}
