@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{企业应用集成系统}
-\def\version{V0.0.6}
+\def\version{V0.0.7}
 \usepackage[a4paper,margin=3cm]{geometry} % 页面设置
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
@@ -39,7 +39,7 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 %%%% 开始 %%%%
 
-\title{\bf\titlec~\version}
+\title{\bf\titlec~\version\footnote{本文档托管在 GitHub 上，PDF 文件：\url{https://github.com/kingfree/haut/raw/master/se/eai.pdf}，\TeX 源文件：\url{https://github.com/kingfree/haut/blob/master/se/eai.tex}。}}
 \author{软件工程1305班~\quad\tjf\quad~201316920311}
 \maketitle
 
@@ -77,8 +77,9 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \item 回滚处理流程机制
 \item 搜索条目和内容
 \item 事务中断处理
-\item 提供统一用户界面
 \end{itemize}
+
+由于并没有具体的底层平台，该系统应开发成一个可扩展的框架（Framework），提供具体的应用程序接口（Application Programming Interface, API）而不限于图形用户界面（Graphical User Interface, GUI）。
 
 %假设现有的系统有：
 
@@ -96,7 +97,7 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \item 【平台通用】
 系统处理来自各方的请求，该机制不会限制用户或其他系统，也不限制开发环境、编程语言和操作系统。
 \item 【调用接口】
-系统提供一个不依赖于环境的交互接口，使用机器和人皆可读的 XML 或者 JSON 格式可以提供一个这样的中间平台。
+系统提供一个不依赖于环境的交互接口，使用机器和人皆可读的 XML 格式可以提供一个这样的中间平台。
 \item 【日志记录】
 要求详细记录经过系统产生的一切处理过程，包括但不限于这些信息：编号、处理情况、提交和解决时间、处理方案和步骤。
 \item 【日志查询】
@@ -151,10 +152,21 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \caption{\label{dfd1.2}一级数据流图：EAI 系统的后端处理}
 \end{figure}
 
-\section{用例描述}
+\section{用例模型}
 
-\newcounter{uccounter}[section]
-\renewcommand{\theuccounter}{\arabic{section}.\arabic{uccounter}}
+\subsection{用例图}
+
+图~\ref{uc1}~是该系统的用例图，用户只有两个基本用例，登录和业务请求。但是业务请求分为很多种，根据不同的系统有着不同的处理方式，并不能在该图中表现出来。
+
+\begin{figure}[htp]
+\includegraphics[width=\textwidth,page=1]{images/ucs.pdf}
+\caption{\label{uc1}系统用例图}
+\end{figure}
+
+\subsection{用例描述}
+
+\newcounter{uccounter}[subsection]
+\renewcommand{\theuccounter}{\arabic{section}.\arabic{subsection}.\arabic{uccounter}}
 \newcommand*{\ucref}[1]{\hyperref[{uc:#1}]{用例~\ref*{uc:#1}：#1}}
 \newcommand{\usecasedes}[9]{\CTEXnoindent
 %\begin{minipage}{\textwidth}
@@ -236,74 +248,96 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 {用户进入该页面时已经带有状态。} % #8 前提条件
 {用户通过登录验证，其状态保存在会话中。} % #9 后置条件
 
-\usecasedes{} % #1 用例
-{} % #2 目标
-{} % #3 基本流程
+\usecasedes{业务请求} % #1 用例
+{用户提交一个业务请求，系统分解处理该请求并返回给用户。} % #2 目标
+{当用户进入指定页面填写业务表单后提交了该请求时，该用例开始执行。} % #3 基本流程
 {
-\item ttt
+\item 将用户的表单内容转换成中间格式 XML；
+\item 系统解析 XML 语义生成请求对象；
+\item 系统确定该业务是同步处理业务还是异步处理业务；
+\item 将异步请求对象加入处理队列，为同步业务新建处理对象；
+\item 系统处理该对象，调用\ucref{同步业务请求}或\ucref{异步业务请求}；
+\item 根据处理结果，返回响应对象。
 } % #4 基本流程列表
 {} % #5 可选流程
 {
-\item sss
+\item 解析错误\par
+用户的输入存在错误，无法正确解析成 XML，返回出错消息，用例结束。
 } % #6 可选流程列表
-{} % #7 特殊需求
-{} % #8 前提条件
-{} % #9 后置条件
+{无。} % #7 特殊需求
+{用户已登录且拥有处理该业务的权限。} % #8 前提条件
+{业务处理并返回状态，记录日志。} % #9 后置条件
 
-\usecasedes{} % #1 用例
-{} % #2 目标
-{} % #3 基本流程
+\usecasedes{记录日志} % #1 用例
+{对于用户操作和系统的处理等动作进行记录。} % #2 目标
+{系统产生一个动作时进入该用例。} % #3 基本流程
 {
-\item ttt
+\item 系统获得当前动作的标记信息；
+\item 系统区分该动作的日志级别；
+\item 产生唯一日志编号，根据级别写入日志到数据库；
+\item 系统读取并解析输出日志的参数；
+\item 向指定位置输出日志消息和时间。
 } % #4 基本流程列表
 {} % #5 可选流程
 {
-\item sss
+\item 日志不可写\par
+日志配置中指定的位置不可写入，产生警告并写入默认日志位置。
 } % #6 可选流程列表
-{} % #7 特殊需求
-{} % #8 前提条件
-{} % #9 后置条件
+{无。} % #7 特殊需求
+{无。} % #8 前提条件
+{日志写出成功，转入正常业务流程。} % #9 后置条件
 
-\usecasedes{} % #1 用例
-{} % #2 目标
+\usecasedes{同步业务请求} % #1 用例
+{以同步的方式处理业务请求。} % #2 目标
 {} % #3 基本流程
 {
-\item ttt
+\item 检查预处理业务规则；
+\item 解析出调用请求；
+\item 调用对应的请求处理对象；
+\item 检查请求类型的业务规则；
+\item 请求处理对象执行必要的处理步骤；
+\item 处理步骤记录必要的日志信息；
+\item 处理业务后规则；
+\item 生成并返回响应对象。
 } % #4 基本流程列表
 {} % #5 可选流程
 {
-\item sss
+\item 请求处理出错\par
+请求处理时出现错误，在系统允许的情况下结束该业务，记录业务状态；需要回滚的业务要调用回滚处理用例。
 } % #6 可选流程列表
-{} % #7 特殊需求
-{} % #8 前提条件
-{} % #9 后置条件
+{无。} % #7 特殊需求
+{系统接收到同步业务处理请求。} % #8 前提条件
+{同步业务请求处理完成。} % #9 后置条件
 
-\usecasedes{} % #1 用例
-{} % #2 目标
+\usecasedes{异步业务请求} % #1 用例
+{以异步的方式处理业务请求。} % #2 目标
 {} % #3 基本流程
 {
-\item ttt
+\item 将调用请求压入消息队列；
+\item 记录必要的日志信息；
+\item 生成并返回响应对象。
 } % #4 基本流程列表
 {} % #5 可选流程
 {
-\item sss
+\item 队列已满\par
+消息队列已满无法再压入请求，报错，用例结束。
 } % #6 可选流程列表
-{} % #7 特殊需求
-{} % #8 前提条件
-{} % #9 后置条件
+{无。} % #7 特殊需求
+{系统接收到异步业务处理请求。} % #8 前提条件
+{异步业务请求成功加入队列。} % #9 后置条件
 
-\usecasedes{} % #1 用例
-{} % #2 目标
-{} % #3 基本流程
-{
-\item ttt
-} % #4 基本流程列表
-{} % #5 可选流程
-{
-\item sss
-} % #6 可选流程列表
-{} % #7 特殊需求
-{} % #8 前提条件
-{} % #9 后置条件
+% \usecasedes{} % #1 用例
+% {} % #2 目标
+% {} % #3 基本流程
+% {
+% \item ttt
+% } % #4 基本流程列表
+% {} % #5 可选流程
+% {
+% \item sss
+% } % #6 可选流程列表
+% {} % #7 特殊需求
+% {} % #8 前提条件
+% {} % #9 后置条件
 
 \end{document}
