@@ -2,13 +2,17 @@
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{企业应用集成系统}
-\def\version{V0.0.5}
-\usepackage[b5paper,margin=2cm]{geometry} % 页面设置
+\def\version{V0.0.6}
+\usepackage[a4paper,margin=3cm]{geometry} % 页面设置
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
 pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
+
 %\CTEXsetup[number=\chinese{section}, format={\large\sf\bfseries}]{section}
 \usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage{xcolor}
+\usepackage{wasysym}
+\usepackage{marvosym}
 
 \setmainfont{Times New Roman}
 \setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
@@ -149,9 +153,13 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 \section{用例描述}
 
+\newcounter{uccounter}[section]
+\renewcommand{\theuccounter}{\arabic{section}.\arabic{uccounter}}
+\newcommand*{\ucref}[1]{\hyperref[{uc:#1}]{用例~\ref*{uc:#1}：#1}}
 \newcommand{\usecasedes}[9]{\CTEXnoindent
 %\begin{minipage}{\textwidth}
-{\bf 用例：}#1
+\refstepcounter{uccounter}
+{{\label{uc:#1}}\bf{用例~\theuccounter ：#1}}
 \begin{enumerate}[label={\arabic*.}]
 \item 目标
 
@@ -183,6 +191,50 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \end{enumerate}
 %\end{minipage}
 \CTEXindent}
+
+\newcommand{\button}[1]{~\fcolorbox{gray}{white}{\color{black}\bf{#1}}~按钮}
+\newcommand{\checkbox}[1]{~%\CheckedBox
+{\tt{#1}}~复选框}
+\newcommand{\textfield}[1]{\underline{\color{darkgray}\tt{#1}}}
+
+\usecasedes{用户无状态登录} % #1 用例
+{该用例允许用户登录，验证用户身份，并将用户状态保存在会话中。} % #2 目标
+{当用户进入该系统登录页面，该用例开始执行。} % #3 基本流程
+{
+\item 用户输入\textfield{用户名}和\textfield{密码}，按下\button{登录}；
+\item 系统将\textfield{密码}加密后，检查\textfield{用户名}存在且加密密码一致；
+\item 生成新的会话编号并将其和当前时间记入数据库；
+\item 返回并设置会话表示登录成功。
+} % #4 基本流程列表
+{} % #5 可选流程
+{
+\item 用户不存在\par
+在主流程中，如果系统中没有与输入用户名匹配的用户，返回错误消息，用例结束。
+\item 密码错误\par
+在主流程中，加密后的密码与对应系统中用户的加密密码不一致，返回错误消息，用例结束。
+} % #6 可选流程列表
+{在输入过程中，用户选择了\checkbox{下次自动登录}，系统需要在登录验证成功后，将会话写入状态。} % #7 特殊需求
+{用户没有登录，且没有登录状态。} % #8 前提条件
+{用户通过登录验证，其状态保存在会话中。} % #9 后置条件
+
+\usecasedes{用户带状态登录} % #1 用例
+{该用例允许用户不输入用户名和密码直接登陆系统。} % #2 目标
+{当用户启动该系统，进入该系统任意页面，该用例开始执行。} % #3 基本流程
+{
+\item 检查用户是否有状态信息；
+\item 检查用户状态，在数据库中找到对应的会话编号；
+\item 返回并设置会话表示登录成功。
+} % #4 基本流程列表
+{} % #5 可选流程
+{
+\item 没有状态\par
+用户没有状态信息，跳转到\ucref{用户无状态登录}，本用例结束。
+\item 无此会话\par
+没有在数据库中找到对应的会话编号，返回错误消息，用例结束。
+} % #6 可选流程列表
+{无。} % #7 特殊需求
+{用户进入该页面时已经带有状态。} % #8 前提条件
+{用户通过登录验证，其状态保存在会话中。} % #9 后置条件
 
 \usecasedes{} % #1 用例
 {} % #2 目标
