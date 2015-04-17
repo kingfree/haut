@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{企业应用集成系统}
-\def\version{V0.0.7}
+\def\version{V0.0.8}
 \usepackage[a4paper,margin=3cm]{geometry} % 页面设置
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
@@ -13,6 +13,7 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \usepackage{xcolor}
 \usepackage{wasysym}
 \usepackage{marvosym}
+\usepackage{multicol}
 
 \setmainfont{Times New Roman}
 \setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
@@ -27,8 +28,8 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 \usepackage[inline]{enumitem} % 调整列表样式
 \setlist{noitemsep}
-\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,labelindent=\parindent,leftmargin=*,align=left}
-\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,labelindent=\parindent,leftmargin=*,align=left}
+\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,labelindent=\parindent,leftmargin=*,align=right}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,labelindent=\parindent,leftmargin=*,align=right}
 \setlist[enumerate,1]{label={\arabic{section}.\arabic{subsection}.\arabic*}}
 \setlist[enumerate,2]{label*={.\arabic*}}
 
@@ -42,6 +43,10 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \title{\bf\titlec~\version\footnote{本文档托管在 GitHub 上，PDF 文件：\url{https://github.com/kingfree/haut/raw/master/se/eai.pdf}，\TeX 源文件：\url{https://github.com/kingfree/haut/blob/master/se/eai.tex}。}}
 \author{软件工程1305班~\quad\tjf\quad~201316920311}
 \maketitle
+
+\begin{multicols}{2}
+\tableofcontents
+\end{multicols}
 
 \section{业务需求}
 
@@ -156,7 +161,7 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 \subsection{用例图}
 
-图~\ref{uc1}~是该系统的用例图，用户只有两个基本用例，登录和业务请求。但是业务请求分为很多种，根据不同的系统有着不同的处理方式，并不能在该图中表现出来。
+图~\ref{uc1}~是该系统的用例图，用户只有两个基本用例，登录和业务请求。注意这里我们将业务请求合并为了一个用例，因为实际上我们是可以用一个类来处理这项业务的。
 
 \begin{figure}[htp]
 \includegraphics[width=\textwidth,page=1]{images/ucs.pdf}
@@ -171,7 +176,7 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \newcommand{\usecasedes}[9]{\CTEXnoindent
 %\begin{minipage}{\textwidth}
 \refstepcounter{uccounter}
-{{\label{uc:#1}}\bf{用例~\theuccounter ：#1}}
+{{\label{uc:#1}\addcontentsline{toc}{subsubsection}{用例~\theuccounter ：#1}}\bf{用例~\theuccounter ：#1}}
 \begin{enumerate}[label={\arabic*.}]
 \item 目标
 
@@ -302,8 +307,8 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 } % #4 基本流程列表
 {} % #5 可选流程
 {
-\item 请求处理出错\par
-请求处理时出现错误，在系统允许的情况下结束该业务，记录业务状态；需要回滚的业务要调用回滚处理用例。
+\item 处理步骤出错\par
+处理请求处理对象时出现错误，在系统允许的情况下结束该业务，记录业务状态；需要回滚的业务要调用回滚处理用例。
 } % #6 可选流程列表
 {无。} % #7 特殊需求
 {系统接收到同步业务处理请求。} % #8 前提条件
@@ -319,12 +324,97 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 } % #4 基本流程列表
 {} % #5 可选流程
 {
-\item 队列已满\par
-消息队列已满无法再压入请求，报错，用例结束。
+\item 无。
 } % #6 可选流程列表
 {无。} % #7 特殊需求
 {系统接收到异步业务处理请求。} % #8 前提条件
 {异步业务请求成功加入队列。} % #9 后置条件
+
+\usecasedes{加入消息队列} % #1 用例
+{将异步处理业务请求加入消息队列} % #2 目标
+{} % #3 基本流程
+{
+\item 将用户请求打包为格式消息；
+\item 将消息加入队列，消息队列接收消息并存储下来。
+} % #4 基本流程列表
+{} % #5 可选流程
+{
+\item 无。
+} % #6 可选流程列表
+{无。} % #7 特殊需求
+{异步业务已解析成为处理对象。} % #8 前提条件
+{业务加入消息队列，等待处理。} % #9 后置条件
+
+\usecasedes{监控消息队列} % #1 用例
+{监控程序监控消息队列并按顺序处理其中的请求对象。} % #2 目标
+{} % #3 基本流程
+{
+\item 按照先进先出（First In First Out, FIFO）的顺序从队列中读取一个消息；
+\item 处理消息；
+\item 报告处理情况，记录日志和数据库。
+} % #4 基本流程列表
+{} % #5 可选流程
+{
+\item 队列为空\par
+消息队列中没有消息请求，说明当前没有要处理的异步请求，用例结束。
+} % #6 可选流程列表
+{无。} % #7 特殊需求
+{消息队列已启动} % #8 前提条件
+{继续处理下一个消息。} % #9 后置条件
+
+\usecasedes{新增请求类型} % #1 用例
+{提供一个添加新的业务流程的通用接口。} % #2 目标
+{} % #3 基本流程
+{
+\item 确定请求消息中的请求名称；
+\item 通过继承公共请求类来新建处理类：
+\begin{enumerate}
+\item 为新的请求处理类新建一个类，声明其父类；
+\item 重写处理方法；
+\item 重写内部处理方法；
+\item 重写回滚方法；
+\item 编译测试新的处理类。
+\end{enumerate}
+\item 在数据库中插入相应记录，标记此类可用。
+} % #4 基本流程列表
+{} % #5 可选流程
+{
+\item 新建类名冲突\par
+用户要求新建的类名与已有类名冲突，系统提示更改名称以消除冲突；
+\item 类编译测试失败\par
+新建类编译测试失败，标记此类不可用，直至调试成功。
+} % #6 可选流程列表
+{提供调试功能。} % #7 特殊需求
+{系统已提供公共处理类。} % #8 前提条件
+{请求类建立完成并可用。} % #9 后置条件
+
+\usecasedes{业务步骤分解} % #1 用例
+{} % #2 目标
+{} % #3 基本流程
+{
+\item ttt
+} % #4 基本流程列表
+{} % #5 可选流程
+{
+\item sss
+} % #6 可选流程列表
+{} % #7 特殊需求
+{} % #8 前提条件
+{} % #9 后置条件
+
+\usecasedes{业务规则校验} % #1 用例
+{} % #2 目标
+{} % #3 基本流程
+{
+\item ttt
+} % #4 基本流程列表
+{} % #5 可选流程
+{
+\item sss
+} % #6 可选流程列表
+{} % #7 特殊需求
+{} % #8 前提条件
+{} % #9 后置条件
 
 % \usecasedes{} % #1 用例
 % {} % #2 目标
