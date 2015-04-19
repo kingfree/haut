@@ -2,15 +2,15 @@
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{企业应用集成系统}
-\def\version{V0.0.8}
+\def\version{V0.0.9}
 \usepackage[a4paper,margin=3cm]{geometry} % 页面设置
+\usepackage[x11names]{xcolor}
 \usepackage[unicode,breaklinks=true,
-colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+colorlinks=true,linkcolor=Blue4,anchorcolor=purple,citecolor=cyan,urlcolor=magenta,
 pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 %\CTEXsetup[number=\chinese{section}, format={\large\sf\bfseries}]{section}
 \usepackage{latexsym,amsmath,amssymb,bm}
-\usepackage{xcolor}
 \usepackage{wasysym}
 \usepackage{marvosym}
 \usepackage{multicol}
@@ -48,7 +48,8 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \tableofcontents
 \end{multicols}
 
-\section{业务需求}
+\section{需求分析}
+\subsection{业务需求}
 
 企业应用集成（Enterprise Application Integration, EAI）是一个或多个系统的集合，并使两个以上的后台应用能够作特定数据的统一管理系统，并能保证这些后台应用同步良好。这样的系统可以为单个公司提供其所有信息的集中访问点。
 
@@ -65,7 +66,7 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 本系统将来进行可以通过插件方式进行扩展，组合成功能全面的企业资源计划（Enterprise Resource Planning, ERP）系统。
 
-\section{用户需求}
+\subsection{用户需求}
 
 对于小型中型的商业公司，通常会使用多个软件系统来处理不同的事务。用户手工操作资金结算系统、发票管理系统、销售管理系统、客户服务系统，其数据都是手工完成输入的，工作时要打开多个软件，在不同的窗口之间复制、粘贴，甚至使用电子表格来处理软件系统没有提供的功能。
 
@@ -94,7 +95,7 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 %\paragraph{客户服务系统}
 
-\section{系统需求}
+% \subsection{系统需求}
 
 \subsection{功能需求}
 
@@ -134,30 +135,35 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 \section{需求建模}
 
-图~\ref{dfd0}~描述了系统最顶层的数据流。Web 服务器从用户处接收业务处理请求的消息，在记录如数据库的同时将组合业务逻辑转发给 EAI 后台，后台将业务分解到各个子系统中，并记录数据库。
+\subsection{数据流图}
+
+图~\ref{dfd0}~描述了系统最顶层的数据流。Web 服务器从用户处接收业务处理请求的消息，服务器接收到请求，将请求历史记录入日志，并将请求的业务转发给后台 EAI 系统，再由 EAI 系统来处理业务并返回业务处理情况。
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=\textwidth,page=1]{images/dfd.pdf}
 \caption{\label{dfd0}系统顶级数据流图}
 \end{figure}
 
-顶级数据流包含两个主要的处理逻辑，这里将其描述为一级数据流图。
+顶级数据流包含两个主要的处理逻辑，这里将其描述为一级数据流图：
 
-图~\ref{dfd1.1}~描述了用户请求的数据流程，也就是 Web 服务器的处理流程。
+图~\ref{dfd1.1}~描述了用户请求的数据流程，也就是 Web 服务器的处理流程。用户发起一个业务请求（在 Web 中表现为GET 或 POST请求），服务器接收调用消息，验证用户身份保证会话有效性，记录日志，将消息调用转发给 EAI 后台并接收后台返回的信息显示给用户。
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=\textwidth,page=2]{images/dfd.pdf}
 \caption{\label{dfd1.1}一级数据流图：用户请求的处理}
 \end{figure}
 
-图~\ref{dfd1.2}~描述了 EAI 系统的后端处理的数据流程。
+图~\ref{dfd1.2}~描述了 EAI 系统的后端处理的数据流程。系统接收消息调用，调用请求处理控制类生成请求对象，对请求区分同步、异步调用。对于每个业务进行分解，把分解业务交给外部系统执行，记录数据库。执行结束后更新业务状态，将响应消息返回给服务器。
 
 \begin{figure}[htp]
+\centering
 \includegraphics[width=\textwidth,page=3]{images/dfd.pdf}
 \caption{\label{dfd1.2}一级数据流图：EAI 系统的后端处理}
 \end{figure}
 
-\section{用例模型}
+% \section{用例模型}
 
 \subsection{用例图}
 
@@ -210,8 +216,7 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \CTEXindent}
 
 \newcommand{\button}[1]{~\fcolorbox{gray}{white}{\color{black}\bf{#1}}~按钮}
-\newcommand{\checkbox}[1]{~%\CheckedBox
-{\tt{#1}}~复选框}
+\newcommand{\checkbox}[1]{~\CheckedBox{\tt{#1}}~复选框}
 \newcommand{\textfield}[1]{\underline{\color{darkgray}\tt{#1}}}
 
 \usecasedes{用户无状态登录} % #1 用例
@@ -388,33 +393,45 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 {系统已提供公共处理类。} % #8 前提条件
 {请求类建立完成并可用。} % #9 后置条件
 
-\usecasedes{业务步骤分解} % #1 用例
-{} % #2 目标
+\usecasedes{建立业务步骤} % #1 用例
+{定义一个业务并分解成为外部系统可执行的子业务。} % #2 目标
 {} % #3 基本流程
 {
-\item ttt
+\item 用户要求建立一个新的业务；
+\item 设置请求定义信息；
+\item 设置步骤定义信息；
+\item 设置处理步骤与调用请求的对应关系以及各步骤的执行顺序；
+\item 为请求编写请求处理类；
+\item 为每个步骤编写处理步骤类；
+\item 测试调用请求。
 } % #4 基本流程列表
 {} % #5 可选流程
 {
-\item sss
+\item 同\ucref{新增请求类型}。
 } % #6 可选流程列表
-{} % #7 特殊需求
-{} % #8 前提条件
-{} % #9 后置条件
+{同\ucref{新增请求类型}。} % #7 特殊需求
+{已有创建业务步骤的工厂类。} % #8 前提条件
+{业务被分解成为可执行的子任务。} % #9 后置条件
 
 \usecasedes{业务规则校验} % #1 用例
-{} % #2 目标
-{} % #3 基本流程
+{校验业务是否符合预定的规则。该用例既适用于预处理校验，也适用于后处理校验。} % #2 目标
+{当一个业务消息传入，系统应当检查业务规则的合法性，用例开始执行。} % #3 基本流程
 {
-\item ttt
+\item 检查标签的存在性；
+\item 根据条件判定的存在性；
+\item 验证标签取值；
+\item 自定义的其他核准操作。
 } % #4 基本流程列表
 {} % #5 可选流程
 {
-\item sss
+\item 验证错误\par
+验证中发生严重错误，提示并记录，用例结束。
+\item 验证警告\par
+验证中发现错误但并不严重，以默认值代替，提示并记录。
 } % #6 可选流程列表
-{} % #7 特殊需求
-{} % #8 前提条件
-{} % #9 后置条件
+{无。} % #7 特殊需求
+{消息处理之前和消息处理之后。} % #8 前提条件
+{预处理校验或后处理校验完成。} % #9 后置条件
 
 % \usecasedes{} % #1 用例
 % {} % #2 目标
