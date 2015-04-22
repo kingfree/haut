@@ -1,5 +1,6 @@
-; hello-os
+; haribote-ipl
 ; TAB=4
+
 CYLS	EQU		10				; 常量定义
 
 		ORG		0x7c00			; 程序装载地址
@@ -8,7 +9,7 @@ CYLS	EQU		10				; 常量定义
 
 		JMP		entry
 		DB		0x90
-		DB		"HELLOIPL"		; 启动区名（8字节）
+		DB		"HARIBOTE"		; 启动区名（8字节）
 		DW		512				; 每个扇区大小（必须为512字节）
 		DB		1				; 簇大小（必须1扇区）
 		DW		1				; FAT起始位置（一般从1开始）
@@ -77,9 +78,9 @@ next:
 		CMP		CH, CYLS
 		JB		readloop		; 如果CH < CYLS跳到readloop
 
-fin:
-		HLT						; CPU停止，等待指令
-		JMP		fin				; 无限循环
+; 读取完成后执行haribote.sys
+
+		JMP		0xc200
 
 error:
 		MOV		SI, msg
@@ -93,6 +94,10 @@ putloop:
 		MOV		BX, 15			; 指定颜色，并不管用
 		INT		0x10			; 调用显卡BIOS
 		JMP		putloop
+
+fin:
+		HLT						; 停止CPU，等待
+		JMP		fin				; 无限循环
 
 msg:
 		DB		0x0a, 0x0a		; 两个换行

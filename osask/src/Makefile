@@ -14,31 +14,38 @@ default :
 ipl.bin : ipl.nas Makefile
 	$(NASK) ipl.nas ipl.bin ipl.lst
 
-helloos.img : ipl.bin Makefile
-	$(EDIMG) imgin:$(Z_TOOLS)/fdimg0at.tek \
-		wbinimg src:ipl.bin len:512 from:0 to:0   imgout:helloos.img
+haribote.sys : haribote.nas Makefile
+	$(NASK) haribote.nas haribote.sys haribote.lst
+
+haribote.img : ipl.bin haribote.sys Makefile
+	$(EDIMG) imgin:../z_tools/fdimg0at.tek \
+		wbinimg src:ipl.bin len:512 from:0 to:0 \
+		copy from:haribote.sys to:@: \
+		imgout:haribote.img
 
 # 各个命令
 
 asm :
-	$(MAKE) -r ipl.bin
+	$(MAKE) ipl.bin
 
 img :
-	$(MAKE) -r helloos.img
+	$(MAKE) haribote.img
 
 run :
 	$(MAKE) img
-	$(CP) helloos.img $(Z_TOOLS)/qemu/fdimage0.bin
+	$(CP) haribote.img $(Z_TOOLS)/qemu/fdimage0.bin
 	$(MAKE) -C $(Z_TOOLS)/qemu
 
 install :
 	$(MAKE) img
-	$(Z_TOOLS)/imgtol.com w a: helloos.img
+	$(Z_TOOLS)/imgtol.com w a: haribote.img
 
 clean :
 	$(RM) ipl.bin
 	$(RM) ipl.lst
+	$(RM) haribote.sys
+	$(RM) haribote.lst
 
 src_only :
 	$(MAKE) clean
-	$(RM) helloos.img
+	$(RM) haribote.img
