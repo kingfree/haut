@@ -11,22 +11,19 @@ default :
 
 # 文件生成规则
 
-ipl.bin : ipl.nas Makefile
-	$(NASK) ipl.nas ipl.bin ipl.lst
+ipl10.bin : ipl10.nas Makefile
+	$(NASK) ipl10.nas ipl10.bin ipl10.lst
 
 haribote.sys : haribote.nas Makefile
 	$(NASK) haribote.nas haribote.sys haribote.lst
 
-haribote.img : ipl.bin haribote.sys Makefile
+haribote.img : ipl10.bin haribote.sys Makefile
 	$(EDIMG) imgin:../z_tools/fdimg0at.tek \
-		wbinimg src:ipl.bin len:512 from:0 to:0 \
+		wbinimg src:ipl10.bin len:512 from:0 to:0 \
 		copy from:haribote.sys to:@: \
 		imgout:haribote.img
 
 # 各个命令
-
-asm :
-	$(MAKE) ipl.bin
 
 img :
 	$(MAKE) haribote.img
@@ -41,8 +38,8 @@ install :
 	$(Z_TOOLS)/imgtol.com w a: haribote.img
 
 clean :
-	$(RM) ipl.bin
-	$(RM) ipl.lst
+	$(RM) ipl10.bin
+	$(RM) ipl10.lst
 	$(RM) haribote.sys
 	$(RM) haribote.lst
 

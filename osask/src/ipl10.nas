@@ -80,6 +80,7 @@ next:
 
 ; 读取完成后执行haribote.sys
 
+		MOV		[0x0ff0], CH	; 告知IPL加载到了何处
 		JMP		0xc200
 
 error:
