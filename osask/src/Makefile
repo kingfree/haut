@@ -1,5 +1,5 @@
 Z_TOOLS = ../z_tools
-MAKE = $(Z_TOOLS)/make.exe
+MAKE = $(Z_TOOLS)/make.exe -r
 NASK = $(Z_TOOLS)/nask.exe
 EDIMG = $(Z_TOOLS)/edimg.exe
 CP = cp

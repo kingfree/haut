@@ -42,12 +42,22 @@ entry:
 	MOV		DH, 0			; 磁头0
 	MOV		CL, 2			; 扇区2
 
-	MOV		AH, 0x02		; 读盘
+	MOV		SI, 0			; 记录失败次数
+
+retry:
+	MOV		AH, 0x02		; AH=0x02 : 读盘
 	MOV		AL, 1			; 1个扇区
 	MOV		BX, 0
 	MOV		DL, 0x00		; 驱动器A:
 	INT		0x13			; 调用磁盘BIOS
-	JC		error
+	JNC		fin				; 没有错误
+	ADD		SI, 1			; SI += 1
+	CMP		SI, 5			; SI与5比较
+	JAE		error			; 如果SI >= 5跳到error
+	MOV		AH, 0x00
+	MOV		DL, 0x00		; 驱动器A:
+	INT		0x13			; 重置驱动器
+	JMP		retry
 
 fin:
 	HLT						; CPU停止，等待指令
@@ -68,7 +78,7 @@ putloop:
 
 msg:
 	DB		0x0a, 0x0a		; 两个换行
-	DB		"hello, world"
+	DB		"load error"
 	DB		0x0a			; 换行
 	DB		0
 	RESB	0x7dfe - $		; 填充0到0x7dfe
