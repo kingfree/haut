@@ -7,6 +7,8 @@ GAS2NASK = $(Z_TOOLS)gas2nask.exe -a
 OBJ2BIM  = $(Z_TOOLS)obj2bim.exe
 BIM2HRB  = $(Z_TOOLS)bim2hrb.exe
 RULEFILE = $(Z_TOOLS)haribote/haribote.rul
+MAKEFONT = $(Z_TOOLS)makefont.exe
+BIN2OBJ  = $(Z_TOOLS)bin2obj.exe
 EDIMG    = $(Z_TOOLS)edimg.exe
 IMGTOL   = $(Z_TOOLS)imgtol.com
 COPY     = cp
@@ -36,9 +38,15 @@ bootpack.obj : bootpack.nas Makefile
 naskfunc.obj : naskfunc.nas Makefile
 	$(NASK) naskfunc.nas naskfunc.obj naskfunc.lst
 
-bootpack.bim : bootpack.obj naskfunc.obj Makefile
+hankaku.bin : hankaku.txt Makefile
+	$(MAKEFONT) hankaku.txt hankaku.bin
+
+hankaku.obj : hankaku.bin Makefile
+	$(BIN2OBJ) hankaku.bin hankaku.obj _hankaku
+
+bootpack.bim : bootpack.obj naskfunc.obj hankaku.obj Makefile
 	$(OBJ2BIM) @$(RULEFILE) out:bootpack.bim stack:3136k map:bootpack.map \
-		bootpack.obj naskfunc.obj
+		bootpack.obj naskfunc.obj hankaku.obj
 # 3MB+64KB=3136KB
 
 bootpack.hrb : bootpack.bim Makefile
