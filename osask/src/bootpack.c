@@ -47,20 +47,23 @@ void init_screen(char *vram, int x, int y);
 #define COL8_008484  14
 #define COL8_848484  15
 
+typedef struct BOOTINFO {
+    char cyls, leds, vmode, reserve;
+    short scrnx, scrny;
+    char *vram;
+} bootinfo_t;
+
 void HariMain(void)
 {
     char *vram;
     int xsize, ysize;
-    short *binfo_scrnx, *binfo_scrny;
-    int *binfo_vram;
+    bootinfo_t *binfo;
 
     init_palette();
-    binfo_scrnx = (short *) 0x0ff4;
-    binfo_scrny = (short *) 0x0ff6;
-    binfo_vram = (int *) 0x0ff8;
-    xsize = *binfo_scrnx;
-    ysize = *binfo_scrny;
-    vram = (char *) *binfo_vram;
+    binfo = (bootinfo_t *) 0x0ff0;
+    xsize = binfo->scrnx;
+    ysize = binfo->scrny;
+    vram = binfo->vram;
 
     init_screen(vram, xsize, ysize);
 
@@ -132,7 +135,8 @@ void boxsize8(unsigned char *vram, int X, unsigned char c,
     return;
 }
 
-void init_screen(char *vram, int x, int y) {
+void init_screen(char *vram, int x, int y)
+{
     /* 大小 */
     int box = 10, space = 2, top = 3;
 
@@ -158,7 +162,7 @@ void init_screen(char *vram, int x, int y) {
     /* 托盘区*/
     int right = 100;
     boxsize8(vram, x, base3 , x - right, y - height, 3, height);
-    boxsize8(vram, x, base1 , x - right + 1, y - (height + 8) / 2, 1, 8);
+    // boxsize8(vram, x, base1 , x - right + 1, y - (height + 8) / 2, 1, 8);
 
     return;
 }
