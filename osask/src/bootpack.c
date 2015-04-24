@@ -54,6 +54,10 @@ void putblock8_8(char *vram, int vxsize, int pxsize,
 #define COL8_008484  14
 #define COL8_848484  15
 
+#define FNT_H 12
+#define FNT_W 6 // FONT_H / 2
+#define FNT_OFFSET 726 // 65 + 55 * FONT_H + 1
+
 #define CURSOR_X 12
 #define CURSOR_Y 19
 
@@ -72,8 +76,6 @@ void HariMain(void)
     init_palette();
     init_screen(binfo->vram, binfo->scrnx, binfo->scrny);
 
-    putfonts8_asc(binfo->vram, binfo->scrnx, 31, 31, COL8_000000, "Haribote OS.");
-    putfonts8_asc(binfo->vram, binfo->scrnx, 30, 30, COL8_FFFFFF, "Haribote OS.");
     sprintf(s, "scrnx = %d, scrny = %d", binfo->scrnx, binfo->scrny);
     putfonts8_asc(binfo->vram, binfo->scrnx, 16, 48, COL8_FFFFFF, s);
 
@@ -167,19 +169,29 @@ void init_screen(char *vram, int x, int y)
     /* 开始按钮 */
     boxfill8(vram, x, base3 , 0, y - height, height - 1, y - 1);
 
-    /* Windows 徽标 */
-    int tops = top + box + space - 1;
-    int botm = top + box;
-    int bots = botm + space + box - 1;
-    boxsize8(vram, x, red    ,  top, y - bots, box, box);
-    boxsize8(vram, x, green  , tops, y - bots, box, box);
-    boxsize8(vram, x, blue   ,  top, y - botm, box, box);
-    boxsize8(vram, x, yellow , tops, y - botm, box, box);
+    {
+        /* Windows 徽标 */
+        int tops = top + box + space - 1;
+        int botm = top + box;
+        int bots = botm + space + box - 1;
+        boxsize8(vram, x, red    ,  top, y - bots, box, box);
+        boxsize8(vram, x, green  , tops, y - bots, box, box);
+        boxsize8(vram, x, blue   ,  top, y - botm, box, box);
+        boxsize8(vram, x, yellow , tops, y - botm, box, box);
+    }
 
-    /* 托盘区*/
-    int right = 100;
-    boxsize8(vram, x, base3 , x - right, y - height, 3, height);
-    // boxsize8(vram, x, base1 , x - right + 1, y - (height + 8) / 2, 1, 8);
+    {
+        /* 托盘区*/
+        int right = 100, bar = 3;
+        boxsize8(vram, x, base3 , x - right, y - height, bar, height);
+        // boxsize8(vram, x, base1 , x - right + 1, y - (height + 8) / 2, 1, 8);
+
+        /* 操作系统版本 */
+        char *sysver = "Haribote OS v05";
+        int pox = x - (right - bar + strlen(sysver) * FNT_W) / 2, poy = y - (height + FNT_H) / 2;
+        putfonts8_asc(vram,x, pox,poy, magenta, sysver);
+        // putfonts8_asc(vram, x, pox - 1, poy - 1, base3, sysver);
+    }
 
     return;
 }
@@ -188,7 +200,7 @@ void putfont8(char *vram, int xsize, int x, int y, char c, char *font)
 {
     int i;
     char *p, d /* data */;
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < FNT_H; i++) {
         p = vram + (y + i) * xsize + x;
         d = font[i];
         if ((d & 0x80) != 0) { p[0] = c; }
@@ -205,10 +217,11 @@ void putfont8(char *vram, int xsize, int x, int y, char c, char *font)
 
 void putfonts8_asc(char *vram, int xsize, int x, int y, char c, unsigned char *s)
 {
-    extern char hankaku[4096];
+    extern char hankaku[256 * FNT_H + FNT_OFFSET];
+    char *start = hankaku + FNT_OFFSET;
     for (; *s != 0x00; s++) {
-        putfont8(vram, xsize, x, y, c, hankaku + *s * 16);
-        x += 8;
+        putfont8(vram, xsize, x, y, c, start + *s * FNT_H);
+        x += FNT_W;
     }
     return;
 }
