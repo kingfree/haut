@@ -1,3 +1,5 @@
+OBJS_BOOTPACK = bootpack.obj naskfunc.obj hankaku.obj graphic.obj dsctbl.obj
+
 Z_TOOLS  = ../z_tools/
 INCULDE  = ../z_tools/haribote/
 MAKE     = $(Z_TOOLS)make.exe -r
@@ -44,9 +46,9 @@ hankaku.bin : ZpixEX2-12.fnt Makefile
 hankaku.obj : hankaku.bin Makefile
 	$(BIN2OBJ) hankaku.bin hankaku.obj _hankaku
 
-bootpack.bim : bootpack.obj naskfunc.obj hankaku.obj Makefile
+bootpack.bim : $(OBJS_BOOTPACK) Makefile
 	$(OBJ2BIM) @$(RULEFILE) out:bootpack.bim stack:3136k map:bootpack.map \
-		bootpack.obj naskfunc.obj hankaku.obj
+		$(OBJS_BOOTPACK)
 # 3MB+64KB=3136KB
 
 bootpack.hrb : bootpack.bim Makefile
@@ -60,6 +62,17 @@ haribote.img : ipl10.bin haribote.sys Makefile
 		wbinimg src:ipl10.bin len:512 from:0 to:0 \
 		copy from:haribote.sys to:@: \
 		imgout:haribote.img
+
+# 一般规则
+
+%.gas : %.c Makefile
+	$(CC1) -o $*.gas $*.c
+
+%.nas : %.gas Makefile
+	$(GAS2NASK) $*.gas $*.nas
+
+%.obj : %.nas Makefile
+	$(NASK) $*.nas $*.obj $*.lst
 
 # 各个命令
 
@@ -81,6 +94,8 @@ clean :
 	-$(RM) *.gas
 	-$(RM) *.obj
 	-$(RM) bootpack.nas
+	-$(RM) graphic.nas
+	-$(RM) dsctbl.nas
 	-$(RM) bootpack.map
 	-$(RM) bootpack.bim
 	-$(RM) bootpack.hrb
