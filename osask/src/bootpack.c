@@ -55,17 +55,10 @@ typedef struct BOOTINFO {
 
 void HariMain(void)
 {
-    char *vram;
-    int xsize, ysize;
-    bootinfo_t *binfo;
+    bootinfo_t *binfo = (bootinfo_t *) 0x0ff0;
 
     init_palette();
-    binfo = (bootinfo_t *) 0x0ff0;
-    xsize = binfo->scrnx;
-    ysize = binfo->scrny;
-    vram = binfo->vram;
-
-    init_screen(vram, xsize, ysize);
+    init_screen(binfo->vram, binfo->scrnx, binfo->scrny);
 
     for (; ; ) {
         io_hlt();
