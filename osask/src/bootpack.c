@@ -54,18 +54,36 @@ void putblock8_8(char *vram, int vxsize, int pxsize,
 #define COL8_008484  14
 #define COL8_848484  15
 
-#define FNT_H 12
-#define FNT_W 6 // FONT_H / 2
-#define FNT_OFFSET 726 // 65 + 55 * FONT_H + 1
+#define FNT_H        12
+#define FNT_W         6  // FNT_H / 2
+#define FNT_OFFSET  726  // 65 + 55 * FNT_H + 1
 
-#define CURSOR_X 12
-#define CURSOR_Y 19
+#define CURSOR_X     12
+#define CURSOR_Y     19
 
 typedef struct BOOTINFO {
     char cyls, leds, vmode, reserve;
     short scrnx, scrny;
     char *vram;
 } bootinfo_t;
+
+typedef struct SEGMENT_DESCRIPTOR {
+    short limit_low, base_low;
+    char base_mid, access_right;
+    char limit_high, base_high;
+} segment_descriptor;
+
+typedef struct GATE_DESCRIPTOR {
+    short offset_low, selector;
+    char dw_count, access_right;
+    short offset_high;
+} gate_descriptor;
+
+void init_gdtidt(void);
+void set_segmdesc(segment_descriptor *sd, unsigned int limit, int base, int ar);
+void set_gatedesc(gate_descriptor *gd, int offset, int selector, int ar);
+void load_gdtr(int limit, int addr);
+void load_idtr(int limit, int addr);
 
 void HariMain(void)
 {
@@ -75,6 +93,9 @@ void HariMain(void)
 
     init_palette();
     init_screen(binfo->vram, binfo->scrnx, binfo->scrny);
+    
+    putfonts8_asc(binfo->vram, binfo->scrnx, 80, 120, COL8_FFFFFF,
+        "PriPara = Prism Paradise");
 
     sprintf(s, "scrnx = %d, scrny = %d", binfo->scrnx, binfo->scrny);
     putfonts8_asc(binfo->vram, binfo->scrnx, 16, 48, COL8_FFFFFF, s);
@@ -94,7 +115,6 @@ void HariMain(void)
 void init_palette(void)
 {
     static unsigned char table_rgb[16 * 3] = {
-        /* 参考 http://ethanschoonover.com/solarized */
         0x00, 0x00, 0x00, /* base03 */
         0x07, 0x36, 0x42, /* base02 */
         0x58, 0x6e, 0x75, /* base01 */
@@ -187,7 +207,7 @@ void init_screen(char *vram, int x, int y)
         // boxsize8(vram, x, base1 , x - right + 1, y - (height + 8) / 2, 1, 8);
 
         /* 操作系统版本 */
-        char *sysver = "Haribote OS v05";
+        char *sysver = "PriPara OS v05";
         int pox = x - (right - bar + strlen(sysver) * FNT_W) / 2, poy = y - (height + FNT_H) / 2;
         putfonts8_asc(vram,x, pox,poy, magenta, sysver);
         // putfonts8_asc(vram, x, pox - 1, poy - 1, base3, sysver);
@@ -276,5 +296,53 @@ void putblock8_8(char *vram, int vxsize, int pxsize,
             vram[(py0 + y) * vxsize + (px0 + x)] = buf[y * bxsize + x];
         }
     }
+    return;
+}
+
+void init_gdtidt(void)
+{
+    segment_descriptor *gdt = (segment_descriptor *) 0x00270000;
+    gate_descriptor    *idt = (gate_descriptor    *) 0x0026f800;
+    int i;
+
+    /* GDT初始化 */
+    for (i = 0; i < 8192; i++) {
+        set_segmdesc(gdt + i, 0, 0, 0);
+    }
+    set_segmdesc(gdt + 1, 0xffffffff, 0x00000000, 0x4092);
+    set_segmdesc(gdt + 2, 0x0007ffff, 0x00280000, 0x409a);
+    load_gdtr(0xffff, 0x00270000);
+
+    /* IDT初始化 */
+    for (i = 0; i < 256; i++) {
+        set_gatedesc(idt + i, 0, 0, 0);
+    }
+    load_idtr(0x7ff, 0x0026f800);
+
+    return;
+}
+
+void set_segmdesc(segment_descriptor *sd, unsigned int limit, int base, int ar)
+{
+    if (limit > 0xfffff) {
+        ar |= 0x8000; /* G_bit = 1 */
+        limit /= 0x1000;
+    }
+    sd->limit_low    = limit & 0xffff;
+    sd->base_low     = base & 0xffff;
+    sd->base_mid     = (base >> 16) & 0xff;
+    sd->access_right = ar & 0xff;
+    sd->limit_high   = ((limit >> 16) & 0x0f) | ((ar >> 8) & 0xf0);
+    sd->base_high    = (base >> 24) & 0xff;
+    return;
+}
+
+void set_gatedesc(gate_descriptor *gd, int offset, int selector, int ar)
+{
+    gd->offset_low   = offset & 0xffff;
+    gd->selector     = selector;
+    gd->dw_count     = (ar >> 8) & 0xff;
+    gd->access_right = ar & 0xff;
+    gd->offset_high  = (offset >> 16) & 0xffff;
     return;
 }

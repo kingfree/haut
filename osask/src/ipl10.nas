@@ -1,4 +1,4 @@
-; haribote-ipl
+; pripara-ipl
 ; TAB=4
 
 CYLS	EQU		10				; 常量定义
@@ -9,7 +9,7 @@ CYLS	EQU		10				; 常量定义
 
 		JMP		entry
 		DB		0x90
-		DB		"HARIBOTE"		; 启动区名（8字节）
+		DB		"PURIPARA"		; 启动区名（8字节）
 		DW		512				; 每个扇区大小（必须为512字节）
 		DB		1				; 簇大小（必须1扇区）
 		DW		1				; FAT起始位置（一般从1开始）
@@ -24,7 +24,7 @@ CYLS	EQU		10				; 常量定义
 		DD		2880			; 再次重写磁盘大小
 		DB		0, 0, 0x29		; 意义不明的固定写法
 		DD		0xffffffff		; 卷标号码（可能）
-		DB		"HARIBOTEOS "	; 磁盘名（11字节）
+		DB		"PRIPARA-OS "	; 磁盘名（11字节）
 		DB		"FAT12   "		; 磁盘格式（8字节）
 		RESB	18				; 空出
 
