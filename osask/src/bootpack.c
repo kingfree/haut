@@ -11,6 +11,7 @@ void boxfill8(unsigned char *vram, int X, unsigned char c,
 void boxsize8(unsigned char *vram, int X, unsigned char c,
               int x0, int y0, int width, int height);
 void init_screen(char *vram, int x, int y);
+void putfont8(char *vram, int xsize, int x, int y, char c, char *font);
 
 #define base03   0
 #define base02   1
@@ -56,9 +57,13 @@ typedef struct BOOTINFO {
 void HariMain(void)
 {
     bootinfo_t *binfo = (bootinfo_t *) 0x0ff0;
-
+    static char font_A[16] = {
+        0x00, 0x18, 0x18, 0x18, 0x18, 0x24, 0x24, 0x24,
+        0x24, 0x7e, 0x42, 0x42, 0x42, 0xe7, 0x00, 0x00
+    };
     init_palette();
     init_screen(binfo->vram, binfo->scrnx, binfo->scrny);
+    putfont8(binfo->vram, binfo->scrnx, 10, 10, COL8_FFFFFF, font_A);
 
     for (; ; ) {
         io_hlt();
@@ -157,5 +162,24 @@ void init_screen(char *vram, int x, int y)
     boxsize8(vram, x, base3 , x - right, y - height, 3, height);
     // boxsize8(vram, x, base1 , x - right + 1, y - (height + 8) / 2, 1, 8);
 
+    return;
+}
+
+void putfont8(char *vram, int xsize, int x, int y, char c, char *font)
+{
+    int i;
+    char *p, d /* data */;
+    for (i = 0; i < 16; i++) {
+        p = vram + (y + i) * xsize + x;
+        d = font[i];
+        if ((d & 0x80) != 0) { p[0] = c; }
+        if ((d & 0x40) != 0) { p[1] = c; }
+        if ((d & 0x20) != 0) { p[2] = c; }
+        if ((d & 0x10) != 0) { p[3] = c; }
+        if ((d & 0x08) != 0) { p[4] = c; }
+        if ((d & 0x04) != 0) { p[5] = c; }
+        if ((d & 0x02) != 0) { p[6] = c; }
+        if ((d & 0x01) != 0) { p[7] = c; }
+    }
     return;
 }
