@@ -22,3 +22,32 @@ void init_pic(void)
 
     return;
 }
+
+void inthandler21(int *esp)
+/* PS/2键盘中断 */
+{
+    bootinfo_t *binfo = (bootinfo_t *) ADR_BOOTINFO;
+    boxfill8(binfo->vram, binfo->scrnx, base03, 0, 0, 32 * 8 - 1, 15);
+    putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, base3, "INT 21 (IRQ-1) : PS/2 keyboard");
+    for (;;) {
+        io_hlt();
+    }
+}
+
+void inthandler2c(int *esp)
+/* PS/2鼠标中断 */
+{
+    bootinfo_t *binfo = (bootinfo_t *) ADR_BOOTINFO;
+    boxfill8(binfo->vram, binfo->scrnx, base03, 0, 0, 32 * 8 - 1, 15);
+    putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, base3, "INT 2C (IRQ-12) : PS/2 mouse");
+    for (;;) {
+        io_hlt();
+    }
+}
+
+void inthandler27(int *esp)
+/* PIC0的不完全中断对策 */
+{
+    io_out8(PIC0_OCW2, 0x67); /* 收到IRQ-07后通知PIC */
+    return;
+}

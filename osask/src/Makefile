@@ -28,18 +28,6 @@ ipl10.bin : ipl10.nas Makefile
 asmhead.bin : asmhead.nas Makefile
 	$(NASK) asmhead.nas asmhead.bin asmhead.lst
 
-bootpack.gas : bootpack.c Makefile
-	$(CC1) -o bootpack.gas bootpack.c
-
-bootpack.nas : bootpack.gas Makefile
-	$(GAS2NASK) bootpack.gas bootpack.nas
-
-bootpack.obj : bootpack.nas Makefile
-	$(NASK) bootpack.nas bootpack.obj bootpack.lst
-
-naskfunc.obj : naskfunc.nas Makefile
-	$(NASK) naskfunc.nas naskfunc.obj naskfunc.lst
-
 hankaku.bin : ZpixEX2-12.fnt Makefile
 	$(COPY) ZpixEX2-12.fnt hankaku.bin
 
@@ -91,11 +79,7 @@ install :
 clean :
 	-$(RM) *.bin
 	-$(RM) *.lst
-	-$(RM) *.gas
 	-$(RM) *.obj
-	-$(RM) bootpack.nas
-	-$(RM) graphic.nas
-	-$(RM) dsctbl.nas
 	-$(RM) bootpack.map
 	-$(RM) bootpack.bim
 	-$(RM) bootpack.hrb
