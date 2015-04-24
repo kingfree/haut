@@ -4,23 +4,23 @@
 
 void init_gdtidt(void)
 {
-    segment_descriptor *gdt = (segment_descriptor *) 0x00270000;
-    gate_descriptor    *idt = (gate_descriptor    *) 0x0026f800;
+    segment_descriptor *gdt = (segment_descriptor *) ADR_GDT;
+    gate_descriptor    *idt = (gate_descriptor    *) ADR_IDT;
     int i;
 
     /* GDT初始化 */
     for (i = 0; i < 8192; i++) {
         set_segmdesc(gdt + i, 0, 0, 0);
     }
-    set_segmdesc(gdt + 1, 0xffffffff, 0x00000000, 0x4092);
-    set_segmdesc(gdt + 2, 0x0007ffff, 0x00280000, 0x409a);
-    load_gdtr(0xffff, 0x00270000);
+	set_segmdesc(gdt + 1, 0xffffffff,   0x00000000, AR_DATA32_RW);
+	set_segmdesc(gdt + 2, LIMIT_BOTPAK, ADR_BOTPAK, AR_CODE32_ER);
+	load_gdtr(LIMIT_GDT, ADR_GDT);
 
     /* IDT初始化 */
     for (i = 0; i < 256; i++) {
         set_gatedesc(idt + i, 0, 0, 0);
     }
-    load_idtr(0x7ff, 0x0026f800);
+    load_idtr(LIMIT_IDT, ADR_IDT);
 
     return;
 }

@@ -1,6 +1,7 @@
 /* 图形处理相关 */
 
 #include "bootpack.h"
+#include <stdio.h>
 #include <string.h>
 
 void init_palette(void)
@@ -151,7 +152,7 @@ void putblock8_8(char *vram, int vxsize, int pxsize,
 void init_screen(char *vram, int x, int y)
 {
     /* 大小 */
-    int box = 10, space = 2, top = 3;
+    int box = 8, space = 2, top = 5;
 
     /* 桌面 */
     boxfill8(vram, x, cyan , 0, 0, x - 1, y - 1);
@@ -159,9 +160,11 @@ void init_screen(char *vram, int x, int y)
     /* 任务栏 */
     int height = box * 2 + space + top * 2 - 1;
     boxfill8(vram, x, base2 , 0, y - height, x -  1, y - 1);
-
-    /* 开始按钮 */
-    boxfill8(vram, x, base3 , 0, y - height, height - 1, y - 1);
+    {
+        char s[54];
+        sprintf(s, "taskbar.height = %d", height);
+        putfonts8_asc(vram, x, 0, y - height - FNT_H, base3, s);
+    }
 
     {
         /* Windows 徽标 */
@@ -176,17 +179,14 @@ void init_screen(char *vram, int x, int y)
 
     {
         /* 托盘区*/
-        int right = 100, bar = 3;
+        int right = 100, bar = 2;
         boxsize8(vram, x, base3 , x - right, y - height, bar, height);
-        // boxsize8(vram, x, base1 , x - right + 1, y - (height + 8) / 2, 1, 8);
 
         /* 操作系统版本 */
-        char *sysver = "PriPara OS v5";
-        char *sys    = "PriPara OS";
-        int pox = x - (right - bar + strlen(sysver) * FNT_W) / 2,
+        int pox = x - (right - bar + strlen(SYSNAMEVER) * FNT_W) / 2,
             poy = y - (height + FNT_H) / 2;
-        putfonts8_asc(vram, x, pox, poy, magenta, sysver);
-        putfonts8_asc(vram, x, pox + 1, poy, magenta, sys);
+        putfonts8_asc(vram, x, pox, poy, magenta, SYSNAMEVER);
+        putfonts8_asc(vram, x, pox + 1, poy, magenta, SYSNAME);
     }
 
     return;

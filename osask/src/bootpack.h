@@ -1,6 +1,10 @@
 #ifndef BOOTPACK_H
 #define BOOTPACK_H
 
+#define SYSNAME     "PriPara OS"
+#define SYSVER      "6"
+#define SYSNAMEVER  SYSNAME " " SYSVER
+
 /* asmhead.nas */
 typedef struct BOOTINFO { /* 0x0ff0-0x0fff */
     char cyls; /* 启动区读盘终止处 */
@@ -36,6 +40,7 @@ void init_mouse_cursor8(char *mouse, char bc);
 void putblock8_8(char *vram, int vxsize, int pxsize,
     int pysize, int px0, int py0, char *buf, int bxsize);
 
+/* 16位色 */
 #define base03   0
 #define base02   1
 #define base01   2
@@ -71,6 +76,15 @@ void putblock8_8(char *vram, int vxsize, int pxsize,
 #define COL8_008484  14
 #define COL8_848484  15
 
+/* 字体 */
+#define FNT_H        12
+#define FNT_W         6  // FNT_H / 2
+#define FNT_OFFSET  726  // 65 + 55 * FNT_H + 1
+
+/* 鼠标指针 */
+#define CURSOR_X     12
+#define CURSOR_Y     19
+
 /* dsctbl.c */
 typedef struct SEGMENT_DESCRIPTOR {
     short limit_low, base_low;
@@ -97,13 +111,20 @@ void set_gatedesc(gate_descriptor *gd, int offset, int selector, int ar);
 #define AR_DATA32_RW    0x4092
 #define AR_CODE32_ER    0x409a
 
-/* 字体 */
-#define FNT_H        12
-#define FNT_W         6  // FNT_H / 2
-#define FNT_OFFSET  726  // 65 + 55 * FNT_H + 1
+/* int.c */
+void init_pic(void);
 
-/* 鼠标指针 */
-#define CURSOR_X     12
-#define CURSOR_Y     19
+#define PIC0_ICW1       0x0020
+#define PIC0_OCW2       0x0020
+#define PIC0_IMR        0x0021
+#define PIC0_ICW2       0x0021
+#define PIC0_ICW3       0x0021
+#define PIC0_ICW4       0x0021
+#define PIC1_ICW1       0x00a0
+#define PIC1_OCW2       0x00a0
+#define PIC1_IMR        0x00a1
+#define PIC1_ICW2       0x00a1
+#define PIC1_ICW3       0x00a1
+#define PIC1_ICW4       0x00a1
 
 #endif
