@@ -10,6 +10,7 @@ void boxfill8(unsigned char *vram, int X, unsigned char c,
               int x0, int y0, int x1, int y1);
 void boxsize8(unsigned char *vram, int X, unsigned char c,
               int x0, int y0, int width, int height);
+void init_screen(char *vram, int x, int y);
 
 #define base03   0
 #define base02   1
@@ -49,39 +50,21 @@ void boxsize8(unsigned char *vram, int X, unsigned char c,
 void HariMain(void)
 {
     char *vram;
-    int X, Y;
+    int xsize, ysize;
+    short *binfo_scrnx, *binfo_scrny;
+    int *binfo_vram;
 
     init_palette();
-    vram = (char *) 0xa0000;
-    X = 320;
-    Y = 200;
+    binfo_scrnx = (short *) 0x0ff4;
+    binfo_scrny = (short *) 0x0ff6;
+    binfo_vram = (int *) 0x0ff8;
+    xsize = *binfo_scrnx;
+    ysize = *binfo_scrny;
+    vram = (char *) *binfo_vram;
 
-    /* Windows 徽标大小 */
-    int box = 10, space = 2, top = 3;
-    
-    /* 桌面 */
-    boxfill8(vram, X, cyan , 0, 0, X - 1, Y - 1);
-    
-    /* 任务栏 */
-    int height = box * 2 + space + top * 2 - 1;
-    boxfill8(vram, X, base2 , 0, Y - height, X -  1, Y - 1);
-    boxfill8(vram, X, base3 , 0, Y - height, height - 1, Y - 1);
+    init_screen(vram, xsize, ysize);
 
-    /* 开始按钮 */
-    int tops = top + box + space - 1;
-    int botm = top + box;
-    int bots = botm + space + box - 1;
-    boxsize8(vram, X, red    ,  top, Y - bots, box, box);
-    boxsize8(vram, X, green  , tops, Y - bots, box, box);
-    boxsize8(vram, X, blue   ,  top, Y - botm, box, box);
-    boxsize8(vram, X, yellow , tops, Y - botm, box, box);
-
-    /* 托盘区*/
-    int right = 100;
-    boxsize8(vram, X, base3 , X - right, Y - height, 2, height);
-    boxsize8(vram, X, base1 , X - right + 1, Y - (height + 8) / 2, 0, 8);
-    
-    for (; ; ) { 
+    for (; ; ) {
         io_hlt();
     }
 }
@@ -89,7 +72,7 @@ void HariMain(void)
 void init_palette(void)
 {
     static unsigned char table_rgb[16 * 3] = {
-        /* 参考但有改动 http://ethanschoonover.com/solarized */
+        /* 参考 http://ethanschoonover.com/solarized */
         0x00, 0x00, 0x00, /* base03 */
         0x07, 0x36, 0x42, /* base02 */
         0x58, 0x6e, 0x75, /* base01 */
@@ -146,5 +129,36 @@ void boxsize8(unsigned char *vram, int X, unsigned char c,
     int y1 = y0 + height - 1;
     int x1 = x0 + width - 1;
     boxfill8(vram, X, c, x0, y0, x1, y1);
+    return;
+}
+
+void init_screen(char *vram, int x, int y) {
+    /* 大小 */
+    int box = 10, space = 2, top = 3;
+
+    /* 桌面 */
+    boxfill8(vram, x, cyan , 0, 0, x - 1, y - 1);
+
+    /* 任务栏 */
+    int height = box * 2 + space + top * 2 - 1;
+    boxfill8(vram, x, base2 , 0, y - height, x -  1, y - 1);
+
+    /* 开始按钮 */
+    boxfill8(vram, x, base3 , 0, y - height, height - 1, y - 1);
+
+    /* Windows 徽标 */
+    int tops = top + box + space - 1;
+    int botm = top + box;
+    int bots = botm + space + box - 1;
+    boxsize8(vram, x, red    ,  top, y - bots, box, box);
+    boxsize8(vram, x, green  , tops, y - bots, box, box);
+    boxsize8(vram, x, blue   ,  top, y - botm, box, box);
+    boxsize8(vram, x, yellow , tops, y - botm, box, box);
+
+    /* 托盘区*/
+    int right = 100;
+    boxsize8(vram, x, base3 , x - right, y - height, 3, height);
+    boxsize8(vram, x, base1 , x - right + 1, y - (height + 8) / 2, 1, 8);
+
     return;
 }
