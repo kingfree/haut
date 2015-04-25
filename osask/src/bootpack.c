@@ -3,11 +3,16 @@
 #include "bootpack.h"
 #include <stdio.h>
 
+extern struct KEYBUF keybuf;
+
 void HariMain(void)
 {
     init_gdtidt();
     init_pic();
     io_sti(); /* IDT/PIC初始化后解除对CPU中断的禁止 */
+
+    io_out8(PIC0_IMR, 0xf9); /* 允许PIC1和键盘(11111001) */
+    io_out8(PIC1_IMR, 0xef); /* 允许鼠标(11101111) */
 
     bootinfo_t *binfo = (bootinfo_t *) ADR_BOOTINFO;
 
@@ -20,10 +25,6 @@ void HariMain(void)
     }
 
     char s[40];
-    {
-        sprintf(s, "scrnx = %d, scrny = %d", binfo->scrnx, binfo->scrny);
-        putfonts8_asc(binfo->vram, binfo->scrnx, 16, 48, base3, s);
-    }
 
     {
         int mx = (binfo->scrnx - CURSOR_X) / 2; /* 计算画面中央坐标 */
@@ -35,10 +36,19 @@ void HariMain(void)
         putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, base3, s);
     }
 
-    io_out8(PIC0_IMR, 0xf9); /* 允许PIC1和键盘(11111001) */
-    io_out8(PIC1_IMR, 0xef); /* 允许鼠标(11101111) */
-
     for (; ; ) {
-        io_hlt();
+        io_cli();        /* 屏蔽中断 */
+        if (keybuf.flag == 0) {
+            io_stihlt(); /* 恢复中断 */
+        } else {
+            int i = keybuf.data;
+            keybuf.flag = 0;
+            io_sti();    /* 恢复中断 */
+            sprintf(s, "key press: %02X", i);
+            boxsize8(binfo->vram, binfo->scrnx, BGM,
+                0, FNT_H, FNT_W * 14, FNT_H);
+            putfonts8_asc(binfo->vram, binfo->scrnx,
+                0, FNT_H, base3, s);
+        }
     }
 }

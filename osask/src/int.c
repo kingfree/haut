@@ -26,18 +26,18 @@ void init_pic(void)
 
 #define PORT_KEYDAT     0x0060
 
+struct KEYBUF keybuf;
+
 void inthandler21(int *esp)
 /* PS/2键盘中断 */
 {
-    bootinfo_t *binfo = (bootinfo_t *) ADR_BOOTINFO;
-    unsigned char data, s[4];
+    unsigned char data;
     io_out8(PIC0_OCW2, 0x61);   /* 接收IRQ-01后通知PIC */
     data = io_in8(PORT_KEYDAT);
-
-    sprintf(s, "%02X", data);
-    boxsize8(binfo->vram, binfo->scrnx, BGM, 0, FNT_H, FNT_W * 2, FNT_H);
-    putfonts8_asc(binfo->vram, binfo->scrnx, 0, FNT_H, base3, s);
-
+    if (keybuf.flag == 0) {
+        keybuf.data = data;
+        keybuf.flag = 1;
+    }
     return;
 }
 

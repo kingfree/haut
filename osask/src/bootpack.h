@@ -2,7 +2,7 @@
 #define BOOTPACK_H
 
 #define SYSNAME     "PriPara OS"
-#define SYSVER      "6"
+#define SYSVER      "7"
 #define SYSNAMEVER  SYSNAME " " SYSVER
 
 /* asmhead.nas */
@@ -119,7 +119,13 @@ void set_gatedesc(gate_descriptor *gd, int offset, int selector, int ar);
 #define AR_INTGATE32    0x008e
 
 /* int.c */
+struct KEYBUF {
+    unsigned char data, flag;
+};
 void init_pic(void);
+void inthandler21(int *esp);
+void inthandler27(int *esp);
+void inthandler2c(int *esp);
 
 #define PIC0_ICW1       0x0020
 #define PIC0_OCW2       0x0020
