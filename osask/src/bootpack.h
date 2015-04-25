@@ -49,7 +49,7 @@ void boxfill8(unsigned char *vram, int X, unsigned char c,
               int x0, int y0, int x1, int y1);
 void boxsize8(unsigned char *vram, int X, unsigned char c,
               int x0, int y0, int width, int height);
-void init_screen(char *vram, int x, int y);
+void init_screen8(char *vram, int x, int y);
 void putfont8(char *vram, int xsize, int x, int y, char c, char *font);
 void putfonts8_asc(char *vram, int xsize, int x, int y, char c, unsigned char *s);
 void init_mouse_cursor8(char *mouse, char bc);

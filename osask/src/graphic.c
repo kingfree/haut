@@ -149,7 +149,7 @@ void putblock8_8(char *vram, int vxsize, int pxsize,
     return;
 }
 
-void init_screen(char *vram, int x, int y)
+void init_screen8(char *vram, int x, int y)
 {
     /* ด๓ะก */
     int box = 8, space = 2, top = 5;
