@@ -3,7 +3,7 @@
 #include "bootpack.h"
 #include <stdio.h>
 
-extern struct KEYBUF keybuf;
+extern fifo8 keyfifo;
 
 void HariMain(void)
 {
@@ -24,7 +24,7 @@ void HariMain(void)
             "PriPara = Prism Paradise");
     }
 
-    char s[40];
+    char s[40], keybuf[32];
 
     {
         int mx = (binfo->scrnx - CURSOR_X) / 2; /* 计算画面中央坐标 */
@@ -35,19 +35,17 @@ void HariMain(void)
         sprintf(s, "pointer pos: (%d, %d)", mx, my);
         putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, base3, s);
     }
+    
+    fifo8_init(&keyfifo, 32, keybuf);
 
     for (; ; ) {
         io_cli();        /* 屏蔽中断 */
-        if (keybuf.len == 0) {
+        if (fifo8_status(&keyfifo) == 0) {
             io_stihlt(); /* 恢复中断 */
             continue;
         }
-        int i = keybuf.data[keybuf.next_r++];
-        keybuf.len--;
-        if (keybuf.next_r == 32) {
-            keybuf.next_r = 0;
-        }
-        io_sti();    /* 恢复中断 */
+        int i = fifo8_get(&keyfifo);
+        io_sti();        /* 恢复中断 */
         sprintf(s, "key press: %02X", i);
         boxsize8(binfo->vram, binfo->scrnx, BGM,
             FNT_W * 11, FNT_H, FNT_W * 2, FNT_H);
