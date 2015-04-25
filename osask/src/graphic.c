@@ -160,11 +160,6 @@ void init_screen8(char *vram, int x, int y)
     /* »ŒŒÒ¿∏ */
     int height = box * 2 + space + top * 2 - 1;
     boxfill8(vram, x, base2 , 0, y - height, x - 1, y - 1);
-    {
-        char s[54];
-        sprintf(s, "taskbar.height = %d", height);
-        putfonts8_asc(vram, x, 0, y - height - FNT_H, base3, s);
-    }
 
     {
         /* Windows ª’±Í */

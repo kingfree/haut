@@ -5,8 +5,8 @@
 
 void init_pic(void)
 {
-    io_out8(PIC0_IMR,  0xff  ); /* 禁止所有中断 */
-    io_out8(PIC1_IMR,  0xff  ); /* 禁止所有中断 */
+    io_out8(PIC0_IMR,  0xff  ); /* 禁止主PIC中断 */
+    io_out8(PIC1_IMR,  0xff  ); /* 禁止从PIC中断 */
 
     io_out8(PIC0_ICW1, 0x11  ); /* 边缘触发模式 */
     io_out8(PIC0_ICW2, 0x20  ); /* IRQ0-7由INT20-27接收 */
