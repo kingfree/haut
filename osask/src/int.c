@@ -1,6 +1,7 @@
 /* 中断相关 */
 
 #include "bootpack.h"
+#include <stdio.h>
 
 void init_pic(void)
 {
@@ -23,22 +24,28 @@ void init_pic(void)
     return;
 }
 
+#define PORT_KEYDAT     0x0060
+
 void inthandler21(int *esp)
 /* PS/2键盘中断 */
 {
     bootinfo_t *binfo = (bootinfo_t *) ADR_BOOTINFO;
-    boxfill8(binfo->vram, binfo->scrnx, base03, 0, 0, 32 * 8 - 1, 15);
-    putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, base3, "INT 21 (IRQ-1) : PS/2 keyboard");
-    for (;;) {
-        io_hlt();
-    }
+    unsigned char data, s[4];
+    io_out8(PIC0_OCW2, 0x61);   /* 接收IRQ-01后通知PIC */
+    data = io_in8(PORT_KEYDAT);
+
+    sprintf(s, "%02X", data);
+    boxsize8(binfo->vram, binfo->scrnx, BGM, 0, FNT_H, FNT_W * 2, FNT_H);
+    putfonts8_asc(binfo->vram, binfo->scrnx, 0, FNT_H, base3, s);
+
+    return;
 }
 
 void inthandler2c(int *esp)
 /* PS/2鼠标中断 */
 {
     bootinfo_t *binfo = (bootinfo_t *) ADR_BOOTINFO;
-    boxfill8(binfo->vram, binfo->scrnx, base03, 0, 0, 32 * 8 - 1, 15);
+    boxsize8(binfo->vram, binfo->scrnx, base03, 0, 0, 32 * 6 - 1, 12);
     putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, base3, "INT 2C (IRQ-12) : PS/2 mouse");
     for (;;) {
         io_hlt();

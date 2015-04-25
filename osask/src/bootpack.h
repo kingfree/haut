@@ -62,6 +62,8 @@ void putblock8_8(char *vram, int vxsize, int pxsize,
 #define cyan    14
 #define green   15
 
+#define BGM cyan
+
 /* 为了兼容OSASK颜色 */
 #define COL8_000000   0
 #define COL8_FF0000   1
@@ -83,7 +85,7 @@ void putblock8_8(char *vram, int vxsize, int pxsize,
 /* 字体 */
 #define FNT_H        12
 #define FNT_W         6  // FNT_H / 2
-#define FNT_OFFSET  726  // 65 + 55 * FNT_H + 1
+#define FNT_OFFSET  726  // 60 * FNT_H
 
 /* 鼠标指针 */
 #define CURSOR_X     12

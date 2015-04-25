@@ -91,4 +91,6 @@ src_only :
 
 # i☆Ris - Make it!
 it!:
+	$(MAKE) clean
 	$(MAKE) run
+	$(MAKE) src_only

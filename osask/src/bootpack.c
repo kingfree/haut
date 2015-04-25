@@ -29,7 +29,7 @@ void HariMain(void)
         int mx = (binfo->scrnx - CURSOR_X) / 2; /* 计算画面中央坐标 */
         int my = (binfo->scrny - CURSOR_Y) / 2;
         char mcursor[CURSOR_X * CURSOR_Y];
-        init_mouse_cursor8(mcursor, COL8_008484);
+        init_mouse_cursor8(mcursor, BGM);
         putblock8_8(binfo->vram, binfo->scrnx, CURSOR_X, CURSOR_Y, mx, my, mcursor, CURSOR_X);
         sprintf(s, "(%d, %d)", mx, my);
         putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, base3, s);

@@ -155,11 +155,11 @@ void init_screen(char *vram, int x, int y)
     int box = 8, space = 2, top = 5;
 
     /* ×ÀÃæ */
-    boxfill8(vram, x, cyan , 0, 0, x - 1, y - 1);
+    boxfill8(vram, x, BGM , 0, 0, x - 1, y - 1);
 
     /* ÈÎÎñÀ¸ */
     int height = box * 2 + space + top * 2 - 1;
-    boxfill8(vram, x, base2 , 0, y - height, x -  1, y - 1);
+    boxfill8(vram, x, base2 , 0, y - height, x - 1, y - 1);
     {
         char s[54];
         sprintf(s, "taskbar.height = %d", height);
