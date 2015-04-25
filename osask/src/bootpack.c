@@ -5,6 +5,7 @@
 
 typedef struct MOUSE_DEC {
     unsigned char buf[3], phase;
+    int x, y, btn;
 } mouse_dec;
 
 extern fifo8 keyfifo, mousefifo;
@@ -61,10 +62,19 @@ void HariMain(void)
             } else if (fifo8_status(&mousefifo) != 0) {
                 i = fifo8_get(&mousefifo);
                 io_sti();    /* 恢复中断 */
-                if (mouse_decode(&mdec, i) != 0) {
-                    sprintf(s, "%02X %02X %02X", mdec.buf[0], mdec.buf[1], mdec.buf[2]);
+                if (mouse_decode(&mdec, i) == 1) {
+                    sprintf(s, "[lcr %4d %4d]", mdec.x, mdec.y);
+                    if ((mdec.btn & 0x01) != 0) {
+                        s[1] = 'L';
+                    }
+                    if ((mdec.btn & 0x02) != 0) {
+                        s[3] = 'R';
+                    }
+                    if ((mdec.btn & 0x04) != 0) {
+                        s[2] = 'C';
+                    }
                     boxsize8(binfo->vram, binfo->scrnx, BGM,
-                        0, FNT_H * 2, FNT_W * 8, FNT_H);
+                        0, FNT_H * 2, FNT_W * 16, FNT_H);
                     putfonts8_asc(binfo->vram, binfo->scrnx,
                         0, FNT_H * 2, base3, s);
                 }
@@ -125,8 +135,11 @@ int mouse_decode(mouse_dec *mdec, unsigned char dat)
         return 0;
     } else if (mdec->phase == 1) {
         /* 等待鼠标的第1字节 */
-        mdec->buf[0] = dat;
-        mdec->phase = 2;
+        if ((dat & 0xc8) == 0x08) {
+            /* 如果第1字节正确 */
+            mdec->buf[0] = dat;
+            mdec->phase = 2;
+        }
         return 0;
     } else if (mdec->phase == 2) {
         /* 等待鼠标的第2字节 */
@@ -137,6 +150,16 @@ int mouse_decode(mouse_dec *mdec, unsigned char dat)
         /* 等待鼠标的第3字节 */
         mdec->buf[2] = dat;
         mdec->phase = 1;
+        mdec->btn = mdec->buf[0] & 0x07;
+        mdec->x = mdec->buf[1];
+        mdec->y = mdec->buf[2];
+        if ((mdec->buf[0] & 0x10) != 0) {
+            mdec->x |= 0xffffff00;
+        }
+        if ((mdec->buf[0] & 0x20) != 0) {
+            mdec->y |= 0xffffff00;
+        }
+        mdec->y = - mdec->y; /* 鼠标的垂直方向与屏幕相反 */
         return 1;
     }
     return -1;
