@@ -1,0 +1,88 @@
+\documentclass[10pt,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\usepackage{xeCJKfntef}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{大学物理}
+\usepackage[b5paper,margin=2cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+\usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage[inline]{enumitem} % 调整列表样式
+\usepackage{multicol} % 分栏
+\usepackage{color,xcolor}
+\usepackage{tikz}
+\usepackage{wrapfig}
+
+% \setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体: 宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体: 仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体: 楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2} % 行距
+
+\pagestyle{plain}
+
+\setlist{noitemsep}
+\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,labelindent=\parindent,leftmargin=*,align=right}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,labelindent=\parindent,leftmargin=*,align=right}
+\setlist[enumerate,2]{label={(\arabic*)}}
+
+% 符号定义
+\newcommand{\D}{\displaystyle}
+\renewcommand{\d}{{\mathrm{d}\:\!}}
+\newcommand{\e}{{\mathrm{e}}}
+
+\renewcommand{\le}{\leqslant}
+\renewcommand{\ge}{\geqslant}
+
+\DeclareMathOperator{\MSE}{MSE}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\sh}{sh}
+\DeclareMathOperator{\ch}{ch}
+
+%单位与进制
+\newcommand{\unit}[2]{{\rm\,#1}{\text{\timesrm({\kai{#2}})}}}
+\newcommand{\jinzhi}[1]{\xrightarrow{\times{}#1}}
+\newcommand{\mainunit}[2]{{\rm\,{#1}}{\text{\timesrm({\name{#2}})}}}
+\newcommand{\zfrac}[2]{\displaystyle\frac{\,{#1}\,}{\,{#2}\,}} %分数、分式的中文样式
+%单位(必须在数学模式中使用)
+\newcommand{\dw}[1]{{\rm{\,{#1}}}}
+\newcommand{\cm}{\dw{cm}} %厘米
+\newcommand{\JkgC}{\dw{J/(kg\cdot\celsius)}} %焦每千克摄氏度
+\newcommand{\Jkg}{\dw{J/kg}} %焦每千克
+\newcommand{\Jm}{\dw{J/m^3}} %焦每立方米
+\newcommand{\kgm}{\dw{kg/m^3}} %千克每立方米
+\newcommand{\kJ}{\dw{kJ}} %千焦
+\newcommand{\kg}{\dw{kg}} %千克
+\newcommand{\g}{\dw{g}} %克
+\newcommand{\km}{\dw{km}} %千米
+\newcommand{\mm}{\dw{mm}} %毫米
+\newcommand{\ms}{\dw{m/s}} %米每秒
+\newcommand{\Nkg}{\dw{N/kg}} %牛每千克
+\newcommand{\Pa}{\dw{Pa}} %帕斯卡
+\newcommand{\hPa}{\dw{hPa}} %百帕
+
+\newcommand{\E}[1]{\times10^{#1}}
+\newcommand{\pp}{\par}
+\newcommand{\ul}[1]{\CJKunderline{#1}}
+\newcommand{\SL}[1]{{\par\fbox{\makebox[2em][l]{\bf 解:~}\begin{minipage}{0.9\textwidth}{#1}\end{minipage}}\par}}
+
+\begin{document}
+
+% \CTEXnoindent
+
+% \begin{multicols}{2}
+\input{force}
+\input{relativity}
+\input{electrofield}
+\input{magneticfield}
+\input{electromagnetic}
+% \end{multicols}
+
+\end{document}
