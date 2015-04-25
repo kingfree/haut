@@ -32,23 +32,26 @@ void HariMain(void)
         char mcursor[CURSOR_X * CURSOR_Y];
         init_mouse_cursor8(mcursor, BGM);
         putblock8_8(binfo->vram, binfo->scrnx, CURSOR_X, CURSOR_Y, mx, my, mcursor, CURSOR_X);
-        sprintf(s, "(%d, %d)", mx, my);
+        sprintf(s, "pointer pos: (%d, %d)", mx, my);
         putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, base3, s);
     }
 
     for (; ; ) {
         io_cli();        /* 屏蔽中断 */
-        if (keybuf.flag == 0) {
+        if (keybuf.len == 0) {
             io_stihlt(); /* 恢复中断 */
-        } else {
-            int i = keybuf.data;
-            keybuf.flag = 0;
-            io_sti();    /* 恢复中断 */
-            sprintf(s, "key press: %02X", i);
-            boxsize8(binfo->vram, binfo->scrnx, BGM,
-                0, FNT_H, FNT_W * 14, FNT_H);
-            putfonts8_asc(binfo->vram, binfo->scrnx,
-                0, FNT_H, base3, s);
+            continue;
         }
+        int i = keybuf.data[keybuf.next_r++];
+        keybuf.len--;
+        if (keybuf.next_r == 32) {
+            keybuf.next_r = 0;
+        }
+        io_sti();    /* 恢复中断 */
+        sprintf(s, "key press: %02X", i);
+        boxsize8(binfo->vram, binfo->scrnx, BGM,
+            FNT_W * 11, FNT_H, FNT_W * 2, FNT_H);
+        putfonts8_asc(binfo->vram, binfo->scrnx,
+            0, FNT_H, base3, s);
     }
 }
