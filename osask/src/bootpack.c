@@ -7,28 +7,11 @@ extern fifo8 keyfifo, mousefifo;
 void enable_mouse(void);
 void init_keyboard(void);
 
-void startscreen(bootinfo_t *binfo)
-{
-    char s[40];
-
-    putfonts8_asc(binfo->vram, binfo->scrnx, 80, 120, base3,
-        "PriPara = Prism Paradise");
-
-    int mx = (binfo->scrnx - CURSOR_X) / 2; /* 计算画面中央坐标 */
-    int my = (binfo->scrny - CURSOR_Y) / 2;
-    char mcursor[CURSOR_X * CURSOR_Y];
-    init_mouse_cursor8(mcursor, BGM);
-    putblock8_8(binfo->vram, binfo->scrnx, CURSOR_X, CURSOR_Y, mx, my, mcursor, CURSOR_X);
-    sprintf(s, "pointer pos: (%d, %d)", mx, my);
-    putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, base3, s);
-
-    return;
-}
-
 void HariMain(void)
 {
     bootinfo_t *binfo = (bootinfo_t *) ADR_BOOTINFO;
     char s[40], keybuf[32], mousebuf[128];
+    unsigned char mouse_dbuf[3], mouse_phase;
 
     init_gdtidt();
     init_pic();
@@ -42,9 +25,20 @@ void HariMain(void)
 
     init_palette();
     init_screen8(binfo->vram, binfo->scrnx, binfo->scrny);
-    startscreen(binfo);
+
+    putfonts8_asc(binfo->vram, binfo->scrnx, 80, 120, base3,
+        "PriPara = Prism Paradise");
+
+    int mx = (binfo->scrnx - CURSOR_X) / 2; /* 计算画面中央坐标 */
+    int my = (binfo->scrny - CURSOR_Y) / 2;
+    char mcursor[CURSOR_X * CURSOR_Y];
+    init_mouse_cursor8(mcursor, BGM);
+    putblock8_8(binfo->vram, binfo->scrnx, CURSOR_X, CURSOR_Y, mx, my, mcursor, CURSOR_X);
+    sprintf(s, "pointer pos: (%d, %d)", mx, my);
+    putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, base3, s);
 
     enable_mouse();
+    mouse_phase = 0; /* 进入等待状态 */
 
     for (; ; ) {
         io_cli();            /* 屏蔽中断 */
@@ -63,11 +57,30 @@ void HariMain(void)
             } else if (fifo8_status(&mousefifo) != 0) {
                 i = fifo8_get(&mousefifo);
                 io_sti();    /* 恢复中断 */
-                sprintf(s, "mouse action: %02X", i);
-                boxsize8(binfo->vram, binfo->scrnx, BGM,
-                    FNT_W * 14, FNT_H, FNT_W * 2, FNT_H * 2);
+                if (mouse_phase == 0) {
+                    /* 等待鼠标的0xfa状态 */
+                    if (i == 0xfa) {
+                        mouse_phase = 1;
+                    }
+                } else if (mouse_phase == 1) {
+                    /* 等待鼠标的第1字节 */
+                    mouse_dbuf[0] = i;
+                    mouse_phase = 2;
+                } else if (mouse_phase == 2) {
+                    /* 等待鼠标的第2字节 */
+                    mouse_dbuf[1] = i;
+                    mouse_phase = 3;
+                } else if (mouse_phase == 3) {
+                    /* 等待鼠标的第3字节 */
+                    mouse_dbuf[2] = i;
+                    mouse_phase = 1;
+                    /* 凑齐3个字节显示出来 */
+                    sprintf(s, "%02X %02X %02X", mouse_dbuf[0], mouse_dbuf[1], mouse_dbuf[2]);
+                 boxsize8(binfo->vram, binfo->scrnx, BGM,
+                    0, FNT_H * 2, FNT_W * 8, FNT_H);
                 putfonts8_asc(binfo->vram, binfo->scrnx,
                     0, FNT_H * 2, base3, s);
+                }
             }
         }
     }
