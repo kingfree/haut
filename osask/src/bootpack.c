@@ -36,22 +36,20 @@ void HariMain(void)
     sht_mouse = sheet_alloc(shtctl);
     sht_win   = sheet_alloc(shtctl);
     buf_back  = (unsigned char *) memman_alloc_4k(memman, binfo->scrnx * binfo->scrny);
-    buf_win   = (unsigned char *) memman_alloc_4k(memman, 160 * 68);
+    buf_win   = (unsigned char *) memman_alloc_4k(memman, 160 * 52);
     sheet_setbuf(sht_back, buf_back, binfo->scrnx, binfo->scrny, -1); /* 无透明色 */
-    sheet_setbuf(sht_win, buf_win, 160, 68, -1); /* 无透明色 */
+    sheet_setbuf(sht_win, buf_win, 160, 52, -1); /* 无透明色 */
     sheet_setbuf(sht_mouse, buf_mouse, CURSOR_X, CURSOR_Y, 99); /* 透明色号99 */
     init_screen8(buf_back, binfo->scrnx, binfo->scrny);
     init_mouse_cursor8(buf_mouse, 99); /* 背景色号99 */
-    make_window8(buf_win, 160, 68, "Prism Store");
-	putfonts8_asc(buf_win, 160, 24, 28, base03, "  PriPara");
-	putfonts8_asc(buf_win, 160, 24, 44, base03, "= Prism Paradise");
+    make_window8(buf_win, 160, 52, "counter");
     sheet_slide(sht_back, 0, 0);
     int mx = (binfo->scrnx - CURSOR_X) / 2; /* 计算画面中央坐标 */
     int my = (binfo->scrny - CURSOR_Y) / 2;
     sheet_slide(sht_mouse, mx, my);
-	sheet_slide(sht_win, 80, 72);
+    sheet_slide(sht_win, 80, 72);
     sheet_updown(sht_back,  0);
-	sheet_updown(sht_win,   1);
+    sheet_updown(sht_win,   1);
     sheet_updown(sht_mouse, 2);
     sprintf(s, "(%3d, %3d)", mx, my);
     putfonts8_asc(buf_back, binfo->scrnx, 0, 0, base3, s);
@@ -59,7 +57,14 @@ void HariMain(void)
     putfonts8_asc(buf_back, binfo->scrnx, 0, FNT_H * 2 + 1, base3, s);
     sheet_refresh(sht_back, 0, 0, binfo->scrnx, FNT_H * 3);
 
+    unsigned int count;
     for (; ; ) {
+        count++;
+        sprintf(s, "%010d", count);
+        boxfill8(buf_win, 160, base2, 40, 28, 119, 43);
+        putfonts8_asc(buf_win, 160, 40, 28, base03, s);
+        sheet_refresh(sht_win, 40, 28, 120, 44);
+
         io_cli();            /* 屏蔽中断 */
         if (fifo8_status(&keyfifo) + fifo8_status(&mousefifo) == 0) {
             io_stihlt();     /* 恢复中断 */
@@ -134,17 +139,17 @@ void make_window8(unsigned char *buf, int xsize, int ysize, char *title)
     char c;
     boxfill8(buf, xsize, violet, 0, 0, xsize - 1, ysize - 1);
     boxfill8(buf, xsize, blue, 1, 1, xsize - 2, ysize - 2);
-    boxfill8(buf, xsize, violet, 7, 22, xsize - 8, ysize - 8);
-    boxfill8(buf, xsize, base2, 8, 23, xsize - 9, ysize - 9);
-    boxfill8(buf, xsize, orange, xsize - 30, 1, xsize - 9, 18);
+    // boxfill8(buf, xsize, violet, 7, 22, xsize - 8, ysize - 8);
+    boxfill8(buf, xsize, base2, 1, 21, xsize - 2, ysize - 2);
+    boxfill8(buf, xsize, orange, xsize - 30, 1, xsize - 2, 18);
     for (y = 0; y < 7; y++) {
         for (x = 0; x < 8; x++) {
             c = closebtn[y][x];
             if (c == 'o') {
-                buf[(7 + y) * xsize + (xsize - 23 + x)] = base3;
+                buf[(7 + y) * xsize + (xsize - 19 + x)] = base3;
             }
         }
     }
-    putfonts8_asc(buf, xsize, (xsize - strlen(title) * FNT_W) / 2, (23 - FNT_H) / 2, base3, title);
+    putfonts8_asc(buf, xsize, (xsize - strlen(title) * FNT_W) / 2, (22 - FNT_H) / 2, base3, title);
     return;
 }
