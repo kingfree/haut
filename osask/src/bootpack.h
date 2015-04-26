@@ -2,7 +2,7 @@
 #define BOOTPACK_H
 
 #define SYSNAME     "PriPara OS"
-#define SYSVER      "9"
+#define SYSVER      "10"
 #define SYSNAMEVER  SYSNAME " " SYSVER
 
 /* asmhead.nas */
@@ -33,6 +33,7 @@ void store_cr0(int cr0);
 void asm_inthandler21(void);
 void asm_inthandler27(void);
 void asm_inthandler2c(void);
+unsigned int memtest_sub(unsigned int start, unsigned int end);
 
 /* fifo.c */
 typedef struct FIFO8 {
@@ -177,5 +178,26 @@ void enable_mouse(mouse_dec *mdec);
 int mouse_decode(mouse_dec *mdec, unsigned char dat);
 
 extern fifo8 mousefifo;
+
+/* memory.c */
+#define MEMMAN_FREES        4090    // 大约是32KB
+#define MEMMAN_ADDR         0x003c0000
+
+typedef struct FREEINFO {   /* 空闲块 */
+    unsigned int addr, size;
+} freeinfo_t;
+
+typedef struct MEMMAN {     /* 内存管理 */
+    int frees, maxfrees, lostsize, losts;
+    freeinfo_t free[MEMMAN_FREES];
+} memman_t;
+
+unsigned int memtest(unsigned int start, unsigned int end);
+void memman_init(memman_t *man);
+unsigned int memman_total(memman_t *man);
+unsigned int memman_alloc(memman_t *man, unsigned int size);
+int memman_free(memman_t *man, unsigned int addr, unsigned int size);
+unsigned int memman_alloc_4k(memman_t *man, unsigned int size);
+int memman_free_4k(memman_t *man, unsigned int addr, unsigned int size);
 
 #endif
