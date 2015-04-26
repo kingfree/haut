@@ -206,6 +206,7 @@ int memman_free_4k(memman_t *man, unsigned int addr, unsigned int size);
 typedef struct SHEET {
     unsigned char *buf;
     int bxsize, bysize, vx0, vy0, alpha, height, flags;
+    struct SHTCTL *ctl;
 } sheet_t;
 
 typedef struct SHTCTL {
@@ -216,12 +217,11 @@ typedef struct SHTCTL {
 } shtctl_t;
 
 shtctl_t *shtctl_init(memman_t *memman, unsigned char *vram, int xsize, int ysize);
-sheet_t *sheet_alloc(shtctl_t *ctl);
-void sheet_setbuf(sheet_t *sht, unsigned char *buf, int xsize, int ysize, int alpha);
-void sheet_updown(shtctl_t *ctl, sheet_t *sht, int height);
-void sheet_refreshsub(shtctl_t *ctl, int vx0, int vy0, int vx1, int vy1);
-void sheet_refresh(shtctl_t *ctl, sheet_t *sht, int bx0, int by0, int bx1, int by1);
-void sheet_slide(shtctl_t *ctl, sheet_t *sht, int vx0, int vy0);
-void sheet_free(shtctl_t *ctl, sheet_t *sht);
+struct SHEET *sheet_alloc(shtctl_t *ctl);
+void sheet_setbuf(sheet_t *sht, unsigned char *buf, int xsize, int ysize, int col_inv);
+void sheet_updown(sheet_t *sht, int height);
+void sheet_refresh(sheet_t *sht, int bx0, int by0, int bx1, int by1);
+void sheet_slide(sheet_t *sht, int vx0, int vy0);
+void sheet_free(sheet_t *sht);
 
 #endif

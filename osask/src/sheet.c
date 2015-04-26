@@ -4,6 +4,8 @@
 
 #define SHEET_USE       1
 
+void sheet_refreshsub(shtctl_t *ctl, int vx0, int vy0, int vx1, int vy1);
+
 shtctl_t *shtctl_init(memman_t *memman, unsigned char *vram, int xsize, int ysize)
 {
     shtctl_t *ctl;
@@ -18,6 +20,7 @@ shtctl_t *shtctl_init(memman_t *memman, unsigned char *vram, int xsize, int ysiz
     ctl->top = -1; /* 暂无图层 */
     for (i = 0; i < MAX_SHEETS; i++) {
         ctl->sheets0[i].flags = 0; /* 标记为未使用 */
+		ctl->sheets0[i].ctl = ctl; /* 记录所属 */
     }
 err:
     return ctl;
@@ -47,8 +50,9 @@ void sheet_setbuf(sheet_t *sht, unsigned char *buf, int xsize, int ysize, int al
     return;
 }
 
-void sheet_updown(shtctl_t *ctl, sheet_t *sht, int height)
+void sheet_updown(sheet_t *sht, int height)
 {
+	shtctl_t *ctl = sht->ctl;
     int h, old = sht->height; /* 备份层高 */
 
     /* 修正层高 */
@@ -138,30 +142,30 @@ void sheet_refreshsub(shtctl_t *ctl, int vx0, int vy0, int vx1, int vy1)
     return;
 }
 
-void sheet_refresh(shtctl_t *ctl, sheet_t *sht, int bx0, int by0, int bx1, int by1)
+void sheet_refresh(sheet_t *sht, int bx0, int by0, int bx1, int by1)
 {
     if (sht->height >= 0) { /* 如果可视则刷新画面 */
-        sheet_refreshsub(ctl, sht->vx0 + bx0, sht->vy0 + by0, sht->vx0 + bx1, sht->vy0 + by1);
+        sheet_refreshsub(sht->ctl, sht->vx0 + bx0, sht->vy0 + by0, sht->vx0 + bx1, sht->vy0 + by1);
     }
     return;
 }
 
-void sheet_slide(shtctl_t *ctl, sheet_t *sht, int vx0, int vy0)
+void sheet_slide(sheet_t *sht, int vx0, int vy0)
 {
     int old_vx0 = sht->vx0, old_vy0 = sht->vy0;
     sht->vx0 = vx0;
     sht->vy0 = vy0;
     if (sht->height >= 0) { /* 如果可视则刷新画面 */
-        sheet_refreshsub(ctl, old_vx0, old_vy0, old_vx0 + sht->bxsize, old_vy0 + sht->bysize);
-        sheet_refreshsub(ctl, vx0, vy0, vx0 + sht->bxsize, vy0 + sht->bysize);
+        sheet_refreshsub(sht->ctl, old_vx0, old_vy0, old_vx0 + sht->bxsize, old_vy0 + sht->bysize);
+        sheet_refreshsub(sht->ctl, vx0, vy0, vx0 + sht->bxsize, vy0 + sht->bysize);
     }
     return;
 }
 
-void sheet_free(shtctl_t *ctl, sheet_t *sht)
+void sheet_free(sheet_t *sht)
 {
     if (sht->height >= 0) {
-        sheet_updown(ctl, sht, -1); /* 如果可视，先隐藏起来 */
+        sheet_updown(sht, -1); /* 如果可视，先隐藏起来 */
     }
     sht->flags = 0; /* 标记为未使用 */
     return;
