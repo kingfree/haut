@@ -95,11 +95,11 @@ void HariMain(void)
                     if (my < 0) {
                         my = 0;
                     }
-                    if (mx > binfo->scrnx - CURSOR_X) {
-                        mx = binfo->scrnx - CURSOR_X;
+                    if (mx >= binfo->scrnx) {
+                        mx = binfo->scrnx - 1;
                     }
-                    if (my > binfo->scrny - CURSOR_Y) {
-                        my = binfo->scrny - CURSOR_Y;
+                    if (my >= binfo->scrny) {
+                        my = binfo->scrny - 1;
                     }
                     sprintf(s, "(%3d, %3d)", mx, my);
                     boxfill8(buf_back, binfo->scrnx, BGM, 0, 0, FNT_W * 10, FNT_H); /* 擦除坐标 */
