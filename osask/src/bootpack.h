@@ -200,4 +200,27 @@ int memman_free(memman_t *man, unsigned int addr, unsigned int size);
 unsigned int memman_alloc_4k(memman_t *man, unsigned int size);
 int memman_free_4k(memman_t *man, unsigned int addr, unsigned int size);
 
+/* sheet.c */
+#define MAX_SHEETS      256
+
+typedef struct SHEET {
+    unsigned char *buf;
+    int bxsize, bysize, vx0, vy0, alpha, height, flags;
+} sheet_t;
+
+typedef struct SHTCTL {
+    unsigned char *vram;
+    int xsize, ysize, top;
+    sheet_t *sheets[MAX_SHEETS];
+    sheet_t sheets0[MAX_SHEETS];
+} shtctl_t;
+
+shtctl_t *shtctl_init(memman_t *memman, unsigned char *vram, int xsize, int ysize);
+sheet_t *sheet_alloc(shtctl_t *ctl);
+void sheet_setbuf(sheet_t *sht, unsigned char *buf, int xsize, int ysize, int alpha);
+void sheet_updown(shtctl_t *ctl, sheet_t *sht, int height);
+void sheet_refresh(shtctl_t *ctl);
+void sheet_slide(shtctl_t *ctl, sheet_t *sht, int vx0, int vy0);
+void sheet_free(shtctl_t *ctl, sheet_t *sht);
+
 #endif
