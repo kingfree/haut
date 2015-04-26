@@ -47,9 +47,10 @@ void HariMain(void)
     putfonts8_asc(buf_back, binfo->scrnx, 0, 0, base3, s);
     sprintf(s, "memory: %d MB, free: %d KB", memtotal / (1024 * 1024), memman_total(memman) / 1024);
     putfonts8_asc(buf_back, binfo->scrnx, 0, FNT_H * 2 + 1, base3, s);
+    sheet_refresh(shtctl, sht_back, 0, 0, binfo->scrnx, FNT_H * 3);
     putfonts8_asc(buf_back, binfo->scrnx, 80, 120, base3,
         "PriPara = Prism Paradise");
-    sheet_refresh(shtctl);
+    sheet_refresh(shtctl, sht_back, 0, 120, binfo->scrnx, 120 + FNT_H);
 
     for (; ; ) {
         io_cli();            /* 屏蔽中断 */
@@ -65,7 +66,7 @@ void HariMain(void)
                     0, FNT_H + 1, FNT_W * 2, FNT_H);
                 putfonts8_asc(buf_back, binfo->scrnx,
                     0, FNT_H + 1, base3, s);
-                sheet_refresh(shtctl);
+                sheet_refresh(shtctl, sht_back, 0, FNT_H + 1, FNT_W * 2, FNT_H * 2);
             } else if (fifo8_status(&mousefifo) != 0) {
                 i = fifo8_get(&mousefifo);
                 io_sti();    /* 恢复中断 */
@@ -84,6 +85,7 @@ void HariMain(void)
                         FNT_W * 4, FNT_H + 1, FNT_W * 16, FNT_H);
                     putfonts8_asc(buf_back, binfo->scrnx,
                         FNT_W * 4, FNT_H + 1, base3, s);
+                    sheet_refresh(shtctl, sht_back, FNT_W * 4, FNT_H, FNT_W * 29, FNT_H * 2);
                     /* 移动鼠标光标 */
                     mx += mdec.x;
                     my += mdec.y;
@@ -102,6 +104,7 @@ void HariMain(void)
                     sprintf(s, "(%3d, %3d)", mx, my);
                     boxfill8(buf_back, binfo->scrnx, BGM, 0, 0, FNT_W * 10, FNT_H); /* 擦除坐标 */
                     putfonts8_asc(buf_back, binfo->scrnx, 0, 0, base3, s); /* 写出坐标 */
+                    sheet_refresh(shtctl, sht_back, 0, 0, FNT_W * 10, FNT_H);
                     sheet_slide(shtctl, sht_mouse, mx, my); /* 包含sheet_refresh */
                 }
             }
