@@ -3,10 +3,15 @@
 #include "bootpack.h"
 #include <stdio.h>
 
+unsigned int memtest(unsigned int start, unsigned int end);
+unsigned int memtest_sub(unsigned int start, unsigned int end);
+
 void HariMain(void)
 {
     bootinfo_t *binfo = (bootinfo_t *) ADR_BOOTINFO;
     char s[40], keybuf[32], mousebuf[128];
+    mouse_dec mdec;
+    int i;
 
     init_gdtidt();
     init_pic();
@@ -17,6 +22,7 @@ void HariMain(void)
     io_out8(PIC1_IMR, 0xef); /* 允许鼠标(11101111) */
 
     init_keyboard();
+    enable_mouse(&mdec);
 
     init_palette();
     init_screen8(binfo->vram, binfo->scrnx, binfo->scrny);
@@ -32,8 +38,9 @@ void HariMain(void)
     sprintf(s, "(%3d, %3d)", mx, my);
     putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, base3, s);
 
-    mouse_dec mdec;
-    enable_mouse(&mdec);
+    i = memtest(0x00400000, 0xbfffffff) / (1024 * 1024);
+    sprintf(s, "memory %dMB", i);
+    putfonts8_asc(binfo->vram, binfo->scrnx, 0, FNT_H * 2, base3, s);
 
     for (; ; ) {
         io_cli();            /* 屏蔽中断 */
@@ -44,11 +51,11 @@ void HariMain(void)
             if (fifo8_status(&keyfifo) != 0) {
                 i = fifo8_get(&keyfifo);
                 io_sti();    /* 恢复中断 */
-                sprintf(s, "key press: %02X", i);
+                sprintf(s, "%02X", i);
                 boxsize8(binfo->vram, binfo->scrnx, BGM,
-                    FNT_W * 11, FNT_H, FNT_W * 2, FNT_H);
+                    FNT_W * 17, FNT_H, FNT_W * 2, FNT_H);
                 putfonts8_asc(binfo->vram, binfo->scrnx,
-                    0, FNT_H, base3, s);
+                    FNT_W * 17, FNT_H, base3, s);
             } else if (fifo8_status(&mousefifo) != 0) {
                 i = fifo8_get(&mousefifo);
                 io_sti();    /* 恢复中断 */
@@ -64,9 +71,9 @@ void HariMain(void)
                         s[2] = 'C';
                     }
                     boxsize8(binfo->vram, binfo->scrnx, BGM,
-                        0, FNT_H * 2, FNT_W * 16, FNT_H);
+                        0, FNT_H, FNT_W * 16, FNT_H);
                     putfonts8_asc(binfo->vram, binfo->scrnx,
-                        0, FNT_H * 2, base3, s);
+                        0, FNT_H, base3, s);
                     /* 移动鼠标光标 */
                     boxsize8(binfo->vram, binfo->scrnx, BGM, mx, my, CURSOR_X, CURSOR_Y); /* 擦除鼠标 */
                     mx += mdec.x;
@@ -91,4 +98,63 @@ void HariMain(void)
             }
         }
     }
+}
+
+#define EFLAGS_AC_BIT       0x00040000
+#define CR0_CACHE_DISABLE   0x60000000
+
+unsigned int memtest(unsigned int start, unsigned int end)
+{
+    char flg486 = 0;
+    unsigned int eflg, cr0, i;
+
+    /* 判断CPU是386还是486 */
+    eflg = io_load_eflags();
+    eflg |= EFLAGS_AC_BIT; /* AC-bit = 1 */
+    io_store_eflags(eflg);
+    eflg = io_load_eflags();
+    if ((eflg & EFLAGS_AC_BIT) != 0) { /* 386即便设置了AC=1还会归0 */
+        flg486 = 1;
+    }
+    eflg &= ~EFLAGS_AC_BIT; /* AC-bit = 0 */
+    io_store_eflags(eflg);
+
+    if (flg486 != 0) {
+        cr0 = load_cr0();
+        cr0 |= CR0_CACHE_DISABLE;  /* 禁用缓存 */
+        store_cr0(cr0);
+    }
+
+    i = memtest_sub(start, end);
+
+    if (flg486 != 0) {
+        cr0 = load_cr0();
+        cr0 &= ~CR0_CACHE_DISABLE; /* 启用缓存 */
+        store_cr0(cr0);
+    }
+
+    return i;
+}
+
+unsigned int memtest_sub(unsigned int start, unsigned int end)
+{
+    unsigned int i, *p, old, pat0 = 0xaa55aa55, pat1 = 0x55aa55aa;
+    for (i = start; i <= end; i += 0x1000) {
+        /* 每隔4KB检查末尾4个字节 */
+        p = (unsigned int *) (i + 0xffc);
+        old = *p;           /* 备份 */
+        *p = pat0;          /* 试写 */
+        *p ^= 0xffffffff;   /* 反转 */
+        if (*p != pat1) {   /* 检查 */
+not_memory:
+            *p = old;
+            break;
+        }
+        *p ^= 0xffffffff;   /* 再次反转 */
+        if (*p != pat0) {   /* 检查 */
+            goto not_memory;
+        }
+        *p = old;           /* 恢复 */
+    }
+    return i;
 }
