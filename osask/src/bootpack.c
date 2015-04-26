@@ -3,6 +3,8 @@
 #include "bootpack.h"
 #include <stdio.h>
 
+void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
+
 void HariMain(void)
 {
     bootinfo_t *binfo = (bootinfo_t *) ADR_BOOTINFO;
@@ -10,8 +12,8 @@ void HariMain(void)
     mouse_dec mdec;
     memman_t *memman = (memman_t *) MEMMAN_ADDR;
     shtctl_t *shtctl;
-    sheet_t *sht_back, *sht_mouse;
-    unsigned char *buf_back, buf_mouse[CURSOR_X * CURSOR_Y];
+    sheet_t *sht_back, *sht_mouse, *sht_win;
+    unsigned char *buf_back, buf_mouse[CURSOR_X * CURSOR_Y], *buf_win;
 
     init_gdtidt();
     init_pic();
@@ -32,25 +34,30 @@ void HariMain(void)
     shtctl = shtctl_init(memman, binfo->vram, binfo->scrnx, binfo->scrny);
     sht_back  = sheet_alloc(shtctl);
     sht_mouse = sheet_alloc(shtctl);
+    sht_win   = sheet_alloc(shtctl);
     buf_back  = (unsigned char *) memman_alloc_4k(memman, binfo->scrnx * binfo->scrny);
+    buf_win   = (unsigned char *) memman_alloc_4k(memman, 160 * 68);
     sheet_setbuf(sht_back, buf_back, binfo->scrnx, binfo->scrny, -1); /* 无透明色 */
+    sheet_setbuf(sht_win, buf_win, 160, 68, -1); /* 无透明色 */
     sheet_setbuf(sht_mouse, buf_mouse, CURSOR_X, CURSOR_Y, 99); /* 透明色号99 */
     init_screen8(buf_back, binfo->scrnx, binfo->scrny);
     init_mouse_cursor8(buf_mouse, 99); /* 背景色号99 */
+    make_window8(buf_win, 160, 68, "Prism Store");
+	putfonts8_asc(buf_win, 160, 24, 28, base03, "  PriPara");
+	putfonts8_asc(buf_win, 160, 24, 44, base03, "= Prism Paradise");
     sheet_slide(sht_back, 0, 0);
     int mx = (binfo->scrnx - CURSOR_X) / 2; /* 计算画面中央坐标 */
     int my = (binfo->scrny - CURSOR_Y) / 2;
     sheet_slide(sht_mouse, mx, my);
+	sheet_slide(sht_win, 80, 72);
     sheet_updown(sht_back,  0);
-    sheet_updown(sht_mouse, 1);
+	sheet_updown(sht_win,   1);
+    sheet_updown(sht_mouse, 2);
     sprintf(s, "(%3d, %3d)", mx, my);
     putfonts8_asc(buf_back, binfo->scrnx, 0, 0, base3, s);
     sprintf(s, "memory: %d MB, free: %d KB", memtotal / (1024 * 1024), memman_total(memman) / 1024);
     putfonts8_asc(buf_back, binfo->scrnx, 0, FNT_H * 2 + 1, base3, s);
     sheet_refresh(sht_back, 0, 0, binfo->scrnx, FNT_H * 3);
-    putfonts8_asc(buf_back, binfo->scrnx, 80, 120, base3,
-        "PriPara = Prism Paradise");
-    sheet_refresh(sht_back, 0, 120, binfo->scrnx, 120 + FNT_H);
 
     for (; ; ) {
         io_cli();            /* 屏蔽中断 */
@@ -110,4 +117,34 @@ void HariMain(void)
             }
         }
     }
+}
+
+void make_window8(unsigned char *buf, int xsize, int ysize, char *title)
+{
+    static char closebtn[7][8] = {
+        "oo    oo",
+        " oo  oo ",
+        "  oooo  ",
+        "   oo   ",
+        "  oooo  ",
+        " oo  oo ",
+        "oo    oo",
+    }; /* 仿 Windows 8 关闭按钮 */
+    int x, y;
+    char c;
+    boxfill8(buf, xsize, violet, 0, 0, xsize - 1, ysize - 1);
+    boxfill8(buf, xsize, blue, 1, 1, xsize - 2, ysize - 2);
+    boxfill8(buf, xsize, violet, 7, 22, xsize - 8, ysize - 8);
+    boxfill8(buf, xsize, base2, 8, 23, xsize - 9, ysize - 9);
+    boxfill8(buf, xsize, orange, xsize - 30, 1, xsize - 9, 18);
+    for (y = 0; y < 7; y++) {
+        for (x = 0; x < 8; x++) {
+            c = closebtn[y][x];
+            if (c == 'o') {
+                buf[(7 + y) * xsize + (xsize - 23 + x)] = base3;
+            }
+        }
+    }
+    putfonts8_asc(buf, xsize, (xsize - strlen(title) * FNT_W) / 2, (23 - FNT_H) / 2, base3, title);
+    return;
 }
