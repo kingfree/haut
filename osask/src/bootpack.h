@@ -210,7 +210,7 @@ typedef struct SHEET {
 } sheet_t;
 
 typedef struct SHTCTL {
-    unsigned char *vram;
+    unsigned char *vram, *map;
     int xsize, ysize, top;
     sheet_t *sheets[MAX_SHEETS];
     sheet_t sheets0[MAX_SHEETS];

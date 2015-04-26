@@ -2,6 +2,7 @@
 
 #include "bootpack.h"
 #include <stdio.h>
+#include <string.h>
 
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
 
@@ -57,7 +58,7 @@ void HariMain(void)
     putfonts8_asc(buf_back, binfo->scrnx, 0, FNT_H * 2 + 1, base3, s);
     sheet_refresh(sht_back, 0, 0, binfo->scrnx, FNT_H * 3);
 
-    unsigned int count;
+    unsigned int count = 0;
     for (; ; ) {
         count++;
         sprintf(s, "%010d", count);
