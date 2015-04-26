@@ -2,7 +2,7 @@
 #define BOOTPACK_H
 
 #define SYSNAME     "PriPara OS"
-#define SYSVER      "8"
+#define SYSVER      "9"
 #define SYSNAMEVER  SYSNAME " " SYSVER
 
 /* asmhead.nas */
@@ -135,6 +135,7 @@ struct KEYBUF {
     unsigned char data[32];
     int next_r, next_w, len;
 };
+
 void init_pic(void);
 void inthandler21(int *esp);
 void inthandler27(int *esp);
@@ -152,5 +153,27 @@ void inthandler2c(int *esp);
 #define PIC1_ICW2       0x00a1
 #define PIC1_ICW3       0x00a1
 #define PIC1_ICW4       0x00a1
+
+/* keyboard.c */
+void inthandler21(int *esp);
+void wait_KBC_sendready(void);
+void init_keyboard(void);
+
+extern fifo8 keyfifo;
+
+#define PORT_KEYDAT     0x0060
+#define PORT_KEYCMD     0x0064
+
+/* mouse.c */
+typedef struct MOUSE_DEC {
+    unsigned char buf[3], phase;
+    int x, y, btn;
+} mouse_dec;
+
+void inthandler2c(int *esp);
+void enable_mouse(mouse_dec *mdec);
+int mouse_decode(mouse_dec *mdec, unsigned char dat);
+
+extern fifo8 mousefifo;
 
 #endif

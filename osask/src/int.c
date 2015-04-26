@@ -24,33 +24,6 @@ void init_pic(void)
     return;
 }
 
-#define PORT_KEYDAT 0x0060
-
-fifo8 keyfifo;
-
-void inthandler21(int *esp)
-/* PS/2键盘中断 */
-{
-    unsigned char data;
-    io_out8(PIC0_OCW2, 0x61);   /* 接收IRQ-01后通知PIC */
-    data = io_in8(PORT_KEYDAT);
-    fifo8_put(&keyfifo, data);
-    return;
-}
-
-fifo8 mousefifo;
-
-void inthandler2c(int *esp)
-/* PS/2鼠标中断 */
-{
-    unsigned char data;
-    io_out8(PIC1_OCW2, 0x64);   /* 接收IRQ-12后通知PIC */
-    io_out8(PIC0_OCW2, 0x62);   /* 接收IRQ-02后通知PIC */
-    data = io_in8(PORT_KEYDAT);
-    fifo8_put(&mousefifo, data);
-    return;
-}
-
 void inthandler27(int *esp)
 /* PIC0的不完全中断对策 */
 {

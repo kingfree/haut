@@ -1,9 +1,9 @@
-; haribote-os boot asm
+; pripara-os boot asm
 ; TAB=4
 
-BOTPAK  EQU     0x00280000      ; bootpackのロード先
+BOTPAK  EQU     0x00280000      ; bootpack加载目的
 DSKCAC  EQU     0x00100000      ; 磁盘缓存
-DSKCAC0 EQU     0x00008000      ; ディスクキャッシュの場所（リアルモード）
+DSKCAC0 EQU     0x00008000      ; 磁盘缓存（实模式）
 
 ; BOOT_INFO有关
 CYLS    EQU     0x0ff0          ; 设定启动区
