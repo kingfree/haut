@@ -3,8 +3,23 @@
 #include "bootpack.h"
 #include <stdio.h>
 
+#define MEMMAN_FREES        4090    // 大约是32KB
+#define MEMMAN_ADDR         0x003c0000
+
+typedef struct FREEINFO {   /* 空闲块 */
+    unsigned int addr, size;
+} freeinfo_t;
+
+typedef struct MEMMAN {     /* 内存管理 */
+    int frees, maxfrees, lostsize, losts;
+    freeinfo_t free[MEMMAN_FREES];
+} memman_t;
+
 unsigned int memtest(unsigned int start, unsigned int end);
-unsigned int memtest_sub(unsigned int start, unsigned int end);
+void memman_init(struct MEMMAN *man);
+unsigned int memman_total(struct MEMMAN *man);
+unsigned int memman_alloc(struct MEMMAN *man, unsigned int size);
+int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size);
 
 void HariMain(void)
 {
@@ -12,6 +27,7 @@ void HariMain(void)
     char s[40], keybuf[32], mousebuf[128];
     mouse_dec mdec;
     int i;
+    memman_t *memman = (memman_t *) MEMMAN_ADDR;
 
     init_gdtidt();
     init_pic();
@@ -23,6 +39,10 @@ void HariMain(void)
 
     init_keyboard();
     enable_mouse(&mdec);
+    unsigned int memtotal = memtest(0x00400000, 0xbfffffff);
+    memman_init(memman);
+    memman_free(memman, 0x00001000, 0x0009e000); /* 0x00001000 - 0x0009efff */
+    memman_free(memman, 0x00400000, memtotal - 0x00400000);
 
     init_palette();
     init_screen8(binfo->vram, binfo->scrnx, binfo->scrny);
@@ -38,9 +58,8 @@ void HariMain(void)
     sprintf(s, "(%3d, %3d)", mx, my);
     putfonts8_asc(binfo->vram, binfo->scrnx, 0, 0, base3, s);
 
-    i = memtest(0x00400000, 0xbfffffff) / (1024 * 1024);
-    sprintf(s, "memory %dMB", i);
-    putfonts8_asc(binfo->vram, binfo->scrnx, 0, FNT_H * 2, base3, s);
+    sprintf(s, "memory: %d MB, free: %d KB", memtotal / (1024 * 1024), memman_total(memman) / 1024);
+    putfonts8_asc(binfo->vram, binfo->scrnx, 0, FNT_H * 2 + 1, base3, s);
 
     for (; ; ) {
         io_cli();            /* 屏蔽中断 */
@@ -53,9 +72,9 @@ void HariMain(void)
                 io_sti();    /* 恢复中断 */
                 sprintf(s, "%02X", i);
                 boxsize8(binfo->vram, binfo->scrnx, BGM,
-                    FNT_W * 17, FNT_H, FNT_W * 2, FNT_H);
+                    FNT_W * 17, FNT_H + 1, FNT_W * 2, FNT_H);
                 putfonts8_asc(binfo->vram, binfo->scrnx,
-                    FNT_W * 17, FNT_H, base3, s);
+                    FNT_W * 17, FNT_H + 1, base3, s);
             } else if (fifo8_status(&mousefifo) != 0) {
                 i = fifo8_get(&mousefifo);
                 io_sti();    /* 恢复中断 */
@@ -71,9 +90,9 @@ void HariMain(void)
                         s[2] = 'C';
                     }
                     boxsize8(binfo->vram, binfo->scrnx, BGM,
-                        0, FNT_H, FNT_W * 16, FNT_H);
+                        0, FNT_H + 1, FNT_W * 16, FNT_H);
                     putfonts8_asc(binfo->vram, binfo->scrnx,
-                        0, FNT_H, base3, s);
+                        0, FNT_H + 1, base3, s);
                     /* 移动鼠标光标 */
                     boxsize8(binfo->vram, binfo->scrnx, BGM, mx, my, CURSOR_X, CURSOR_Y); /* 擦除鼠标 */
                     mx += mdec.x;
@@ -134,4 +153,109 @@ unsigned int memtest(unsigned int start, unsigned int end)
     }
 
     return i;
+}
+
+void memman_init(memman_t *man)
+{
+    man->frees = 0;         /* 空闲块数 */
+    man->maxfrees = 0;      /* 用于观察可用状况 */
+    man->lostsize = 0;      /* 释放失败的内存大小总和 */
+    man->losts = 0;         /* 释放失败的次数 */
+    return;
+}
+
+unsigned int memman_total(memman_t *man)
+/* 空闲内存大小 */
+{
+    unsigned int i, t = 0;
+    for (i = 0; i < man->frees; i++) {
+        t += man->free[i].size;
+    }
+    return t;
+}
+
+unsigned int memman_alloc(memman_t *man, unsigned int size)
+/* 分配 */
+{
+    unsigned int i, a;
+    for (i = 0; i < man->frees; i++) {
+        if (man->free[i].size >= size) {
+            /* 找到了足够大的空闲块 */
+            a = man->free[i].addr;
+            man->free[i].addr += size;
+            man->free[i].size -= size;
+            if (man->free[i].size == 0) {
+                /* 如果free[i]变成0就减掉一个空闲块 */
+                man->frees--;
+                for (; i < man->frees; i++) {
+                    man->free[i] = man->free[i + 1]; /* 结构体赋值 */
+                }
+            }
+            return a;
+        }
+    }
+    return 0; /* 没有可用空间 */
+}
+
+int memman_free(memman_t *man, unsigned int addr, unsigned int size)
+/* 释放 */
+{
+    int i, j;
+    /* 为便于合并内存，将free[]按照addr顺序排列 */
+    /* 所以先决定应该放在哪里 */
+    for (i = 0; i < man->frees; i++) {
+        if (man->free[i].addr > addr) {
+            break;
+        }
+    }
+    /* free[i - 1].addr < addr < free[i].addr */
+    if (i > 0) {
+        /* 前面有空闲块 */
+        if (man->free[i - 1].addr + man->free[i - 1].size == addr) {
+            /* 与前面合并 */
+            man->free[i - 1].size += size;
+            if (i < man->frees) {
+                /* 后面还有 */
+                if (addr + size == man->free[i].addr) {
+                    /* 与后面合并 */
+                    man->free[i - 1].size += man->free[i].size;
+                    /* 移除man->free[i] */
+                    /* free[i]变0后合并到前面 */
+                    man->frees--;
+                    for (; i < man->frees; i++) {
+                        man->free[i] = man->free[i + 1]; /* 结构体赋值 */
+                    }
+                }
+            }
+            return 0; /* 成功完成 */
+        }
+    }
+    /* 不能与前面的空闲块合并 */
+    if (i < man->frees) {
+        /* 后面还有 */
+        if (addr + size == man->free[i].addr) {
+            /* 与后面合并 */
+            man->free[i].addr = addr;
+            man->free[i].size += size;
+            return 0; /* 成功完成 */
+        }
+    }
+    /* 既不能与前面合并，也不能与后面合并 */
+    if (man->frees < MEMMAN_FREES) {
+        /* free[i]之后的向后移动一些距离来腾出空间 */
+        for (j = man->frees; j > i; j--) {
+            man->free[j] = man->free[j - 1];
+        }
+        man->frees++;
+        if (man->maxfrees < man->frees) {
+            man->maxfrees = man->frees; /* 更新最大值 */
+        }
+        man->free[i].addr = addr;
+        man->free[i].size = size;
+        return 0; /* 成功完成 */
+    }
+    /* 不能往后移动 */
+    man->losts++;
+    man->lostsize += size;
+    return -1; /* 失败 */
 }
