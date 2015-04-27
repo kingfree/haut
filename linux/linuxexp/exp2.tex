@@ -1,0 +1,267 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{Linux常用命令（一）}
+\usepackage[a4paper,margin=2.2cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+%\CTEXsetup[number=\chinese{section}, format={\large\sf\bfseries}]{section}
+\usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+\DefineShortVerb{\|}
+\fvset{frame=single}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2} % 行距
+
+\usepackage[inline]{enumitem} % 调整列表样式
+\setlist{noitemsep}
+\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate,1]{label={(\arabic*)}}
+
+\CTEXsetup[beforeskip={0pt},afterskip={0pt}]{paragraph}
+
+%\makeindex
+\pagestyle{plain}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\input{source/title}
+
+% \CTEXnoindent
+
+\paragraph{实验题目：}Linux常用命令（一）
+
+\paragraph{实验目的：}（1）掌握图形方式下启动Shell程序的方法；（2）理解目录操作命令，包括ls命令、cd命令、pwd命令、mkdir命令和rmdir命令；（3）理解文件操作的基本命令，包括touch命令、cat命令、cp命令、rm命令、mv命令和chmod命令。
+
+\paragraph{实验内容：}
+\begin{enumerate}
+\item 列举出目录/etc下的子目录和文件（包括隐藏文件）的详细内容，并解释执行结果中某一行的各个部分的具体含义。
+\item 使用命令进入当前登录用户的宿主目录。
+\item 假设登录用户为ubuntu，在该用户的宿主目录下，使用一行命令建立多级目录，例如dir/dir1/dir2。
+\item 在上例建立的目录dir1下创建一个空文件file.txt，然后使用目录删除命令删除目录dir2和dir1，看是否能够成功删除。
+\item 在用户ubuntu用户的宿主目录下，使用cat建立两个文件a.txt和b.txt，分别写入“hello”和“world”，然后使用cat命令把a.txt和b.txt文件内容加上行号后将内容复制到c.txt文件中。
+\item 在用户ubuntu用户的宿主目录下，使用cat建立一个文件d.txt，并将其内容追加到文件c.txt中。
+\item 在用户ubuntu用户的宿主目录下建立两个新目录newdir1和newdir2，在目录newdir1下建立一个新文件file.txt和新目录newdir11，试完成下列任务：1）将目录newdir1本身连同其下的子目录和文件一并拷贝到目录newdir2下，查看目录newdir2，测试是否成功。2）将目录newdir1下的子目录和文件（不包括目录newdir1本身）一并拷贝到目录newdir2下，查看目录newdir2，测试是否成功。
+\end{enumerate}
+
+\paragraph{实验步骤：}
+
+\newcommand{\image}[3][height=10cm]{%\begin{minipage}[t]{0.5\textwidth}
+    \centering
+    \includegraphics[#1]{images/#2.png}
+    \caption{#3}
+    \label{fig:#3}
+%\end{minipage}
+}
+
+\newcommand{\subimage}[4][height=10cm]{
+    \centering
+    \subfigure[]{
+        \includegraphics[#1]{images/#2.png}
+        \label{fig:#3:#4}
+    }
+}
+
+\newcommand{\images}[3][width=\textwidth]{\begin{minipage}[t]{0.33\textwidth}
+\centering
+\includegraphics[#1]{images/#2.png}
+\caption{#3}
+\label{fig:#3}
+\end{minipage}}
+
+首先，我将终端配色设置为了“白底黑字”，为了打印出的实验报告清晰可辨识。也给出了相应命令的文字版。
+
+\begin{enumerate}
+
+\item 如图\ref{fig:列举目录}所示，使用~|ls|~命令，键入：
+\begin{Verbatim}
+$ ls -lha /etc
+总用量 1.2M
+drwxr-xr-x 133 root root    12K  4月 27 12:52 .
+drwxr-xr-x  23 root root   4.0K 11月  4 18:04 ..
+drwxr-xr-x   3 root root   4.0K  4月 25  2013 acpi
+-rw-r--r--   1 root root   3.0K  4月 25  2013 adduser.conf
+... ...
+drwxr-xr-x  10 root root   4.0K  4月 25  2013 X11
+... ...
+-rw-r--r--   1 root root    349  2月 27  2013 zsh_command_not_found
+\end{Verbatim}
+显示出~|/etc|~目录下所有文件的详细信息，并给出了目录的总大小（不递归计算）。
+
+其中一行：
+\begin{verbatim}
+drwxr-xr-x   3 root root   4.0K  4月 25  2013 acpi
+\end{verbatim}
+表示~|acpi|~是个目录，所有者可读可写可执行，用户组可读可执行，其他用户可读可执行；目录下有3个文件或目录；所有者是root，用户组是root，目录大小是4.0K（并不是目录下文件大小的总和），最后修改时间是2013年4月25日。
+
+\begin{figure}[htp]
+\subimage{2015-04-27-(1)-1}{列举目录}{1}
+\subimage{2015-04-27-(1)-2}{列举目录}{2}
+\caption{列举目录}\label{fig:列举目录}
+\end{figure}
+
+\item 进入宿主目录，如图\ref{fig:进入主目录}，使用~|cd|~命令：
+\begin{Verbatim}
+$ cd ~
+\end{Verbatim}
+或者直接使用：
+\begin{Verbatim}
+$ cd
+\end{Verbatim}
+都可以。
+
+\begin{figure}[htp]
+%\image{2015-04-27-(0)}{初始界面}
+\image{2015-04-27-(2)}{进入主目录}
+\end{figure}
+
+\item 如图\ref{fig:建立目录}所示，使用|mkdir -p|命令：
+\begin{Verbatim}
+$ mkdir -p dir1/dir2
+\end{Verbatim}
+建立指定的多级目录。使用：
+\begin{Verbatim}
+$ ls
+dir1  公共的  模板  视频  图片  文档  下载  音乐  桌面
+$ ls dir1/
+dir2
+$ ls dir1/dir2/
+\end{Verbatim}
+来检查是否成功创建。
+
+\begin{figure}[htp]
+\image{2015-04-27-(3)}{建立目录}
+\end{figure}
+
+\item 如图\ref{fig:删除目录}，首先使用~|touch|~创建一个文件：
+\begin{Verbatim}
+$ touch dir1/file.txt
+$ ls dir1/
+dir2  file.txt
+\end{Verbatim}
+直接用|rmdir|删除该目录，提示目录非空：
+\begin{Verbatim}
+~$ rmdir dir1/
+rmdir: 删除 "dir1/" 失败: 目录非空
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{2015-04-27-(4)}{删除目录}
+\end{figure}
+
+\item 如图\ref{fig:文件合并}，首先使用~|cat|~配合标准输出重定向符号~|>|~创建两个文件：
+\begin{Verbatim}
+$ cat > a.txt
+hello
+$ cat > b.txt
+world
+\end{Verbatim}
+去掉重定向符可以显示文件内容：
+\begin{Verbatim}
+$ cat a.txt
+hello
+$ cat b.txt
+world
+\end{Verbatim}
+最后带着行号合并到一个新文件~|c.txt|~中：
+\begin{Verbatim}
+$ cat -n a.txt b.txt > c.txt
+$ cat c.txt 
+     1	hello
+     2	world
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{2015-04-27-(5)}{文件合并}
+\end{figure}
+
+\item 如图\ref{fig:文件追加}，首先创建一个文件：
+\begin{Verbatim}
+$ cat > d.txt
+pretty
+rhythm   
+\end{Verbatim}
+然后把新的文件内容用~|>>|~追加到~|c.txt|~的末尾：
+\begin{Verbatim}
+$ cat -n d.txt >> c.txt
+$ cat c.txt 
+     1	hello
+     2	world
+     1	pretty
+     2	rhythm
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{2015-04-27-(6)}{文件追加}
+\end{figure}
+
+\item 如图\ref{fig:复制目录}，首先创建两个目录：
+\begin{Verbatim}
+$ mkdir newdir1 newdir2
+\end{Verbatim}
+进入该目录，创建一个文件和一个目录：
+\begin{Verbatim}
+$ cd newdir1
+$ touch file.txt
+$ mkdir newdir11
+$ cd ..
+\end{Verbatim}
+\begin{enumerate}
+\item 将~|newdir1|~复制到~|newdir2|~目录下：
+\begin{Verbatim}
+$ ls newdir2
+$ cp -r newdir1 newdir2/
+$ find newdir2
+newdir2
+newdir2/newdir1
+newdir2/newdir1/newdir11
+newdir2/newdir1/file.txt
+\end{Verbatim}
+\item 将~|newdir1|~下的文件递归复制到~|newdir2|~目录中：
+\begin{Verbatim}
+$ ls newdir2
+newdir1
+$ cp -r newdir1/* newdir2
+$ find newdir2
+newdir2
+newdir2/newdir11
+newdir2/newdir1
+newdir2/newdir1/newdir11
+newdir2/newdir1/file.txt
+newdir2/file.txt
+\end{Verbatim}
+\end{enumerate}
+实质上只是一个通配符~|*|~的区别而已。注意上面的~|newdir2/newdir1|~目录是上一次复制的遗留产物。
+
+\begin{figure}[htp]
+%\subimage{2015-04-27-(7)-1}{复制目录}{1}
+\subimage{2015-04-27-(7)-2}{复制目录}{2}
+\subimage{2015-04-27-(7)-3}{复制目录}{3}
+\caption{复制目录}\label{fig:复制目录}
+\end{figure}
+
+\end{enumerate}
+
+\paragraph{实验体会：}\quad
+
+这次实验是练习Shell中非常基本的几个文件和目录操作命令。这些命令在日常应用中都是很常用的。
+
+最有趣的其实是~|cat|~，明明只是简单把输入的内容输出出来，却由于重定向而变得非常强大。我最喜欢用~|cat|~来复制粘贴文本了。
+
+\end{document}
