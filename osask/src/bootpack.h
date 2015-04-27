@@ -226,15 +226,26 @@ void sheet_slide(sheet_t *sht, int vx0, int vy0);
 void sheet_free(sheet_t *sht);
 
 /* timer.c */
-typedef struct TIMERCTL {
-    unsigned int count;
-    unsigned int timeout;
+#define MAX_TIMER       512
+
+typedef struct TIMER {
+    unsigned int timeout, flags;
     fifo8 *fifo;
     unsigned char data;
+} timer_t;
+
+typedef struct TIMERCTL {
+    unsigned int count;
+    timer_t timer[MAX_TIMER];
 } timerctl_t;
+
 extern timerctl_t timerctl;
+
 void init_pit(void);
+timer_t *timer_alloc(void);
+void timer_free(timer_t *timer);
+void timer_init(timer_t *timer, fifo8 *fifo, unsigned char data);
+void timer_settime(timer_t *timer, unsigned int timeout);
 void inthandler20(int *esp);
-void settimer(unsigned int timeout, fifo8 *fifo, unsigned char data);
 
 #endif
