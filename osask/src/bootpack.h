@@ -228,9 +228,13 @@ void sheet_free(sheet_t *sht);
 /* timer.c */
 typedef struct TIMERCTL {
     unsigned int count;
+    unsigned int timeout;
+    fifo8 *fifo;
+    unsigned char data;
 } timerctl_t;
 extern timerctl_t timerctl;
 void init_pit(void);
 void inthandler20(int *esp);
+void settimer(unsigned int timeout, fifo8 *fifo, unsigned char data);
 
 #endif
