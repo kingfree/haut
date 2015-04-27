@@ -30,6 +30,7 @@ void load_gdtr(int limit, int addr);
 void load_idtr(int limit, int addr);
 int load_cr0(void);
 void store_cr0(int cr0);
+void asm_inthandler20(void);
 void asm_inthandler21(void);
 void asm_inthandler27(void);
 void asm_inthandler2c(void);
@@ -223,5 +224,13 @@ void sheet_updown(sheet_t *sht, int height);
 void sheet_refresh(sheet_t *sht, int bx0, int by0, int bx1, int by1);
 void sheet_slide(sheet_t *sht, int vx0, int vy0);
 void sheet_free(sheet_t *sht);
+
+/* timer.c */
+typedef struct TIMERCTL {
+    unsigned int count;
+} timerctl_t;
+extern timerctl_t timerctl;
+void init_pit(void);
+void inthandler20(int *esp);
 
 #endif

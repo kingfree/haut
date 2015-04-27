@@ -21,7 +21,8 @@ void HariMain(void)
     io_sti(); /* IDT/PIC初始化后解除对CPU中断的禁止 */
     fifo8_init(&keyfifo, 32, keybuf);
     fifo8_init(&mousefifo, 128, mousebuf);
-    io_out8(PIC0_IMR, 0xf9); /* 允许PIC1和键盘(11111001) */
+    init_pit();
+    io_out8(PIC0_IMR, 0xf8); /* 允许PIC1、PIT和键盘(11111000) */
     io_out8(PIC1_IMR, 0xef); /* 允许鼠标(11101111) */
 
     init_keyboard();
@@ -58,10 +59,8 @@ void HariMain(void)
     putfonts8_asc(buf_back, binfo->scrnx, 0, FNT_H * 2 + 1, base3, s);
     sheet_refresh(sht_back, 0, 0, binfo->scrnx, FNT_H * 3);
 
-    unsigned int count = 0;
     for (; ; ) {
-        count++;
-        sprintf(s, "%010d", count);
+        sprintf(s, "%010d", timerctl.count);
         boxfill8(buf_win, 160, base2, 40, 28, 119, 43);
         putfonts8_asc(buf_win, 160, 40, 28, base03, s);
         sheet_refresh(sht_win, 40, 28, 120, 44);
