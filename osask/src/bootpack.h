@@ -235,8 +235,9 @@ typedef struct TIMER {
 } timer_t;
 
 typedef struct TIMERCTL {
-    unsigned int count, next;
-    timer_t timer[MAX_TIMER];
+    unsigned int count, next, using;
+    timer_t *timers[MAX_TIMER];
+    timer_t timers0[MAX_TIMER];
 } timerctl_t;
 
 extern timerctl_t timerctl;
