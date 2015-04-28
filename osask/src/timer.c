@@ -17,12 +17,16 @@ void init_pit(void)
     io_out8(PIT_CNT0, 0x9c);
     io_out8(PIT_CNT0, 0x2e);
     timerctl.count = 0;
-    timerctl.next = 0xffffffff; /* 开始时没有运行中的计时器 */
-    timerctl.using = 0;
     int i;
     for (i = 0; i < MAX_TIMER; i++) {
         timerctl.timers0[i].flags = 0; /* 未使用 */
     }
+    timer_t *t = timer_alloc(); /* 取得一个 */
+    t->timeout = 0xffffffff;
+    t->flags = TIMER_FLAGS_USING;
+    t->next = 0; /* 最后 */
+    timerctl.t0 = t; /* 哨兵在最前 */
+    timerctl.next = 0xffffffff; /* 下次超时 */
     return;
 }
 
@@ -53,56 +57,53 @@ void timer_init(timer_t *timer, fifo32 *fifo, int data)
 
 void timer_settime(timer_t *timer, unsigned int timeout)
 {
-    int e, i, j;
     timer->timeout = timeout + timerctl.count;
     timer->flags = TIMER_FLAGS_USING;
-    e = io_load_eflags();
+    int e = io_load_eflags();
     io_cli();
-    /* 查找注册位置 */
-    for (i = 0; i < timerctl.using; i++) {
-        if (timerctl.timers[i]->timeout >= timer->timeout) {
-            break;
+    timer_t *t = timerctl.t0, *s;
+    if (timer->timeout <= t->timeout) {
+        /* 插入前面 */
+        timerctl.t0 = timer;
+        timer->next = t; /* 下个是t */
+        timerctl.next = timer->timeout;
+        io_store_eflags(e);
+        return;
+    }
+    /* 寻找插入位置 */
+    for (;;) {
+        s = t;
+        t = t->next;
+        if (timer->timeout <= t->timeout) {
+            /* 插入s和t之间 */
+            s->next = timer; /* s下个是timer */
+            timer->next = t; /* timer下个是t */
+            io_store_eflags(e);
+            return;
         }
     }
-    /* 后移 */
-    for (j = timerctl.using; j > i; j--) {
-        timerctl.timers[j] = timerctl.timers[j - 1];
-    }
-    timerctl.using++;
-    /* 插到空位 */
-    timerctl.timers[i] = timer;
-    timerctl.next = timerctl.timers[0]->timeout;
-    io_store_eflags(e);
-    return;
 }
 
 void inthandler20(int *esp)
 {
-    int i, j;
     io_out8(PIC0_OCW2, 0x60);   /* 接收到IRQ-00后通知PIC */
     timerctl.count++;
     if (timerctl.next > timerctl.count) {
         return; /* 还不到下个时刻 */
     }
-    timerctl.next = 0xffffffff;
-    for (i = 0; i < timerctl.using; i++) {
+    timer_t *timer = timerctl.t0; /* 首地址 */
+    for (; ; ) {
         /* timers定时器都在使用中，不确认flags */
-        if (timerctl.timers[i]->timeout > timerctl.count) {
+        if (timer->timeout > timerctl.count) {
             break;
         }
         /* 超时 */
-        timerctl.timers[i]->flags = TIMER_FLAGS_ALLOC;
-        fifo32_put(timerctl.timers[i]->fifo, timerctl.timers[i]->data);
+        timer->flags = TIMER_FLAGS_ALLOC;
+        fifo32_put(timer->fifo, timer->data);
+        timer = timer->next; /* 代入下个地址 */
     }
-    /* 正好有i个定时器超时，其余的移位 */
-    timerctl.using -= i;
-    for (j = 0; j < timerctl.using; j++) {
-        timerctl.timers[j] = timerctl.timers[i + j];
-    }
-    if (timerctl.using > 0) {
-        timerctl.next = timerctl.timers[0]->timeout;
-    } else {
-        timerctl.next = 0xffffffff;
-    }
+    /* 新版移位 */
+    timerctl.t0 = timer;
+    timerctl.next = timer->timeout;
     return;
 }

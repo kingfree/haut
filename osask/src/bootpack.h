@@ -225,6 +225,7 @@ void sheet_free(sheet_t *sht);
 #define MAX_TIMER       512
 
 typedef struct TIMER {
+    struct TIMER *next;
     unsigned int timeout, flags;
     fifo32 *fifo;
     int data;
@@ -232,8 +233,7 @@ typedef struct TIMER {
 
 typedef struct TIMERCTL {
     unsigned int count, next, using;
-    timer_t *timers[MAX_TIMER];
-    timer_t timers0[MAX_TIMER];
+    timer_t *t0, timers0[MAX_TIMER];
 } timerctl_t;
 
 extern timerctl_t timerctl;
