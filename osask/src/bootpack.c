@@ -6,6 +6,7 @@
 
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
 void putfonts8_asc_sht(sheet_t *sht, int x, int y, int c, int b, char *s, int l);
+void make_textbox8(sheet_t *sht, int x0, int y0, int sx, int sy, int c);
 
 void HariMain(void)
 {
@@ -66,6 +67,9 @@ void HariMain(void)
     init_screen8(buf_back, binfo->scrnx, binfo->scrny);
     init_mouse_cursor8(buf_mouse, 99); /* 背景色号99 */
     make_window8(buf_win, 160, 52, "keybord input");
+    make_textbox8(sht_win, 8, 28, 144, FNT_H, base3);
+    int cursor_x = 8;
+    int cursor_c = base03;
     sheet_slide(sht_back, 0, 0);
     int mx = (binfo->scrnx - CURSOR_X) / 2; /* 计算画面中央坐标 */
     int my = (binfo->scrny - CURSOR_Y) / 2;
@@ -89,13 +93,23 @@ void HariMain(void)
             if (256 <= i && i <= 511) { /* 键盘 */
                 sprintf(s, "%02X", i - 256);
                 putfonts8_asc_sht(sht_back, 0, FNT_H, base3, BGM, s, 2);
-                if (i < 256 + 0x54) {
-                    if (keytable[i - 256] != 0) {
+                if (i < 0x54 + 256) {
+                    if (keytable[i - 256] != 0 && cursor_x < 144) { /* 一般字符，光标步进 */
                         s[0] = keytable[i - 256];
                         s[1] = 0;
-                        putfonts8_asc_sht(sht_win, 40, 28, base03, base2, s, 1);
+                        putfonts8_asc_sht(sht_win, cursor_x, 28, base03, base3, s, 1);
+                        cursor_x += FNT_W;
                     }
                 }
+                if (i == 256 + 0x0e && cursor_x > 8) { /* 退格键 */
+                    /* 用空格消去，回退光标 */
+                    putfonts8_asc_sht(sht_win, cursor_x, 28, base03, base3, " ", 1);
+                    cursor_x -= FNT_W;
+                }
+                /* 显示光标 */
+                boxfill8(sht_win->buf, sht_win->bxsize, base3, cursor_x, 28, cursor_x + FNT_W, 28 + FNT_H - 1);
+                boxfill8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, cursor_x, 28 + FNT_H - 1);
+                sheet_refresh(sht_win, cursor_x, 28, cursor_x + FNT_W, 28 + FNT_H);
             } else if (512 <= i && i <= 767) { /* 鼠标 */
                 if (mouse_decode(&mdec, i - 512) != 0) {
                     sprintf(s, "[lcr %4d %4d]", mdec.x, mdec.y);
@@ -132,16 +146,17 @@ void HariMain(void)
                 putfonts8_asc_sht(sht_back, 0, FNT_H * 4, base3, BGM, "10[sec]", 7);
             } else if (i == 3) { /* 三秒计时器 */
                 putfonts8_asc_sht(sht_back, 0, FNT_H * 5, base3, BGM, "3[sec]", 6);
-            } else if (i == 1) { /* 光标 */
-                timer_init(timer3, &fifo, 0); /* 设置0 */
-                boxsize8(buf_back, binfo->scrnx, base3, FNT_W, FNT_H * 7 - 4, FNT_W - 1, 4);
+            } else if (i <= 1) { /* 光标计时器 */
+                if (i != 0) {
+                    timer_init(timer3, &fifo, 0);
+                    cursor_c = base03;
+                } else {
+                    timer_init(timer3, &fifo, 1);
+                    cursor_c = base3;
+                }
                 timer_settime(timer3, 50);
-                sheet_refresh(sht_back, FNT_W, FNT_H * 6, FNT_W * 2, FNT_H * 7);
-            } else if (i == 0) { /* 光标 */
-                timer_init(timer3, &fifo, 1); /* 设置1 */
-                boxsize8(buf_back, binfo->scrnx, BGM, FNT_W, FNT_H * 7 - 4, FNT_W - 1, 4);
-                timer_settime(timer3, 50);
-                sheet_refresh(sht_back, FNT_W, FNT_H * 6, FNT_W * 2, FNT_H * 7);
+                boxfill8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, cursor_x, 28 + FNT_H - 1);
+                sheet_refresh(sht_win, cursor_x, 28, cursor_x + FNT_W, 28 + FNT_H);
             }
         }
     }
@@ -182,5 +197,14 @@ void putfonts8_asc_sht(sheet_t *sht, int x, int y, int c, int b, char *s, int l)
     boxfill8(sht->buf, sht->bxsize, b, x, y, x + l * FNT_W - 1, y + FNT_H - 1);
     putfonts8_asc(sht->buf, sht->bxsize, x, y, c, s);
     sheet_refresh(sht, x, y, x + l * FNT_W, y + FNT_H);
+    return;
+}
+
+void make_textbox8(sheet_t *sht, int x0, int y0, int sx, int sy, int c)
+{
+    int x1 = x0 + sx, y1 = y0 + sy;
+    boxfill8(sht->buf, sht->bxsize, blue, x0 - 2, y0 - 2, x1 + 1, y1 + 1);
+    boxfill8(sht->buf, sht->bxsize, base03, x0 - 1, y0 - 1, x1, y1);
+boxfill8(sht->buf, sht->bxsize, c, x0 - 1, y0 - 1, x1 + 0, y1 + 0);
     return;
 }
