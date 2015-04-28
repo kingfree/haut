@@ -11,8 +11,8 @@ void HariMain(void)
 {
     bootinfo_t *binfo = (bootinfo_t *) ADR_BOOTINFO;
     char s[40], keybuf[32], mousebuf[128];
-    fifo8 timerfifo, timerfifo2, timerfifo3;
-    char timerbuf[8], timerbuf2[8], timerbuf3[8];
+    fifo8 timerfifo;
+    char timerbuf[8];
     timer_t *timer, *timer2, *timer3;
     mouse_dec mdec;
     memman_t *memman = (memman_t *) MEMMAN_ADDR;
@@ -31,15 +31,13 @@ void HariMain(void)
 
     fifo8_init(&timerfifo, 8, timerbuf);
     timer = timer_alloc();
-    timer_init(timer, &timerfifo, 1);
+    timer_init(timer, &timerfifo, 10);
     timer_settime(timer, 1000);
-    fifo8_init(&timerfifo2, 8, timerbuf2);
     timer2 = timer_alloc();
-    timer_init(timer2, &timerfifo2, 1);
+    timer_init(timer2, &timerfifo, 3);
     timer_settime(timer2, 300);
-    fifo8_init(&timerfifo3, 8, timerbuf3);
     timer3 = timer_alloc();
-    timer_init(timer3, &timerfifo3, 1);
+    timer_init(timer3, &timerfifo, 1);
     timer_settime(timer3, 50);
 
     init_keyboard();
@@ -82,9 +80,7 @@ void HariMain(void)
         io_cli();            /* 屏蔽中断 */
         if (fifo8_status(&keyfifo)
             + fifo8_status(&mousefifo)
-            + fifo8_status(&timerfifo)
-            + fifo8_status(&timerfifo2)
-            + fifo8_status(&timerfifo3) == 0) {
+            + fifo8_status(&timerfifo) == 0) {
             io_stihlt();     /* 恢复中断 */
         } else {
             int i;
@@ -130,23 +126,22 @@ void HariMain(void)
             } else if (fifo8_status(&timerfifo) != 0) {
                 i = fifo8_get(&timerfifo);
                 io_sti();
-                putfonts8_asc_sht(sht_back, 0, FNT_H * 4, base3, BGM, "10[sec]", 7);
-            } else if (fifo8_status(&timerfifo2) != 0) {
-                i = fifo8_get(&timerfifo2);
-                io_sti();
-                putfonts8_asc_sht(sht_back, 0, FNT_H * 5, base3, BGM, "3[sec]", 6);
-            } else if (fifo8_status(&timerfifo3) != 0) {
-                i = fifo8_get(&timerfifo3);
-                io_sti();
-                if (i != 0) {
-                    timer_init(timer3, &timerfifo3, 0); /* 设置0 */
-                    boxsize8(buf_back, binfo->scrnx, base3, FNT_W, FNT_H * 6, 3, FNT_H - 1);
+                if (i == 10) {
+                    putfonts8_asc_sht(sht_back, 0, FNT_H * 4, base3, BGM, "10[sec]", 7);
+                } else if (i == 3) {
+                    putfonts8_asc_sht(sht_back, 0, FNT_H * 5, base3, BGM, "3[sec]", 6);
                 } else {
-                    timer_init(timer3, &timerfifo3, 1); /* 设置1 */
-                    boxsize8(buf_back, binfo->scrnx, BGM, FNT_W, FNT_H * 6, 3, FNT_H - 1);
+                    /* 0或1 */
+                    if (i != 0) {
+                        timer_init(timer3, &timerfifo, 0); /* 设置0 */
+                        boxsize8(buf_back, binfo->scrnx, base3, FNT_W, FNT_H * 7 - 4, FNT_W - 1, 4);
+                    } else {
+                        timer_init(timer3, &timerfifo, 1); /* 设置1 */
+                        boxsize8(buf_back, binfo->scrnx, BGM, FNT_W, FNT_H * 7 - 4, FNT_W - 1, 4);
+                    }
+                    timer_settime(timer3, 50);
+                    sheet_refresh(sht_back, FNT_W, FNT_H * 6, FNT_W * 2, FNT_H * 7);
                 }
-                timer_settime(timer3, 50);
-                sheet_refresh(sht_back, FNT_W, FNT_H * 6, FNT_W * 2, FNT_H * 7);
             }
         }
     }
