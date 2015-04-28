@@ -2,24 +2,28 @@
 
 #include "bootpack.h"
 
-fifo8 mousefifo;
+fifo32 *mousefifo;
+int mousedata0;
 
 void inthandler2c(int *esp)
 /* PS/2鼠标中断 */
 {
-    unsigned char data;
+    int data;
     io_out8(PIC1_OCW2, 0x64);   /* 接收IRQ-12后通知PIC */
     io_out8(PIC0_OCW2, 0x62);   /* 接收IRQ-02后通知PIC */
     data = io_in8(PORT_KEYDAT);
-    fifo8_put(&mousefifo, data);
+    fifo32_put(mousefifo, data + mousedata0);
     return;
 }
 
 #define KEYCMD_SENDTO_MOUSE     0xd4
 #define MOUSECMD_ENABLE         0xf4
 
-void enable_mouse(mouse_dec *mdec)
+void enable_mouse(fifo32 *fifo, int data0, mouse_dec *mdec)
 {
+    /* 保存队列缓冲区信息到全局变量 */
+	mousefifo = fifo;
+	mousedata0 = data0;
     /* 激活鼠标 */
     wait_KBC_sendready();
     io_out8(PORT_KEYCMD, KEYCMD_SENDTO_MOUSE);

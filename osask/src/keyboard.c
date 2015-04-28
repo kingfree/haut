@@ -2,15 +2,16 @@
 
 #include "bootpack.h"
 
-fifo8 keyfifo;
+fifo32 *keyfifo;
+int keydata0;
 
 void inthandler21(int *esp)
 /* PS/2键盘中断 */
 {
-    unsigned char data;
+    int data;
     io_out8(PIC0_OCW2, 0x61);   /* 接收IRQ-01后通知PIC */
     data = io_in8(PORT_KEYDAT);
-    fifo8_put(&keyfifo, data);
+    fifo32_put(keyfifo, data + keydata0);
     return;
 }
 
@@ -32,8 +33,11 @@ void wait_KBC_sendready(void)
     return;
 }
 
-void init_keyboard(void)
+void init_keyboard(fifo32 *fifo, int data0)
 {
+    /* 保存队列缓冲区信息到全局变量 */
+    keyfifo = fifo;
+    keydata0 = data0;
     /* 初始化键盘控制电路 */
     wait_KBC_sendready();
     io_out8(PORT_KEYCMD, KEYCMD_WRITE_MODE);

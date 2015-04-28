@@ -4,7 +4,7 @@
 
 #define FLAGS_OVERRUN 0x0001
 
-void fifo8_init(fifo8 *q, int size, unsigned char *buf)
+void fifo32_init(fifo32 *q, int size, int *buf)
 /* 初始化FIFO缓冲区 */
 {
     q->size = size;
@@ -16,7 +16,7 @@ void fifo8_init(fifo8 *q, int size, unsigned char *buf)
     return;
 }
 
-int fifo8_put(fifo8 *q, unsigned char data)
+int fifo32_put(fifo32 *q, int data)
 /* 压入FIFO堆里 */
 {
     if (q->free == 0) {
@@ -33,7 +33,7 @@ int fifo8_put(fifo8 *q, unsigned char data)
     return 0;
 }
 
-int fifo8_get(fifo8 *q)
+int fifo32_get(fifo32 *q)
 /* 弹出FIFO队列 */
 {
     int data;
@@ -50,7 +50,7 @@ int fifo8_get(fifo8 *q)
     return data;
 }
 
-int fifo8_status(fifo8 *q)
+int fifo32_status(fifo32 *q)
 /* 队列长度 */
 {
     return q->size - q->free;
