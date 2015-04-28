@@ -140,7 +140,11 @@ void HariMain(void)
                     }
                     sprintf(s, "(%3d, %3d)", mx, my);
                     putfonts8_asc_sht(sht_back, 0, 0, base3, BGM, s, strlen(s));
-                    sheet_slide(sht_mouse, mx, my); /* 包含sheet_refresh */
+                    sheet_slide(sht_mouse, mx, my);
+                    if ((mdec.btn & 0x01) != 0) {
+                        /* 如果按着左键，就移动sht_win */
+                        sheet_slide(sht_win, mx - 80, my - 8);
+                    }
                 }
             } else if (i == 10) { /* 十秒计时器 */
                 putfonts8_asc_sht(sht_back, 0, FNT_H * 4, base3, BGM, "10[sec]", 7);
