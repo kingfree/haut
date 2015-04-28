@@ -2,7 +2,7 @@
 #define BOOTPACK_H
 
 #define SYSNAME     "PriPara OS"
-#define SYSVER      "11"
+#define SYSVER      "13"
 #define SYSNAMEVER  SYSNAME " " SYSVER
 
 /* asmhead.nas */

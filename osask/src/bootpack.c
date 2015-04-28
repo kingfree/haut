@@ -5,6 +5,7 @@
 #include <string.h>
 
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
+void putfonts8_asc_sht(sheet_t *sht, int x, int y, int c, int b, char *s, int l);
 
 void HariMain(void)
 {
@@ -70,16 +71,13 @@ void HariMain(void)
     sheet_updown(sht_win,   1);
     sheet_updown(sht_mouse, 2);
     sprintf(s, "(%3d, %3d)", mx, my);
-    putfonts8_asc(buf_back, binfo->scrnx, 0, 0, base3, s);
+    putfonts8_asc_sht(sht_back, 0, 0, base3, BGM, s, strlen(s));
     sprintf(s, "memory: %d MB, free: %d KB", memtotal / (1024 * 1024), memman_total(memman) / 1024);
-    putfonts8_asc(buf_back, binfo->scrnx, 0, FNT_H * 2 + 1, base3, s);
-    sheet_refresh(sht_back, 0, 0, binfo->scrnx, FNT_H * 3);
+    putfonts8_asc_sht(sht_back, 0, FNT_H * 2, base3, BGM, s, strlen(s));
 
     for (; ; ) {
         sprintf(s, "%010d", timerctl.count);
-        boxfill8(buf_win, 160, base2, 40, 28, 119, 43);
-        putfonts8_asc(buf_win, 160, 40, 28, base03, s);
-        sheet_refresh(sht_win, 40, 28, 120, 44);
+        putfonts8_asc_sht(sht_win, 40, 28, base03, base2, s, 10);
 
         io_cli();            /* 屏蔽中断 */
         if (fifo8_status(&keyfifo)
@@ -94,11 +92,7 @@ void HariMain(void)
                 i = fifo8_get(&keyfifo);
                 io_sti();    /* 恢复中断 */
                 sprintf(s, "%02X", i);
-                boxsize8(buf_back, binfo->scrnx, BGM,
-                    0, FNT_H + 1, FNT_W * 2, FNT_H);
-                putfonts8_asc(buf_back, binfo->scrnx,
-                    0, FNT_H + 1, base3, s);
-                sheet_refresh(sht_back, 0, FNT_H + 1, FNT_W * 2, FNT_H * 2);
+                putfonts8_asc_sht(sht_back, 0, FNT_H, base3, BGM, s, strlen(s));
             } else if (fifo8_status(&mousefifo) != 0) {
                 i = fifo8_get(&mousefifo);
                 io_sti();    /* 恢复中断 */
@@ -113,11 +107,7 @@ void HariMain(void)
                     if ((mdec.btn & 0x04) != 0) {
                         s[2] = 'C';
                     }
-                    boxsize8(buf_back, binfo->scrnx, BGM,
-                        FNT_W * 4, FNT_H + 1, FNT_W * 16, FNT_H);
-                    putfonts8_asc(buf_back, binfo->scrnx,
-                        FNT_W * 4, FNT_H + 1, base3, s);
-                    sheet_refresh(sht_back, FNT_W * 4, FNT_H, FNT_W * 29, FNT_H * 2);
+                    putfonts8_asc_sht(sht_back, FNT_W * 4, FNT_H, base3, BGM, s, strlen(s));
                     /* 移动鼠标光标 */
                     mx += mdec.x;
                     my += mdec.y;
@@ -134,33 +124,29 @@ void HariMain(void)
                         my = binfo->scrny - 1;
                     }
                     sprintf(s, "(%3d, %3d)", mx, my);
-                    boxfill8(buf_back, binfo->scrnx, BGM, 0, 0, FNT_W * 10, FNT_H); /* 擦除坐标 */
-                    putfonts8_asc(buf_back, binfo->scrnx, 0, 0, base3, s); /* 写出坐标 */
-                    sheet_refresh(sht_back, 0, 0, FNT_W * 10, FNT_H);
+                    putfonts8_asc_sht(sht_back, 0, 0, base3, BGM, s, strlen(s));
                     sheet_slide(sht_mouse, mx, my); /* 包含sheet_refresh */
                 }
             } else if (fifo8_status(&timerfifo) != 0) {
                 i = fifo8_get(&timerfifo);
                 io_sti();
-                putfonts8_asc(buf_back, binfo->scrnx, 0, 64, base3, "10[sec]");
-                sheet_refresh(sht_back, 0, 64, 56, 80);
+                putfonts8_asc_sht(sht_back, 0, FNT_H * 4, base3, BGM, "10[sec]", 7);
             } else if (fifo8_status(&timerfifo2) != 0) {
                 i = fifo8_get(&timerfifo2);
                 io_sti();
-                putfonts8_asc(buf_back, binfo->scrnx, 0, 80, base3, "3[sec]");
-                sheet_refresh(sht_back, 0, 80, 48, 96);
+                putfonts8_asc_sht(sht_back, 0, FNT_H * 5, base3, BGM, "3[sec]", 6);
             } else if (fifo8_status(&timerfifo3) != 0) {
                 i = fifo8_get(&timerfifo3);
                 io_sti();
                 if (i != 0) {
                     timer_init(timer3, &timerfifo3, 0); /* 设置0 */
-                    boxsize8(buf_back, binfo->scrnx, base3, 8, 96, 3, 11);
+                    boxsize8(buf_back, binfo->scrnx, base3, FNT_W, FNT_H * 6, 3, FNT_H - 1);
                 } else {
                     timer_init(timer3, &timerfifo3, 1); /* 设置1 */
-                    boxsize8(buf_back, binfo->scrnx, BGM, 8, 96, 3, 11);
+                    boxsize8(buf_back, binfo->scrnx, BGM, FNT_W, FNT_H * 6, 3, FNT_H - 1);
                 }
                 timer_settime(timer3, 50);
-                sheet_refresh(sht_back, 8, 96, 12, 112);
+                sheet_refresh(sht_back, FNT_W, FNT_H * 6, FNT_W * 2, FNT_H * 7);
             }
         }
     }
@@ -193,5 +179,13 @@ void make_window8(unsigned char *buf, int xsize, int ysize, char *title)
         }
     }
     putfonts8_asc(buf, xsize, (xsize - strlen(title) * FNT_W) / 2, (22 - FNT_H) / 2, base3, title);
+    return;
+}
+
+void putfonts8_asc_sht(sheet_t *sht, int x, int y, int c, int b, char *s, int l)
+{
+    boxfill8(sht->buf, sht->bxsize, b, x, y, x + l * FNT_W - 1, y + FNT_H - 1);
+    putfonts8_asc(sht->buf, sht->bxsize, x, y, c, s);
+    sheet_refresh(sht, x, y, x + l * FNT_W, y + FNT_H);
     return;
 }
