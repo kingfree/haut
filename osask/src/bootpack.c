@@ -73,9 +73,9 @@ void HariMain(void)
     sprintf(s, "memory: %d MB, free: %d KB", memtotal / (1024 * 1024), memman_total(memman) / 1024);
     putfonts8_asc_sht(sht_back, 0, FNT_H * 2, base3, BGM, s, strlen(s));
 
+    int count = 0;
     for (; ; ) {
-        sprintf(s, "%010d", timerctl.count);
-        putfonts8_asc_sht(sht_win, 40, 28, base03, base2, s, 10);
+        count++;
 
         io_cli();            /* 屏蔽中断 */
         if (fifo8_status(&keyfifo)
@@ -124,12 +124,15 @@ void HariMain(void)
                     sheet_slide(sht_mouse, mx, my); /* 包含sheet_refresh */
                 }
             } else if (fifo8_status(&timerfifo) != 0) {
-                i = fifo8_get(&timerfifo);
+                i = fifo8_get(&timerfifo); /* 超时的是哪个呢 */
                 io_sti();
                 if (i == 10) {
                     putfonts8_asc_sht(sht_back, 0, FNT_H * 4, base3, BGM, "10[sec]", 7);
+                    sprintf(s, "%010d", count);
+                    putfonts8_asc_sht(sht_win, FNT_W * 5, 28, base03, base2, s, 10);
                 } else if (i == 3) {
                     putfonts8_asc_sht(sht_back, 0, FNT_H * 5, base3, BGM, "3[sec]", 6);
+                    count = 0; /* 开始测定 */
                 } else {
                     /* 0或1 */
                     if (i != 0) {
