@@ -19,6 +19,14 @@ void HariMain(void)
     shtctl_t *shtctl;
     sheet_t *sht_back, *sht_mouse, *sht_win;
     unsigned char *buf_back, buf_mouse[CURSOR_X * CURSOR_Y], *buf_win;
+    static char keytable[0x54] = {
+        0,   0,   '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0,   0,
+        'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', 0,   0,   'A', 'S',
+        'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', '`',   0,   '\\', 'Z', 'X', 'C', 'V',
+        'B', 'N', 'M', ',', '.', '/', 0,   '*', 0,   ' ', 0,   0,   0,   0,   0,   0,
+        0,   0,   0,   0,   0,   0,   0,   '7', '8', '9', '-', '4', '5', '6', '+', '1',
+        '2', '3', '0', '.'
+    };
 
     init_gdtidt();
     init_pic();
@@ -57,7 +65,7 @@ void HariMain(void)
     sheet_setbuf(sht_mouse, buf_mouse, CURSOR_X, CURSOR_Y, 99); /* 透明色号99 */
     init_screen8(buf_back, binfo->scrnx, binfo->scrny);
     init_mouse_cursor8(buf_mouse, 99); /* 背景色号99 */
-    make_window8(buf_win, 160, 52, "counter");
+    make_window8(buf_win, 160, 52, "keybord input");
     sheet_slide(sht_back, 0, 0);
     int mx = (binfo->scrnx - CURSOR_X) / 2; /* 计算画面中央坐标 */
     int my = (binfo->scrny - CURSOR_Y) / 2;
@@ -71,19 +79,23 @@ void HariMain(void)
     sprintf(s, "memory: %d MB, free: %d KB", memtotal / (1024 * 1024), memman_total(memman) / 1024);
     putfonts8_asc_sht(sht_back, 0, FNT_H * 2, base3, BGM, s, strlen(s));
 
-    int count = 0;
     for (; ; ) {
-        count++;
-
         io_cli();
         if (fifo32_status(&fifo) == 0) {
-            io_sti();
+            io_stihlt();
         } else {
             int i = fifo32_get(&fifo);
             io_sti();
             if (256 <= i && i <= 511) { /* 键盘 */
                 sprintf(s, "%02X", i - 256);
-                putfonts8_asc_sht(sht_back, 0, FNT_H, base3, BGM, s, strlen(s));
+                putfonts8_asc_sht(sht_back, 0, FNT_H, base3, BGM, s, 2);
+                if (i < 256 + 0x54) {
+                    if (keytable[i - 256] != 0) {
+                        s[0] = keytable[i - 256];
+                        s[1] = 0;
+                        putfonts8_asc_sht(sht_win, 40, 28, base03, base2, s, 1);
+                    }
+                }
             } else if (512 <= i && i <= 767) { /* 鼠标 */
                 if (mouse_decode(&mdec, i - 512) != 0) {
                     sprintf(s, "[lcr %4d %4d]", mdec.x, mdec.y);
@@ -118,11 +130,8 @@ void HariMain(void)
                 }
             } else if (i == 10) { /* 十秒计时器 */
                 putfonts8_asc_sht(sht_back, 0, FNT_H * 4, base3, BGM, "10[sec]", 7);
-                sprintf(s, "%010d", count);
-                putfonts8_asc_sht(sht_win, 40, 28, base03, base2, s, 10);
             } else if (i == 3) { /* 三秒计时器 */
                 putfonts8_asc_sht(sht_back, 0, FNT_H * 5, base3, BGM, "3[sec]", 6);
-                count = 0;
             } else if (i == 1) { /* 光标 */
                 timer_init(timer3, &fifo, 0); /* 设置0 */
                 boxsize8(buf_back, binfo->scrnx, base3, FNT_W, FNT_H * 7 - 4, FNT_W - 1, 4);
