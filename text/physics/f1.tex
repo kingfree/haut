@@ -36,6 +36,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \newcommand{\D}{\displaystyle}
 \renewcommand{\d}{{\mathrm{d}\:\!}}
 \newcommand{\e}{{\mathrm{e}}}
+\newcommand{\eo}{{\varepsilon_0}}
 
 \renewcommand{\le}{\leqslant}
 \renewcommand{\ge}{\geqslant}
@@ -67,11 +68,13 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \newcommand{\Nkg}{\dw{N/kg}} %牛每千克
 \newcommand{\Pa}{\dw{Pa}} %帕斯卡
 \newcommand{\hPa}{\dw{hPa}} %百帕
+\newcommand{\Cmm}{\dw{C\cdot m^2}}
 
 \newcommand{\E}[1]{\times10^{#1}}
 \newcommand{\pp}{\par\quad}
 \newcommand{\ul}[1]{\CJKunderline{#1}}
-\newcommand{\SL}[1]{{\par\fbox{\makebox[2em][l]{\bf 解:~}\begin{minipage}{0.9\textwidth}{#1}\end{minipage}}\par}}
+\newcommand{\SL}[1]{{\par\CTEXnoindent\fbox{\begin{minipage}{\textwidth}{#1}\end{minipage}}\par}}
+\newcommand{\SP}[2]{{\par\fbox{\makebox[2em][l]{\bf 解:~}\begin{minipage}{0.5\textwidth}{#1}\end{minipage}\begin{minipage}{0.4\textwidth}{#2}\end{minipage}}}\par}
 
 \begin{document}
 
