@@ -248,4 +248,10 @@ void timer_init(timer_t *timer, fifo32 *fifo, int data);
 void timer_settime(timer_t *timer, unsigned int timeout);
 void inthandler20(int *esp);
 
+/* mtask.c */
+extern timer_t *mt_timer;
+
+void mt_init(void);
+void mt_taskswitch(void);
+
 #endif

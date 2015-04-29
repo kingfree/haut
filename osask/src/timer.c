@@ -92,6 +92,7 @@ void inthandler20(int *esp)
         return; /* 还不到下个时刻 */
     }
     timer_t *timer = timerctl.t0; /* 首地址 */
+    char ts = 0;
     for (; ; ) {
         /* timers定时器都在使用中，不确认flags */
         if (timer->timeout > timerctl.count) {
@@ -99,11 +100,18 @@ void inthandler20(int *esp)
         }
         /* 超时 */
         timer->flags = TIMER_FLAGS_ALLOC;
-        fifo32_put(timer->fifo, timer->data);
+        if (timer != mt_timer) {
+            fifo32_put(timer->fifo, timer->data);
+        } else {
+            ts = 1; /* mt_timer超时 */
+        }
         timer = timer->next; /* 代入下个地址 */
     }
     /* 新版移位 */
     timerctl.t0 = timer;
     timerctl.next = timer->timeout;
+    if (ts != 0) {
+        mt_taskswitch();
+    }
     return;
 }
