@@ -30,11 +30,11 @@ void HariMain(void)
     sheet_t *sht_back, *sht_mouse, *sht_win;
     unsigned char *buf_back, buf_mouse[CURSOR_X * CURSOR_Y], *buf_win;
     static char keytable[0x54] = {
-        0,   0,   '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0,   0,
-        'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', 0,   0,   'A', 'S',
-        'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', '`',   0,   '\\', 'Z', 'X', 'C', 'V',
-        'B', 'N', 'M', ',', '.', '/', 0,   '*', 0,   ' ', 0,   0,   0,   0,   0,   0,
-        0,   0,   0,   0,   0,   0,   0,   '7', '8', '9', '-', '4', '5', '6', '+', '1',
+        0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0, 0,
+        'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', 0, 0, 'A', 'S',
+        'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\'', '`', 0, '\\', 'Z', 'X', 'C', 'V',
+        'B', 'N', 'M', ',', '.', '/', 0, '*', 0, ' ', 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, '7', '8', '9', '-', '4', '5', '6', '+', '1',
         '2', '3', '0', '.'
     };
     tss32 tss_a, tss_b;
@@ -70,11 +70,11 @@ void HariMain(void)
 
     init_palette();
     shtctl = shtctl_init(memman, binfo->vram, binfo->scrnx, binfo->scrny);
-    sht_back  = sheet_alloc(shtctl);
+    sht_back = sheet_alloc(shtctl);
     sht_mouse = sheet_alloc(shtctl);
-    sht_win   = sheet_alloc(shtctl);
-    buf_back  = (unsigned char *) memman_alloc_4k(memman, binfo->scrnx * binfo->scrny);
-    buf_win   = (unsigned char *) memman_alloc_4k(memman, 160 * 52);
+    sht_win = sheet_alloc(shtctl);
+    buf_back = (unsigned char *) memman_alloc_4k(memman, binfo->scrnx * binfo->scrny);
+    buf_win = (unsigned char *) memman_alloc_4k(memman, 160 * 52);
     sheet_setbuf(sht_back, buf_back, binfo->scrnx, binfo->scrny, -1); /* 无透明色 */
     sheet_setbuf(sht_win, buf_win, 160, 52, -1); /* 无透明色 */
     sheet_setbuf(sht_mouse, buf_mouse, CURSOR_X, CURSOR_Y, 99); /* 透明色号99 */
@@ -89,8 +89,8 @@ void HariMain(void)
     int my = (binfo->scrny - CURSOR_Y) / 2;
     sheet_slide(sht_mouse, mx, my);
     sheet_slide(sht_win, 80, 72);
-    sheet_updown(sht_back,  0);
-    sheet_updown(sht_win,   1);
+    sheet_updown(sht_back, 0);
+    sheet_updown(sht_win, 1);
     sheet_updown(sht_mouse, 2);
     sprintf(s, "(%3d, %3d)", mx, my);
     putfonts8_asc_sht(sht_back, 0, 0, base3, BGM, s, strlen(s));
@@ -124,7 +124,7 @@ void HariMain(void)
     *((int *) (task_b_esp + 4)) = (int) sht_back;
     mt_init();
 
-    for (; ; ) {
+    for (;;) {
         io_cli();
         if (fifo32_status(&fifo) == 0) {
             io_stihlt();
@@ -250,7 +250,7 @@ void make_textbox8(sheet_t *sht, int x0, int y0, int sx, int sy, int c)
     int x1 = x0 + sx, y1 = y0 + sy;
     boxfill8(sht->buf, sht->bxsize, blue, x0 - 2, y0 - 2, x1 + 1, y1 + 1);
     boxfill8(sht->buf, sht->bxsize, base03, x0 - 1, y0 - 1, x1, y1);
-boxfill8(sht->buf, sht->bxsize, c, x0 - 1, y0 - 1, x1 + 0, y1 + 0);
+    boxfill8(sht->buf, sht->bxsize, c, x0 - 1, y0 - 1, x1 + 0, y1 + 0);
     return;
 }
 
@@ -261,13 +261,13 @@ void task_b_main(sheet_t *sht_back)
     int i, fifobuf[128];
     char s[40];
 
-	fifo32_init(&fifo, 128, fifobuf);
-	timer_put = timer_alloc();
-	timer_init(timer_put, &fifo, 1);
-	timer_settime(timer_put, 1);
-	timer_1s = timer_alloc();
-	timer_init(timer_1s, &fifo, 100);
-	timer_settime(timer_1s, 100);
+    fifo32_init(&fifo, 128, fifobuf);
+    timer_put = timer_alloc();
+    timer_init(timer_put, &fifo, 1);
+    // timer_settime(timer_put, 1);
+    timer_1s = timer_alloc();
+    timer_init(timer_1s, &fifo, 100);
+    timer_settime(timer_1s, 100);
 
     int count = 0, count0 = 0;
     for (;;) {

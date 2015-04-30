@@ -1,4 +1,4 @@
-/* Í¼ĞÎ´¦ÀíÏà¹Ø */
+/* å›¾å½¢å¤„ç†ç›¸å…³ */
 
 #include "bootpack.h"
 #include <stdio.h>
@@ -27,14 +27,14 @@ void init_palette(void)
     set_palette(0, 15, table_rgb);
     return;
 
-    /* static charÏàµ±ÓÚDBÃüÁî */
+    /* static charç›¸å½“äºDBå‘½ä»¤ */
 }
 
 void set_palette(int start, int end, unsigned char *rgb)
 {
     int i, eflags;
-    eflags = io_load_eflags();    /* ±¸·İÖĞ¶ÏĞí¿É±êÖ¾ */
-    io_cli();                     /* ±êÖ¾ÖÃ0£¬½ûÖ¹ÖĞ¶Ï */
+    eflags = io_load_eflags();    /* å¤‡ä»½ä¸­æ–­è®¸å¯æ ‡å¿— */
+    io_cli();                     /* æ ‡å¿—ç½®0ï¼Œç¦æ­¢ä¸­æ–­ */
     io_out8(0x03c8, start);
     for (i = start; i <= end; i++) {
         io_out8(0x03c9, rgb[0] / 4);
@@ -42,7 +42,7 @@ void set_palette(int start, int end, unsigned char *rgb)
         io_out8(0x03c9, rgb[2] / 4);
         rgb += 3;
     }
-    io_store_eflags(eflags);     /* ¸´Ô­ÖĞ¶ÏĞí¿É±êÖ¾ */
+    io_store_eflags(eflags);     /* å¤åŸä¸­æ–­è®¸å¯æ ‡å¿— */
     return;
 }
 
@@ -118,7 +118,7 @@ void init_mouse_cursor8(char *mouse, char bc)
         "**    *OO*  ",
         "      *OO*  ",
         "       **   "
-    }; /* ·Â Window 8 µÄÊó±êÖ¸Õë */
+    }; /* ä»¿ Window 8 çš„é¼ æ ‡æŒ‡é’ˆ */
     int x, y;
 
     for (y = 0; y < CURSOR_Y; y++) {
@@ -151,33 +151,33 @@ void putblock8_8(char *vram, int vxsize, int pxsize,
 
 void init_screen8(char *vram, int x, int y)
 {
-    /* ´óĞ¡ */
+    /* å¤§å° */
     int box = 8, space = 2, top = 5;
 
-    /* ×ÀÃæ */
-    boxfill8(vram, x, BGM , 0, 0, x - 1, y - 1);
+    /* æ¡Œé¢ */
+    boxfill8(vram, x, BGM, 0, 0, x - 1, y - 1);
 
-    /* ÈÎÎñÀ¸ */
+    /* ä»»åŠ¡æ  */
     int height = box * 2 + space + top * 2 - 1;
-    boxfill8(vram, x, base2 , 0, y - height, x - 1, y - 1);
+    boxfill8(vram, x, base2, 0, y - height, x - 1, y - 1);
 
     {
-        /* Windows »Õ±ê */
+        /* Windows å¾½æ ‡ */
         int tops = top + box + space - 1;
         int botm = top + box;
         int bots = botm + space + box - 1;
-        boxsize8(vram, x, red    ,  top, y - bots, box, box);
-        boxsize8(vram, x, green  , tops, y - bots, box, box);
-        boxsize8(vram, x, blue   ,  top, y - botm, box, box);
-        boxsize8(vram, x, yellow , tops, y - botm, box, box);
+        boxsize8(vram, x, red, top, y - bots, box, box);
+        boxsize8(vram, x, green, tops, y - bots, box, box);
+        boxsize8(vram, x, blue, top, y - botm, box, box);
+        boxsize8(vram, x, yellow, tops, y - botm, box, box);
     }
 
     {
-        /* ÍĞÅÌÇø*/
+        /* æ‰˜ç›˜åŒº*/
         int right = 100, bar = 2;
-        boxsize8(vram, x, base3 , x - right, y - height, bar, height);
+        boxsize8(vram, x, base3, x - right, y - height, bar, height);
 
-        /* ²Ù×÷ÏµÍ³°æ±¾ */
+        /* æ“ä½œç³»ç»Ÿç‰ˆæœ¬ */
         int pox = x - (right - bar + strlen(SYSNAMEVER) * FNT_W) / 2,
             poy = y - (height + FNT_H) / 2;
         putfonts8_asc(vram, x, pox, poy, magenta, SYSNAMEVER);

@@ -8,13 +8,13 @@ shtctl_t *shtctl_init(memman_t *memman, unsigned char *vram, int xsize, int ysiz
 {
     shtctl_t *ctl;
     int i;
-    ctl = (shtctl_t *) memman_alloc_4k(memman, sizeof (shtctl_t));
+    ctl = (shtctl_t *) memman_alloc_4k(memman, sizeof(shtctl_t));
     if (ctl == 0) {
         goto err;
     }
     ctl->map = (unsigned char *) memman_alloc_4k(memman, xsize * ysize);
     if (ctl->map == 0) {
-        memman_free_4k(memman, (int) ctl, sizeof (shtctl_t));
+        memman_free_4k(memman, (int) ctl, sizeof(shtctl_t));
         goto err;
     }
     ctl->vram = vram;

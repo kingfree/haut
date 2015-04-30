@@ -93,7 +93,7 @@ void inthandler20(int *esp)
     }
     timer_t *timer = timerctl.t0; /* 首地址 */
     char ts = 0;
-    for (; ; ) {
+    for (;;) {
         /* timers定时器都在使用中，不确认flags */
         if (timer->timeout > timerctl.count) {
             break;
