@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import exp3.Student;
 
 /**
- * @version 2015-4-21
+ * @version 2015-4-30
  * @author Kingfree
  */
 public class StudentTest {
@@ -24,7 +24,7 @@ public class StudentTest {
                     int age = Integer.parseInt(result.group(3));
                     Student you = new Student(name, age, 'f', id);
                     return you;
-                } catch (IllegalStateException | IndexOutOfBoundsException e) {
+                } catch (Exception e) {
                     System.out.println("输入格式有误，请重新输入！");
                 }
             }

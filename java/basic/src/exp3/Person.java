@@ -1,7 +1,7 @@
 package exp3;
 
 /**
- * @version 2015-3-26
+ * @version 2015-4-30
  * @author Kingfree
  */
 public class Person {
@@ -14,8 +14,11 @@ public class Person {
         this.name = name;
     }
 
-    public void setAge(int age) {
-        this.age = Math.abs(age) % 180;
+    public void setAge(int age) throws Exception {
+    	if (age < 0 || age > 180) {
+    		throw new Exception("年龄不正确");
+    	}
+        this.age = age;
     }
 
     public void setSex(char sex) {
@@ -34,7 +37,7 @@ public class Person {
         return this.sex == 'f' ? "女" : "男";
     }
 
-    public Person(String name, int age, char sex) {
+    public Person(String name, int age, char sex) throws Exception {
         setName(name);
         setAge(age);
         setSex(sex);

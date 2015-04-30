@@ -40,7 +40,7 @@ public class MainWindow {
         }
 
         JFrame frame = new JFrame("学生信息管理系统");
-        frame.setSize(800, 600);
+        frame.setSize(400, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new FlowLayout());
 

@@ -1,7 +1,7 @@
 package exp3;
 
 /**
- * @version 2015-3-18
+ * @version 2015-4-30
  * @author Kingfree
  */
 public class Teacher extends Person {
@@ -16,7 +16,7 @@ public class Teacher extends Person {
         return this.course;
     }
 
-    public Teacher(String name, int age, char sex, String course) {
+    public Teacher(String name, int age, char sex, String course) throws Exception {
         super(name, age, sex);
         setCourse(course);
     }

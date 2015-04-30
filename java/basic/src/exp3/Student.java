@@ -1,7 +1,7 @@
 package exp3;
 
 /**
- * @version 2015-4-21
+ * @version 2015-4-30
  * @author Kingfree
  */
 public class Student extends Person {
@@ -16,7 +16,7 @@ public class Student extends Person {
         return this.id;
     }
 
-    public Student(String name, int age, char sex, int id) {
+    public Student(String name, int age, char sex, int id) throws Exception {
         super(name, age, sex);
         setId(id);
     }

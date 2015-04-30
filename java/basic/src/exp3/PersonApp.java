@@ -1,5 +1,7 @@
 package exp3;
 
+import java.util.Scanner;
+
 /**
  * (a) 声明一个Person类，有name(String类型)、age(int类型)、sex(char类型)属性。
  *     通过构造方法进行赋值。
@@ -19,21 +21,44 @@ package exp3;
  * (d) 声明PersonApp类，在其中的main方法中分别声明Person、Student、Teacher类型
  * 的变量，并通过构造方法初始化，然后显示各自的信息。
  * 
- * @version 2015-3-18
+ * @version 2015-4-30
  * @author Kingfree
  */
 public class PersonApp {
 
     public static void main(String[] args) {
 
-        Person nao = new Person("東山奈央", 23, 'f');
-        System.out.println(nao.show());
+		/* try {
+			Person nao = new Person("東山奈央", 23, 'f');
+			System.out.println(nao.show());
+			
+	        Student yui = new Student("小倉唯", 20, 'f', 19950815);
+	        System.out.println(yui.show());
+	        
+	        Teacher nana = new Teacher("水樹奈々", 35, 'f', "国文");
+	        System.out.println(nana.show());
+		} catch (Exception e) {
+	        System.err.println(e);
+		} */
 
-        Student yui = new Student("小倉唯", 20, 'f', 19950815);
-        System.out.println(yui.show());
-
-        Teacher nana = new Teacher("水樹奈々", 35, 'f', "国文");
-        System.out.println(nana.show());
+		Student p = null;
+		Scanner in = new Scanner(System.in);
+		while (p == null) {
+			try {
+				System.out.println("请输入：姓名 年龄 性别 学号");
+				String name = in.next();
+				int age = Integer.parseInt(in.next());
+				char sex = (char) in.next().getBytes()[0];
+				int id = Integer.parseInt(in.next());
+				p = new Student(name, age, sex, id);
+				System.out.println(p.show());
+			} catch (NumberFormatException e) {
+				System.out.println("数字格式不正确");
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		}
+		in.close();
 
     }
 
