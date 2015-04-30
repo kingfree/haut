@@ -33,7 +33,7 @@ int fifo32_put(fifo32 *q, int data)
     q->free--;
     if (q->task != 0) {
         if (q->task->flags != 2) { /* 任务在休眠 */
-            task_run(q->task, 0); /* 唤醒 */
+            task_run(q->task, -1, 0); /* 唤醒 */
         }
     }
     return 0;

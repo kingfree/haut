@@ -253,6 +253,8 @@ void inthandler20(int *esp);
 /* mtask.c */
 #define MAX_TASKS       1024    /* 最大任务数 */
 #define TASK_GDT0       3       /* 从GDT的哪里开始分配TSS */
+#define MAX_TASKS_LV    100
+#define MAX_TASKLEVELS  10
 
 typedef struct TSS32 {
     int backlink, esp0, ss0, esp1, ss1, esp2, ss2, cr3;
@@ -263,21 +265,27 @@ typedef struct TSS32 {
 
 typedef struct TASK {
     int sel, flags; /* sel存放GDT的编号 */
-    int priority; /* 优先级 */
+    int level, priority; /* 优先级 */
     tss32 tss;
 } task_t;
 
-typedef struct TASKCTL {
+typedef struct TASKLEVEL {
     int running; /* 运行中任务数 */
     int now; /* 当前运行中任务 */
-    task_t *tasks[MAX_TASKS];
+    task_t *tasks[MAX_TASKS_LV];
+} tasklevel_t;
+
+typedef struct TASKCTL {
+    int now_lv; /* 活动中的等级 */
+    char lv_change; /* 下次是否改变等级 */
+    tasklevel_t level[MAX_TASKLEVELS];
     task_t tasks0[MAX_TASKS];
 } taskctl_t;
 
 extern timer_t *task_timer;
 task_t *task_init(memman_t *memman);
 task_t *task_alloc(void);
-void task_run(task_t *task, int priority);
+void task_run(task_t *task, int level, int priority);
 void task_switch(void);
 void task_sleep(task_t *task);
 
