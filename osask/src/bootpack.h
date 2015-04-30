@@ -2,7 +2,7 @@
 #define BOOTPACK_H
 
 #define SYSNAME     "PriPara OS"
-#define SYSVER      "15"
+#define SYSVER      "16"
 #define SYSNAMEVER  SYSNAME " " SYSVER
 
 /* asmhead.nas */
@@ -249,9 +249,32 @@ void timer_settime(timer_t *timer, unsigned int timeout);
 void inthandler20(int *esp);
 
 /* mtask.c */
-extern timer_t *mt_timer;
+#define MAX_TASKS       1024    /* 最大任务数 */
+#define TASK_GDT0       3       /* 从GDT的哪里开始分配TSS */
 
-void mt_init(void);
-void mt_taskswitch(void);
+typedef struct TSS32 {
+    int backlink, esp0, ss0, esp1, ss1, esp2, ss2, cr3;
+    int eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;
+    int es, cs, ss, ds, fs, gs;
+    int ldtr, iomap;
+} tss32;
+
+typedef struct TASK {
+    int sel, flags; /* sel存放GDT的编号 */
+    tss32 tss;
+} task_t;
+
+typedef struct TASKCTL {
+    int running; /* 运行中任务数 */
+    int now; /* 当前运行中任务 */
+    task_t *tasks[MAX_TASKS];
+    task_t tasks0[MAX_TASKS];
+} taskctl_t;
+
+extern timer_t *task_timer;
+task_t *task_init(memman_t *memman);
+task_t *task_alloc(void);
+void task_run(task_t *task);
+void task_switch(void);
 
 #endif
