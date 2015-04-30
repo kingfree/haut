@@ -75,3 +75,39 @@ void task_switch(void)
     }
     return;
 }
+
+void task_sleep(task_t *task)
+{
+    int i;
+    char ts = 0;
+    if (task->flags == 2) {		/* 指定任务处于唤醒状态 */
+        if (task == taskctl->tasks[taskctl->now]) {
+            ts = 1; /* 让自己休眠后需要稍后进行任务切换 */
+        }
+        /* 找task在哪 */
+        for (i = 0; i < taskctl->running; i++) {
+            if (taskctl->tasks[i] == task) {
+                /* 在这 */
+                break;
+            }
+        }
+        taskctl->running--;
+        if (i < taskctl->now) {
+            taskctl->now--; /* 移动成员处理 */
+        }
+        /* 移动 */
+        for (; i < taskctl->running; i++) {
+            taskctl->tasks[i] = taskctl->tasks[i + 1];
+        }
+        task->flags = 1; /* 休眠状态 */
+        if (ts != 0) {
+            /* 任务切换 */
+            if (taskctl->now >= taskctl->running) {
+                /* now值异常，则修正 */
+                taskctl->now = 0;
+            }
+            farjmp(0, taskctl->tasks[taskctl->now]->sel);
+        }
+    }
+    return;
+}
