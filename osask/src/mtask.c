@@ -18,12 +18,13 @@ task_t *task_init(memman_t *memman)
     }
     task = task_alloc();
     task->flags = 2; /* 活动中标志 */
+    task->priority = 2; /* 0.02s */
     taskctl->running = 1;
     taskctl->now = 0;
     taskctl->tasks[0] = task;
     load_tr(task->sel);
     task_timer = timer_alloc();
-    timer_settime(task_timer, 2);
+    timer_settime(task_timer, task->priority);
     return task;
 }
 
@@ -55,23 +56,30 @@ task_t *task_alloc(void)
     return 0; /* 全部使用中 */
 }
 
-void task_run(task_t *task)
+void task_run(task_t *task, int priority)
 {
-    task->flags = 2; /* 活动中标志 */
-    taskctl->tasks[taskctl->running] = task;
-    taskctl->running++;
+    if (priority > 0) {
+        task->priority = priority;
+    }
+    if (task->flags != 2) {
+        task->flags = 2; /* 活动中标志 */
+        taskctl->tasks[taskctl->running] = task;
+        taskctl->running++;
+    }
     return;
 }
 
 void task_switch(void)
 {
-    timer_settime(task_timer, 2);
+    task_t *task;
+    taskctl->now++;
+    if (taskctl->now == taskctl->running) {
+        taskctl->now = 0;
+    }
+    task = taskctl->tasks[taskctl->now];
+    timer_settime(task_timer, task->priority);
     if (taskctl->running >= 2) {
-        taskctl->now++;
-        if (taskctl->now == taskctl->running) {
-            taskctl->now = 0;
-        }
-        farjmp(0, taskctl->tasks[taskctl->now]->sel);
+        farjmp(0, task->sel);
     }
     return;
 }

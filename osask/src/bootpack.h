@@ -45,7 +45,7 @@ typedef struct FIFO32 {
     struct TASK *task;
 } fifo32;
 
-void fifo32_init(fifo32 *q, int size, int *buf, struct TASK *task);
+void fifo32_init(fifo32 *q, int size, int *buf, struct TASK *);
 int fifo32_put(fifo32 *fifo, int data);
 int fifo32_get(fifo32 *fifo);
 int fifo32_status(fifo32 *fifo);
@@ -263,6 +263,7 @@ typedef struct TSS32 {
 
 typedef struct TASK {
     int sel, flags; /* sel存放GDT的编号 */
+    int priority; /* 优先级 */
     tss32 tss;
 } task_t;
 
@@ -276,7 +277,7 @@ typedef struct TASKCTL {
 extern timer_t *task_timer;
 task_t *task_init(memman_t *memman);
 task_t *task_alloc(void);
-void task_run(task_t *task);
+void task_run(task_t *task, int priority);
 void task_switch(void);
 void task_sleep(task_t *task);
 

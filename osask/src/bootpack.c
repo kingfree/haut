@@ -76,7 +76,7 @@ void HariMain(void)
         task_b[i]->tss.fs = 1 * 8;
         task_b[i]->tss.gs = 1 * 8;
         *((int *) (task_b[i]->tss.esp + 4)) = (int) sht_win_b[i];
-        task_run(task_b[i]);
+        task_run(task_b[i], i + 1);
     }
 
     /* sht_win */
@@ -84,7 +84,7 @@ void HariMain(void)
     buf_win = (unsigned char *) memman_alloc_4k(memman, 160 * 52);
     sheet_setbuf(sht_win, buf_win, 144, 52, -1); /* 透明色なし */
     make_window8(buf_win, 144, 52, "task_a", 1);
-    make_textbox8(sht_win, 8, 28, 144-16, FNT_H, base3);
+    make_textbox8(sht_win, 8, 28, 144 - 16, FNT_H, base3);
     int cursor_x = 8;
     int cursor_c = base03;
     timer = timer_alloc();
@@ -127,7 +127,7 @@ void HariMain(void)
                 sprintf(s, "%02X", i - 256);
                 putfonts8_asc_sht(sht_back, 0, FNT_H, base3, BGM, s, 2);
                 if (i < 0x54 + 256) {
-                    if (keytable[i - 256] != 0 && cursor_x < 144) { /* 一般字符，光标步进 */
+                    if (keytable[i - 256] != 0 && cursor_x < 144 - 16) { /* 一般字符，光标步进 */
                         s[0] = keytable[i - 256];
                         s[1] = 0;
                         putfonts8_asc_sht(sht_win, cursor_x, 28, base03, base3, s, 1);
