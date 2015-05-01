@@ -4,6 +4,13 @@
 #include <stdio.h>
 #include <string.h>
 
+typedef struct FILEINFO {
+    unsigned char name[8], ext[3], type;
+    char reserve[10];
+    unsigned short time, date, clustno;
+    unsigned int size;
+} fileinfo;
+
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act);
 void putfonts8_asc_sht(sheet_t *sht, int x, int y, int c, int b, char *s, int l);
 void make_textbox8(sheet_t *sht, int x0, int y0, int sx, int sy, int c);
@@ -360,6 +367,7 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
     int fifobuf[128], cursor_x = 3 + FNT_W * 2, cursor_y = 23, cursor_c = -1;
     char s[40], cmdline[40];
     memman_t *memman = (memman_t *) MEMMAN_ADDR;
+    fileinfo *finfo = (fileinfo *) (ADR_DISKIMG + 0x002600);
     int x, y, i;
 
     fifo32_init(&task->fifo, 128, fifobuf, task);
@@ -426,6 +434,25 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
                         }
                         sheet_refresh(sheet, 3, 23, FNT_W * 40 + 3, FNT_H * 11 + 23);
                         cursor_y = 23;
+                    } else if (strcmp(cmdline, "ls -l") == 0 || strcmp(cmdline, "dir") == 0) {
+                        for (x = 0; x < 224; x++) {
+                            if (finfo[x].name[0] == 0x00) {
+                                break;
+                            }
+                            if (finfo[x].name[0] != 0xe5) {
+                                if ((finfo[x].type & 0x18) == 0) {
+                                    sprintf(s, "filename.ext   %7d", finfo[x].size);
+                                    for (y = 0; y < 8; y++) {
+                                        s[y] = finfo[x].name[y];
+                                    }
+                                    s[9] = finfo[x].ext[0];
+                                    s[10] = finfo[x].ext[1];
+                                    s[11] = finfo[x].ext[2];
+                                    putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, s, 40);
+                                    cursor_y = cons_newline(cursor_y, sheet);
+                                }
+                            }
+                        }
                     } else if (cmdline[0] != 0) {
                         cmdline[16] = 0;
                         sprintf(s, "Command '%s' not found.", cmdline);
