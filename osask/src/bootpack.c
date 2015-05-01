@@ -184,10 +184,15 @@ void HariMain(void)
                         key_to = 1;
                         make_wtitle8(buf_win, sht_win->bxsize, "task_a", 0);
                         make_wtitle8(buf_cons, sht_cons->bxsize, "Terminal", 1);
+                        cursor_c = -1; /* 隐藏光标 */
+                        boxfill8(sht_win->buf, sht_win->bxsize, base3, cursor_x, 28, cursor_x + 7, 43);
+                        fifo32_put(&task_cons->fifo, 2); /* 开启终端光标 */
                     } else {
                         key_to = 0;
                         make_wtitle8(buf_win, sht_win->bxsize, "task_a", 1);
                         make_wtitle8(buf_cons, sht_cons->bxsize, "Terminal", 0);
+                        cursor_c = base03; /* 显示光标 */
+                        fifo32_put(&task_cons->fifo, 3); /* 关闭终端光标 */
                     }
                     sheet_refresh(sht_win, 0, 0, sht_win->bxsize, 21);
                     sheet_refresh(sht_cons, 0, 0, sht_cons->bxsize, 21);
@@ -227,8 +232,9 @@ void HariMain(void)
                     io_out8(PORT_KEYDAT, keycmd_wait);
                 }
                 /* 显示光标 */
-                boxfill8(sht_win->buf, sht_win->bxsize, base3, cursor_x, 28, cursor_x + FNT_W, 28 + FNT_H - 1);
-                boxfill8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, cursor_x, 28 + FNT_H - 1);
+                if (cursor_c >= 0) {
+                    boxfill8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, cursor_x, 28 + FNT_H - 1);
+                }
                 sheet_refresh(sht_win, cursor_x, 28, cursor_x + FNT_W, 28 + FNT_H);
             } else if (512 <= i && i <= 767) { /* 鼠标 */
                 if (mouse_decode(&mdec, i - 512) != 0) {
@@ -269,14 +275,20 @@ void HariMain(void)
             } else if (i <= 1) { /* 光标计时器 */
                 if (i != 0) {
                     timer_init(timer, &fifo, 0);
-                    cursor_c = base03;
+                    if (cursor_c >= 0) {
+                        cursor_c = base03;
+                    }
                 } else {
                     timer_init(timer, &fifo, 1);
-                    cursor_c = base3;
+                    if (cursor_c >= 0) {
+                        cursor_c = base3;
+                    }
                 }
                 timer_settime(timer, 50);
-                boxfill8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, cursor_x, 28 + FNT_H - 1);
-                sheet_refresh(sht_win, cursor_x, 28, cursor_x + FNT_W, 28 + FNT_H);
+                if (cursor_c >= 0) {
+                    boxfill8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, cursor_x, 28 + FNT_H - 1);
+                    sheet_refresh(sht_win, cursor_x, 28, cursor_x + FNT_W, 28 + FNT_H);
+                }
             }
         }
     }
@@ -337,7 +349,7 @@ void console_task(sheet_t *sheet)
 {
     timer_t *timer;
     task_t *task = task_now();
-    int i, fifobuf[128], cursor_x = 3 + FNT_W * 2, cursor_c = base03;
+    int i, fifobuf[128], cursor_x = 3 + FNT_W * 2, cursor_c = -1;
     char s[2];
 
     fifo32_init(&task->fifo, 128, fifobuf, task);
@@ -359,12 +371,23 @@ void console_task(sheet_t *sheet)
             if (i <= 1) {
                 if (i != 0) {
                     timer_init(timer, &task->fifo, 0);
-                    cursor_c = base3;
+                    if (cursor_c >= 0) {
+                        cursor_c = base3;
+                    }
                 } else {
                     timer_init(timer, &task->fifo, 1);
-                    cursor_c = base03;
+                    if (cursor_c >= 0) {
+                        cursor_c = base03;
+                    }
                 }
                 timer_settime(timer, 50);
+            }
+            if (i == 2) {
+                cursor_c = base3;
+            }
+            if (i == 3) {
+                boxfill8(sheet->buf, sheet->bxsize, base03, cursor_x, 23, cursor_x + FNT_W - 1, 23 + FNT_H - 1);
+                cursor_c = -1;
             }
             if (256 <= i && i <= 511) { /* 键盘数据 */
                 if (i == 8 + 256) { /* 退格键 */
@@ -381,7 +404,9 @@ void console_task(sheet_t *sheet)
                     }
                 }
             }
-            boxfill8(sheet->buf, sheet->bxsize, cursor_c, cursor_x, 23, cursor_x + FNT_W - 1, 23 + FNT_H - 1);
+            if (cursor_c >= 0) {
+                boxfill8(sheet->buf, sheet->bxsize, cursor_c, cursor_x, 23, cursor_x + FNT_W - 1, 23 + FNT_H - 1);
+            }
             sheet_refresh(sheet, cursor_x, 23, cursor_x + FNT_W, 23 + FNT_H);
         }
     }

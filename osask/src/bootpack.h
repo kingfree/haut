@@ -2,7 +2,7 @@
 #define BOOTPACK_H
 
 #define SYSNAME     "PriPara OS"
-#define SYSVER      "17"
+#define SYSVER      "18"
 #define SYSNAMEVER  SYSNAME " " SYSVER
 
 /* asmhead.nas */
@@ -284,6 +284,8 @@ typedef struct TASKCTL {
 } taskctl_t;
 
 extern timer_t *task_timer;
+
+task_t *task_now(void);
 task_t *task_init(memman_t *memman);
 task_t *task_alloc(void);
 void task_run(task_t *task, int level, int priority);
