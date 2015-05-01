@@ -266,6 +266,7 @@ typedef struct TSS32 {
 typedef struct TASK {
     int sel, flags; /* sel存放GDT的编号 */
     int level, priority; /* 优先级 */
+    fifo32 fifo;
     tss32 tss;
 } task_t;
 

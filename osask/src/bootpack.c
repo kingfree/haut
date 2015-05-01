@@ -123,18 +123,28 @@ void HariMain(void)
             if (256 <= i && i <= 511) { /* 键盘 */
                 sprintf(s, "%02X", i - 256);
                 putfonts8_asc_sht(sht_back, 0, FNT_H, base3, BGM, s, 2);
-                if (i < 0x54 + 256) {
-                    if (keytable[i - 256] != 0 && cursor_x < FNT_W * 24) { /* 一般字符，光标步进 */
-                        s[0] = keytable[i - 256];
-                        s[1] = 0;
-                        putfonts8_asc_sht(sht_win, cursor_x, 28, base03, base3, s, 1);
-                        cursor_x += FNT_W;
+                if (i < 0x54 + 256 && keytable[i - 256] != 0) {
+                    if (key_to == 0) {
+                        if (cursor_x < FNT_W * 24) { /* 一般字符，光标步进 */
+                            s[0] = keytable[i - 256];
+                            s[1] = 0;
+                            putfonts8_asc_sht(sht_win, cursor_x, 28, base03, base3, s, 1);
+                            cursor_x += FNT_W;
+                        }
+                    } else { /* 发送给终端窗口 */
+                        fifo32_put(&task_cons->fifo, keytable[i - 256] + 256);
                     }
                 }
-                if (i == 256 + 0x0e && cursor_x > 8) { /* 退格键 */
-                    /* 用空格消去，回退光标 */
-                    putfonts8_asc_sht(sht_win, cursor_x, 28, base03, base3, " ", 1);
-                    cursor_x -= FNT_W;
+                if (i == 256 + 0x0e ) { /* 退格键 */
+                    if (key_to == 0) {
+                        if (cursor_x > 8) {
+                            /* 用空格消去，回退光标 */
+                            putfonts8_asc_sht(sht_win, cursor_x, 28, base03, base3, " ", 1);
+                            cursor_x -= FNT_W;
+                        }
+                    } else { /* 发送给终端窗口 */
+                        fifo32_put(&task_cons->fifo, 8 + 256);
+                    }
                 }
                 if (i == 256 + 0x0f) { /* Tab */
                     if (key_to == 0) {
@@ -258,36 +268,54 @@ void make_textbox8(sheet_t *sht, int x0, int y0, int sx, int sy, int c)
 
 void console_task(sheet_t *sheet)
 {
-    fifo32 fifo;
     timer_t *timer;
     task_t *task = task_now();
-    int i, fifobuf[128], cursor_x = 3, cursor_c = base03;
-    fifo32_init(&fifo, 128, fifobuf, task);
+    int i, fifobuf[128], cursor_x = 3 + FNT_W * 2, cursor_c = base03;
+    char s[2];
 
+    fifo32_init(&task->fifo, 128, fifobuf, task);
     timer = timer_alloc();
-    timer_init(timer, &fifo, 1);
+    timer_init(timer, &task->fifo, 1);
     timer_settime(timer, 50);
+
+    /* 命令提示符 */
+    putfonts8_asc_sht(sheet, 3, 23, base3, base03, "$ ", 2);
 
     for (;;) {
         io_cli();
-        if (fifo32_status(&fifo) == 0) {
+        if (fifo32_status(&task->fifo) == 0) {
             task_sleep(task);
             io_sti();
         } else {
-            i = fifo32_get(&fifo);
+            i = fifo32_get(&task->fifo);
             io_sti();
             if (i <= 1) {
                 if (i != 0) {
-                    timer_init(timer, &fifo, 0);
+                    timer_init(timer, &task->fifo, 0);
                     cursor_c = base3;
                 } else {
-                    timer_init(timer, &fifo, 1);
+                    timer_init(timer, &task->fifo, 1);
                     cursor_c = base03;
                 }
                 timer_settime(timer, 50);
-                boxfill8(sheet->buf, sheet->bxsize, cursor_c, cursor_x, 23, cursor_x + FNT_W - 1, 23 + FNT_H - 1);
-                sheet_refresh(sheet, cursor_x, 23, cursor_x + FNT_W, 23 + FNT_H);
             }
+            if (256 <= i && i <= 511) { /* 键盘数据 */
+                if (i == 8 + 256) { /* 退格键 */
+                    if (cursor_x > 3 + FNT_W * 2) {
+                        putfonts8_asc_sht(sheet, cursor_x, 23, base3, base03, " ", 1);
+                        cursor_x -= FNT_W;
+                    }
+                } else { /* 一般字符 */
+                    if (cursor_x < 3 + FNT_W * 40 - FNT_W) {
+                        s[0] = i - 256;
+                        s[1] = 0;
+                        putfonts8_asc_sht(sheet, cursor_x, 23, base3, base03, s, 2);
+                        cursor_x += FNT_W;
+                    }
+                }
+            }
+            boxfill8(sheet->buf, sheet->bxsize, cursor_c, cursor_x, 23, cursor_x + FNT_W - 1, 23 + FNT_H - 1);
+            sheet_refresh(sheet, cursor_x, 23, cursor_x + FNT_W, 23 + FNT_H);
         }
     }
 }
