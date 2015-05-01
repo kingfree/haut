@@ -10,13 +10,15 @@ void make_textbox8(sheet_t *sht, int x0, int y0, int sx, int sy, int c);
 void make_wtitle8(unsigned char *buf, int xsize, char *title, char act);
 void console_task(sheet_t *sht_back);
 
+#define KEYCMD_LED		0xed
+
 void HariMain(void)
 {
     bootinfo_t *binfo = (bootinfo_t *) ADR_BOOTINFO;
     char s[80];
     int i;
-    fifo32 fifo;
-    int fifobuf[128];
+    fifo32 fifo, keycmd;
+    int fifobuf[128], keycmd_buf[32];
     mouse_dec mdec;
     memman_t *memman = (memman_t *) MEMMAN_ADDR;
     shtctl_t *shtctl;
@@ -46,7 +48,7 @@ void HariMain(void)
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, '_', 0, 0, 0, 0, 0, 0, 0, 0, 0, '|', 0, 0
     };
-    int key_to = 0, key_shift = 0, key_leds = (binfo->leds >> 4) & 7;
+    int key_to = 0, key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
 
     init_gdtidt();
     init_pic();
@@ -57,6 +59,7 @@ void HariMain(void)
     enable_mouse(&fifo, 512, &mdec);
     io_out8(PIC0_IMR, 0xf8); /* 允许PIC1、PIT和键盘(11111000) */
     io_out8(PIC1_IMR, 0xef); /* 允许鼠标(11101111) */
+    fifo32_init(&keycmd, 32, keycmd_buf, 0);
 
     unsigned int memtotal = memtest(0x00400000, 0xbfffffff);
     memman_init(memman);
@@ -127,6 +130,12 @@ void HariMain(void)
     putfonts8_asc_sht(sht_back, 0, FNT_H * 2, base3, BGM, s, strlen(s));
 
     for (;;) {
+        if (fifo32_status(&keycmd) > 0 && keycmd_wait < 0) {
+            /* 如果存在向键盘控制器发送的数据，发送之 */
+            keycmd_wait = fifo32_get(&keycmd);
+            wait_KBC_sendready();
+            io_out8(PORT_KEYDAT, keycmd_wait);
+        }
         io_cli();
         if (fifo32_status(&fifo) == 0) {
             task_sleep(task_a);
@@ -194,6 +203,28 @@ void HariMain(void)
                 }
                 if (i == 256 + 0xb6) {	/* 右Shift OFF */
                     key_shift &= ~2;
+                }
+                if (i == 256 + 0x3a) {	/* CapsLock */
+                    key_leds ^= 4;
+                    fifo32_put(&keycmd, KEYCMD_LED);
+                    fifo32_put(&keycmd, key_leds);
+                }
+                if (i == 256 + 0x45) {	/* NumLock */
+                    key_leds ^= 2;
+                    fifo32_put(&keycmd, KEYCMD_LED);
+                    fifo32_put(&keycmd, key_leds);
+                }
+                if (i == 256 + 0x46) {	/* ScrollLock */
+                    key_leds ^= 1;
+                    fifo32_put(&keycmd, KEYCMD_LED);
+                    fifo32_put(&keycmd, key_leds);
+                }
+                if (i == 256 + 0xfa) {	/* 键盘成功接收到数据 */
+                    keycmd_wait = -1;
+                }
+                if (i == 256 + 0xfe) {	/* 键盘未能成功接收到数据 */
+                    wait_KBC_sendready();
+                    io_out8(PORT_KEYDAT, keycmd_wait);
                 }
                 /* 显示光标 */
                 boxfill8(sht_win->buf, sht_win->bxsize, base3, cursor_x, 28, cursor_x + FNT_W, 28 + FNT_H - 1);
