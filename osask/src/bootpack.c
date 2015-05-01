@@ -8,7 +8,7 @@ void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char ac
 void putfonts8_asc_sht(sheet_t *sht, int x, int y, int c, int b, char *s, int l);
 void make_textbox8(sheet_t *sht, int x0, int y0, int sx, int sy, int c);
 void make_wtitle8(unsigned char *buf, int xsize, char *title, char act);
-void console_task(sheet_t *sht_back);
+void console_task(sheet_t *sht_back, unsigned int memtotal);
 
 #define KEYCMD_LED		0xed
 
@@ -85,7 +85,7 @@ void HariMain(void)
     make_window8(buf_cons, FNT_W * 40 + 6, FNT_H * 11 + 26, "Terminal", 0);
     make_textbox8(sht_cons, 3, 23, FNT_W * 40, FNT_H * 11, base03);
     task_cons = task_alloc();
-    task_cons->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024 - 8;
+    task_cons->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024 - 12;
     task_cons->tss.eip = (int) &console_task;
     task_cons->tss.es = 1 * 8;
     task_cons->tss.cs = 2 * 8;
@@ -94,6 +94,7 @@ void HariMain(void)
     task_cons->tss.fs = 1 * 8;
     task_cons->tss.gs = 1 * 8;
     *((int *) (task_cons->tss.esp + 4)) = (int) sht_cons;
+    *((int *) (task_cons->tss.esp + 8)) = memtotal;
     task_run(task_cons, 2, 2); /* level=2, priority=2 */
 
     /* sht_win */
@@ -124,11 +125,6 @@ void HariMain(void)
     sheet_updown(sht_win, 2);
     sheet_updown(sht_mouse, 3);
 
-    sprintf(s, "(%3d, %3d)", mx, my);
-    putfonts8_asc_sht(sht_back, 0, 0, base3, BGM, s, strlen(s));
-    sprintf(s, "memory: %d MB, free: %d KB", memtotal / (1024 * 1024), memman_total(memman) / 1024);
-    putfonts8_asc_sht(sht_back, 0, FNT_H * 2, base3, BGM, s, strlen(s));
-
     for (;;) {
         if (fifo32_status(&keycmd) > 0 && keycmd_wait < 0) {
             /* 如果存在向键盘控制器发送的数据，发送之 */
@@ -144,8 +140,6 @@ void HariMain(void)
             i = fifo32_get(&fifo);
             io_sti();
             if (256 <= i && i <= 511) { /* 键盘 */
-                sprintf(s, "%02X", i - 256);
-                putfonts8_asc_sht(sht_back, 0, FNT_H, base3, BGM, s, 2);
                 if (i < 0x80 + 256) { /* 转换按键编码 */
                     s[0] = (key_shift == 0) ? keytable[i - 256] : keytable1[i - 256];
                 } else {
@@ -190,7 +184,7 @@ void HariMain(void)
                         make_wtitle8(buf_win, sht_win->bxsize, "task_a", 0);
                         make_wtitle8(buf_cons, sht_cons->bxsize, "Terminal", 1);
                         cursor_c = -1; /* 隐藏光标 */
-                        boxfill8(sht_win->buf, sht_win->bxsize, base3, cursor_x, 28, cursor_x + 7, 43);
+                        boxsize8(sht_win->buf, sht_win->bxsize, base3, cursor_x, 28, FNT_W, FNT_H);
                         fifo32_put(&task_cons->fifo, 2); /* 开启终端光标 */
                     } else {
                         key_to = 0;
@@ -238,22 +232,12 @@ void HariMain(void)
                 }
                 /* 显示光标 */
                 if (cursor_c >= 0) {
-                    boxfill8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, cursor_x, 28 + FNT_H - 1);
+                    boxsize8(sht_win->buf, sht_win->bxsize, base3, cursor_x, 28, FNT_W, FNT_H);
+                    boxsize8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, 1, FNT_H);
                 }
                 sheet_refresh(sht_win, cursor_x, 28, cursor_x + FNT_W, 28 + FNT_H);
             } else if (512 <= i && i <= 767) { /* 鼠标 */
                 if (mouse_decode(&mdec, i - 512) != 0) {
-                    sprintf(s, "[lcr %4d %4d]", mdec.x, mdec.y);
-                    if ((mdec.btn & 0x01) != 0) {
-                        s[1] = 'L';
-                    }
-                    if ((mdec.btn & 0x02) != 0) {
-                        s[3] = 'R';
-                    }
-                    if ((mdec.btn & 0x04) != 0) {
-                        s[2] = 'C';
-                    }
-                    putfonts8_asc_sht(sht_back, FNT_W * 4, FNT_H, base3, BGM, s, strlen(s));
                     /* 移动鼠标光标 */
                     mx += mdec.x;
                     my += mdec.y;
@@ -269,8 +253,6 @@ void HariMain(void)
                     if (my >= binfo->scrny) {
                         my = binfo->scrny - 1;
                     }
-                    sprintf(s, "(%3d, %3d)", mx, my);
-                    putfonts8_asc_sht(sht_back, 0, 0, base3, BGM, s, strlen(s));
                     sheet_slide(sht_mouse, mx, my);
                     if ((mdec.btn & 0x01) != 0) {
                         /* 如果按着左键，就移动sht_win */
@@ -350,12 +332,34 @@ void make_textbox8(sheet_t *sht, int x0, int y0, int sx, int sy, int c)
     return;
 }
 
-void console_task(sheet_t *sheet)
+int cons_newline(int cursor_y, sheet_t *sheet)
+{
+    if (cursor_y < FNT_H * 10 + 23) {
+        cursor_y += FNT_H;
+    } else { /* 向下滚动一行 */
+        int x, y;
+        for (y = 23; y < FNT_H * 10 + 23; y++) {
+            for (x = 3; x < FNT_W * 40 + 3; x++) {
+                sheet->buf[x + y * sheet->bxsize] = sheet->buf[x + (y + FNT_H) * sheet->bxsize];
+            }
+        }
+        for (y = FNT_H * 10 + 23; y < FNT_H * 11 + 23; y++) {
+            for (x = 3; x < FNT_W * 40 + 3; x++) {
+                sheet->buf[x + y * sheet->bxsize] = base03;
+            }
+        }
+        sheet_refresh(sheet, 3, 23, FNT_W * 40 + 3, FNT_H * 11 + 23);
+    }
+    return cursor_y;
+}
+
+void console_task(sheet_t *sheet, unsigned int memtotal)
 {
     timer_t *timer;
     task_t *task = task_now();
     int fifobuf[128], cursor_x = 3 + FNT_W * 2, cursor_y = 23, cursor_c = -1;
-    char s[2];
+    char s[40], cmdline[40];
+    memman_t *memman = (memman_t *) MEMMAN_ADDR;
     int x, y, i;
 
     fifo32_init(&task->fifo, 128, fifobuf, task);
@@ -404,20 +408,20 @@ void console_task(sheet_t *sheet)
                 } else if (i == 10 + 256) { /* 回车键 */
                     /* 擦除光标 */
                     putfonts8_asc_sht(sheet, cursor_x, cursor_y, base3, base03, " ", 1);
-                    if (cursor_y < FNT_H * 10 + 23) {
-                        cursor_y += FNT_H;
-                    } else { /* 向下滚动一行 */
-                        for (y = 23; y < FNT_H * 10 + 23; y++) {
-                            for (x = 3; x < FNT_W * 40 + 3; x++) {
-                                sheet->buf[x + y * sheet->bxsize] = sheet->buf[x + (y + FNT_H) * sheet->bxsize];
-                            }
-                        }
-                        for (y = FNT_H * 10 + 23; y < FNT_H * 11 + 23; y++) {
-                            for (x = 3; x < FNT_W * 40 + 3; x++) {
-                                sheet->buf[x + y * sheet->bxsize] = base03;
-                            }
-                        }
-                        sheet_refresh(sheet, 3, 23, FNT_W * 40 + 3, FNT_H * 11 + 23);
+                    cmdline[cursor_x / FNT_W - 2] = 0;
+                    cursor_y = cons_newline(cursor_y, sheet);
+                    /* 执行命令 */
+                    if (strcmp(cmdline, "mem") == 0) {
+                        sprintf(s, "total %8dMB", memtotal / (1024 * 1024));
+                        putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, s, 40);
+                        cursor_y = cons_newline(cursor_y, sheet);
+                        sprintf(s, "free  %8dKB", memman_total(memman) / 1024);
+                        putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, s, 40);
+                        cursor_y = cons_newline(cursor_y, sheet);
+                    } else if (cmdline[0] != 0) {
+                        sprintf(s, "Command '%s' not found.", cmdline);
+                        putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, s, 40);
+                        cursor_y = cons_newline(cursor_y, sheet);
                     }
                     /* 命令提示符 */
                     putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, "$ ", 2);
@@ -426,6 +430,7 @@ void console_task(sheet_t *sheet)
                     if (cursor_x < 3 + FNT_W * 40 - FNT_W) {
                         s[0] = i - 256;
                         s[1] = 0;
+                        cmdline[cursor_x / FNT_W - 2] = i - 256;
                         putfonts8_asc_sht(sheet, cursor_x, cursor_y, base3, base03, s, 2);
                         cursor_x += FNT_W;
                     }
