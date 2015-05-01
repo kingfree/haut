@@ -418,7 +418,16 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
                         sprintf(s, "free  %8dKB", memman_total(memman) / 1024);
                         putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, s, 40);
                         cursor_y = cons_newline(cursor_y, sheet);
+                    } else if (strcmp(cmdline, "clear") == 0 || strcmp(cmdline, "cls") == 0) {
+                        for (y = 23; y < FNT_H * 11 + 23; y++) {
+                            for (x = 3; x < FNT_W * 40 + 3; x++) {
+                                sheet->buf[x + y * sheet->bxsize] = base03;
+                            }
+                        }
+                        sheet_refresh(sheet, 3, 23, FNT_W * 40 + 3, FNT_H * 11 + 23);
+                        cursor_y = 23;
                     } else if (cmdline[0] != 0) {
+                        cmdline[16] = 0;
                         sprintf(s, "Command '%s' not found.", cmdline);
                         putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, s, 40);
                         cursor_y = cons_newline(cursor_y, sheet);
