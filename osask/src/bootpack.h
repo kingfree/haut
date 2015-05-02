@@ -293,4 +293,37 @@ void task_run(task_t *task, int level, int priority);
 void task_switch(void);
 void task_sleep(task_t *task);
 
+/* window.c */
+#define WIN_TOP  28
+#define WIN_LEFT 8
+
+void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act);
+void make_wtitle8(unsigned char *buf, int xsize, char *title, char act);
+void make_textbox8(sheet_t *sht, int x0, int y0, int sx, int sy, int c);
+void putfonts8_asc_sht(sheet_t *sht, int x, int y, int c, int b, char *s, int l);
+
+/* console.c */
+#define CONS_COLN 80                                /* 列数（自定义） */
+#define CONS_LINE 30                                /* 行数（自定义） */
+#define CONS_COLW (FNT_W * CONS_COLN)               /* 列宽 */
+#define CONS_LINH (FNT_H * CONS_LINE)               /* 行高 */
+#define CONS_LEFT 3                                 /* 左边宽度 */
+#define CONS_TOP  23                                /* 顶部高度 */
+#define CONS_WINW (CONS_COLW+ CONS_LEFT * 2)        /* 窗口宽度 */
+#define CONS_WINH (CONS_LINH + CONS_TOP + CONS_LEFT)/* 窗口高度 */
+
+void console_task(sheet_t *sht_back, unsigned int memtotal);
+int cons_newline(int cursor_y, sheet_t *sheet);
+
+/* file.c */
+typedef struct FILEINFO {
+    unsigned char name[8], ext[3], type;
+    char reserve[10];
+    unsigned short time, date, clustno;
+    unsigned int size;
+} fileinfo;
+
+void file_readfat(int *fat, unsigned char *img);
+void file_loadfile(int clustno, int size, char *buf, int *fat, char *img);
+
 #endif
