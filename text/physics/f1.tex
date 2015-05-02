@@ -13,6 +13,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \usepackage{multicol} % 分栏
 \usepackage{color,xcolor}
 \usepackage{tikz}
+\usetikzlibrary{calc}
 \usepackage{wrapfig}
 
 % \setmainfont{Times New Roman}
@@ -74,7 +75,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \newcommand{\E}[1]{\times10^{#1}}
 \newcommand{\pp}{\par\quad}
 \newcommand{\ul}[1]{\CJKunderline{#1}}
-\newcommand{\SL}[1]{{\par\CTEXnoindent\fbox{\begin{minipage}{\textwidth}{#1}\end{minipage}}\par}}
+\newcommand{\SL}[1]{{\par\CTEXnoindent\fbox{\begin{minipage}{\textwidth}{{\bf 解:~}#1}\end{minipage}}\par}}
 \newcommand{\SP}[2]{{\par\fbox{\makebox[2em][l]{\bf 解:~}\begin{minipage}{0.5\textwidth}{#1}\end{minipage}\begin{minipage}{0.4\textwidth}{#2}\end{minipage}}}\par}
 
 \begin{document}
