@@ -365,7 +365,7 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
     timer_t *timer;
     task_t *task = task_now();
     int fifobuf[128], cursor_x = 3 + FNT_W * 2, cursor_y = 23, cursor_c = -1;
-    char s[40], cmdline[40];
+    char s[40], cmdline[40], *p;
     memman_t *memman = (memman_t *) MEMMAN_ADDR;
     fileinfo *finfo = (fileinfo *) (ADR_DISKIMG + 0x002600);
     int x, y, i;
@@ -453,6 +453,76 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
                                 }
                             }
                         }
+                    } else if (strncmp(cmdline, "cat ", 4) == 0 || strncmp(cmdline, "type ", 5) == 0) {
+                        for (y = 0; y < 11; y++) {
+                            s[y] = ' ';
+                        }
+                        x = (cmdline[0] == 'c') ? 4 : 5;
+                        for (y = 0; y < 11 && cmdline[x] != 0; x++) {
+                            if (cmdline[x] == '.' && y <= 8) {
+                                y = 8;
+                            } else {
+                                s[y] = cmdline[x];
+                                if ('a' <= s[y] && s[y] <= 'z') {
+                                    s[y] -= 0x20; /* 转成大写 */
+                                }
+                                y++;
+                            }
+                        }
+                        for (x = 0; x < 224;) {
+                            if (finfo[x].name[0] == 0x00) {
+                                break;
+                            }
+                            if ((finfo[x].type & 0x18) == 0) {
+                                for (y = 0; y < 11; y++) {
+                                    if (finfo[x].name[y] != s[y]) {
+                                        goto type_next_file;
+                                    }
+                                }
+                                break; /* 找到文件 */
+                            }
+type_next_file:
+                            x++;
+                        }
+                        if (x < 224 && finfo[x].name[0] != 0x00) {
+                            /* 找到文件 */
+                            y = finfo[x].size;
+                            p = (char *) (finfo[x].clustno * 512 + 0x003e00 + ADR_DISKIMG);
+                            cursor_x = 3;
+                            for (x = 0; x < y; x++) {
+                                /* 逐字输出 */
+                                s[0] = p[x], s[1] = 0;
+                                if (s[0] == 0x09) { /* 制表符 */
+                                    for (;;) {
+                                        putfonts8_asc_sht(sheet, cursor_x, cursor_y, base3, base03, " ", 1);
+                                        cursor_x += FNT_W;
+                                        if (cursor_x == 3 + FNT_W * 40 - FNT_W) {
+                                            cursor_x = 3;
+                                            cursor_y = cons_newline(cursor_y, sheet);
+                                        }
+                                        if ((cursor_x - 3) % (FNT_W * 4) == 0) {
+                                            break;
+                                        }
+                                    }
+                                } else if (s[0] == 0x0a) { /* 换行符 */
+                                    cursor_x = 3;
+                                    cursor_y = cons_newline(cursor_y, sheet);
+                                } else if (s[0] == 0x0d) { /* 回车符 */
+                                } else { /* 一般字符 */
+                                    putfonts8_asc_sht(sheet, cursor_x, cursor_y, base3, base03, s, 1);
+                                    cursor_x += FNT_W;
+                                    if (cursor_x == 3 + FNT_W * 40 - FNT_W) {
+                                        cursor_x = 3;
+                                        cursor_y = cons_newline(cursor_y, sheet);
+                                    }
+                                }
+                            }
+                        } else {
+                            /* 没有找到文件 */
+                            sprintf(cmdline, "File '%s' not found.", s);
+                            putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, cmdline, 40);
+                        }
+                        cursor_y = cons_newline(cursor_y, sheet);
                     } else if (cmdline[0] != 0) {
                         cmdline[16] = 0;
                         sprintf(s, "Command '%s' not found.", cmdline);
