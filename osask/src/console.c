@@ -14,6 +14,7 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
     fileinfo *finfo = (fileinfo *) (ADR_DISKIMG + 0x002600);
     int *fat = (int *) memman_alloc_4k(memman, 4 * 2880); /* FAT12 */
     int x, y, i;
+    segment_descriptor *gdt = (segment_descriptor *) ADR_GDT;
 
     fifo32_init(&task->fifo, 128, fifobuf, task);
     timer = timer_alloc();
@@ -168,6 +169,46 @@ type_next_file:
                             memman_free_4k(memman, (int) p, finfo[x].size);
                         } else {
                             /* 没有找到文件 */
+                            sprintf(cmdline, "File '%s' not found.", s);
+                            putfonts8_asc_sht(sheet, CONS_LEFT, cursor_y, base3, base03, cmdline, CONS_COLN);
+                        }
+                        cursor_y = cons_newline(cursor_y, sheet);
+                    } else if (strcmp(cmdline, "hlt") == 0) {
+                        /* 启动hlt.hrb应用程序 */
+                        for (y = 0; y < 11; y++) {
+                            s[y] = ' ';
+                        }
+                        s[11] = 0;
+                        s[0] = 'H';
+                        s[1] = 'L';
+                        s[2] = 'T';
+                        s[8] = 'H';
+                        s[9] = 'R';
+                        s[10] = 'B';
+                        for (x = 0; x < 224;) {
+                            if (finfo[x].name[0] == 0x00) {
+                                break;
+                            }
+                            if ((finfo[x].type & 0x18) == 0) {
+                                for (y = 0; y < 11; y++) {
+                                    if (finfo[x].name[y] != s[y]) {
+                                        goto hlt_next_file;
+                                    }
+                                }
+                                break; /* 没找到文件 */
+                            }
+hlt_next_file:
+                            x++;
+                        }
+                        if (x < 224 && finfo[x].name[0] != 0x00) {
+                            /* 找到文件 */
+                            p = (char *) memman_alloc_4k(memman, finfo[x].size);
+                            file_loadfile(finfo[x].clustno, finfo[x].size, p, fat, (char *) (ADR_DISKIMG + 0x003e00));
+                            set_segmdesc(gdt + 1003, finfo[x].size - 1, (int) p, AR_CODE32_ER);
+                            farjmp(0, 1003 * 8);
+                            memman_free_4k(memman, (int) p, finfo[x].size);
+                        } else {
+                            /* 没找到文件 */
                             sprintf(cmdline, "File '%s' not found.", s);
                             putfonts8_asc_sht(sheet, CONS_LEFT, cursor_y, base3, base03, cmdline, CONS_COLN);
                         }

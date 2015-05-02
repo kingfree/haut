@@ -24,8 +24,8 @@ void init_pic(void)
     return;
 }
 
-void inthandler27(int *esp)
 /* PIC0的不完全中断对策 */
+void inthandler27(int *esp)
 {
     io_out8(PIC0_OCW2, 0x67); /* 收到IRQ-07后通知PIC */
     return;

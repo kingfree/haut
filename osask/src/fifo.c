@@ -4,8 +4,8 @@
 
 #define FLAGS_OVERRUN 0x0001
 
-void fifo32_init(fifo32 *q, int size, int *buf, struct TASK *task)
 /* 初始化FIFO缓冲区 */
+void fifo32_init(fifo32 *q, int size, int *buf, struct TASK *task)
 {
     q->size = size;
     q->buf = buf;
@@ -17,8 +17,8 @@ void fifo32_init(fifo32 *q, int size, int *buf, struct TASK *task)
     return;
 }
 
-int fifo32_put(fifo32 *q, int data)
 /* 压入FIFO堆里 */
+int fifo32_put(fifo32 *q, int data)
 {
     if (q->free == 0) {
         /* 溢出 */
@@ -39,8 +39,8 @@ int fifo32_put(fifo32 *q, int data)
     return 0;
 }
 
-int fifo32_get(fifo32 *q)
 /* 弹出FIFO队列 */
+int fifo32_get(fifo32 *q)
 {
     int data;
     if (q->free == q->size) {
@@ -56,8 +56,8 @@ int fifo32_get(fifo32 *q)
     return data;
 }
 
-int fifo32_status(fifo32 *q)
 /* 队列长度 */
+int fifo32_status(fifo32 *q)
 {
     return q->size - q->free;
 }

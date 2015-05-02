@@ -2,8 +2,8 @@
 
 #include "bootpack.h"
 
-void file_readfat(int *fat, unsigned char *img)
 /* ½âÑ¹ËõFAT12¸ñÊ½ */
+void file_readfat(int *fat, unsigned char *img)
 {
     int i, j = 0;
     for (i = 0; i < 2880; i += 2) {

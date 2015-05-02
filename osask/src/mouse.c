@@ -5,8 +5,8 @@
 fifo32 *mousefifo;
 int mousedata0;
 
-void inthandler2c(int *esp)
 /* PS/2鼠标中断 */
+void inthandler2c(int *esp)
 {
     int data;
     io_out8(PIC1_OCW2, 0x64);   /* 接收IRQ-12后通知PIC */

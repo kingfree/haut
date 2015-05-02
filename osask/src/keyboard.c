@@ -5,8 +5,8 @@
 fifo32 *keyfifo;
 int keydata0;
 
-void inthandler21(int *esp)
 /* PS/2键盘中断 */
+void inthandler21(int *esp)
 {
     int data;
     io_out8(PIC0_OCW2, 0x61);   /* 接收IRQ-01后通知PIC */

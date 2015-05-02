@@ -47,8 +47,8 @@ void memman_init(memman_t *man)
     return;
 }
 
-unsigned int memman_total(memman_t *man)
 /* 空闲内存大小 */
+unsigned int memman_total(memman_t *man)
 {
     unsigned int i, t = 0;
     for (i = 0; i < man->frees; i++) {
@@ -57,8 +57,8 @@ unsigned int memman_total(memman_t *man)
     return t;
 }
 
-unsigned int memman_alloc(memman_t *man, unsigned int size)
 /* 分配 */
+unsigned int memman_alloc(memman_t *man, unsigned int size)
 {
     unsigned int i, a;
     for (i = 0; i < man->frees; i++) {
@@ -80,8 +80,8 @@ unsigned int memman_alloc(memman_t *man, unsigned int size)
     return 0; /* 没有可用空间 */
 }
 
-int memman_free(memman_t *man, unsigned int addr, unsigned int size)
 /* 释放 */
+int memman_free(memman_t *man, unsigned int addr, unsigned int size)
 {
     int i, j;
     /* 为便于合并内存，将free[]按照addr顺序排列 */
