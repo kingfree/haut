@@ -11,10 +11,24 @@ typedef struct FILEINFO {
     unsigned int size;
 } fileinfo;
 
-void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act);
 void putfonts8_asc_sht(sheet_t *sht, int x, int y, int c, int b, char *s, int l);
 void make_textbox8(sheet_t *sht, int x0, int y0, int sx, int sy, int c);
+
+#define WIN_TOP  28
+#define WIN_LEFT 8
+
+void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act);
 void make_wtitle8(unsigned char *buf, int xsize, char *title, char act);
+
+#define CONS_COLN 80                                /* 列数 */
+#define CONS_LINE 30                                /* 行数 */
+#define CONS_COLW (FNT_W * CONS_COLN)               /* 列宽 */
+#define CONS_LINH (FNT_H * CONS_LINE)               /* 行高 */
+#define CONS_LEFT 3                                 /* 左边宽度 */
+#define CONS_TOP  23                                /* 顶部高度 */
+#define CONS_WINW (CONS_COLW+ CONS_LEFT * 2)        /* 窗口宽度 */
+#define CONS_WINH (CONS_LINH + CONS_TOP + CONS_LEFT)/* 窗口高度 */
+
 void console_task(sheet_t *sht_back, unsigned int memtotal);
 
 #define KEYCMD_LED		0xed
@@ -87,10 +101,10 @@ void HariMain(void)
 
     /* sht_cons */
     sht_cons = sheet_alloc(shtctl);
-    buf_cons = (unsigned char *) memman_alloc_4k(memman, 256 * 165);
-    sheet_setbuf(sht_cons, buf_cons, FNT_W * 40 + 6, FNT_H * 11 + 26, -1); /* 无透明色 */
-    make_window8(buf_cons, FNT_W * 40 + 6, FNT_H * 11 + 26, "Terminal", 0);
-    make_textbox8(sht_cons, 3, 23, FNT_W * 40, FNT_H * 11, base03);
+    buf_cons = (unsigned char *) memman_alloc_4k(memman, CONS_WINW * CONS_WINH);
+    sheet_setbuf(sht_cons, buf_cons, CONS_WINW, CONS_WINH, -1); /* 无透明色 */
+    make_window8(buf_cons, CONS_WINW, CONS_WINH, "Terminal", 0);
+    make_textbox8(sht_cons, CONS_LEFT, CONS_TOP, CONS_COLW, CONS_LINH, base03);
     task_cons = task_alloc();
     task_cons->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024 - 12;
     task_cons->tss.eip = (int) &console_task;
@@ -341,21 +355,21 @@ void make_textbox8(sheet_t *sht, int x0, int y0, int sx, int sy, int c)
 
 int cons_newline(int cursor_y, sheet_t *sheet)
 {
-    if (cursor_y < FNT_H * 10 + 23) {
+    if (cursor_y < CONS_LINH - FNT_H + CONS_TOP) {
         cursor_y += FNT_H;
     } else { /* 向下滚动一行 */
         int x, y;
-        for (y = 23; y < FNT_H * 10 + 23; y++) {
-            for (x = 3; x < FNT_W * 40 + 3; x++) {
+        for (y = CONS_TOP; y < CONS_LINH - FNT_H + CONS_TOP; y++) {
+            for (x = CONS_LEFT; x < CONS_COLW + CONS_LEFT; x++) {
                 sheet->buf[x + y * sheet->bxsize] = sheet->buf[x + (y + FNT_H) * sheet->bxsize];
             }
         }
-        for (y = FNT_H * 10 + 23; y < FNT_H * 11 + 23; y++) {
-            for (x = 3; x < FNT_W * 40 + 3; x++) {
+        for (y = CONS_LINH - FNT_H + CONS_TOP; y < CONS_LINH + CONS_TOP; y++) {
+            for (x = CONS_LEFT; x < CONS_COLW + CONS_LEFT; x++) {
                 sheet->buf[x + y * sheet->bxsize] = base03;
             }
         }
-        sheet_refresh(sheet, 3, 23, FNT_W * 40 + 3, FNT_H * 11 + 23);
+        sheet_refresh(sheet, CONS_LEFT, CONS_TOP, CONS_COLW + CONS_LEFT, FNT_H * CONS_LINH + CONS_TOP);
     }
     return cursor_y;
 }
@@ -364,8 +378,8 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
 {
     timer_t *timer;
     task_t *task = task_now();
-    int fifobuf[128], cursor_x = 3 + FNT_W * 2, cursor_y = 23, cursor_c = -1;
-    char s[40], cmdline[40], *p;
+    int fifobuf[128], cursor_x = CONS_LEFT + FNT_W * 2, cursor_y = CONS_TOP, cursor_c = -1;
+    char s[CONS_COLN], cmdline[CONS_COLN], *p;
     memman_t *memman = (memman_t *) MEMMAN_ADDR;
     fileinfo *finfo = (fileinfo *) (ADR_DISKIMG + 0x002600);
     int x, y, i;
@@ -409,7 +423,7 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
             }
             if (256 <= i && i <= 511) { /* 键盘数据 */
                 if (i == 8 + 256) { /* 退格键 */
-                    if (cursor_x > 3 + FNT_W * 2) {
+                    if (cursor_x > CONS_LEFT + FNT_W * 2) {
                         putfonts8_asc_sht(sheet, cursor_x, cursor_y, base3, base03, " ", 1);
                         cursor_x -= FNT_W;
                     }
@@ -421,19 +435,19 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
                     /* 执行命令 */
                     if (strcmp(cmdline, "mem") == 0) {
                         sprintf(s, "total %8dMB", memtotal / (1024 * 1024));
-                        putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, s, 40);
+                        putfonts8_asc_sht(sheet, CONS_LEFT, cursor_y, base3, base03, s, CONS_COLN);
                         cursor_y = cons_newline(cursor_y, sheet);
                         sprintf(s, "free  %8dKB", memman_total(memman) / 1024);
-                        putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, s, 40);
+                        putfonts8_asc_sht(sheet, CONS_LEFT, cursor_y, base3, base03, s, CONS_COLN);
                         cursor_y = cons_newline(cursor_y, sheet);
                     } else if (strcmp(cmdline, "clear") == 0 || strcmp(cmdline, "cls") == 0) {
-                        for (y = 23; y < FNT_H * 11 + 23; y++) {
-                            for (x = 3; x < FNT_W * 40 + 3; x++) {
+                        for (y = CONS_TOP; y < CONS_LINH + CONS_TOP; y++) {
+                            for (x = CONS_LEFT; x < CONS_COLW + CONS_LEFT; x++) {
                                 sheet->buf[x + y * sheet->bxsize] = base03;
                             }
                         }
-                        sheet_refresh(sheet, 3, 23, FNT_W * 40 + 3, FNT_H * 11 + 23);
-                        cursor_y = 23;
+                        sheet_refresh(sheet, CONS_LEFT, CONS_TOP, CONS_COLW + CONS_LEFT, CONS_LINH + CONS_TOP);
+                        cursor_y = CONS_TOP;
                     } else if (strcmp(cmdline, "ls -l") == 0 || strcmp(cmdline, "dir") == 0) {
                         for (x = 0; x < 224; x++) {
                             if (finfo[x].name[0] == 0x00) {
@@ -448,7 +462,7 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
                                     s[9] = finfo[x].ext[0];
                                     s[10] = finfo[x].ext[1];
                                     s[11] = finfo[x].ext[2];
-                                    putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, s, 40);
+                                    putfonts8_asc_sht(sheet, CONS_LEFT, cursor_y, base3, base03, s, CONS_COLN);
                                     cursor_y = cons_newline(cursor_y, sheet);
                                 }
                             }
@@ -496,11 +510,11 @@ type_next_file:
                                     for (;;) {
                                         putfonts8_asc_sht(sheet, cursor_x, cursor_y, base3, base03, " ", 1);
                                         cursor_x += FNT_W;
-                                        if (cursor_x == 3 + FNT_W * 40 - FNT_W) {
-                                            cursor_x = 3;
+                                        if (cursor_x == CONS_LEFT + CONS_COLW - FNT_W) {
+                                            cursor_x = CONS_LEFT;
                                             cursor_y = cons_newline(cursor_y, sheet);
                                         }
-                                        if ((cursor_x - 3) % (FNT_W * 4) == 0) {
+                                        if ((cursor_x - CONS_LEFT) % (FNT_W * 4) == 0) {
                                             break;
                                         }
                                     }
@@ -511,8 +525,8 @@ type_next_file:
                                 } else { /* 一般字符 */
                                     putfonts8_asc_sht(sheet, cursor_x, cursor_y, base3, base03, s, 1);
                                     cursor_x += FNT_W;
-                                    if (cursor_x == 3 + FNT_W * 40 - FNT_W) {
-                                        cursor_x = 3;
+                                    if (cursor_x == CONS_LEFT + CONS_COLW - FNT_W) {
+                                        cursor_x = CONS_LEFT;
                                         cursor_y = cons_newline(cursor_y, sheet);
                                     }
                                 }
@@ -520,20 +534,20 @@ type_next_file:
                         } else {
                             /* 没有找到文件 */
                             sprintf(cmdline, "File '%s' not found.", s);
-                            putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, cmdline, 40);
+                            putfonts8_asc_sht(sheet, CONS_LEFT, cursor_y, base3, base03, cmdline, CONS_COLN);
                         }
                         cursor_y = cons_newline(cursor_y, sheet);
                     } else if (cmdline[0] != 0) {
                         cmdline[16] = 0;
                         sprintf(s, "Command '%s' not found.", cmdline);
-                        putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, s, 40);
+                        putfonts8_asc_sht(sheet, CONS_LEFT, cursor_y, base3, base03, s, CONS_COLN);
                         cursor_y = cons_newline(cursor_y, sheet);
                     }
                     /* 命令提示符 */
-                    putfonts8_asc_sht(sheet, 3, cursor_y, base3, base03, "$ ", 2);
-                    cursor_x = 3 + FNT_W * 2;
+                    putfonts8_asc_sht(sheet, CONS_LEFT, cursor_y, base3, base03, "$ ", 2);
+                    cursor_x = CONS_LEFT + FNT_W * 2;
                 } else { /* 一般字符 */
-                    if (cursor_x < 3 + FNT_W * 40 - FNT_W) {
+                if (cursor_x < CONS_LEFT + CONS_COLW - FNT_W) {
                         s[0] = i - 256;
                         s[1] = 0;
                         cmdline[cursor_x / FNT_W - 2] = i - 256;
