@@ -150,6 +150,23 @@ void cons_newline(console *cons)
     return;
 }
 
+void cons_putstr0(console *cons, char *s)
+{
+    for (; *s != 0; s++) {
+        cons_putchar(cons, *s, 1);
+    }
+    return;
+}
+
+void cons_putstr1(console *cons, char *s, int l)
+{
+    int i;
+    for (i = 0; i < l; i++) {
+        cons_putchar(cons, s[i], 1);
+    }
+    return;
+}
+
 void cons_runcmd(char *cmdline, console *cons, int *fat, unsigned int memtotal)
 {
     char s[CONS_COLN];
@@ -165,9 +182,8 @@ void cons_runcmd(char *cmdline, console *cons, int *fat, unsigned int memtotal)
         if (cmd_app(cons, fat, cmdline) == 0) {
             /* 不是有效命令，也不是空行 */
             cmdline[8] = 0;
-            sprintf(s, "Command '%s' not found.", cmdline);
-            putfonts8_asc_sht(cons->sht, CONS_LEFT, cons->cur_y, base3, base03, s, strlen(s));
-            cons_newline(cons);
+            sprintf(s, "Command '%s' not found.\n", cmdline);
+            cons_putstr0(cons, s);
         }
     }
     return;
@@ -177,12 +193,8 @@ void cmd_mem(console *cons, unsigned int memtotal)
 {
     memman_t *memman = (memman_t *) MEMMAN_ADDR;
     char s[CONS_COLN];
-    sprintf(s, "total %9dMB", memtotal / (1024 * 1024));
-    putfonts8_asc_sht(cons->sht, CONS_LEFT, cons->cur_y, base3, base03, s, CONS_COLN);
-    cons_newline(cons);
-    sprintf(s, "free %10dKB", memman_total(memman) / 1024);
-    putfonts8_asc_sht(cons->sht, CONS_LEFT, cons->cur_y, base3, base03, s, CONS_COLN);
-    cons_newline(cons);
+    sprintf(s, "total %9dMB\nfree %10dKB\n", memtotal / (1024 * 1024), memman_total(memman) / 1024);
+    cons_putstr0(cons, s);
     return;
 }
 
@@ -211,15 +223,14 @@ void cmd_dir(console *cons)
         }
         if (finfo[i].name[0] != 0xe5) {
             if ((finfo[i].type & 0x18) == 0) {
-                sprintf(s, "filename.ext   %7d", finfo[i].size);
+                sprintf(s, "filename.ext   %7d\n", finfo[i].size);
                 for (j = 0; j < 8; j++) {
                     s[j] = finfo[i].name[j];
                 }
                 s[9] = finfo[i].ext[0];
                 s[10] = finfo[i].ext[1];
                 s[11] = finfo[i].ext[2];
-                putfonts8_asc_sht(cons->sht, CONS_LEFT, cons->cur_y, base3, base03, s, CONS_COLN);
-                cons_newline(cons);
+                cons_putstr0(cons, s);
             }
         }
     }
@@ -231,20 +242,16 @@ void cmd_type(console *cons, int *fat, char *filename)
     memman_t *memman = (memman_t *) MEMMAN_ADDR;
     fileinfo *finfo = file_search(filename, (fileinfo *) (ADR_DISKIMG + 0x002600), 224);
     char *p, s[CONS_COLN];
-    int i;
     if (finfo != 0) {
         /* 找到文件 */
         p = (char *) memman_alloc_4k(memman, finfo->size);
         file_loadfile(finfo->clustno, finfo->size, p, fat, (char *) (ADR_DISKIMG + 0x003e00));
-        for (i = 0; i < finfo->size; i++) {
-            cons_putchar(cons, p[i], 1);
-        }
+        cons_putstr1(cons, p, finfo->size);
         memman_free_4k(memman, (int) p, finfo->size);
     } else {
         /* 未找到文件 */
         sprintf(s, "File '%s' not found.", filename);
-        putfonts8_asc_sht(cons->sht, CONS_LEFT, cons->cur_y, base3, base03, s, CONS_COLN);
-        cons_newline(cons);
+        cons_putstr0(cons, s);
     }
     cons_newline(cons);
     return;
@@ -291,4 +298,18 @@ int cmd_app(console *cons, int *fat, char *cmdline)
     }
     /* 未找到文件 */
     return 0;
+}
+
+/* 系统调用 API */
+void hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax)
+{
+    console *cons = (console *) *((int *) 0x0fec);
+    if (edx == 1) {
+        cons_putchar(cons, eax & 0xff, 1);
+    } else if (edx == 2) {
+        cons_putstr0(cons, (char *) ebx);
+    } else if (edx == 3) {
+        cons_putstr1(cons, (char *) ebx, ecx);
+    }
+    return;
 }
