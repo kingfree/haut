@@ -109,29 +109,40 @@ $\varepsilon_i=\int\dh\varepsilon_i=-\int_{a+vt\cos\theta}^{a+l+vt\cos\theta}\fr
 $\varepsilon_i=-\frac{\mu_0I}{2\pi}v\sin\theta\ln\frac{a+l+vt\cos\theta}{a+vt\cos\theta}$,
 $A$端的电势高.
 }
-57. 
-\SL{
+57. 如图所示,长直导线中电流为$i$,矩形线框$abcd$与长直导线共面,且$ad\parallel AB$,$dc$边固定,$ab$边沿$da$及$cb$以速度$\vec v$无摩擦地匀速平动.$t=0$时,$ab$边与$cd$边重合.设线框自感忽略不计.\pp
+    (1) 如$i=I_0$,求$ab$中的感应电动势.$ab$两点哪点电势高?\pp
+    (2) 如$i=I_0\cos\omega t$,求$ab$边运动到图示位置时线框中的总感应电动势.
+\SL{(1) $\overline{ab}$所处的磁场不均匀,建立坐标$ox$,$x$沿$ab$方向,原点在长直导线处,\\
+则$x$处磁场为
+$B=\frac{\mu_0i}{2\pi x}$, $i=I_0$.\\
+沿$a\to b$方向
+$\varepsilon=\int_a^b(\vec v\times\vec B)\cdot\d\vec l
+=-\int_0^{l_0+l_1}v\frac{\mu_0I_0}{2\pi x}\d x
+=-\frac{\mu_0vI_0}{2\pi}\ln\frac{l_0+l_1}{l_0}$,
+故
+$V_a>V_b$.\pp
+(2) $i=I_0\cos\omega t$,取顺时针绕向为正\pp
+$\varPhi=\int Bl_2\d x=\int_0^{l_0+l_1}\frac{\mu_0il_2}{2\pi x}\d x
+=-\frac{\mu_0il_2}{2\pi}\ln\frac{l_0+l_1}{l_0}$,\\
+其中
+$l_2=vt$,
+则有\pp
+$\varepsilon=-\frac{\d\varPhi}{\d t}=-\frac{\mu_0}{2\pi}\ln\frac{l_0+l_1}{l_0}\frac{\d(il_2)}{\d t}
+=\frac{\mu_0I_0}{2\pi}v(\ln\frac{l_0+l_1}{l_0})(\omega t\sin\omega t-\cos\omega t)$.
 }
-58. 
-\SL{
+58. 载流长直导线与矩形回路$ABCD$共面,导线平行于$AB$,如图所示.求下列情况下$ABCD$中的感应电动势:\pp
+    (1) 长直导线中电流$I=I_0$不变,$ABCD$以垂直于导线的速度$\vec v$从初始位置远离导线匀速平移到某一位置时($t$时刻).\pp
+    (2) 长直导线中电流$I=I_0\sin\omega t$,$ABCD$不动.\pp
+    (3) 长直导线中电流$I=I_0\sin\omega t$,$ABCD$以垂直于导线的速度$\vec v$从初始位置远离导线匀速运动.
+\SL{取顺时针绕向为正
+$\varPhi=\frac{\mu_0Il}{2\pi}\ln\frac{a+vt+b}{a+vt}$.\pp
+    (1) $I=I_0$时,\pp
+    $\varepsilon_1=-\frac{\d\varPhi}{\d t}=\frac{\mu_0Ilv}{2\pi}(\frac1{a+vt}-\frac1{a+b+vt})$,
+    方向沿顺时针.\pp
+    (2) $v=0$, $\varPhi=\frac{\mu_0Il}{2\pi}\ln\frac{a+b}{a}$,\pp
+    $\varepsilon_2=-\frac{\d\varPhi}{\d t}=-\frac{\mu_0l}{2\pi}\ln\frac{a+b}{a}\cdot\frac{\d I}{\d t}=-\frac{\mu_0lI_0\omega}{2\pi}\ln\frac{a+b}{a}\cos\omega t$,
+    正值表示顺时针.\pp
+    (3) $\varepsilon=-\frac{\d\varPhi}{\d t}=-\frac{\mu_0l}{2\pi}\frac{\d}{\d t}(I\ln\frac{a+b+vt}{a+vt})
+    =\frac{\mu_0I_0l}{2\pi}[v\sin\omega t(\frac1{a+vt}-\frac1{a+b+vt})-\omega\cos\omega t\ln\frac{a+b+vt}{a+vt}]$.\pp
+    也可直接得$\varepsilon=\varepsilon_1+\varepsilon_2=\cdots$.
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
