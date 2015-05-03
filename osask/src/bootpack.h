@@ -2,7 +2,7 @@
 #define BOOTPACK_H
 
 #define SYSNAME     "PriPara OS"
-#define SYSVER      "19"
+#define SYSVER      "20"
 #define SYSNAMEVER  SYSNAME " " SYSVER
 
 /* asmhead.nas */
@@ -312,8 +312,19 @@ void putfonts8_asc_sht(sheet_t *sht, int x, int y, int c, int b, char *s, int l)
 #define CONS_WINW (CONS_COLW+ CONS_LEFT * 2)        /* 窗口宽度 */
 #define CONS_WINH (CONS_LINH + CONS_TOP + CONS_LEFT)/* 窗口高度 */
 
-void console_task(sheet_t *sht_back, unsigned int memtotal);
-int cons_newline(int cursor_y, sheet_t *sheet);
+typedef struct CONSOLE {
+    struct SHEET *sht;
+    int cur_x, cur_y, cur_c;
+} console;
+void console_task(sheet_t *sheet, unsigned int memtotal);
+void cons_putchar(console *cons, int chr, char move);
+void cons_newline(console *cons);
+void cons_runcmd(char *cmdline, console *cons, int *fat, unsigned int memtotal);
+void cmd_mem(console *cons, unsigned int memtotal);
+void cmd_cls(console *cons);
+void cmd_dir(console *cons);
+void cmd_type(console *cons, int *fat, char *cmdline);
+void cmd_hlt(console *cons, int *fat);
 
 /* file.c */
 typedef struct FILEINFO {
@@ -325,5 +336,6 @@ typedef struct FILEINFO {
 
 void file_readfat(int *fat, unsigned char *img);
 void file_loadfile(int clustno, int size, char *buf, int *fat, char *img);
+fileinfo *file_search(char *name, fileinfo *finfo, int max);
 
 #endif
