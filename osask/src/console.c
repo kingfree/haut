@@ -16,6 +16,7 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
     cons.cur_x = CONS_LEFT;
     cons.cur_y = CONS_TOP;
     cons.cur_c = -1;
+    *((int *) 0x0fec) = (int) &cons;
 
     fifo32_init(&task->fifo, 128, fifobuf, task);
     timer = timer_alloc();
@@ -111,7 +112,7 @@ void cons_putchar(console *cons, int chr, char move)
     } else if (s[0] == 0x0a) { /* 换行 */
         cons_newline(cons);
     } else if (s[0] == 0x0d) { /* 回车 */
-        /* 什么也不做 */
+        cons->cur_x = CONS_LEFT;
     } else { /* 一般字符 */
         putfonts8_asc_sht(cons->sht, cons->cur_x, cons->cur_y, base3, base03, s, 1);
         if (move != 0) {
@@ -245,6 +246,7 @@ void cmd_type(console *cons, int *fat, char *filename)
         putfonts8_asc_sht(cons->sht, CONS_LEFT, cons->cur_y, base3, base03, s, CONS_COLN);
         cons_newline(cons);
     }
+    cons_newline(cons);
     return;
 }
 
@@ -259,11 +261,11 @@ void cmd_hlt(console *cons, int *fat)
         p = (char *) memman_alloc_4k(memman, finfo->size);
         file_loadfile(finfo->clustno, finfo->size, p, fat, (char *) (ADR_DISKIMG + 0x003e00));
         set_segmdesc(gdt + 1003, finfo->size - 1, (int) p, AR_CODE32_ER);
-        farjmp(0, 1003 * 8);
+        farcall(0, 1003 * 8);
         memman_free_4k(memman, (int) p, finfo->size);
     } else {
         /* 未找到文件 */
-        putfonts8_asc_sht(cons->sht, CONS_LEFT, cons->cur_y, base3, base03, "Executive file not found.", CONS_COLN);
+        putfonts8_asc_sht(cons->sht, CONS_LEFT, cons->cur_y, base3, base03, "Executable file not found.", CONS_COLN);
         cons_newline(cons);
     }
     cons_newline(cons);
