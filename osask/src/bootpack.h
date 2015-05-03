@@ -326,7 +326,7 @@ void cmd_mem(console *cons, unsigned int memtotal);
 void cmd_cls(console *cons);
 void cmd_dir(console *cons);
 void cmd_type(console *cons, int *fat, char *cmdline);
-void cmd_hlt(console *cons, int *fat);
+int cmd_app(console *cons, int *fat, char *cmdline);
 
 /* file.c */
 typedef struct FILEINFO {

@@ -219,10 +219,12 @@ _farcall:       ; void farcall(int eip, int cs);
 
 _asm_cons_putchar:
         STI
+        PUSHAD
         PUSH    1
         AND     EAX, 0xff               ; 将AH和EAX高位置零，将EAX置为已存入字符编码状态
         PUSH    EAX
         PUSH    DWORD [0x0fec]          ; 读取内存并弹出该值
         CALL    _cons_putchar
         ADD     ESP, 12                 ; 丢弃栈中数据
+        POPAD
         IRETD
