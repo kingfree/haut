@@ -1,12 +1,12 @@
 [BITS 32]
         MOV     AL,'H'
-        CALL    2*8:0x00000BDF ; bookpack.map 中 _asm_cons_putchar 的地址
+        INT     0x40
         MOV     AL,'e'
-        CALL    2*8:0x00000BDF
+        INT     0x40
         MOV     AL,'l'
-        CALL    2*8:0x00000BDF
+        INT     0x40
         MOV     AL,'l'
-        CALL    2*8:0x00000BDF
+        INT     0x40
         MOV     AL,'o'
-        CALL    2*8:0x00000BDF
+        INT     0x40
         RETF
