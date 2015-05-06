@@ -15,11 +15,13 @@
         GLOBAL  _load_tr
         GLOBAL  _asm_inthandler20, _asm_inthandler21
         GLOBAL  _asm_inthandler27, _asm_inthandler2c
+		GLOBAL	_asm_inthandler0d
         GLOBAL  _memtest_sub
         GLOBAL  _farjmp, _farcall
         GLOBAL  _asm_hrb_api, _start_app
         EXTERN  _inthandler20, _inthandler21
         EXTERN  _inthandler27, _inthandler2c
+		EXTERN	_inthandler0d
         EXTERN  _hrb_api
 
 [SECTION .text]
@@ -119,7 +121,7 @@ _asm_inthandler20:
         MOV     AX, SS
         CMP     AX, 1*8
         JNE     .from_app
-;   当OS活动时产生中断的情况和之前差不多
+;   当系统活动时产生中断的情况和之前差不多
         MOV     EAX, ESP
         PUSH    SS              ; 保存中断时的SS
         PUSH    EAX             ; 保存中断时的ESP
@@ -160,7 +162,7 @@ _asm_inthandler21:
         MOV     AX, SS
         CMP     AX, 1*8
         JNE     .from_app
-;   当OS活动时产生中断的情况和之前差不多
+;   当系统活动时产生中断的情况和之前差不多
         MOV     EAX, ESP
         PUSH    SS              ; 保存中断时的SS
         PUSH    EAX             ; 保存中断时的ESP
@@ -201,7 +203,7 @@ _asm_inthandler27:
         MOV     AX, SS
         CMP     AX, 1*8
         JNE     .from_app
-;   当OS活动时产生中断的情况和之前差不多
+;   当系统活动时产生中断的情况和之前差不多
         MOV     EAX, ESP
         PUSH    SS              ; 保存中断时的SS
         PUSH    EAX             ; 保存中断时的ESP
@@ -242,7 +244,7 @@ _asm_inthandler2c:
         MOV     AX, SS
         CMP     AX, 1*8
         JNE     .from_app
-;   当OS活动时产生中断的情况和之前差不多
+;   当系统活动时产生中断的情况和之前差不多
         MOV     EAX, ESP
         PUSH    SS              ; 保存中断时的SS
         PUSH    EAX             ; 保存中断时的ESP
@@ -275,6 +277,67 @@ _asm_inthandler2c:
         POP     DS
         POP     ES
         IRETD
+
+_asm_inthandler0d:
+		STI
+		PUSH	ES
+		PUSH	DS
+		PUSHAD
+		MOV		AX, SS
+		CMP		AX, 1*8
+		JNE		.from_app
+;	当系统活动时产生中断的情况和之前差不多
+		MOV		EAX, ESP
+		PUSH	SS				; 保存中断时的SS
+		PUSH	EAX				; 保存中断时的ESP
+		MOV		AX, SS
+		MOV		DS, AX
+		MOV		ES, AX
+		CALL	_inthandler0d
+		ADD		ESP, 8
+		POPAD
+		POP		DS
+		POP		ES
+		ADD		ESP, 4			; INT 0x0d 需要
+		IRETD
+.from_app:
+;	程序活动时发生中断
+		CLI
+		MOV		EAX, 1*8
+		MOV		DS, AX			; 先将DS设为系统用
+		MOV		ECX, [0xfe4]	; 系统ESP
+		ADD		ECX, -8
+		MOV		[ECX+4], SS		; 保存中断时的SS
+		MOV		[ECX  ], ESP	; 保存中断时的ESP
+		MOV		SS, AX
+		MOV		ES, AX
+		MOV		ESP, ECX
+		STI
+		CALL	_inthandler0d
+		CLI
+		CMP		EAX, 0
+		JNE		.kill
+		POP		ECX
+		POP		EAX
+		MOV		SS, AX			; 恢复SS给程序用
+		MOV		ESP, ECX		; 恢复ESP给程序用
+		POPAD
+		POP		DS
+		POP		ES
+		ADD		ESP, 4			; INT 0x0d 需要
+		IRETD
+.kill:
+;	程序异常，强制终止
+		MOV		EAX, 1*8		; 系统用DS/SS
+		MOV		ES, AX
+		MOV		SS, AX
+		MOV		DS, AX
+		MOV		FS, AX
+		MOV		GS, AX
+		MOV		ESP, [0xfe4]	; 强制返回start_app时的ESP
+		STI			            ; 切换完成后恢复中断请求
+		POPAD	                ; 恢复寄存器
+		RET
 
 _memtest_sub:   ; unsigned int memtest_sub(unsigned int start, unsigned int end)
         PUSH    EDI                     ; （待用的EBX, ESI, EDI）

@@ -32,6 +32,7 @@ void load_idtr(int limit, int addr);
 int load_cr0(void);
 void store_cr0(int cr0);
 void load_tr(int tr);
+void asm_inthandler0d(void);
 void asm_inthandler20(void);
 void asm_inthandler21(void);
 void asm_inthandler27(void);
@@ -330,6 +331,7 @@ void cmd_dir(console *cons);
 void cmd_type(console *cons, int *fat, char *cmdline);
 int cmd_app(console *cons, int *fat, char *cmdline);
 void hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
+int inthandler0d(int *esp);
 
 /* file.c */
 typedef struct FILEINFO {
