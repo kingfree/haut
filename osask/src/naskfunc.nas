@@ -7,7 +7,7 @@
 [FILE "naskfunc.nas"]           ; 源文件名
 
         GLOBAL  _io_hlt, _io_cli, _io_sti, _io_stihlt
-        GLOBAL  _io_in8,  _io_in16,  _io_in32
+        GLOBAL  _io_in8, _io_in16, _io_in32
         GLOBAL  _io_out8, _io_out16, _io_out32
         GLOBAL  _io_load_eflags, _io_store_eflags
         GLOBAL  _load_gdtr, _load_idtr
@@ -17,7 +17,7 @@
         GLOBAL  _asm_inthandler27, _asm_inthandler2c
         GLOBAL  _memtest_sub
         GLOBAL  _farjmp, _farcall
-        GLOBAL  _asm_hrb_api
+        GLOBAL  _asm_hrb_api, _start_app
         EXTERN  _inthandler20, _inthandler21
         EXTERN  _inthandler27, _inthandler2c
         EXTERN  _hrb_api
@@ -116,13 +116,38 @@ _asm_inthandler20:
         PUSH    ES
         PUSH    DS
         PUSHAD
+        MOV     AX, SS
+        CMP     AX, 1*8
+        JNE     .from_app
+;   当OS活动时产生中断的情况和之前差不多
         MOV     EAX, ESP
-        PUSH    EAX
+        PUSH    SS              ; 保存中断时的SS
+        PUSH    EAX             ; 保存中断时的ESP
         MOV     AX, SS
         MOV     DS, AX
         MOV     ES, AX
         CALL    _inthandler20
+        ADD     ESP, 8
+        POPAD
+        POP     DS
+        POP     ES
+        IRETD
+.from_app:
+;   程序活动时发生中断
+        MOV     EAX, 1*8
+        MOV     DS, AX          ; 先将DS设为系统用
+        MOV     ECX, [0xfe4]    ; 系统ESP
+        ADD     ECX, -8
+        MOV     [ECX+4], SS     ; 保存中断时的SS
+        MOV     [ECX  ], ESP    ; 保存中断时的ESP
+        MOV     SS, AX
+        MOV     ES, AX
+        MOV     ESP, ECX
+        CALL    _inthandler20
+        POP     ECX
         POP     EAX
+        MOV     SS, AX          ; 恢复SS给程序用
+        MOV     ESP, ECX        ; 恢复ESP给程序用
         POPAD
         POP     DS
         POP     ES
@@ -132,13 +157,38 @@ _asm_inthandler21:
         PUSH    ES
         PUSH    DS
         PUSHAD
+        MOV     AX, SS
+        CMP     AX, 1*8
+        JNE     .from_app
+;   当OS活动时产生中断的情况和之前差不多
         MOV     EAX, ESP
-        PUSH    EAX
+        PUSH    SS              ; 保存中断时的SS
+        PUSH    EAX             ; 保存中断时的ESP
         MOV     AX, SS
         MOV     DS, AX
         MOV     ES, AX
         CALL    _inthandler21
+        ADD     ESP, 8
+        POPAD
+        POP     DS
+        POP     ES
+        IRETD
+.from_app:
+;   程序活动时发生中断
+        MOV     EAX, 1*8
+        MOV     DS, AX          ; 先将DS设为系统用
+        MOV     ECX, [0xfe4]    ; 系统ESP
+        ADD     ECX, -8
+        MOV     [ECX+4], SS     ; 保存中断时的SS
+        MOV     [ECX  ], ESP    ; 保存中断时的ESP
+        MOV     SS, AX
+        MOV     ES, AX
+        MOV     ESP, ECX
+        CALL    _inthandler21
+        POP     ECX
         POP     EAX
+        MOV     SS, AX          ; 恢复SS给程序用
+        MOV     ESP, ECX        ; 恢复ESP给程序用
         POPAD
         POP     DS
         POP     ES
@@ -148,13 +198,38 @@ _asm_inthandler27:
         PUSH    ES
         PUSH    DS
         PUSHAD
+        MOV     AX, SS
+        CMP     AX, 1*8
+        JNE     .from_app
+;   当OS活动时产生中断的情况和之前差不多
         MOV     EAX, ESP
-        PUSH    EAX
+        PUSH    SS              ; 保存中断时的SS
+        PUSH    EAX             ; 保存中断时的ESP
         MOV     AX, SS
         MOV     DS, AX
         MOV     ES, AX
         CALL    _inthandler27
+        ADD     ESP, 8
+        POPAD
+        POP     DS
+        POP     ES
+        IRETD
+.from_app:
+;   程序活动时发生中断
+        MOV     EAX, 1*8
+        MOV     DS, AX          ; 先将DS设为系统用
+        MOV     ECX, [0xfe4]    ; 系统ESP
+        ADD     ECX, -8
+        MOV     [ECX+4], SS     ; 保存中断时的SS
+        MOV     [ECX  ], ESP    ; 保存中断时的ESP
+        MOV     SS, AX
+        MOV     ES, AX
+        MOV     ESP, ECX
+        CALL    _inthandler27
+        POP     ECX
         POP     EAX
+        MOV     SS, AX          ; 恢复SS给程序用
+        MOV     ESP, ECX        ; 恢复ESP给程序用
         POPAD
         POP     DS
         POP     ES
@@ -164,13 +239,38 @@ _asm_inthandler2c:
         PUSH    ES
         PUSH    DS
         PUSHAD
+        MOV     AX, SS
+        CMP     AX, 1*8
+        JNE     .from_app
+;   当OS活动时产生中断的情况和之前差不多
         MOV     EAX, ESP
-        PUSH    EAX
+        PUSH    SS              ; 保存中断时的SS
+        PUSH    EAX             ; 保存中断时的ESP
         MOV     AX, SS
         MOV     DS, AX
         MOV     ES, AX
         CALL    _inthandler2c
+        ADD     ESP, 8
+        POPAD
+        POP     DS
+        POP     ES
+        IRETD
+.from_app:
+;   程序活动时发生中断
+        MOV     EAX, 1*8
+        MOV     DS, AX          ; 先将DS设为系统用
+        MOV     ECX, [0xfe4]    ; 系统ESP
+        ADD     ECX, -8
+        MOV     [ECX+4], SS     ; 保存中断时的SS
+        MOV     [ECX  ], ESP    ; 保存中断时的ESP
+        MOV     SS, AX
+        MOV     ES, AX
+        MOV     ESP, ECX
+        CALL    _inthandler2c
+        POP     ECX
         POP     EAX
+        MOV     SS, AX          ; 恢复SS给程序用
+        MOV     ESP, ECX        ; 恢复ESP给程序用
         POPAD
         POP     DS
         POP     ES
@@ -218,10 +318,81 @@ _farcall:       ; void farcall(int eip, int cs);
         RET
 
 _asm_hrb_api:
-        STI
-        PUSHAD  ; 保存寄存器值
-        PUSHAD  ; 向hrb_api传值
+        ; 方便起见一开始就禁止中断
+        PUSH    DS
+        PUSH    ES
+        PUSHAD                  ; 保存用PUSH
+        MOV     EAX, 1*8
+        MOV     DS, AX          ; 先设置DS为系统用
+        MOV     ECX, [0xfe4]    ; 系统的ESP
+        ADD     ECX, -40
+        MOV     [ECX+32], ESP   ; 保存程序ESP
+        MOV     [ECX+36], SS    ; 保存程序SS
+
+; 将PUSHAD后的值复制到系统栈
+        MOV     EDX, [ESP   ]
+        MOV     EBX, [ESP+ 4]
+        MOV     [ECX   ], EDX   ; 复制传递给hrb_api
+        MOV     [ECX+ 4], EBX   ; 复制传递给hrb_api
+        MOV     EDX, [ESP+ 8]
+        MOV     EBX, [ESP+12]
+        MOV     [ECX+ 8], EDX   ; 复制传递给hrb_api
+        MOV     [ECX+12], EBX   ; 复制传递给hrb_api
+        MOV     EDX, [ESP+16]
+        MOV     EBX, [ESP+20]
+        MOV     [ECX+16], EDX   ; 复制传递给hrb_api
+        MOV     [ECX+20], EBX   ; 复制传递给hrb_api
+        MOV     EDX, [ESP+24]
+        MOV     EBX, [ESP+28]
+        MOV     [ECX+24], EDX   ; 复制传递给hrb_api
+        MOV     [ECX+28], EBX   ; 复制传递给hrb_api
+
+        MOV     ES, AX          ; 剩余的段寄存器设为系统用
+        MOV     SS, AX
+        MOV     ESP, ECX
+        STI                     ; 恢复中断请求
+
         CALL    _hrb_api
-        ADD     ESP, 32
+
+        MOV     ECX, [ESP+32]   ; 恢复程序ESP
+        MOV     EAX, [ESP+36]   ; 恢复程序SS
+        CLI
+        MOV     SS, AX
+        MOV     ESP, ECX
         POPAD
-        IRETD
+        POP     ES
+        POP     DS
+        IRETD                   ; 这个命令会自动执行STI
+
+_start_app:     ; void start_app(int eip, int cs, int esp, int ds);
+        PUSHAD                  ; 备份32位寄存器
+        MOV     EAX, [ESP+36]   ; 程序用EIP
+        MOV     ECX, [ESP+40]   ; 程序用CS
+        MOV     EDX, [ESP+44]   ; 程序用ESP
+        MOV     EBX, [ESP+48]   ; 程序用DS/SS
+        MOV     [0xfe4], ESP    ; 系统用ESP
+        CLI                     ; 切换过程中禁止中断
+        MOV     ES, BX
+        MOV     SS, BX
+        MOV     DS, BX
+        MOV     FS, BX
+        MOV     GS, BX
+        MOV     ESP, EDX
+        STI                     ; 切换完成后恢复中断请求
+        PUSH    ECX             ; 用于far-CALL的PUSH（cs）
+        PUSH    EAX             ; 用于far-CALL的PUSH（eip）
+        CALL    FAR [ESP]       ; 调用程序
+
+;   程序结束后返回此处
+
+        MOV     EAX, 1*8        ; 系统用DS/SS
+        CLI                     ; 再次切换，禁止中断
+        MOV     ES, AX
+        MOV     SS, AX
+        MOV     DS, AX
+        MOV     FS, AX
+        MOV     GS, AX
+        MOV     ESP, [0xfe4]
+        STI                     ; 切换完成后恢复中断请求
+        POPAD                   ; 恢复寄存器
+        RET
