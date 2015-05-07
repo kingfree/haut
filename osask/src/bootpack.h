@@ -335,6 +335,7 @@ int cmd_app(console *cons, int *fat, char *cmdline);
 int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
 int *inthandler0c(int *esp);
 int *inthandler0d(int *esp);
+void asm_end_app(void);
 
 /* file.c */
 typedef struct FILEINFO {
