@@ -319,17 +319,31 @@ int cmd_app(console *cons, int *fat, char *cmdline)
 /* 系统调用 API */
 int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax)
 {
-    int cs_base = *((int *) 0xfe8);
+    int ds_base = *((int *) 0xfe8);
     task_t *task = task_now();
     console *cons = (console *) *((int *) 0x0fec);
+    shtctl_t *shtctl = (shtctl_t *) *((int *) 0x0fe4);
+    sheet_t *sht;
+    int *reg = &eax + 1;	/* eax后面的地址 */
+    /* 强行改写通过PUSHAD保存的值 */
+    /* reg[0] : EDI,   reg[1] : ESI,   reg[2] : EBP,   reg[3] : ESP */
+    /* reg[4] : EBX,   reg[5] : EDX,   reg[6] : ECX,   reg[7] : EAX */
+
     if (edx == 1) {
         cons_putchar(cons, eax & 0xff, 1);
     } else if (edx == 2) {
-        cons_putstr0(cons, (char *) ebx + cs_base);
+        cons_putstr0(cons, (char *) ebx + ds_base);
     } else if (edx == 3) {
-        cons_putstr1(cons, (char *) ebx + cs_base, ecx);
+        cons_putstr1(cons, (char *) ebx + ds_base, ecx);
     } else if (edx == 4) {
         return &(task->tss.esp0);
+    } else if (edx == 5) {
+        sht = sheet_alloc(shtctl);
+        sheet_setbuf(sht, (char *) ebx + ds_base, esi, edi, eax);
+        make_window8((char *) ebx + ds_base, esi, edi, (char *) ecx + ds_base, 0);
+        sheet_slide(sht, 100, 50);
+        sheet_updown(sht, 3);	/* 层高3 */
+        reg[7] = (int) sht;
     }
     return 0;
 }
