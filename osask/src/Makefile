@@ -87,6 +87,13 @@ winhelo.bim : winhelo.obj a_nask.obj Makefile
 winhelo.hrb : winhelo.bim Makefile
 	$(BIM2HRB) winhelo.bim winhelo.hrb 0
 
+winhelo2.bim : winhelo2.obj a_nask.obj Makefile
+	$(OBJ2BIM) @$(RULEFILE) out:winhelo2.bim stack:1k map:winhelo2.map \
+		winhelo2.obj a_nask.obj
+
+winhelo2.hrb : winhelo2.bim Makefile
+	$(BIM2HRB) winhelo2.bim winhelo2.hrb 0
+
 bug1.bim : bug1.obj Makefile
 	$(OBJ2BIM) @$(RULEFILE) out:bug1.bim map:bug1.map bug1.obj a_nask.obj
 
@@ -107,7 +114,8 @@ bug3.hrb : bug3.bim Makefile
 
 haribote.img : ipl10.bin haribote.sys Makefile \
 		hello.hrb hello2.hrb a.hrb hello3.hrb \
-		bug1.hrb bug2.hrb bug3.hrb hello4.hrb hello5.hrb winhelo.hrb
+		bug1.hrb bug2.hrb bug3.hrb \
+		hello4.hrb hello5.hrb winhelo.hrb winhelo2.hrb
 	$(EDIMG) imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:ipl10.bin len:512 from:0 to:0 \
 		copy from:haribote.sys to:@: \
@@ -123,6 +131,7 @@ haribote.img : ipl10.bin haribote.sys Makefile \
 		copy from:hello4.hrb to:@: \
 		copy from:hello5.hrb to:@: \
 		copy from:winhelo.hrb to:@: \
+		copy from:winhelo2.hrb to:@: \
 		imgout:haribote.img
 
 # 一般规则
