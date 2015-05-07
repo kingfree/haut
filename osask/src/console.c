@@ -264,7 +264,7 @@ int cmd_app(console *cons, int *fat, char *cmdline)
     segment_descriptor *gdt = (segment_descriptor *) ADR_GDT;
     char name[18], *p, *q;
     task_t *task = task_now();
-    int i;
+    int i, segsiz, datsiz, esp, dathrb;
 
     /* 根据命令行生成文件名 */
     for (i = 0; i < 13; i++) {
@@ -290,22 +290,25 @@ int cmd_app(console *cons, int *fat, char *cmdline)
     if (finfo != 0) {
         /* 找到文件 */
         p = (char *) memman_alloc_4k(memman, finfo->size);
-        q = (char *) memman_alloc_4k(memman, 64 * 1024);
-        *((int *) 0xfe8) = (int) p;
         file_loadfile(finfo->clustno, finfo->size, p, fat, (char *) (ADR_DISKIMG + 0x003e00));
-        set_segmdesc(gdt + 1003, finfo->size - 1, (int) p, AR_CODE32_ER + 0x60);
-        set_segmdesc(gdt + 1004, 64 * 1024 - 1, (int) q, AR_DATA32_RW + 0x60);
-        if (finfo->size >= 8 && strncmp(p + 4, "Hari", 4) == 0) {
-            p[0] = 0xe8; /* [BITS 32]     */
-            p[1] = 0x16; /*     CALL 0x1b */
-            p[2] = 0x00; /*     RETF      */
-            p[3] = 0x00;
-            p[4] = 0x00;
-            p[5] = 0xcb;
+        if (finfo->size >= 36 && strncmp(p + 4, "Hari", 4) == 0 && *p == 0x00) {
+            segsiz = *((int *) (p + 0x0000));
+            esp = *((int *) (p + 0x000c));
+            datsiz = *((int *) (p + 0x0010));
+            dathrb = *((int *) (p + 0x0014));
+            q = (char *) memman_alloc_4k(memman, segsiz);
+            *((int *) 0xfe8) = (int) q;
+            set_segmdesc(gdt + 1003, finfo->size - 1, (int) p, AR_CODE32_ER + 0x60);
+            set_segmdesc(gdt + 1004, segsiz - 1, (int) q, AR_DATA32_RW + 0x60);
+            for (i = 0; i < datsiz; i++) {
+                q[esp + i] = p[dathrb + i];
+            }
+            start_app(0x1b, 1003 * 8, esp, 1004 * 8, &(task->tss.esp0));
+            memman_free_4k(memman, (int) q, segsiz);
+        } else {
+            cons_putstr0(cons, ".hrb file format error.\n");
         }
-        start_app(0, 1003 * 8, 64 * 1024, 1004 * 8, &(task->tss.esp0));
         memman_free_4k(memman, (int) p, finfo->size);
-        memman_free_4k(memman, (int) q, 64 * 1024);
         cons_newline(cons);
         return 1;
     }
