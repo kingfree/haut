@@ -50,10 +50,10 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
                 }
                 timer_settime(timer, 50);
             }
-            if (i == 2) {	/* 光标ON */
+            if (i == 2) {   /* 光标ON */
                 cons.cur_c = base3;
             }
-            if (i == 3) {	/* 光标OFF */
+            if (i == 3) {   /* 光标OFF */
                 boxfill8(sheet->buf, sheet->bxsize, base03, cons.cur_x, cons.cur_y, cons.cur_x + FNT_W - 1, cons.cur_y + FNT_H - 1);
                 cons.cur_c = -1;
             }
@@ -71,7 +71,7 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
                     cons_putchar(&cons, ' ', 0);
                     cmdline[(cons.cur_x - CONS_LEFT) / FNT_W - 2] = 0;
                     cons_newline(&cons);
-                    cons_runcmd(cmdline, &cons, fat, memtotal);	/* 执行命令 */
+                    cons_runcmd(cmdline, &cons, fat, memtotal); /* 执行命令 */
                     /* 命令提示符 */
                     cons_putchar(&cons, '$', 1);
                     cons_putchar(&cons, ' ', 1);
@@ -98,7 +98,7 @@ void cons_putchar(console *cons, int chr, char move)
     char s[2];
     s[0] = chr;
     s[1] = 0;
-    if (s[0] == 0x09) {	/* Tab */
+    if (s[0] == 0x09) { /* Tab */
         for (;;) {
             putfonts8_asc_sht(cons->sht, cons->cur_x, cons->cur_y, base3, base03, " ", 1);
             cons->cur_x += FNT_W;
@@ -327,6 +327,8 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
         cons_putstr1(cons, (char *) ebx + cs_base, ecx);
     } else if (edx == 4) {
         return &(task->tss.esp0);
+    } else if (edx == 123456789) {
+        *((char *) 0x00102600) = 0;
     }
     return 0;
 }
