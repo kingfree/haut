@@ -84,7 +84,7 @@ nosetests.xml
 
 # Mr Developer
 .mr.developer.cfg
-.project
+#.project
 .pydevproject
 
 # Vim temp.
