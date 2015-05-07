@@ -42,7 +42,8 @@ void HariMain(void)
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, '_', 0, 0, 0, 0, 0, 0, 0, 0, 0, '|', 0, 0
     };
-    int key_to = 0, key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
+    int key_to = 0, key_shift = 0, key_ctrl = 0, key_alt = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
+    console *cons;
 
     init_gdtidt();
     init_pic();
@@ -65,6 +66,7 @@ void HariMain(void)
     task_a = task_init(memman);
     fifo.task = task_a;
     task_run(task_a, 1, 0);
+    *((int *) 0x0fe4) = (int) shtctl;
 
     /* sht_back */
     sht_back = sheet_alloc(shtctl);
@@ -152,7 +154,7 @@ void HariMain(void)
                             putfonts8_asc_sht(sht_win, cursor_x, 28, base03, base3, s, 1);
                             cursor_x += FNT_W;
                         }
-                    } else { /* 发送给终端窗口 */
+                    } else if (key_ctrl == 0 && key_alt == 0) { /* 如果不是快捷键，发送给终端窗口 */
                         fifo32_put(&task_cons->fifo, s[0] + 256);
                     }
                 }
@@ -202,6 +204,19 @@ void HariMain(void)
                 if (i == 256 + 0xb6) {	/* 右Shift OFF */
                     key_shift &= ~2;
                 }
+                if (i == 256 + 0x1d) {	/* 左Ctrl ON */
+                    key_ctrl |= 1;
+                }
+                if (i == 256 + 0x9d) {	/* 左Ctrl OFF */
+                    key_ctrl &= ~1;
+                }
+                /* 右 Ctrl/Alt 是两个字节，暂不支持 */
+                if (i == 256 + 0x38) {	/* 左Alt ON */
+                    key_alt |= 1;
+                }
+                if (i == 256 + 0xb8) {	/* 左Alt OFF */
+                    key_alt &= ~1;
+                }
                 if (i == 256 + 0x3a) {	/* CapsLock */
                     key_leds ^= 4;
                     fifo32_put(&keycmd, KEYCMD_LED);
@@ -216,6 +231,14 @@ void HariMain(void)
                     key_leds ^= 1;
                     fifo32_put(&keycmd, KEYCMD_LED);
                     fifo32_put(&keycmd, key_leds);
+                }
+                if (i == 256 + 0x2e && key_ctrl != 0 && task_cons->tss.ss0 != 0) { /* Ctrl + C */
+                    cons = (console *) *((int *) 0x0fec);
+                    cons_putstr0(cons, "^C");
+                    io_cli();	/* 不能在改变寄存器时切换到其他任务 */
+                    task_cons->tss.eax = (int) &(task_cons->tss.esp0);
+                    task_cons->tss.eip = (int) asm_end_app;
+                    io_sti();
                 }
                 if (i == 256 + 0xfa) {	/* 键盘成功接收到数据 */
                     keycmd_wait = -1;
