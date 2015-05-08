@@ -17,7 +17,8 @@ MAKEFONT = $(Z_TOOLS)makefont.exe
 BIN2OBJ  = $(Z_TOOLS)bin2obj.exe
 EDIMG    = $(Z_TOOLS)edimg.exe
 IMGTOL   = $(Z_TOOLS)imgtol.com
-COPY     = cp
+COPY     = copy
+RM       = del
 
 # 默认动作
 
@@ -47,7 +48,7 @@ bootpack.hrb : bootpack.bim Makefile
 	$(BIM2HRB) bootpack.bim bootpack.hrb 0
 
 haribote.sys : asmhead.bin bootpack.hrb Makefile
-	cat asmhead.bin bootpack.hrb > haribote.sys
+	copy /B asmhead.bin+bootpack.hrb haribote.sys
 
 hello.hrb : hello.nas Makefile
 	$(NASK) hello.nas hello.hrb hello.lst
@@ -94,28 +95,16 @@ winhelo2.bim : winhelo2.obj a_nask.obj Makefile
 winhelo2.hrb : winhelo2.bim Makefile
 	$(BIM2HRB) winhelo2.bim winhelo2.hrb 0
 
-bug1.bim : bug1.obj Makefile
-	$(OBJ2BIM) @$(RULEFILE) out:bug1.bim map:bug1.map bug1.obj a_nask.obj
+winhelo3.bim : winhelo3.obj a_nask.obj Makefile
+	$(OBJ2BIM) @$(RULEFILE) out:winhelo3.bim stack:1k map:winhelo3.map \
+		winhelo3.obj a_nask.obj
 
-bug1.hrb : bug1.bim Makefile
-	$(BIM2HRB) bug1.bim bug1.hrb 0
-
-bug2.bim : bug2.obj Makefile
-	$(OBJ2BIM) @$(RULEFILE) out:bug2.bim map:bug2.map bug2.obj
-
-bug2.hrb : bug2.bim Makefile
-	$(BIM2HRB) bug2.bim bug2.hrb 0
-
-bug3.bim : bug3.obj Makefile
-	$(OBJ2BIM) @$(RULEFILE) out:bug3.bim map:bug3.map bug3.obj a_nask.obj
-
-bug3.hrb : bug3.bim Makefile
-	$(BIM2HRB) bug3.bim bug3.hrb 0
+winhelo3.hrb : winhelo3.bim Makefile
+	$(BIM2HRB) winhelo3.bim winhelo3.hrb 40k
 
 haribote.img : ipl10.bin haribote.sys Makefile \
-		hello.hrb hello2.hrb a.hrb hello3.hrb \
-		bug1.hrb bug2.hrb bug3.hrb \
-		hello4.hrb hello5.hrb winhelo.hrb winhelo2.hrb
+		hello.hrb hello2.hrb a.hrb hello3.hrb hello4.hrb hello5.hrb \
+		winhelo.hrb winhelo2.hrb winhelo3.hrb
 	$(EDIMG) imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:ipl10.bin len:512 from:0 to:0 \
 		copy from:haribote.sys to:@: \
@@ -125,13 +114,11 @@ haribote.img : ipl10.bin haribote.sys Makefile \
 		copy from:hello2.hrb to:@: \
 		copy from:a.hrb to:@: \
 		copy from:hello3.hrb to:@: \
-		copy from:bug1.hrb to:@: \
-		copy from:bug2.hrb to:@: \
-		copy from:bug3.hrb to:@: \
 		copy from:hello4.hrb to:@: \
 		copy from:hello5.hrb to:@: \
 		copy from:winhelo.hrb to:@: \
 		copy from:winhelo2.hrb to:@: \
+		copy from:winhelo3.hrb to:@: \
 		imgout:haribote.img
 
 # 一般规则
@@ -152,8 +139,8 @@ img :
 
 run :
 	$(MAKE) img
-	$(COPY) haribote.img ../z_tools/qemu/fdimage0.bin
-	$(MAKE) -C ../z_tools/qemu
+	$(COPY) haribote.img ..\z_tools\qemu\fdimage0.bin
+	$(MAKE) -C ..\z_tools\qemu
 
 install :
 	$(MAKE) img
