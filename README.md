@@ -1,5 +1,36 @@
 # 大学期间程序仓库
 
+### [acm](acm) ACM 相关
+
+### [algorithms](algorithms) 算法和数据结构
+
+* [algorithms/algs](algorithms/algs) 《算法（第4版）》
+* [algorithms/maic](algorithms/maic) 用 C 语言实现的数据结构
+* [algorithms/clrs](algorithms/clrs) 《算法导论》
+* [algorithms/ywm](algorithms/ywm) 严蔚敏版数据结构
+
+### [c#](c#) C#
+
+* [c#/pro6](c#/pro6) 
+
+### [c++](c++) C++ 
+* [c++/stlqr](c++/stlqr) C++ 快速参考
+
+### [java](java) Java 
+* [java/corejava](java/corejava) 《Java 核心技术（第9版）》
+
+### 读书 
+* [csapp](csapp) 《深入理解计算机系统》 *Computer Systems: A Programmer's Perspective*
+* [osask](osask) 《30天自制操作系统》
+
+* **tlap**：《像程序员一样思考》
+* **progmath**：《程序员的数学》 *『プログラマの数学』*
+* **pccb**：《挑战程序设计竞赛》
+
+### [course](course) 课程
+### [experiment](experiment) 实验报告
+### [coursedesign](coursedesign) 课程设计
+
 ### 计算机系统和原理
 
 * **csapp**：《深入理解计算机系统》 *Computer Systems: A Programmer's Perspective*
