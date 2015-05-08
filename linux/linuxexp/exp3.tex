@@ -1,0 +1,278 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{Linux常用命令（二）}
+\usepackage[a4paper,margin=2.2cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+%\CTEXsetup[number=\chinese{section}, format={\large\sf\bfseries}]{section}
+\usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+\DefineShortVerb{\|}
+\fvset{frame=single}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2} % 行距
+
+\usepackage[inline]{enumitem} % 调整列表样式
+\setlist{noitemsep}
+\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate,1]{label={(\arabic*)}}
+
+\CTEXsetup[beforeskip={0pt},afterskip={0pt}]{paragraph}
+
+%\makeindex
+\pagestyle{plain}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\input{source/title}
+
+% \CTEXnoindent
+
+\paragraph{实验题目：}\titlec
+
+\paragraph{实验目的：}（1）理解文件处理命令，包括grep命令、head命令等；（2）理解压缩解压命令，包括bzip2命令和bunzip2命令、gzip命令、unzip命令、zcat命令和tar命令；（3）理解磁盘操作命令，包括mount命令、umount命令、df命令、du命令；（4）理解变换用户身份命令，包括su命令、sudo命令、useradd命令、passwd命令等；（5）理解关机重启命令，包括shutdown命令、reboot命令等；（7）理解网络操作命令；（8）理解more命令、less命令等其他命令。
+
+\paragraph{实验内容：}
+\begin{enumerate}
+\item 新建一个文件，并写入三行内容，分别为“hello world”、“hello everyone”和“end”，然后试执行grep命令查找一个字符串“hello”。
+\item 使用命令查看/etc下的目录的详细信息，并要求只显示前5行。
+\item 统计文件file.txt的信息，要求显示该文件的行数、单词数和字符数。
+\item 试想可以通过哪些命令查询pwd命令的相关信息，比如查询pwd命令的绝对路径以及相关联的文件名。
+\item 在一个目录下新建两个文件1.txt和2.txt，试使用命令将这两个文件打包压缩成3.tar.gz和4.tar.bz2，然后删除原文件，解压缩文件3.tar.gz。
+\item 使用命令的形式写出挂载和卸载U盘的步骤。
+\item 查看当前磁盘的分区信息以及查看当前目录下所有文件及目录的信息。
+\item 试写出几个关机的命令，并尝试一个。
+\item 实现用户ubuntu和用户root的转换。
+\item 新建一个用户ubuntu1，并设置密码。
+\item 查看机子的网络配置，测试网络是否畅通。
+\item 使用more和less命令查看一个文件。
+\item 用ubuntu用户登录Linux，在宿主目录下创建目录perm，在该目录下创建文件newfile，授予所有用户对perm目录都有rwx权限；切换到普通用户ubuntu1，执行“rm /home/ubuntu/perm/newfile”是否可以执行。
+\item 用ubuntu用户登录Linux，在宿主目录下创建文件newfile2，移动文件newfile2到perm目录下同时改名为file01，然后，改变file01的文件权限为“rwxrw-r--”。
+\end{enumerate}
+
+\paragraph{实验步骤：}\quad
+
+\newcommand{\image}[3][height=9cm]{%\begin{minipage}[t]{0.5\textwidth}
+    \centering
+    \includegraphics[#1]{images/exp3/#2.png}
+    \caption{#3}
+    \label{fig:#3}
+%\end{minipage}
+}
+
+\newcommand{\subimage}[2][height=10cm]{
+    \centering
+    \subfigure[]{
+        \includegraphics[#1]{images/exp3/#2.png}
+    }
+}
+
+\newcommand{\subimagetwo}[1]{\subfigure[]{
+        \includegraphics[width=0.48\textwidth]{images/exp3/#1.png}
+    }}
+\newcommand{\subimagethree}[1]{\subfigure[]{
+        \includegraphics[width=0.31\textwidth]{images/exp3/#1.png}
+    }}
+
+本次实验项目较多，不再一一详细叙述，直接给出所执行的命令和截图。
+
+\vspace*{1em}
+
+\begin{enumerate}
+
+\item 非常强大的正则表达式，这里并没有发挥其强大能力。
+\begin{Verbatim}
+$ cat > hello.txt
+$ grep 'hello' hello.txt
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{2015-05-04-(1)}{grep}{}
+\end{figure}
+
+\item 使用了管道。
+\begin{Verbatim}
+$ ls -lha /etc | head -5
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{2015-05-04-(2)}{head}{}
+\end{figure}
+
+\item 统计代码行数的时候很有用。
+\begin{Verbatim}
+$ wc hello.txt
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{2015-05-04-(3)}{wc}{}
+\end{figure}
+
+\item \begin{Verbatim}
+$ whireis pwd
+$ which pwd
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{2015-05-04-(4)}{which}{}
+\end{figure}
+
+\item 简单的压缩解压（打包解包）。
+\begin{Verbatim}
+$ tar -czf 3.tar.gz 1.txt
+$ tar -cjf 4.tar.bz2 2.txt
+$ tar -xzvf 3.tar.gz
+$ tar -xjvf 4.tar.bz2
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{2015-05-04-(5)}{tar}{}
+\end{figure}
+
+\item 这里我们把U盘挂载到~|/mnt/upan|~里。
+\begin{Verbatim}
+$ sudo fdisk -l
+$ sudo mkdir -p /mnt/upan
+$ sudo mount /dev/sdb1 /mnt/upan
+$ sudo umount /mnt/upan
+\end{Verbatim}
+
+\begin{figure}[htp]
+\subimage{2015-05-04-(6)-1}{}{}
+\subimagetwo{2015-05-04-(6)-2}{}{}
+\subimagetwo{2015-05-04-(6)-3}{}{}
+\caption{\label{fig:mount}mount}
+\end{figure}
+
+\item \begin{Verbatim}
+$ df
+$ du
+\end{Verbatim}
+
+\begin{figure}[htp]
+\subimagetwo{2015-05-04-(7)-1}{}{}
+\subimagetwo{2015-05-04-(7)-2}{}{}
+\caption{\label{fig:df}df \& du}
+\end{figure}
+
+\item 几个关机和重启命令不再演示，只是列出其帮助信息。最后一张是真正关机。
+\begin{Verbatim}
+$ shutdown
+$ halt
+$ reboot
+$ init
+\end{Verbatim}
+
+\begin{figure}[htp]
+\centering
+\subimagetwo{2015-05-04-(8)-1}{}{}
+
+\subimagetwo{2015-05-04-(8)-2}{}{}
+\subimagetwo{2015-05-04-(8)-3}{}{}
+\subimagetwo{2015-05-04-(8)-4}{}{}
+\subimagetwo{2015-05-04-(8)-5}{}{}
+\caption{\label{fig:shutdown}shutdown}
+\end{figure}
+
+\item 切换之前要为根用户设置密码，来激活根用户。
+\begin{Verbatim}
+$ sudo passwdh root
+$ su
+# exit
+$
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{2015-05-04-(9)}{su}{}
+\end{figure}
+
+\item \begin{Verbatim}
+$ sudo adduser ubuntu1
+$ su ubuntu1
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{2015-05-04-(10)}{adduser}{}
+\end{figure}
+
+\item \begin{Verbatim}
+$ ifconfig
+$ ping weibo.com
+$ ping 172.168.69.181 -c 4
+\end{Verbatim}
+
+\begin{figure}[htp]
+\subimage{2015-05-04-(11)-1}{}{}
+\subimage{2015-05-04-(11)-2}{}{}
+\caption{\label{fig:ifconfig}ifconfig \& ping}
+\end{figure}
+
+\item 这里我把前两次实验的\LaTeX 源文件显示了出来。
+\begin{Verbatim}
+$ more
+$ less
+\end{Verbatim}
+
+\begin{figure}[htp]
+\subimagetwo{2015-05-04-(12)-1}{}{}
+\subimagetwo{2015-05-04-(12)-2}{}{}
+\subimagetwo{2015-05-04-(12)-3}{}{}
+
+\subimagetwo{2015-05-04-(12)-4}{}{}
+\subimagetwo{2015-05-04-(12)-5}{}{}
+\subimagetwo{2015-05-04-(12)-6}{}{}
+\caption{\label{fig:more}more \& less}
+\end{figure}
+
+\item 注意用户间的切换。所有权限为777。
+\begin{Verbatim}
+ubuntu:~$ mkdir perm
+ubuntu:~$ touch perm/newfile
+ubuntu:~$ chmod 777 perm
+ubuntu:~$ su ubuntu1
+ubuntu1:/home/ubuntu$ rm perm/newfile
+ubuntu1:/home/ubuntu$ exit
+ubuntu:~$ 
+\end{Verbatim}
+
+\begin{figure}[htp]
+\subimagetwo{2015-05-04-(13)-1}{}{}
+\subimagetwo{2015-05-04-(13)-2}{}{}
+\caption{\label{fig:chmod1}chmod \& su}
+\end{figure}
+
+\item “rwxrw-r–”权限表示为数字是764。
+\begin{Verbatim}
+$ touch newfile2
+$ mv newfile2 perm/file01
+$ chmod 764 perm/file01
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{2015-05-04-(14)}{chmod}{}
+\end{figure}
+
+\end{enumerate}
+
+\paragraph{实验体会：}\quad
+
+依旧是基本命令的用法，这些命令强大且常用。|grep|强大但是并不容易学会，|tar|比较常用于备份，|mount|用来挂载分区和硬盘，|su|也是多用户操作常用的，|shutdown|等关机命令其实并不常用，尤其是在服务器上，|ifconfig|还可以用来配置网络，|less|要比|more|人性化那么一点。
+
+\end{document}
