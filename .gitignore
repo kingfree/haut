@@ -98,3 +98,4 @@ Thumbs.db
 # Java
 *.class
 
+.DS_Store
