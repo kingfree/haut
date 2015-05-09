@@ -1,8 +1,8 @@
 package exp4;
 
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.Reader;
 
 /**
  * @version 2015-4-21
@@ -18,14 +18,11 @@ public class ReaderTest {
     public static void main(String[] args) {
 
         if (args.length < 1) {
-            System.out.println("用法: java exp4.ReaderTest <文件名> [编码]");
+            System.out.println("用法: java exp4.ReaderTest <文件名>");
             return;
         }
 
-        String encoding = args.length > 1 ? args[1] : "UTF-8";
-
-        try (InputStreamReader in = new InputStreamReader(new FileInputStream(
-                args[0]), encoding)) {
+        try (Reader in = new FileReader(args[0])) {
             int c;
             while ((c = in.read()) != -1) {
                 System.out.print((char) c);
