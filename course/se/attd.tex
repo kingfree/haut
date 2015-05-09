@@ -1,0 +1,188 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{课堂考勤管理系统}
+\def\version{接口设计文档}
+\usepackage[a4paper,margin=3cm]{geometry} % 页面设置
+\usepackage[x11names]{xcolor}
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=Blue4,anchorcolor=purple,citecolor=cyan,urlcolor=magenta,
+pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
+
+%\CTEXsetup[number=\chinese{section}, format={\large\sf\bfseries}]{section}
+\usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage{wasysym}
+\usepackage{marvosym}
+\usepackage{multicol}
+\usepackage{listings} % 排版代码
+\usepackage{tikz}
+\usetikzlibrary{arrows,shadows} % for pgf-umlsd
+\usepackage[underline=true,rounded corners=false]{pgf-umlsd}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2} % 行距
+
+\usepackage[inline]{enumitem} % 调整列表样式
+\setlist{noitemsep}
+\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,labelindent=\parindent,leftmargin=*,align=right}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt,labelindent=\parindent,leftmargin=*,align=right}
+\setlist[enumerate,1]{label={\arabic{section}.\arabic{subsection}.\arabic*}}
+\setlist[enumerate,2]{label*={.\arabic*}}
+
+\pagestyle{plain}
+
+\lstset{language=Java,
+  numbers=left,
+  keywordstyle=\bfseries,
+  frame=tb,
+  %morekeywords=[1]{perror,assert,printf,fprintf,scanf,sscanf},
+  %morekeywords=[2]{},
+}
+
+\newcommand{\des}[2]{\makebox[3em][l]{\bf #1}#2}
+\newcommand{\function}[5]{\CTEXnoindent\vspace{1em}\par
+\begin{minipage}{\textwidth}
+    \underline{\makebox[\textwidth][l]{\it{#1}}}\\
+    {\tt {{#3}} {\bfseries #1}(#2);}\\
+    \des{返回}{#4}\\
+    \des{描述}{#5}
+\end{minipage}\par
+\CTEXindent}
+\newcommand{\request}[6][GET]{\CTEXnoindent\vspace{1em}\par
+\begin{minipage}{\textwidth}
+    \underline{\makebox[\textwidth]{{\tt\bfseries{#2}}\hfill{\it{#1}}}}
+
+    \des{参数}{\hspace*{-3.25em}#3}
+
+    \des{描述}{#5}
+
+    \des{跳转}{{\tt{#4}}}
+\end{minipage}\par
+\CTEXindent}
+\newcommand\kv[2]{\hspace*{3em}\makebox[6em][l]{\it #1} {#2}
+
+}
+
+\newcommand\pictext{\linespread{1}\centering}
+
+\newcommand\method[2]{{#1}:~{\it #2}}
+\newcommand\vart[2]{{#1}:~{\it #2}}
+\newcommand\argu[2]{{\sf #2}:~{\it #1}}
+\newcommand\comt[1]{\hfill\quad{\tt //#1}}
+\newcommand\comtn[1]{\\\comt{#1}}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\title{\bf\titlec~\version\footnote{本文档托管在 GitHub 上，PDF 文件：\url{https://github.com/kingfree/haut/raw/master/course/se/attd.pdf}，\TeX 源文件：\url{https://github.com/kingfree/haut/blob/master/course/se/attd.tex}。}}
+\author{软件工程1305班~\quad\tjf\quad~201316920311}
+\maketitle
+
+\begin{multicols}{2}
+\tableofcontents
+\end{multicols}
+
+本文档只描述对外的公开接口，以Java语言为基准。
+
+\section{服务端}
+
+\subsection{服务端前台}
+
+服务端提供给教师可操作的前台界面，通过响应HTTP请求来实现交互。这实际上是一个Web服务器。
+
+对于Web服务器而言，我们要提供的接口是URI，以及相应的请求类型和参数，为了简明起见，分成几个模块。
+
+\subsubsection{课程管理模块}
+
+\request{/subject/index/?}{
+\kv{page}{页码}
+\kv{search}{搜索关键字}
+\kv{order}{排序方式}
+\kv{asc}{排序顺序}
+}{本页}
+{显示课程列表。}
+
+\request[(multipart)POST]{/subject/import/?file}{
+\kv{type}{文件类型}
+\kv{file}{待导入的文件}
+}{/subject/import/?data}
+{解析文件中的课程信息，跳转到自定义导入信息页面。}
+
+\request[POST]{/subject/import/?data}{
+\kv{data}{解析后的表格或映射表}
+}{/subject/import/?status}
+{提供用户界面，允许选择表格行列与待导入字段对应。调用服务端后台接口写入数据库，跳转到导入状态页面。}
+
+\request[POST]{/subject/import/?status}{
+\kv{status}{导入状态}
+\kv{data}{已导入的课程表}
+}{本页}
+{提示导入是否成功，显示导入的课程表。}
+
+
+
+\request{/subject/index/?}{
+\kv{page}{页码}
+\kv{search}{搜索关键字}
+\kv{order}{排序方式}
+\kv{asc}{排序顺序}
+}{课程列表。}
+{显示课程列表。}
+
+\subsection{服务端后台}
+
+服务端后台是不可见的，服务端前台通过函数调用使用后台提供的公开接口，客户端应用程序则通过约定的通信协议（见第\pageref{sec:通信协议}页第\ref{sec:通信协议}节）与服务端后台进行交互。这并不是一个Web服务器。
+
+\subsubsection{课程表类 Subjects}
+
+\function{import}
+{JSONObject data}
+{}{}
+{导入课程表，}
+
+\section{客户端}
+
+\section{通信协议}\label{sec:通信协议}
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
