@@ -318,8 +318,9 @@ void putfonts8_asc_sht(sheet_t *sht, int x, int y, int c, int b, char *s, int l)
 #define CONS_WINH (CONS_LINH + CONS_TOP + CONS_LEFT)/* 窗口高度 */
 
 typedef struct CONSOLE {
-    struct SHEET *sht;
+    sheet_t *sht;
     int cur_x, cur_y, cur_c;
+    timer_t *timer;
 } console;
 void console_task(sheet_t *sheet, unsigned int memtotal);
 void cons_putchar(console *cons, int chr, char move);
