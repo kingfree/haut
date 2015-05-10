@@ -77,7 +77,7 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
                     cons_putchar(&cons, ' ', 1);
                 } else {
                     /* 一般字符 */
-                    if (cons.cur_x < CONS_COLW) {
+                    if (cons.cur_x < CONS_LEFT + CONS_COLW - FNT_W) {
                         /* 显示字符，后移一位 */
                         cmdline[(cons.cur_x - CONS_LEFT) / FNT_W - 2] = i - 256;
                         cons_putchar(&cons, i - 256, 1);
@@ -344,14 +344,18 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
         sheet_slide(sht, 100, 50);
         sheet_updown(sht, 3);	/* 层高3 */
         reg[7] = (int) sht;
-    } else if (edx == 6) {
-        sht = (sheet_t *) ebx;
+    }else if (edx == 6) {
+        sht = (sheet_t *) (ebx & 0xfffffffe);
         putfonts8_asc(sht->buf, sht->bxsize, esi, edi, eax, (char *) ebp + ds_base);
-        sheet_refresh(sht, esi, edi, esi + ecx * 8, edi + 16);
+        if ((ebx & 1) == 0) {
+            sheet_refresh(sht, esi, edi, esi + ecx * 8, edi + 16);
+        }
     } else if (edx == 7) {
-        sht = (sheet_t *) ebx;
+        sht = (sheet_t *) (ebx & 0xfffffffe);
         boxfill8(sht->buf, sht->bxsize, ebp, eax, ecx, esi, edi);
-        sheet_refresh(sht, eax, ecx, esi + 1, edi + 1);
+        if ((ebx & 1) == 0) {
+            sheet_refresh(sht, eax, ecx, esi + 1, edi + 1);
+        }
     } else if (edx == 8) {
         memman_init((memman_t *) (ebx + ds_base));
 		ecx &= 0xfffffff0;	/* 以16字节为单位 */
@@ -363,9 +367,14 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 		ecx = (ecx + 0x0f) & 0xfffffff0; /* 以16字节为单位向上取整 */
 		memman_free((memman_t *) (ebx + ds_base), eax, ecx);
 	} else if (edx == 11) {
-		sht = (sheet_t *) ebx;
+		sht = (sheet_t *) (ebx & 0xfffffffe);
 		sht->buf[sht->bxsize * edi + esi] = eax;
-		sheet_refresh(sht, esi, edi, esi + 1, edi + 1);
+        if ((ebx & 1) == 0) {
+            sheet_refresh(sht, esi, edi, esi + 1, edi + 1);
+        }
+    } else if (edx == 12) {
+        sht = (sheet_t *) ebx;
+        sheet_refresh(sht, eax, ecx, esi, edi);
     }
     return 0;
 }

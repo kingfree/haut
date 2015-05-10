@@ -5,7 +5,7 @@
 
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act)
 {
-    boxfill8(buf, xsize, act ? violet : base01, 0, 0, xsize - 1, ysize - 1);
+    boxfill8(buf, xsize, base01, 0, 0, xsize - 1, ysize - 1);
     boxfill8(buf, xsize, base2, 1, 21, xsize - 2, ysize - 2);
     make_wtitle8(buf, xsize, title, act);
     return;
