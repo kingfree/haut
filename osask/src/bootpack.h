@@ -336,6 +336,7 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 int *inthandler0c(int *esp);
 int *inthandler0d(int *esp);
 void asm_end_app(void);
+void hrb_api_linewin(sheet_t *sht, int x0, int y0, int x1, int y1, int col);
 
 /* file.c */
 typedef struct FILEINFO {
