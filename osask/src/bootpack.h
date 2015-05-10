@@ -215,6 +215,7 @@ typedef struct SHEET {
     unsigned char *buf;
     int bxsize, bysize, vx0, vy0, alpha, height, flags;
     struct SHTCTL *ctl;
+    struct TASK *task;
 } sheet_t;
 
 typedef struct SHTCTL {

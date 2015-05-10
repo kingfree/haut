@@ -38,6 +38,7 @@ sheet_t *sheet_alloc(shtctl_t *ctl)
             sht = &ctl->sheets0[i];
             sht->flags = SHEET_USE; /* 标记为使用中 */
             sht->height = -1; /* 隐藏 */
+            sht->task = 0; /* 不使用自动关闭功能 */
             return sht;
         }
     }
