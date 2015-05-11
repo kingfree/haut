@@ -87,9 +87,9 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \author{软件工程1305班~\quad\tjf\quad~201316920311}
 \maketitle
 
-\begin{multicols}{2}
+% \begin{multicols}{2}
 \tableofcontents
-\end{multicols}
+% \end{multicols}
 
 \clearpage
 
@@ -196,52 +196,28 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 }{本页}
 {提示导入是否成功，显示成功导入的学生。}
 
-\subsubsection{}
+\request{/student/collect/?}{
+\kv{none}{}
+}{/student/collect/?status}
+{采集学生特征信息。教师在该页面向服务端后台发送要求开始采集信息的请求，后台接受请求开始处理，并实时返回采集进度。}
 
-\request{/student//?}{
-\kv{}{}
-}{}
-{}
 
-\request{/student//?}{
-\kv{}{}
-}{}
-{}
+\request{/student/<id>/edit}{
+\kv{id}{学生内部编号}
+}{/student/<id>/?status}
+{编辑学生信息。可以在此界面启动对该学生特征的重新采集。}
 
-\request{/student//?}{
-\kv{}{}
-}{}
-{}
+\subsubsection{考勤管理模块}
 
-\request{/student//?}{
-\kv{}{}
-}{}
-{}
+\request{/call/do/?start}{
+\kv{none}{}
+}{本页}
+{点名。开始一个新的签到进度，教师通过该页面向服务端后台发送请求，后台开始处理签到事务，并实时返回签到进度。}
 
-\request{/student//?}{
-\kv{}{}
-}{}
-{}
-
-\request{/subject//?}{
-\kv{}{}
-}{}
-{}
-
-\request{/subject//?}{
-\kv{}{}
-}{}
-{}
-
-\request{/subject//?}{
-\kv{}{}
-}{}
-{}
-
-\request{/subject//?}{
-\kv{}{}
-}{}
-{}
+\request{/call/record/?id}{
+\kv{id}{考勤记录编号}
+}{本页}
+{考勤记录。显示指定考勤具体数据。可以生成考勤报表。}
 
 \subsection{服务端后台}
 
