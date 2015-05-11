@@ -1,0 +1,212 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{Linux常用工具的使用（1）：Linux文件系统的挂载与卸载工具}
+\usepackage[a4paper,margin=2.2cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+%\CTEXsetup[number=\chinese{section}, format={\large\sf\bfseries}]{section}
+\usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+\DefineShortVerb{\|}
+\fvset{frame=single}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2} % 行距
+
+\usepackage[inline]{enumitem} % 调整列表样式
+\setlist{noitemsep,align=left}
+%\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate,1]{label={(\arabic*)}}
+
+\CTEXsetup[beforeskip={0pt},afterskip={0pt}]{paragraph}
+
+%\makeindex
+\pagestyle{plain}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\input{source/title}
+
+% \CTEXnoindent
+
+\paragraph{实验题目：}\titlec
+
+\paragraph{实验目的：}（1）理解Ubuntu系统的文件系统组成；（2）掌握挂载和卸载文件系统的方法
+
+\paragraph{实验内容：}
+\begin{enumerate}
+\item 查看Ubuntu系统的目录结构，并写出每个目录的作用。
+\item 在虚拟机上添加一块未分区的硬盘，创建文件系统，并挂载该文件系统，访问该分区，创建一个目录和文件，然后卸载该文件系统，再次访问刚刚创建的目录和文件，看是否能够被访问。
+\end{enumerate}
+
+\paragraph{实验步骤：}\quad
+
+\newcommand{\image}[3][height=10cm]{%\begin{minipage}[t]{0.5\textwidth}
+    \centering
+    \includegraphics[#1]{images/exp4/#2.png}
+    \caption{#3}
+    \label{fig:#3}
+%\end{minipage}
+}
+
+这次的实验我在Mac OS X上的Parallels Desktop中建立了一个虚拟机，并挂载上了Arch Linux的安装光盘镜像文件，以进行操作。
+
+\begin{enumerate}
+
+\item 不同的UNIX/Linux操作系统有着不同的根目录结构，但基本上还是一致的。键入：
+\begin{Verbatim}
+# ls -lh /
+\end{Verbatim}
+来查看根目录结构，如图\ref{fig:目录结构}。
+
+\begin{figure}[htp]
+\image{rootdir}{目录结构}{}
+\end{figure}
+
+\begin{itemize}
+
+\item[\tt /bin/]   二进制可执行文件。
+\item[\tt /boot/]  引导程序文件。
+\item[\tt /dev/]   必要设备。
+\item[\tt /etc/]   特定主机，系统范围内的配置文件。
+% \begin{itemize}
+% \item[\tt /etc/opt/]
+% /opt/的配置文件
+% \item[\tt /etc/X11/]
+% X Window系统(版本11)的配置文件
+% \item[\tt /etc/sgml/]
+% SGML的配置文件
+% \item[\tt /etc/xml/]
+% XML的配置文件
+% \end{itemize}
+
+\item[\tt /home/]  用户的家目录。
+\item[\tt /lib/]   必要的库文件。
+\item[\tt /lib64/]   必要的库文件（64位平台）。
+\item[\tt /lost+found/] 恢复文件。
+\item[\tt /mnt/]   临时挂载的文件系统。
+\item[\tt /opt/]   可选应用软件包。
+\item[\tt /proc/]  虚拟文件系统，将内核与进程状态归档为文本文件。
+\item[\tt /root/]  超级用户的家目录
+\item[\tt /run]
+代替|/var/run|目录。自最后一次启动以来运行中的系统的信息。
+\item[\tt /sbin/]  必要的系统二进制文件。
+\item[\tt /srv/]   服务器站点的具体数据，由系统提供。
+\item[\tt /sys/]   系统链接。
+\item[\tt /tmp/]   临时文件，在系统重启时目录中文件不会被保留。
+\item[\tt /usr/]   用于存储只读用户数据的第二层次； 包含绝大多数的用户工具和应用程序。
+\begin{itemize}
+\item[\tt /usr/bin/]
+非必要可执行文件 (在单用户模式中不需要)；面向所有用户。
+\item[\tt /usr/include/]
+标准包含文件，即C语言头文件。
+\item[\tt /usr/lib/]
+|/usr/bin/|和|/usr/sbin/|中二进制文件的库。
+\item[\tt /usr/sbin/]
+非必要的系统二进制文件。
+% \item[\tt /usr/share/]
+% 体系结构无关（共享）数据。
+% \item[\tt /usr/src/]
+% 源代码,例如:内核源代码及其头文件。
+% \item[\tt /usr/X11R6/]
+% X Window系统 版本 11, Release 6
+% \item[\tt /usr/local/]
+% 本地数据的第三层次， 具体到本台主机。通常而言有进一步的子目录.
+\end{itemize}
+
+\item[\tt /var/]   变量文件——在正常运行的系统中其内容不断变化的文件。
+% \begin{itemize}
+% \item[\tt /var/cache/]
+% 应用程序缓存数据。这些数据是在本地生成的一个耗时的I/O或计算结果。应用程序必须能够再生或恢复数据。缓存的文件可以被删除而不导致数据丢失。
+% \item[\tt /var/lib/]
+% 状态信息。 由程序在运行时维护的持久性数据。 例如：数据库、包装的系统元数据等。
+% \item[\tt /var/lock/]
+% 锁文件，一类跟踪当前使用中资源的文件。
+% \item[\tt /var/log/]
+% 日志文件，包含大量日志文件。
+% \item[\tt /var/mail/]
+% 用户的电子邮箱。
+% \item[\tt /var/run/]
+% 自最后一次启动以来运行中的系统的信息，例如：当前登录的用户和运行中的守护进程。现已经被/run代替[13]。
+% \item[\tt /var/spool/]
+% 等待处理的任务的脱机文件，例如：打印队列和未读的邮件。
+% \item[\tt /var/tmp/]
+% 在系统重启过程中可以保留的临时文件。
+% \end{itemize}
+
+\end{itemize}
+
+
+\item 显示磁盘信息：
+\begin{Verbatim}
+# lsblk
+\end{Verbatim}
+如图\ref{fig:创建文件系统}，这里我们看到有一未挂载的本地磁盘sda。
+
+\begin{figure}[htp]
+\image{mkfs}{创建文件系统}
+\end{figure}
+
+在|/dev/sda|上建立一个EXT4格式的文件系统：
+\begin{Verbatim}
+# mkfs.ext4 /dev/sda
+\end{Verbatim}
+
+
+然后如图\ref{fig:挂载文件系统}，将其挂载到|/mnt|中：
+\begin{Verbatim}
+# mount /dev/sda /mnt
+\end{Verbatim}
+
+创建一个文件和目录：
+\begin{Verbatim}
+# cd /mnt
+# touch file
+# mkdir dir
+# ls
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{mount}{挂载文件系统}
+\end{figure}
+
+最后卸载之：
+\begin{Verbatim}
+# umount /mnt
+\end{Verbatim}
+
+如图\ref{fig:卸载文件系统}，测试文件是否还能访问：
+\begin{Verbatim}
+# ls /mnt
+\end{Verbatim}
+当然结论是不能访问了（笑）。
+
+\begin{figure}[htp]
+\image{umount}{卸载文件系统}
+\end{figure}
+
+\end{enumerate}
+
+\paragraph{实验体会：}\quad
+
+Linux的目录结构继承UNIX，是经历实践检验有效的分类方式。
+
+关于Linux文件系统，主要在安装系统中会遇到，尤其是Arch这种以命令行形式安装的发行版，需要手动分区和挂载安装。这里的实验也是直接利用了Arch的系统安装盘自带的一些功能。
+
+\end{document}
