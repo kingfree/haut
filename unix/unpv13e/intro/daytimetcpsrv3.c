@@ -15,7 +15,7 @@ main(int argc, char **argv)
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family      = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	servaddr.sin_port        = htons(9999);	/* daytime server */
+	servaddr.sin_port        = htons(9999);	/* 时间服务器 */
 
 	Bind(listenfd, (SA *) &servaddr, sizeof(servaddr));
 
@@ -24,7 +24,7 @@ main(int argc, char **argv)
 	for ( ; ; ) {
 		len = sizeof(cliaddr);
 		connfd = Accept(listenfd, (SA *) &cliaddr, &len);
-		printf("connection from %s, port %d\n",
+		printf("链接来自 %s, 端口 %d\n",
 			   Inet_ntop(AF_INET, &cliaddr.sin_addr, buff, sizeof(buff)),
 			   ntohs(cliaddr.sin_port));
 

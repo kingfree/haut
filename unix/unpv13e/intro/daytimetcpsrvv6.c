@@ -15,7 +15,7 @@ main(int argc, char **argv)
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin6_family = AF_INET6;
 	servaddr.sin6_addr   = in6addr_any;
-	servaddr.sin6_port   = htons(13);	/* daytime server */
+	servaddr.sin6_port   = htons(13);	/* 时间服务器 */
 
 	Bind(listenfd, (SA *) &servaddr, sizeof(servaddr));
 
@@ -24,7 +24,7 @@ main(int argc, char **argv)
 	for ( ; ; ) {
 		len = sizeof(cliaddr);
 		connfd = Accept(listenfd, (SA *) &cliaddr, &len);
-		printf("connection from %s\n",
+		printf("来自 %s 的连接\n",
 			   Sock_ntop((SA *) &cliaddr, len));
 
         ticks = time(NULL);
