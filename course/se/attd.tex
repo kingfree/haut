@@ -3,7 +3,7 @@
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{课堂考勤管理系统}
 \def\version{接口设计文档}
-\usepackage[a4paper,margin=3cm]{geometry} % 页面设置
+\usepackage[a4paper,margin=2cm]{geometry} % 页面设置
 \usepackage[x11names]{xcolor}
 \usepackage[unicode,breaklinks=true,
 colorlinks=true,linkcolor=Blue4,anchorcolor=purple,citecolor=cyan,urlcolor=magenta,
@@ -18,6 +18,10 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{arrows,shadows} % for pgf-umlsd
 \usepackage[underline=true,rounded corners=false]{pgf-umlsd}
+
+\usepackage{fancyvrb}
+\DefineShortVerb{\|}
+\fvset{frame=single}
 
 \setmainfont{Times New Roman}
 \setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
@@ -48,26 +52,27 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 }
 
 \newcommand{\des}[2]{\makebox[3em][l]{\bf #1}#2}
-\newcommand{\function}[5]{\CTEXnoindent\vspace{1em}\par
+\newcommand{\function}[6][public]{\CTEXnoindent\vspace{1em}\par
 \begin{minipage}{\textwidth}
-    \underline{\makebox[\textwidth][l]{\it{#1}}}\\
-    {\tt {{#3}} {\bfseries #1}(#2);}\\
-    \des{返回}{#4}\\
-    \des{描述}{#5}
+    \underline{\makebox[\textwidth][l]{{\sf {\bfseries #1} {{#4}} {\bfseries #2}(#3)}}}
+
+    \des{返回}{#5}
+
+    \des{描述}{#6}
 \end{minipage}\par
 \CTEXindent}
 \newcommand{\request}[6][GET]{\CTEXnoindent\vspace{1em}\par
 \begin{minipage}{\textwidth}
     \underline{\makebox[\textwidth]{{\tt\bfseries{#2}}\hfill{\it{#1}}}}
 
-    \des{参数}{\hspace*{-3.25em}#3}
+    \des{参数}{\hspace*{-3.23em}#3}
 
     \des{描述}{#5}
 
     \des{跳转}{{\tt{#4}}}
 \end{minipage}\par
 \CTEXindent}
-\newcommand\kv[2]{\hspace*{3em}\makebox[6em][l]{\it #1} {#2}
+\newcommand\kv[2]{\hspace*{3.125em}\makebox[6em][l]{\it #1} {#2}
 
 }
 
@@ -75,6 +80,7 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 \newcommand\method[2]{{#1}:~{\it #2}}
 \newcommand\vart[2]{{#1}:~{\it #2}}
+\newcommand\vars[2]{{#1}~{\itshape #2}}
 \newcommand\argu[2]{{\sf #2}:~{\it #1}}
 \newcommand\comt[1]{\hfill\quad{\tt //#1}}
 \newcommand\comtn[1]{\\\comt{#1}}
@@ -93,13 +99,17 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 \clearpage
 
-本文档只描述对外的公开接口，以Java语言为基准。
+本文档只描述对外的公开接口，{\bf 不}描述其具体实现细节（包括私有方法、私有类、私有属性，以及内部处理流程）。
+
+考虑到服务端和客户端的统一性，以Java语言为基准，因为Java不仅可以有效开发Web应用（服务端前台）、系统应用（服务端后台），还可以开发基于Android的移动客户端应用。
+
+由于时间不足和能力不够，不能做到十分完善，还请见谅。
 
 \section{服务端}
 
 \subsection{服务端前台}
 
-服务端提供给教师可操作的前台界面，通过响应HTTP请求来实现交互。这实际上是一个Web服务器。
+服务端提供给教师可操作的前台界面，通过响应HTTP的GET/POST请求来实现交互。这实际上是一个Web服务器。
 
 对于Web服务器而言，我们要提供的接口是URI，以及相应的请求类型和参数，为了简明起见，分成几个模块。
 
@@ -209,61 +219,246 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 \subsubsection{考勤管理模块}
 
-\request{/call/do/?start}{
+\request{/signin/do/?start}{
 \kv{none}{}
 }{本页}
 {点名。开始一个新的签到进度，教师通过该页面向服务端后台发送请求，后台开始处理签到事务，并实时返回签到进度。}
 
-\request{/call/record/?id}{
+\request{/signin/record/?id}{
 \kv{id}{考勤记录编号}
 }{本页}
 {考勤记录。显示指定考勤具体数据。可以生成考勤报表。}
 
 \subsection{服务端后台}
 
-服务端后台是不可见的，服务端前台通过函数调用使用后台提供的公开接口，客户端应用程序则通过约定的通信协议（见第\pageref{sec:通信协议}页第\ref{sec:通信协议}节）与服务端后台进行交互。这并不是一个Web服务器。
+服务端后台是不可见的，服务端前台通过公共类的公共方法调用使用后台提供的公开接口，客户端应用程序则通过约定的通信协议（见第\pageref{sec:通信协议}页第\ref{sec:通信协议}节）与服务端后台进行交互。这并不是一个Web服务器。
 
-\subsubsection{课程表类 Subjects}
+\subsubsection{课程类 Subjects}
 
-\function{import}
-{JSONObject data}
-{}{}
-{导入课程表，}
+\function[public static]{import}
+{\vars{JSONArray}{data}}
+{JSONArray}{导入成功的数据。}
+{导入课程表。解析传入的JSON数据为课程表，导入成功后写入数据库并返回导入成功的数据。导入失败则返回错误信息以供参考。}
+
+\function[public static]{get}
+{}
+{JSONArray}{课程表。}
+{获取全部课程表。没有参数，查询数据库中所有课程信息并返回。}
+
+\function[public static]{get}
+{\vars{int}{page}, \vars{int}{pageSize}, ... /* \vars{String}{order}, \vars{bool}{asc} */}
+{JSONArray}{课程表。}
+{获取指定页课程表。传入页码和每页数量，省略的参数为排序方式（默认为按编号顺序），返回按参数指定的课程表。}
+
+\function[public static]{get}
+{\vars{int}{id}}
+{JSONObject}{课程信息。}
+{获取课程信息。传入该课程的唯一ID，在数据库中查询后返回该课程信息。失败返回空。}
+
+\function[public static]{update}
+{\vars{int}{id}, \vars{JSONObject}{data}}
+{JSONObject}{更新后的课程信息。}
+{修改指定课程。传入该课程的唯一ID和要修改的内容，解析后在数据库中进行更新，返回更新成功后的该课程信息。失败则返回错误信息。}
+
+\subsubsection{班级类 Classes}
+
+\function[public static]{import}
+{\vars{JSONArray}{data}}
+{JSONArray}{导入成功的数据。}
+{导入班级表。解析传入的JSON数据为班级表，导入成功后写入数据库并返回导入成功的数据。导入失败则返回错误信息以供参考。}
+
+\function[public static]{get}
+{}
+{JSONArray}{班级表。}
+{获取全部班级表。没有参数，查询数据库中所有班级信息并返回。}
+
+\function[public static]{get}
+{\vars{int}{page}, \vars{int}{pageSize}, ... /* \vars{String}{order}, \vars{bool}{asc} */}
+{JSONArray}{班级表。}
+{获取指定页班级表。传入页码和每页数量，省略的参数为排序方式（默认为按编号顺序），返回按参数指定的班级表。}
+
+\function[public static]{get}
+{\vars{int}{id}}
+{JSONObject}{班级信息。}
+{获取班级信息。传入该班级的唯一ID，在数据库中查询后返回该班级信息。失败返回空。}
+
+\function[public static]{update}
+{\vars{int}{id}, \vars{JSONObject}{data}}
+{JSONObject}{更新后的班级信息。}
+{修改指定班级。传入该班级的唯一ID和要修改的内容，解析后在数据库中进行更新，返回更新成功后的该班级信息。失败则返回错误信息。}
+
+\subsubsection{学生类 Students}
+
+\function[public static]{import}
+{\vars{JSONArray}{data}}
+{JSONArray}{导入成功的数据。}
+{导入学生表。解析传入的JSON数据为学生表，导入成功后写入数据库并返回导入成功的数据。导入失败则返回错误信息以供参考。}
+
+\function[public static]{get}
+{}
+{JSONArray}{学生表。}
+{获取全部学生表。没有参数，查询数据库中所有学生信息并返回。}
+
+\function[public static]{get}
+{\vars{int}{page}, \vars{int}{pageSize}, ... /* \vars{String}{order}, \vars{bool}{asc} */}
+{JSONArray}{学生表。}
+{获取指定页学生表。传入页码和每页数量，省略的参数为排序方式（默认为按编号顺序），返回按参数指定的学生表。}
+
+\function[public static]{get}
+{\vars{int}{id}}
+{JSONObject}{学生信息。}
+{获取学生信息。传入该学生的唯一ID，在数据库中查询后返回该学生信息。失败返回空。}
+
+\function[public static]{update}
+{\vars{int}{id}, \vars{JSONObject}{data}}
+{JSONObject}{更新后的学生信息。}
+{修改指定学生。传入该学生的唯一ID和要修改的内容，解析后在数据库中进行更新，返回更新成功后的该学生信息。失败则返回错误信息。}
+
+\subsubsection{签到类 Signin}
+
+\function[public static]{do}
+{\vars{int}{subject\_id}}
+{void}{无}
+{开始一个签到进程。传入带签到的课程编号，系统检测当前时间来判断当前待签到学生信息。系统启动新线程开始签到，新线程向客户端发送签到请求进行签到。没有返回值。}
+
+\function[public static]{status}
+{}
+{JSONObject}{签到状态。}
+{获取当前签到状态。由服务器前端轮询，返回当前已经点到的学生信息。}
+
+\subsubsection{识别类 Identification}
+
+\function[public static]{init}
+{\vars{int}{student\_id}, \vars{JSONObject}{data}}
+{JSONObject}{初始化情况。}
+{初始化学生识别信息。传入参数为学生编号和采集到的数据，系统分析数据特征并存入数据库。返回初始化情况。}
+
+\function[public static]{update}
+{\vars{int}{student\_id}, \vars{JSONObject}{data}}
+{JSONObject}{更新情况。}
+{更新学生识别信息。传入参数为学生编号和采集到的数据，系统分析数据特征并更新数据库。返回更新情况。}
+
+\subsubsection{通信类 Communication}
+
+
+\subsubsection{日志类 Log}
+
+\function[public static]{log}
+{\vars{int}{level}, \vars{String}{message}}
+{void}{无。}
+{写入日志。传入日志等级和日志消息，写出带时间的日志到日志文件和数据库。}
 
 \section{客户端}
 
-\section{通信协议}\label{sec:通信协议}
+\section{数据处理约定}
+
+为了简化格式解析处理流程，所有以字符串形式交换数据的格式，均采用以UTF-8编码的JSON表述。数据在传输过程中可以取消缩进和压缩以节省传输成本，但这里用缩进来明晰其嵌套层次。
+
+\subsection{课程表格式}\label{sec:课程表格式}
+
+课程表是一个数组，其中每个元素为一个课程对象。课程对象包含数个键值对以表示该课程。数组可以为空，表示没有相应数据，这样就可以在没有班级和学生的情况下导入单纯的课程。
+
+\begin{Verbatim}
+[
+  {
+    id:      1,
+    name:    "软件工程概论",
+    teacher: "王珂",
+    course:  [
+      {
+        classes:     [2, 3], // 班级ID
+        students:    [], // 学生ID，如重修跟班的学生
+        weeks:       [1, 2, 3, 4, 5, 6, 7, 8],
+        times:       [
+          {
+            weekday: 2,
+            start:   "8:30",
+            end:     "10:05"
+          },
+        ],
+        classroom:   "4538"
+      }
+    ]
+  }
+]
+\end{Verbatim}
+
+
+\subsection{班级表格式}\label{sec:班级表格式}
+
+班级表是一个数组，其中每个元素为一个班级对象。班级对象包含数个键值对以表示该班级。
+
+\begin{Verbatim}
+[
+  {
+    id:         3,
+    name:       "软件工程1305班",
+    shortName:  "软件1305",
+    college:    "信息科学与工程学院",
+    grade:      2013,
+    students:   [1, 2, 3, 1098, 1099, 1100], // 学生编号
+    memo:       "备注"
+  }
+]
+\end{Verbatim}
+
+\subsection{学生表格式}\label{sec:学生表格式}
+
+学生表是一个数组，其中每个元素为一个学生对象。学生对象包含数个键值对以表示该学生，这里只给出基本键值对，如有需求可以随时添加。
+
+\begin{Verbatim}
+[
+  {
+    id:         1100,
+    sid:        "201316920311"
+    name:       "田劲锋",
+    memo:       "备注"
+  }
+]
+\end{Verbatim}
+
+\subsection{消息格式}\label{sec:消息格式}
+
+消息格式约定了调用公共方法后，出现异常情况时返回值的格式。
+
+\begin{Verbatim}
+{
+  level:      "error",
+  message:    "出错具体信息",
+  timestamp:  1431416795,
+  from:       "出错模块"
+}
+\end{Verbatim}
+
+数组形式为：
+
+\begin{Verbatim}
+[
+  "error",
+  "出错具体信息",
+  1431416795,
+  "出错模块"
+]
+\end{Verbatim}
+
+\subsection{识别数据格式}\label{sec:识别数据格式}
+
+略。
+
+\subsection{签到数据格式}\label{sec:签到数据格式}
+
+略。
+
+\subsection{音频数据格式}\label{sec:音频数据格式}
+
+OGG。
+
+\subsection{图像数据格式}\label{sec:图像数据格式}
+
+PNG。
+
+\subsection{通信协议}\label{sec:通信协议}
+
+系统通信协议基于经典的TCP/IP协议，其中IP是IPv4。数据的拆解包可以由系统套接字接口实现，数据包中传递压缩的JSON格式字符串。关于TCP/IP的具体实现不再赘述。
 
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
