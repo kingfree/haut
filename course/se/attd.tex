@@ -53,16 +53,17 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 \newcommand{\des}[2]{\makebox[3em][l]{\bf #1}#2}
 \newcommand{\function}[6][public]{\CTEXnoindent\vspace{1em}\par
-\begin{minipage}{\textwidth}
+% \begin{minipage}{\textwidth}
     \underline{\makebox[\textwidth][l]{{\sf {\bfseries #1} {{#4}} {\bfseries #2}(#3)}}}
 
     \des{返回}{#5}
 
     \des{描述}{#6}
-\end{minipage}\par
+% \end{minipage}
+\par
 \CTEXindent}
 \newcommand{\request}[6][GET]{\CTEXnoindent\vspace{1em}\par
-\begin{minipage}{\textwidth}
+% \begin{minipage}{\textwidth}
     \underline{\makebox[\textwidth]{{\tt\bfseries{#2}}\hfill{\it{#1}}}}
 
     \des{参数}{\hspace*{-3.23em}#3}
@@ -70,7 +71,8 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
     \des{描述}{#5}
 
     \des{跳转}{{\tt{#4}}}
-\end{minipage}\par
+% \end{minipage}
+\par
 \CTEXindent}
 \newcommand\kv[2]{\hspace*{3.125em}\makebox[6em][l]{\it #1} {#2}
 
@@ -93,9 +95,9 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \author{软件工程1305班~\quad\tjf\quad~201316920311}
 \maketitle
 
-% \begin{multicols}{2}
+\begin{multicols}{2}
 \tableofcontents
-% \end{multicols}
+\end{multicols}
 
 \clearpage
 
@@ -211,7 +213,6 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 }{/student/collect/?status}
 {采集学生特征信息。教师在该页面向服务端后台发送要求开始采集信息的请求，后台接受请求开始处理，并实时返回采集进度。}
 
-
 \request{/student/<id>/edit}{
 \kv{id}{学生内部编号}
 }{/student/<id>/?status}
@@ -317,7 +318,7 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \subsubsection{签到类 Signin}
 
 \function[public static]{do}
-{\vars{int}{subject\_id}}
+{\vars{int}{subjectId}}
 {void}{无}
 {开始一个签到进程。传入带签到的课程编号，系统检测当前时间来判断当前待签到学生信息。系统启动新线程开始签到，新线程向客户端发送签到请求进行签到。没有返回值。}
 
@@ -329,17 +330,23 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \subsubsection{识别类 Identification}
 
 \function[public static]{init}
-{\vars{int}{student\_id}, \vars{JSONObject}{data}}
+{\vars{int}{studentId}, \vars{JSONObject}{data}}
 {JSONObject}{初始化情况。}
 {初始化学生识别信息。传入参数为学生编号和采集到的数据，系统分析数据特征并存入数据库。返回初始化情况。}
 
 \function[public static]{update}
-{\vars{int}{student\_id}, \vars{JSONObject}{data}}
+{\vars{int}{studentId}, \vars{JSONObject}{data}}
 {JSONObject}{更新情况。}
 {更新学生识别信息。传入参数为学生编号和采集到的数据，系统分析数据特征并更新数据库。返回更新情况。}
 
 \subsubsection{通信类 Communication}
 
+通信类提供基于第\pageref{sec:通信协议}页第\ref{sec:通信协议}所述通信协议的收发，启动监听进程和发送进程属于具体实现而并非接口设计，这里不再阐述。
+
+\function[public static]{send}
+{\vars{JSONObject}{datagram}}
+{void}{无。}
+{发包。向客户端传送的数据包对象。}
 
 \subsubsection{日志类 Log}
 
@@ -349,6 +356,36 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 {写入日志。传入日志等级和日志消息，写出带时间的日志到日志文件和数据库。}
 
 \section{客户端}
+
+客户端与服务端后台进行通信，是C/S架构中的C。客户端本身采用MVC（模型-视图-控制器）的架构来设计，简述如下。
+
+\subsection{模型 model}
+
+\subsubsection{课程类 Subjects}
+
+\subsubsection{班级类 Classes}
+
+\subsubsection{学生类 Students}
+
+\subsection{视图 ui}
+
+\subsubsection{活动接口 IActivity}
+
+\subsubsection{登录类 LoginActivity}
+
+\subsubsection{验证类 VerifyActivity}
+
+\subsubsection{签到类 SigninActivity}
+
+\subsection{控制器 logic}
+
+\subsubsection{主控类 MainServices}
+
+\subsubsection{通信类 Communication}
+
+\subsubsection{图像处理类 Image{}Processor}
+
+\subsubsection{音频处理类 Audio{}Processor}
 
 \section{数据处理约定}
 
@@ -441,13 +478,13 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 ]
 \end{Verbatim}
 
-\subsection{识别数据格式}\label{sec:识别数据格式}
+% \subsection{识别数据格式}\label{sec:识别数据格式}
 
-略。
+% 略。
 
-\subsection{签到数据格式}\label{sec:签到数据格式}
+% \subsection{签到数据格式}\label{sec:签到数据格式}
 
-略。
+% 略。
 
 \subsection{音频数据格式}\label{sec:音频数据格式}
 
