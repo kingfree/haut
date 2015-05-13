@@ -238,7 +238,8 @@ void sheet_free(sheet_t *sht);
 
 typedef struct TIMER {
     struct TIMER *next;
-    unsigned int timeout, flags;
+    unsigned int timeout;
+    char flags, flags2;
     fifo32 *fifo;
     int data;
 } timer_t;
@@ -256,6 +257,8 @@ void timer_free(timer_t *timer);
 void timer_init(timer_t *timer, fifo32 *fifo, int data);
 void timer_settime(timer_t *timer, unsigned int timeout);
 void inthandler20(int *esp);
+int timer_cancel(timer_t *timer);
+void timer_cancelall(fifo32 *fifo);
 
 /* mtask.c */
 #define MAX_TASKS       1024    /* 最大任务数 */

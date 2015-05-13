@@ -36,6 +36,7 @@ timer_t *timer_alloc(void)
     for (i = 0; i < MAX_TIMER; i++) {
         if (timerctl.timers0[i].flags == 0) {
             timerctl.timers0[i].flags = TIMER_FLAGS_ALLOC;
+            timerctl.timers0[i].flags2 = 0;
             return &timerctl.timers0[i];
         }
     }
@@ -113,5 +114,54 @@ void inthandler20(int *esp)
     if (ts != 0) {
         task_switch();
     }
+    return;
+}
+
+int timer_cancel(timer_t *timer)
+{
+    int e;
+    timer_t *t;
+    e = io_load_eflags();
+    io_cli();   /* 在设置过程中禁止改变定时器状态 */
+    if (timer->flags == TIMER_FLAGS_USING) {    /* 是否需要取消？ */
+        if (timer == timerctl.t0) {
+            /* 第一个定时器的取消 */
+            t = timer->next;
+            timerctl.t0 = t;
+            timerctl.next = t->timeout;
+        } else {
+            /* 其他定时器的取消 */
+            /* 找到前一个定时器 */
+            t = timerctl.t0;
+            for (;;) {
+                if (t->next == timer) {
+                    break;
+                }
+                t = t->next;
+            }
+            t->next = timer->next; /* 将「timerの直前」的下一个指向「timerの次」 */
+        }
+        timer->flags = TIMER_FLAGS_ALLOC;
+        io_store_eflags(e);
+        return 1;   /* 取消成功 */
+    }
+    io_store_eflags(e);
+    return 0; /* 不需要取消处理 */
+}
+
+void timer_cancelall(fifo32 *fifo)
+{
+    int e, i;
+    timer_t *t;
+    e = io_load_eflags();
+    io_cli();   /* 在设置过程中禁止改变定时器状态 */
+    for (i = 0; i < MAX_TIMER; i++) {
+        t = &timerctl.timers0[i];
+        if (t->flags != 0 && t->flags2 != 0 && t->fifo == fifo) {
+            timer_cancel(t);
+            timer_free(t);
+        }
+    }
+    io_store_eflags(e);
     return;
 }
