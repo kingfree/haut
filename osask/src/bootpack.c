@@ -292,6 +292,15 @@ void HariMain(void)
                                             mmx = mx;   /* 进入窗口移动模式 */
                                             mmy = my;
                                         }
+                                        if (sht->bxsize - 30 <= x && x <= sht->bxsize && 0 <= y && y <= 18) {
+                                            /* 按下了关闭按钮 */
+                                            if (sht->task != 0) {   /* 该窗口是否为应用程序窗口 */
+                                                io_cli();   /* 强制结束处理中禁止切换任务 */
+                                                task_cons->tss.eax = (int) &(task_cons->tss.esp0);
+                                                task_cons->tss.eip = (int) asm_end_app;
+                                                io_sti();
+                                            }
+                                        }
                                         break;
                                     }
                                 }
