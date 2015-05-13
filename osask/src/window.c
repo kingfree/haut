@@ -53,3 +53,33 @@ void make_textbox8(sheet_t *sht, int x0, int y0, int sx, int sy, int c)
     boxfill8(sht->buf, sht->bxsize, c, x0 - 1, y0 - 1, x1 + 0, y1 + 0);
     return;
 }
+
+void change_wtitle8(sheet_t *sht, char act)
+{
+    int x, y, xsize = sht->bxsize;
+    char c, tc_new, tbc_new, tc_old, tbc_old, *buf = sht->buf;
+    if (act != 0) {
+        tc_new  = blue;
+        tbc_new = orange;
+        tc_old  = base1;
+        tbc_old = base00;
+    } else {
+        tc_new  = base1;
+        tbc_new = base00;
+        tc_old  = blue;
+        tbc_old = orange;
+    }
+    for (y = 0; y <= 21; y++) {
+        for (x = 0; x < xsize; x++) {
+            c = buf[y * xsize + x];
+            if (c == tc_old) {
+                c = tc_new;
+            } else if (c == tbc_old) {
+                c = tbc_new;
+            }
+            buf[y * xsize + x] = c;
+        }
+    }
+    sheet_refresh(sht, 0, 0, xsize, 21);
+    return;
+}
