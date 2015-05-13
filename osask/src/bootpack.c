@@ -44,8 +44,8 @@ void HariMain(void)
     };
     int key_to = 0, key_shift = 0, key_ctrl = 0, key_alt = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
     console *cons;
-    int j, x, y;
-    sheet_t *sht;
+    int j, x, y, mmx = -1, mmy = -1;
+    sheet_t *sht = 0;
 
     init_gdtidt();
     init_pic();
@@ -278,18 +278,35 @@ void HariMain(void)
                     sheet_slide(sht_mouse, mx, my);
                     if ((mdec.btn & 0x01) != 0) {
                         /* 如果按着左键 */
-                        /* 按照从上到下的顺序寻找鼠标指向的图层 */
-                        for (j = shtctl->top - 1; j > 0; j--) {
-                            sht = shtctl->sheets[j];
-                            x = mx - sht->vx0;
-                            y = my - sht->vy0;
-                            if (0 <= x && x < sht->bxsize && 0 <= y && y < sht->bysize) {
-                                if (sht->buf[y * sht->bxsize + x] != sht->alpha) {
-                                    sheet_updown(sht, shtctl->top - 1);
-                                    break;
+                        if (mmx < 0) {
+                            /* 通常模式 */
+                            /* 从上到下找鼠标指向的图层 */
+                            for (j = shtctl->top - 1; j > 0; j--) {
+                                sht = shtctl->sheets[j];
+                                x = mx - sht->vx0;
+                                y = my - sht->vy0;
+                                if (0 <= x && x < sht->bxsize && 0 <= y && y < sht->bysize) {
+                                    if (sht->buf[y * sht->bxsize + x] != sht->alpha) {
+                                        sheet_updown(sht, shtctl->top - 1);
+                                        if (3 <= x && x < sht->bxsize - 3 && 3 <= y && y < 21) {
+                                            mmx = mx;   /* 进入窗口移动模式 */
+                                            mmy = my;
+                                        }
+                                        break;
+                                    }
                                 }
                             }
+                        } else {
+                            /* 窗口移动模式 */
+                            x = mx - mmx;   /* 计算鼠标移动量 */
+                            y = my - mmy;
+                            sheet_slide(sht, sht->vx0 + x, sht->vy0 + y);
+                            mmx = mx;   /* 更新坐标 */
+                            mmy = my;
                         }
+                    } else {
+                        /* 没有按左键 */
+                        mmx = -1;   /* 返回通常模式 */
                     }
                 }
             } else if (i <= 1) { /* 光标计时器 */
