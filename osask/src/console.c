@@ -419,11 +419,19 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
             if (i == 3) {   /* 光标隐藏 */
                 cons->cur_c = -1;
             }
-            if (256 <= i && i <= 511) { /* 通过任务A接收的键盘数据 */
+            if (256 <= i) { /* 通过任务A接收的键盘数据 */
                 reg[7] = i - 256;
                 return 0;
             }
         }
+    } else if (edx == 16) {
+        reg[7] = (int) timer_alloc();
+    } else if (edx == 17) {
+        timer_init((timer_t *) ebx, &task->fifo, eax + 256);
+    } else if (edx == 18) {
+        timer_settime((timer_t *) ebx, eax);
+    } else if (edx == 19) {
+        timer_free((timer_t *) ebx);
     }
     return 0;
 }
