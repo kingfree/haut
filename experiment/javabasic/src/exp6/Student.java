@@ -1,132 +1,76 @@
 package exp6;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.io.Serializable;
 
 /**
  * 学生类
  * 
- * @version 2015-4-5
+ * @version 2015-5-14
  * @author Kingfree
  */
-public class Student {
+public class Student implements Serializable {
 
-	private int id;
-	private String name;
+    private static final long serialVersionUID = 1L;
 
-	public Student(int id, String name) {
-		setId(id);
-		setName(name);
-	}
+    private int id;
+    private String name;
+    private int os, math, java;
 
-	private void setId(int id) {
-		this.id = id;
-	}
+    public Student() {
 
-	private void setName(String name) {
-		this.name = name;
-	}
+    }
 
-	public int getId() {
-		return id;
-	}
+    public Student(int id, String name, int os, int math, int java) {
+        setId(id);
+        setName(name);
+        setOs(os);
+        setMath(math);
+        setJava(java);
+    }
 
-	public String getName() {
-		return name;
-	}
+    public int getOs() {
+        return os;
+    }
 
-	/**
-	 * @param key
-	 * @return
-	 */
-	public int getScore(String key) {
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		Connection conn = null;
-		try {
-			conn = DBUtils.getConnection();
+    public void setOs(int os) {
+        this.os = os;
+    }
 
-			String sql = new String("SELECT scores.score"
-					+ " FROM scores, subjects"
-					+ " WHERE scores.student_id = ?"
-					+ " AND subjects.name = ?"
-					+ " AND subjects.id = scores.subject_id");
-			st = conn.prepareStatement(sql);
-			st.setInt(1, getId());
-			st.setString(2, key);
-			rs = st.executeQuery();
+    public int getMath() {
+        return math;
+    }
 
-			while (rs.next()) {
-				return rs.getInt("score");
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			DBUtils.free(rs, st, conn);
-		}
-		return 0;
-	}
+    public void setMath(int math) {
+        this.math = math;
+    }
 
-	private HashMap<String, Integer> getScores() {
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		Connection conn = null;
-		try {
-			conn = DBUtils.getConnection();
+    public int getJava() {
+        return java;
+    }
 
-			String sql = new String("SELECT"
-					+ " students.name, subjects.name as subject_name"
-					+ ", subjects.memo, scores.score"
-					+ " FROM students, subjects, scores"
-					+ " WHERE scores.student_id = ?"
-					+ " AND subjects.id = scores.subject_id");
-			st = conn.prepareStatement(sql);
-			st.setInt(1, getId());
-			rs = st.executeQuery();
+    public void setJava(int java) {
+        this.java = java;
+    }
 
-			HashMap<String, Integer> m = new HashMap<String, Integer>();
-			while (rs.next()) {
-				m.put(rs.getString("subject_name"), rs.getInt("score"));
-			}
-			return m;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			DBUtils.free(rs, st, conn);
-		}
-		return null;
-	}
+    private void setId(int id) {
+        this.id = id;
+    }
 
-	@Override
-	public String toString() {
-		return getName() + " " + getId() + " " + getScoresString();
-	}
+    private void setName(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * 生成成绩字符串
-	 * @return 以空格和冒号分割的成绩字符串
-	 */
-	private String getScoresString() {
-		StringBuilder s = new StringBuilder(); 
-		Map<String, Integer> m = getScores();
-		Iterator<Entry<String, Integer>> i = m.entrySet().iterator();
-		while (i.hasNext()) {
-			Map.Entry<String, Integer> e = (Entry<String, Integer>) i.next();
-			String key = (String) e.getKey();
-			int val = (int) e.getValue();
-			s.append(" " + key + ":" + val);
-		}
-		return s.substring(1);
-	}
+    public int getId() {
+        return id;
+    }
 
-	public static void dispAll() {
-		
-	}
+    public String getName() {
+        return name;
+    }
 
+    @Override
+    public String toString() {
+        return getName() + " " + getId() + " os:" + getOs() + " math:"
+                + getMath() + " java:" + getJava();
+    }
 }
