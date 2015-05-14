@@ -1,5 +1,12 @@
 package exp6;
 
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Scanner;
 
 import javax.swing.SwingUtilities;
@@ -10,8 +17,9 @@ import javax.swing.SwingUtilities;
  * @version 2015-3-27
  * @author Kingfree
  */
-public class StudentManager {
-	private static Scanner in = new Scanner(System.in);
+public class StudentManager implements Serializable {
+    private static final long serialVersionUID = -7641996911847167805L;
+    private static Scanner in = new Scanner(System.in);
 	
 	public static int mainMenu() {
         System.out.println("学生信息管理系统");
@@ -43,6 +51,7 @@ public class StudentManager {
         		sortScore();
         		break;
         	case 6:
+        	default:
         		return;
         	}
         } while (sel != 0);
@@ -50,9 +59,38 @@ public class StudentManager {
 
     private static void sortScore() {
     	System.out.println("1 按math成绩 2 按os成绩 3 按java成绩，请输入(1-3)");
+    	int sel = in.nextInt();
+    	switch (sel) {
+    	case 1:
+    	    sortMath();
+    	    break;
+    	case 2:
+    	    sortOS();
+    	    break;
+    	case 3:
+    	    sortJava();
+    	    break;
+    	default:
+    	    return;
+    	}
 	}
 
-	private static void delId() {
+	private static void sortOS() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private static void sortJava() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private static void sortMath() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private static void delId() {
 		System.out.println("请输入学号：");
 		int id = in.nextInt();
 	}
@@ -88,7 +126,7 @@ public class StudentManager {
      * @param args 指定启动方式
      */
     public static void main(String[] args) {
-        String arg = "-gui";
+        String arg = "-cli";
         if (args.length > 0) {
             arg = args[0].toLowerCase();
         }
@@ -113,8 +151,38 @@ public class StudentManager {
     }
 
 	private static void init() {
-		// TODO Auto-generated method stub
-		
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        Connection conn = null;
+        try {
+            conn = DBUtils.getConnection();
+            Statement sql = conn.createStatement();
+
+            sql.executeUpdate("DROP TABLE IF EXISTS students");
+            sql.executeUpdate("CREATE TABLE students(id INTEGER PRIMARY KEY, name STRING)");
+            sql.executeUpdate("DROP TABLE IF EXISTS subjects");
+            sql.executeUpdate("CREATE TABLE subjects (id INTEGER PRIMARY KEY, name STRING"
+                    + ", memo STRING)");
+            sql.executeUpdate("DROP TABLE IF EXISTS scores");
+            sql.executeUpdate("CREATE TABLE scores(" + "student_id INTEGER"
+                    + ", subject_id INTEGER" + ", score INTEGER"
+                    + ", FOREIGN KEY(student_id) REFERENCES students(id)"
+                    + ", FOREIGN KEY(subject_id) REFERENCES subjects(id)" + ")");
+
+            sql.executeUpdate("INSERT INTO subjects VALUES(1, 'os', '操作系统')");
+            sql.executeUpdate("INSERT INTO subjects VALUES(2, 'math', '离散数学')");
+            sql.executeUpdate("INSERT INTO subjects VALUES(3, 'java', '程序设计')");
+
+            sql.executeUpdate("INSERT INTO students VALUES(12, '张三')");
+            sql.executeUpdate("INSERT INTO scores VALUES(12, 1, 90)");
+            sql.executeUpdate("INSERT INTO scores VALUES(12, 2, 90)");
+            sql.executeUpdate("INSERT INTO scores VALUES(12, 3, 90)");
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        } finally {
+            DBUtils.free(rs, st, conn);
+        }
 	}
 
 }

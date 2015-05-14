@@ -41,6 +41,10 @@ public class Student {
 		return name;
 	}
 
+	/**
+	 * @param key
+	 * @return
+	 */
 	public int getScore(String key) {
 		PreparedStatement st = null;
 		ResultSet rs = null;
@@ -104,6 +108,10 @@ public class Student {
 		return getName() + " " + getId() + " " + getScoresString();
 	}
 
+	/**
+	 * 生成成绩字符串
+	 * @return 以空格和冒号分割的成绩字符串
+	 */
 	private String getScoresString() {
 		StringBuilder s = new StringBuilder(); 
 		Map<String, Integer> m = getScores();
