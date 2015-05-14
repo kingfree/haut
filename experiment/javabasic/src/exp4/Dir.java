@@ -39,42 +39,46 @@ public class Dir {
      * @param args 命令行参数，表示要搜索的目录
      * @throws IOException 访问文件失败抛出 I/O 异常
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         String path = args.length < 1 ? "." : args[0];
         Path dir = Paths.get(path);
-        Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+        try {
+			Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
 
-            private Stack<Long> fileSizes = new Stack<Long>();
+			    private Stack<Long> fileSizes = new Stack<Long>();
 
-            public FileVisitResult visitFile(Path file,
-                    BasicFileAttributes attrs) throws IOException {
-                fileSizes.push(fileSizes.pop() + attrs.size());
-                System.out.printf(" %6s  %s\n", humanSize(attrs.size()),
-                        file.normalize());
-                return FileVisitResult.CONTINUE;
-            }
+			    public FileVisitResult visitFile(Path file,
+			            BasicFileAttributes attrs) throws IOException {
+			        fileSizes.push(fileSizes.pop() + attrs.size());
+			        System.out.printf(" %6s  %s\n", humanSize(attrs.size()),
+			                file.normalize());
+			        return FileVisitResult.CONTINUE;
+			    }
 
-            public FileVisitResult preVisitDirectory(Path dir,
-                    BasicFileAttributes attrs) throws IOException {
-                fileSizes.push(Long.valueOf(0));
-                return FileVisitResult.CONTINUE;
-            }
+			    public FileVisitResult preVisitDirectory(Path dir,
+			            BasicFileAttributes attrs) throws IOException {
+			        fileSizes.push(Long.valueOf(0));
+			        return FileVisitResult.CONTINUE;
+			    }
 
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc)
-                    throws IOException {
-                long size = fileSizes.pop();
-                System.out.printf("[%6s] %s\n", humanSize(size),
-                        dir.normalize());
-                if (!fileSizes.isEmpty())
-                    fileSizes.push(fileSizes.pop() + size);
-                return FileVisitResult.CONTINUE;
-            }
+			    public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+			            throws IOException {
+			        long size = fileSizes.pop();
+			        System.out.printf("[%6s] %s\n", humanSize(size),
+			                dir.normalize());
+			        if (!fileSizes.isEmpty())
+			            fileSizes.push(fileSizes.pop() + size);
+			        return FileVisitResult.CONTINUE;
+			    }
 
-            public FileVisitResult visitFileFailed(Path file, IOException exc)
-                    throws IOException {
-                return FileVisitResult.CONTINUE;
-            }
-        });
+			    public FileVisitResult visitFileFailed(Path file, IOException exc)
+			            throws IOException {
+			        return FileVisitResult.CONTINUE;
+			    }
+			});
+		} catch (IOException e) {
+			System.out.println("目录遍历失败");
+		}
     }
 
 }
