@@ -24,19 +24,34 @@ void init_palette(void)
         0x2a, 0xa1, 0x98, /* cyan */
         0x7f, 0xbc, 0x43, /* green */
     };
-    unsigned char table2[216 * 3];
-    int r, g, b;
     set_palette(0, 15, table_rgb);
+
+    unsigned char table2[6 * 6 * 6 * 3];
+    int r, g, b;
     for (b = 0; b < 6; b++) {
         for (g = 0; g < 6; g++) {
             for (r = 0; r < 6; r++) {
-                table2[(r + g * 6 + b * 36) * 3 + 0] = r * 51;
-                table2[(r + g * 6 + b * 36) * 3 + 1] = g * 51;
-                table2[(r + g * 6 + b * 36) * 3 + 2] = b * 51;
+                table2[(r + g * 6 + b * 6 * 6) * 3 + 0] = r * 51;
+                table2[(r + g * 6 + b * 6 * 6) * 3 + 1] = g * 51;
+                table2[(r + g * 6 + b * 6 * 6) * 3 + 2] = b * 51;
             }
         }
     }
-    set_palette(16, 231, table2);
+    set_palette(16, 16 + 6 * 6 * 6 - 1, table2);
+
+    // 并不能使用65536色和真彩色
+    // unsigned char colors[32 * 32 * 32 * 3];
+    // for (b = 0; b < 32; b++) {
+    //     for (g = 0; g < 32; g++) {
+    //         for (r = 0; r < 32; r++) {
+    //             int pos = (r + g * 32 + b * 32 * 32) * 3;
+    //             colors[pos + 0] = r;
+    //             colors[pos + 1] = g;
+    //             colors[pos + 2] = b;
+    //         }
+    //     }
+    // }
+    // set_palette(16, 16 + 32 * 32 * 32 - 1, colors);
     return;
 }
 
