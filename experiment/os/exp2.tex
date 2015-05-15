@@ -1,0 +1,80 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{Linux进程控制与通信}
+\usepackage[a4paper,margin=2.2cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+\usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\DefineShortVerb{\|}
+\fvset{frame=single}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2} % 行距
+
+\CTEXsetup[name={实验,},number={\arabic{part}}]{part}
+\CTEXsetup[name={,.},format={\large}]{section}
+
+\usepackage[inline]{enumitem} % 调整列表样式
+\setlist{noitemsep}
+\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate,1]{label={\arabic*.}}
+\setlist[enumerate,2]{label={(\arabic*)}}
+
+%\makeindex
+\pagestyle{plain}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\setcounter{part}{1}
+\part{\titlec}
+
+\section{实验目的}
+\begin{enumerate}
+\item 进一步认识并发执行的概念，认识父子进程及进程创建原理；
+\item 了解Linux系统中进程通信的基本原理。
+\end{enumerate}
+
+\section{实验环境}
+一台装有Linux操作系统（Fedora 7），至少具有256M内存的微机。
+
+\section{预备知识}
+\begin{enumerate}
+\item gcc编译器的使用
+\item fork系统调用：创建一个新进程
+\item getpid系统调用：获得一个进程的pid
+\item wait系统调用：发出调用的进程等待子进程结束
+\item pipe系统调用：建立管道
+\item write系统调用：向文件中写数据
+\item read系统调用：从文件中读数据
+\end{enumerate}
+
+\section{实验内容}
+\begin{enumerate}[label={(\arabic*)}]
+\item 编写一段程序（程序名为|parent_child.c|），使用系统调用fork()创建两个子进程，如果是父进程显示“Parent Process: A”，子进程分别显示“This is child1 (pid1 =xxxx )process: B”和“This is child1 (pid1 =xxxx )process: C”，其中“xxxx”分别指明子进程的pid号。
+\item 编写一段程序(程序名为|comm.c|)，父子进程之间建立一条管道，子进程向管道中写入“Child process 1 is sending a message!”，父进程从管道中读出数据，显示在屏幕上。
+\end{enumerate}
+
+\section{实验要求}
+\begin{enumerate}
+\item 将parentchild.c源程序，及程序执行结果写入实验报告；
+\item 将fork()系统调用后内核的工作原理写入实验报告；
+\item 将comm.c源程序，及程序执行结果写入实验报告；
+\item 将Linux系统中管道通信的工作原理写入实验报告。
+\end{enumerate}
+
+\end{document}

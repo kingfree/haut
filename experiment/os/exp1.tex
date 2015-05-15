@@ -1,0 +1,99 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{Linux系统基本操作命令}
+\input{source/pre}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\setcounter{part}{0}
+\input{source/title}
+
+\iffalse
+\section{实验目的}
+\begin{enumerate}
+\item 熟悉Linux操作系统的基本操作命令；
+\item 通过在Linux环境下对进程的基本操作，认识进程并区分与程序的区别。
+\end{enumerate}
+
+\section{实验环境}
+一台装有Linux操作系统（Fedora 7），至少具有256M内存的微机。
+
+\section{预备知识}
+\begin{enumerate}
+\item vi编辑器的使用
+\item 系统管理命令\\
+login, logout, man
+\item 文件操作命令\\
+ls, cat, cp, mv , rm,
+\item 目录操作命令\\
+cd, mkdir, rmdir, pwd
+\item 进程操作命令\\
+ps, kill, pstree
+\end{enumerate}
+\fi
+
+\section{实验内容}
+\begin{enumerate}[label={(\arabic*)}]
+\item 用vi编辑器建立一个文件，用文件操作命令对该文件进行操作；
+\item 使用目录操作命令进行创建目录、改变当前目录、删除目录、查看当前所在目录等操作；
+\item 使用进程操作命令查看系统中的进程状态，杀死进程等；
+\item 使用man命令了解各个命令的使用方法及参数。
+\end{enumerate}
+
+\section{实验要求}
+\begin{enumerate}
+\item 将各个命令行使用规格写入实验报告；
+\item 将各命令操作过程及结果写入实验报告。
+\end{enumerate}
+
+\section{实验步骤}
+
+\begin{enumerate}[label={(\arabic*)}]
+
+\item 这里我使用Vim而不是|vi|，在终端中键入|vim|以启动：
+
+\begin{Verbatim}
+$ vim ~/.vimrc
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{exp1/1-vi.png}{Vim编辑器}
+\end{figure}
+
+如图\ref{fig:Vim编辑器}，这里编辑的是Vim的配置文件。
+
+关于Vim的用法，|vimtutor|教程是个不错的入门手册，进阶也可参考Vim自带的文档（有中文版），剩下的就是熟能生巧了。
+
+\item 如图\ref{fig:目录操作}，使用如下命令建立、进入、删除了一个名为test的目录：
+
+\begin{Verbatim}
+$ ls
+$ mkdir test
+$ cd test
+$ cd ..
+$ rmdir test
+$ ls
+\end{Verbatim}
+
+\begin{figure}[htp]
+\image{exp1/2-dir.png}{目录操作}
+\end{figure}
+
+\item 如图\ref{fig:进程操作}，
+
+\begin{figure}[htp]
+\image{exp1/3-ps.png}{进程操作}
+\end{figure}
+
+\item 如图\ref{fig:man命令}，
+
+\begin{figure}[htp]
+\image{exp1/4-man.png}{man命令}
+\end{figure}
+
+\end{enumerate}
+
+\end{document}
