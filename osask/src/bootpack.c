@@ -21,7 +21,7 @@ void HariMain(void)
     shtctl_t *shtctl;
     sheet_t *sht_back, *sht_mouse, *sht_win, *sht_cons[2];
     unsigned char *buf_back, buf_mouse[CURSOR_X * CURSOR_Y], *buf_win, *buf_cons[2];
-    task_t *task_a, *task_cons[2];
+    task_t *task_a, *task_cons[2], *task;
     timer_t *timer;
     static char keytable[0x80] = {
         0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=',
@@ -240,13 +240,15 @@ void HariMain(void)
                     fifo32_put(&keycmd, KEYCMD_LED);
                     fifo32_put(&keycmd, key_leds);
                 }
-                if (i == 256 + 0x2e && key_ctrl != 0 && task_cons[0]->tss.ss0 != 0) { /* Ctrl + C */
-                    cons = (console *) *((int *) 0x0fec);
-                    cons_putstr0(cons, "^C");
-                    io_cli();	/* 不能在改变寄存器时切换到其他任务 */
-                    task_cons[0]->tss.eax = (int) &(task_cons[0]->tss.esp0);
-                    task_cons[0]->tss.eip = (int) asm_end_app;
-                    io_sti();
+                if (i == 256 + 0x2e && key_ctrl != 0) { /* Ctrl + C */
+                    task = key_win->task;
+                    if (task != 0 && task->tss.ss0 != 0) {
+                        cons_putstr0(cons, "^C");
+                        io_cli();   /* 不能在改变寄存器时切换到其他任务 */
+                        task->tss.eax = (int) &(task->tss.esp0);
+                        task->tss.eip = (int) asm_end_app;
+                        io_sti();
+                    }
                 }
                 if (i == 256 + 0x57 && shtctl->top > 2) {   /* F11 */
                     sheet_updown(shtctl->sheets[1], shtctl->top - 1);
@@ -306,9 +308,10 @@ void HariMain(void)
                                         if (sht->bxsize - 30 <= x && x <= sht->bxsize && 0 <= y && y <= 18) {
                                             /* 按下了关闭按钮 */
                                             if ((sht->flags & 0x10) != 0) {   /* 该窗口是否为应用程序窗口 */
+                                                task = sht->task;
                                                 io_cli();   /* 强制结束处理中禁止切换任务 */
-                                                task_cons[0]->tss.eax = (int) &(task_cons[0]->tss.esp0);
-                                                task_cons[0]->tss.eip = (int) asm_end_app;
+                                                task->tss.eax = (int) &(task->tss.esp0);
+                                                task->tss.eip = (int) asm_end_app;
                                                 io_sti();
                                             }
                                         }
