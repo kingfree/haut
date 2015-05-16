@@ -8,7 +8,7 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
 {
     task_t *task = task_now();
     memman_t *memman = (memman_t *) MEMMAN_ADDR;
-    int i, fifobuf[128], *fat = (int *) memman_alloc_4k(memman, 4 * 2880);
+    int i, *fat = (int *) memman_alloc_4k(memman, 4 * 2880);
     console cons;
     char cmdline[CONS_COLN];
     cons.sht = sheet;
@@ -17,7 +17,6 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
     cons.cur_c = -1;
     task->cons = &cons;
     
-    fifo32_init(&task->fifo, 128, fifobuf, task);
     cons.timer = timer_alloc();
     timer_init(cons.timer, &task->fifo, 1);
     timer_settime(cons.timer, 50);
