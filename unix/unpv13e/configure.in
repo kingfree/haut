@@ -18,7 +18,7 @@ AC_CONFIG_HEADER(config.h)
 
 dnl The following cpu_vendor_os string goes into config.h.
 dnl
-AC_DEFINE_UNQUOTED(CPU_VENDOR_OS, "$host", [CPU, vendor, and operating system])
+AC_DEFINE_UNQUOTED(CPU_VENDOR_OS, "$host", [处理器平台和操作系统])
 
 dnl ##################################################################
 dnl Checks for programs.

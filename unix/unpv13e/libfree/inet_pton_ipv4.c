@@ -5,8 +5,8 @@
 #include	<errno.h>
 #include	<string.h>
 
-/* Delete following line if your system's headers already DefinE this
-   function prototype */
+/* 如果你的操作系统已经定义了该函数原型
+   就删掉这一行 */
 int		 inet_aton(const char *, struct in_addr *);
 
 /* include inet_pton */

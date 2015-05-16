@@ -1,14 +1,14 @@
 #include	"unp.h"
 
-#include	<stdarg.h>		/* ANSI C header file */
-#include	<syslog.h>		/* for syslog() */
+#include	<stdarg.h>		/* ANSI C 头文件 */
+#include	<syslog.h>		/* 用于 syslog() */
 
-int		daemon_proc;		/* set nonzero by daemon_init() */
+int		daemon_proc;		/* 用 daemon_init() 置为非零 */
 
 static void	err_doit(int, int, const char *, va_list);
 
-/* Nonfatal error related to system call
- * Print message and return */
+/* 系统调用的非致命错误
+ * 打印信息后返回 */
 
 void
 err_ret(const char *fmt, ...)
@@ -21,8 +21,8 @@ err_ret(const char *fmt, ...)
 	return;
 }
 
-/* Fatal error related to system call
- * Print message and terminate */
+/* 系统调用的致命错误
+ * 打印信息后终止 */
 
 void
 err_sys(const char *fmt, ...)
@@ -35,8 +35,8 @@ err_sys(const char *fmt, ...)
 	exit(1);
 }
 
-/* Fatal error related to system call
- * Print message, dump core, and terminate */
+/* 系统调用的致命错误
+ * 打印信息后转储内核并终止 */
 
 void
 err_dump(const char *fmt, ...)
@@ -46,12 +46,12 @@ err_dump(const char *fmt, ...)
 	va_start(ap, fmt);
 	err_doit(1, LOG_ERR, fmt, ap);
 	va_end(ap);
-	abort();		/* dump core and terminate */
-	exit(1);		/* shouldn't get here */
+	abort();		/* 转储内核并终止 */
+	exit(1);		/* 不会执行到这里 */
 }
 
-/* Nonfatal error unrelated to system call
- * Print message and return */
+/* 非系统调用的非致命错误
+ * 打印信息后返回 */
 
 void
 err_msg(const char *fmt, ...)
@@ -64,8 +64,8 @@ err_msg(const char *fmt, ...)
 	return;
 }
 
-/* Fatal error unrelated to system call
- * Print message and terminate */
+/* 非系统调用的致命错误
+ * 打印信息后终止 */
 
 void
 err_quit(const char *fmt, ...)
@@ -78,8 +78,8 @@ err_quit(const char *fmt, ...)
 	exit(1);
 }
 
-/* Print message and return to caller
- * Caller specifies "errnoflag" and "level" */
+/* 打印信息并返回调用者
+ * 调用者指定 "errnoflag" 和 "level" */
 
 static void
 err_doit(int errnoflag, int level, const char *fmt, va_list ap)
@@ -87,11 +87,11 @@ err_doit(int errnoflag, int level, const char *fmt, va_list ap)
 	int		errno_save, n;
 	char	buf[MAXLINE + 1];
 
-	errno_save = errno;		/* value caller might want printed */
+	errno_save = errno;		/* 调用者想要打印的值 */
 #ifdef	HAVE_VSNPRINTF
-	vsnprintf(buf, MAXLINE, fmt, ap);	/* safe */
+	vsnprintf(buf, MAXLINE, fmt, ap);		/* 安全 */
 #else
-	vsprintf(buf, fmt, ap);					/* not safe */
+	vsprintf(buf, fmt, ap);					/* 不安全 */
 #endif
 	n = strlen(buf);
 	if (errnoflag)
@@ -101,7 +101,7 @@ err_doit(int errnoflag, int level, const char *fmt, va_list ap)
 	if (daemon_proc) {
 		syslog(level, buf);
 	} else {
-		fflush(stdout);		/* in case stdout and stderr are the same */
+		fflush(stdout);		/* 当标准输出和标准错误一样时 */
 		fputs(buf, stderr);
 		fflush(stderr);
 	}

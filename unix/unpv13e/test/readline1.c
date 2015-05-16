@@ -1,7 +1,7 @@
 /* include readline */
 #include	"unp.h"
 
-/* PAINFULLY SLOW VERSION -- example only */
+/* 超级慢版本 -- 仅用于示例 */
 ssize_t
 readline(int fd, void *vptr, size_t maxlen)
 {
@@ -14,18 +14,18 @@ again:
 		if ( (rc = read(fd, &c, 1)) == 1) {
 			*ptr++ = c;
 			if (c == '\n')
-				break;	/* newline is stored, like fgets() */
+				break;		/* 检测到新行，类似 fgets() */
 		} else if (rc == 0) {
 			*ptr = 0;
-			return(n - 1);	/* EOF, n - 1 bytes were read */
+			return(n - 1);	/* EOF, 读入了 n - 1 字节 */
 		} else {
 			if (errno == EINTR)
 				goto again;
-			return(-1);		/* error, errno set by read() */
+			return(-1);		/* 错误，errno 由 read() 设置 */
 		}
 	}
 
-	*ptr = 0;	/* null terminate like fgets() */
+	*ptr = 0;				/* 以空结束，类似 fgets() */
 	return(n);
 }
 /* end readline */
