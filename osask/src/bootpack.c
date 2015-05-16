@@ -19,9 +19,9 @@ void HariMain(void)
     mouse_dec mdec;
     memman_t *memman = (memman_t *) MEMMAN_ADDR;
     shtctl_t *shtctl;
-    sheet_t *sht_back, *sht_mouse, *sht_win, *sht_cons;
-    unsigned char *buf_back, buf_mouse[CURSOR_X * CURSOR_Y], *buf_win, *buf_cons;
-    task_t *task_a, *task_cons;
+    sheet_t *sht_back, *sht_mouse, *sht_win, *sht_cons[2];
+    unsigned char *buf_back, buf_mouse[CURSOR_X * CURSOR_Y], *buf_win, *buf_cons[2];
+    task_t *task_a, *task_cons[2];
     timer_t *timer;
     static char keytable[0x80] = {
         0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=',
@@ -80,28 +80,32 @@ void HariMain(void)
     init_screen8(buf_back, binfo->scrnx, binfo->scrny);
 
     /* sht_cons */
-    sht_cons = sheet_alloc(shtctl);
-    buf_cons = (unsigned char *) memman_alloc_4k(memman, CONS_WINW * CONS_WINH);
-    sheet_setbuf(sht_cons, buf_cons, CONS_WINW, CONS_WINH, -1); /* 无透明色 */
-    make_window8(buf_cons, CONS_WINW, CONS_WINH, "Terminal", 0);
-    make_textbox8(sht_cons, CONS_LEFT, CONS_TOP, CONS_COLW, CONS_LINH, base03);
-    task_cons = task_alloc();
-    task_cons->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024 - 12;
-    task_cons->tss.eip = (int) &console_task;
-    task_cons->tss.es = 1 * 8;
-    task_cons->tss.cs = 2 * 8;
-    task_cons->tss.ss = 1 * 8;
-    task_cons->tss.ds = 1 * 8;
-    task_cons->tss.fs = 1 * 8;
-    task_cons->tss.gs = 1 * 8;
-    *((int *) (task_cons->tss.esp + 4)) = (int) sht_cons;
-    *((int *) (task_cons->tss.esp + 8)) = memtotal;
-    task_run(task_cons, 2, 2); /* level=2, priority=2 */
+    for (i = 0; i < 2; i++) {
+        sht_cons[i] = sheet_alloc(shtctl);
+        buf_cons[i] = (unsigned char *) memman_alloc_4k(memman, CONS_WINW * CONS_WINH);
+        sheet_setbuf(sht_cons[i], buf_cons[i], CONS_WINW, CONS_WINH, -1); /* 无透明色 */
+        make_window8(buf_cons[i], CONS_WINW, CONS_WINH, "Terminal", 0);
+        make_textbox8(sht_cons[i], CONS_LEFT, CONS_TOP, CONS_COLW, CONS_LINH, base03);
+        task_cons[i] = task_alloc();
+        task_cons[i]->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024 - 12;
+        task_cons[i]->tss.eip = (int) &console_task;
+        task_cons[i]->tss.es = 1 * 8;
+        task_cons[i]->tss.cs = 2 * 8;
+        task_cons[i]->tss.ss = 1 * 8;
+        task_cons[i]->tss.ds = 1 * 8;
+        task_cons[i]->tss.fs = 1 * 8;
+        task_cons[i]->tss.gs = 1 * 8;
+        *((int *) (task_cons[i]->tss.esp + 4)) = (int) sht_cons[i];
+        *((int *) (task_cons[i]->tss.esp + 8)) = memtotal;
+        task_run(task_cons[i], 2, 2); /* level=2, priority=2 */
+        sht_cons[i]->task = task_cons[i];
+        sht_cons[i]->flags |= 0x20; /* 由光标 */
+    }
 
     /* sht_win */
     sht_win = sheet_alloc(shtctl);
     buf_win = (unsigned char *) memman_alloc_4k(memman, 160 * 52);
-    sheet_setbuf(sht_win, buf_win, FNT_W * 24 + 16, FNT_H + 36, -1); /* 透明色なし */
+    sheet_setbuf(sht_win, buf_win, FNT_W * 24 + 16, FNT_H + 36, -1); /* 无透明色 */
     make_window8(buf_win, FNT_W * 24 + 16, FNT_H + 36, "task_a", 1);
     make_textbox8(sht_win, 8, 28, FNT_W * 24, FNT_H, base3);
     int cursor_x = 8;
@@ -118,16 +122,16 @@ void HariMain(void)
     int my = (binfo->scrny - CURSOR_Y) / 2;
 
     sheet_slide(sht_back, 0, 0);
-    sheet_slide(sht_cons, 32, 4);
+    sheet_slide(sht_cons[1], 56, 6);
+    sheet_slide(sht_cons[0], 8, 2);
     sheet_slide(sht_win, 64, 56);
     sheet_slide(sht_mouse, mx, my);
     sheet_updown(sht_back, 0);
-    sheet_updown(sht_cons, 1);
-    sheet_updown(sht_win, 2);
-    sheet_updown(sht_mouse, 3);
+    sheet_updown(sht_cons[1], 1);
+    sheet_updown(sht_cons[0], 2);
+    sheet_updown(sht_win, 3);
+    sheet_updown(sht_mouse, 4);
     key_win = sht_win;
-    sht_cons->task = task_cons;
-    sht_cons->flags |= 0x20;    /* 有光标 */
 
     for (;;) {
         if (fifo32_status(&keycmd) > 0 && keycmd_wait < 0) {
@@ -168,7 +172,7 @@ void HariMain(void)
                             cursor_x += FNT_W;
                         }
                     } else if (key_ctrl == 0 && key_alt == 0) { /* 如果不是快捷键，发送给终端窗口 */
-                        fifo32_put(&task_cons->fifo, s[0] + 256);
+                        fifo32_put(&key_win->task->fifo, s[0] + 256);
                     }
                 }
                 if (i == 256 + 0x0e) { /* 退格键 */
@@ -179,12 +183,12 @@ void HariMain(void)
                             cursor_x -= FNT_W;
                         }
                     } else { /* 发送给终端窗口 */
-                        fifo32_put(&task_cons->fifo, 8 + 256);
+                        fifo32_put(&key_win->task->fifo, 8 + 256);
                     }
                 }
                 if (i == 256 + 0x1c) { /* 回车键 */
                     if (key_win != sht_win) { /* 发送给终端窗口 */
-                        fifo32_put(&task_cons->fifo, 10 + 256);
+                        fifo32_put(&key_win->task->fifo, 10 + 256);
                     }
                 }
                 if (i == 256 + 0x0f) { /* Tab */
@@ -236,12 +240,12 @@ void HariMain(void)
                     fifo32_put(&keycmd, KEYCMD_LED);
                     fifo32_put(&keycmd, key_leds);
                 }
-                if (i == 256 + 0x2e && key_ctrl != 0 && task_cons->tss.ss0 != 0) { /* Ctrl + C */
+                if (i == 256 + 0x2e && key_ctrl != 0 && task_cons[0]->tss.ss0 != 0) { /* Ctrl + C */
                     cons = (console *) *((int *) 0x0fec);
                     cons_putstr0(cons, "^C");
                     io_cli();	/* 不能在改变寄存器时切换到其他任务 */
-                    task_cons->tss.eax = (int) &(task_cons->tss.esp0);
-                    task_cons->tss.eip = (int) asm_end_app;
+                    task_cons[0]->tss.eax = (int) &(task_cons[0]->tss.esp0);
+                    task_cons[0]->tss.eip = (int) asm_end_app;
                     io_sti();
                 }
                 if (i == 256 + 0x57 && shtctl->top > 2) {   /* F11 */
@@ -303,8 +307,8 @@ void HariMain(void)
                                             /* 按下了关闭按钮 */
                                             if ((sht->flags & 0x10) != 0) {   /* 该窗口是否为应用程序窗口 */
                                                 io_cli();   /* 强制结束处理中禁止切换任务 */
-                                                task_cons->tss.eax = (int) &(task_cons->tss.esp0);
-                                                task_cons->tss.eip = (int) asm_end_app;
+                                                task_cons[0]->tss.eax = (int) &(task_cons[0]->tss.esp0);
+                                                task_cons[0]->tss.eip = (int) asm_end_app;
                                                 io_sti();
                                             }
                                         }
