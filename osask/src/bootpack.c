@@ -122,8 +122,8 @@ void HariMain(void)
     int my = (binfo->scrny - CURSOR_Y) / 2;
 
     sheet_slide(sht_back, 0, 0);
-    sheet_slide(sht_cons[1], 56, 6);
-    sheet_slide(sht_cons[0], 8, 2);
+    sheet_slide(sht_cons[1], 8, 2);
+    sheet_slide(sht_cons[0], 120, 60);
     sheet_slide(sht_win, 64, 56);
     sheet_slide(sht_mouse, mx, my);
     sheet_updown(sht_back, 0);
