@@ -297,6 +297,7 @@ typedef struct TASKCTL {
 } taskctl_t;
 
 extern timer_t *task_timer;
+extern taskctl_t *taskctl;
 
 task_t *task_now(void);
 task_t *task_init(memman_t *memman);
@@ -342,6 +343,7 @@ void cmd_dir(console *cons);
 void cmd_type(console *cons, int *fat, char *cmdline);
 void cmd_exit(console *cons, int *fat);
 void cmd_start(console *cons, char *cmdline, int memtotal);
+void cmd_open(console *cons, char *cmdline, int memtotal);
 int cmd_app(console *cons, int *fat, char *cmdline);
 int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
 int *inthandler0c(int *esp);
@@ -360,5 +362,9 @@ typedef struct FILEINFO {
 void file_readfat(int *fat, unsigned char *img);
 void file_loadfile(int clustno, int size, char *buf, int *fat, char *img);
 fileinfo *file_search(char *name, fileinfo *finfo, int max);
+
+/* bootpack.c */
+task_t *open_constask(sheet_t *sht, unsigned int memtotal);
+sheet_t *open_console(shtctl_t *shtctl, unsigned int memtotal);
 
 #endif

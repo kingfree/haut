@@ -17,9 +17,11 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
     cons.cur_c = -1;
     task->cons = &cons;
     
-    cons.timer = timer_alloc();
-    timer_init(cons.timer, &task->fifo, 1);
-    timer_settime(cons.timer, 50);
+    if (sheet != 0) {
+        cons.timer = timer_alloc();
+        timer_init(cons.timer, &task->fifo, 1);
+        timer_settime(cons.timer, 50);
+    }
     file_readfat(fat, (unsigned char *) (ADR_DISKIMG + 0x000200));
     
     /* 命令提示符 */
@@ -73,6 +75,9 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
                     cmdline[(cons.cur_x - CONS_LEFT) / FNT_W - 2] = 0;
                     cons_newline(&cons);
                     cons_runcmd(cmdline, &cons, fat, memtotal); /* 执行命令 */
+                    if (sheet == 0) {
+                        cmd_exit(&cons, fat);
+                    }
                     /* 命令提示符 */
                     cons_putchar(&cons, '$', 1);
                     cons_putchar(&cons, ' ', 1);
@@ -86,10 +91,12 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
                 }
             }
             /* 重新显示光标 */
-            if (cons.cur_c >= 0) {
-                boxfill8(sheet->buf, sheet->bxsize, cons.cur_c, cons.cur_x, cons.cur_y, cons.cur_x + FNT_W - 1, cons.cur_y + FNT_H - 1);
+            if (sheet != 0) {
+                if (cons.cur_c >= 0) {
+                    boxfill8(sheet->buf, sheet->bxsize, cons.cur_c, cons.cur_x, cons.cur_y, cons.cur_x + FNT_W - 1, cons.cur_y + FNT_H - 1);
+                }
+                sheet_refresh(sheet, cons.cur_x, cons.cur_y, cons.cur_x + FNT_W, cons.cur_y + FNT_H);
             }
-            sheet_refresh(sheet, cons.cur_x, cons.cur_y, cons.cur_x + FNT_W, cons.cur_y + FNT_H);
         }
     }
 }
@@ -101,7 +108,9 @@ void cons_putchar(console *cons, int chr, char move)
     s[1] = 0;
     if (s[0] == 0x09) { /* Tab */
         for (;;) {
-            putfonts8_asc_sht(cons->sht, cons->cur_x, cons->cur_y, base3, base03, " ", 1);
+            if (cons->sht != 0) {
+                putfonts8_asc_sht(cons->sht, cons->cur_x, cons->cur_y, base3, base03, " ", 1);
+            }
             cons->cur_x += FNT_W;
             if (cons->cur_x == CONS_LEFT + CONS_COLW) {
                 cons_newline(cons);
@@ -115,7 +124,9 @@ void cons_putchar(console *cons, int chr, char move)
     } else if (s[0] == 0x0d) { /* 回车 */
         cons->cur_x = CONS_LEFT;
     } else { /* 一般字符 */
-        putfonts8_asc_sht(cons->sht, cons->cur_x, cons->cur_y, base3, base03, s, 1);
+        if (cons->sht != 0) {
+            putfonts8_asc_sht(cons->sht, cons->cur_x, cons->cur_y, base3, base03, s, 1);
+        }
         if (move != 0) {
             /* move为0の时不后移光标 */
             cons->cur_x += FNT_W;
@@ -135,17 +146,19 @@ void cons_newline(console *cons)
         cons->cur_y += FNT_H; /* 换行 */
     } else {
         /* 滚动 */
-        for (y = CONS_TOP; y < CONS_TOP + CONS_LINH - FNT_H; y++) {
-            for (x = CONS_LEFT; x < CONS_LEFT + CONS_COLW; x++) {
-                sheet->buf[x + y * sheet->bxsize] = sheet->buf[x + (y + FNT_H) * sheet->bxsize];
+        if (sheet != 0) {
+            for (y = CONS_TOP; y < CONS_TOP + CONS_LINH - FNT_H; y++) {
+                for (x = CONS_LEFT; x < CONS_LEFT + CONS_COLW; x++) {
+                    sheet->buf[x + y * sheet->bxsize] = sheet->buf[x + (y + FNT_H) * sheet->bxsize];
+                }
             }
-        }
-        for (y = CONS_TOP + CONS_LINH - FNT_H; y < CONS_TOP + CONS_LINH; y++) {
-            for (x = CONS_LEFT; x < CONS_LEFT + CONS_COLW; x++) {
-                sheet->buf[x + y * sheet->bxsize] = base03;
+            for (y = CONS_TOP + CONS_LINH - FNT_H; y < CONS_TOP + CONS_LINH; y++) {
+                for (x = CONS_LEFT; x < CONS_LEFT + CONS_COLW; x++) {
+                    sheet->buf[x + y * sheet->bxsize] = base03;
+                }
             }
+            sheet_refresh(sheet, CONS_LEFT, CONS_TOP, CONS_LEFT + CONS_COLW, CONS_TOP + CONS_LINH);
         }
-        sheet_refresh(sheet, CONS_LEFT, CONS_TOP, CONS_LEFT + CONS_COLW, CONS_TOP + CONS_LINH);
     }
     cons->cur_x = CONS_LEFT;
     return;
@@ -183,6 +196,8 @@ void cons_runcmd(char *cmdline, console *cons, int *fat, unsigned int memtotal)
         cmd_exit(cons, fat);
     } else if (strncmp(cmdline, "start ", 6) == 0) {
         cmd_start(cons, cmdline, memtotal);
+    } else if (strncmp(cmdline, "open ", 5) == 0) {
+        cmd_open(cons, cmdline, memtotal);
     } else if (cmdline[0] != 0) {
         if (cmd_app(cons, fat, cmdline) == 0) {
             /* 不是有效命令，也不是空行 */
@@ -271,7 +286,11 @@ void cmd_exit(console *cons, int *fat)
     timer_cancel(cons->timer);
     memman_free_4k(memman, (int) fat, 4 * 2880);
     io_cli();
-    fifo32_put(fifo, cons->sht - shtctl->sheets0 + 768);    /* 768〜1023 */
+    if (cons->sht != 0) {
+        fifo32_put(fifo, cons->sht - shtctl->sheets0 + 768);    /* 768〜1023 */
+    } else {
+        fifo32_put(fifo, task - taskctl->tasks0 + 1024);        /* 1024〜2023 */
+    }
     io_sti();
     for (;;) {
         task_sleep(task);
@@ -294,6 +313,21 @@ void cmd_start(console *cons, char *cmdline, int memtotal)
     cons_newline(cons);
     return;
 }
+
+void cmd_open(console *cons, char *cmdline, int memtotal)
+{
+    task_t *task = open_constask(0, memtotal);
+    fifo32 *fifo = &task->fifo;
+    int i;
+    /* 将键入的命令复制到新命令行窗口 */
+    for (i = 5; cmdline[i] != 0; i++) {
+        fifo32_put(fifo, cmdline[i] + 256);
+    }
+    fifo32_put(fifo, 10 + 256); /* Enter */
+    cons_newline(cons);
+    return;
+}
+
 int cmd_app(console *cons, int *fat, char *cmdline)
 {
     memman_t *memman = (memman_t *) MEMMAN_ADDR;

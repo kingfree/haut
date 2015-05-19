@@ -316,6 +316,8 @@ void HariMain(void)
                 }
             } else if (768 <= i && i <= 1023) { /* 终端关闭处理 */
                 close_console(shtctl->sheets0 + (i - 768));
+            } else if (1024 <= i && i <= 2023) {
+                close_console(taskctl->tasks0 + (i - 1024));
             }
         }
     }
@@ -339,16 +341,11 @@ void keywin_on(sheet_t *key_win)
     return;
 }
 
-sheet_t *open_console(shtctl_t *shtctl, unsigned int memtotal)
+task_t *open_constask(sheet_t *sht, unsigned int memtotal)
 {
     memman_t *memman = (memman_t *) MEMMAN_ADDR;
-    sheet_t *sht = sheet_alloc(shtctl);
-    unsigned char *buf = (unsigned char *) memman_alloc_4k(memman, CONS_WINW * CONS_WINH);
     task_t *task = task_alloc();
     int *cons_fifo = (int *) memman_alloc_4k(memman, 128 * 4);
-    sheet_setbuf(sht, buf, CONS_WINW, CONS_WINH, -1); /* 无透明色 */
-    make_window8(buf, CONS_WINW, CONS_WINH, "Terminal", 0);
-    make_textbox8(sht, CONS_LEFT, CONS_TOP, CONS_COLW, CONS_LINH, base03);
     task->cons_stack = memman_alloc_4k(memman, 64 * 1024);
     task->tss.esp = task->cons_stack + 64 * 1024 - 12;
     task->tss.eip = (int) &console_task;
@@ -361,9 +358,20 @@ sheet_t *open_console(shtctl_t *shtctl, unsigned int memtotal)
     *((int *) (task->tss.esp + 4)) = (int) sht;
     *((int *) (task->tss.esp + 8)) = memtotal;
     task_run(task, 2, 2); /* level=2, priority=2 */
-    sht->task = task;
-    sht->flags |= 0x20; /* 有光标 */
     fifo32_init(&task->fifo, 128, cons_fifo, task);
+    return task;
+}
+
+sheet_t *open_console(shtctl_t *shtctl, unsigned int memtotal)
+{
+    memman_t *memman = (memman_t *) MEMMAN_ADDR;
+    sheet_t *sht = sheet_alloc(shtctl);
+    unsigned char *buf = (unsigned char *) memman_alloc_4k(memman, CONS_WINW * CONS_WINH);
+    sheet_setbuf(sht, buf, CONS_WINW, CONS_WINH, -1); /* 无透明色 */
+    make_window8(buf, CONS_WINW, CONS_WINH, "Terminal", 0);
+    make_textbox8(sht, CONS_LEFT, CONS_TOP, CONS_COLW, CONS_LINH, base03);
+    sht->task = open_constask(sht, memtotal);
+    sht->flags |= 0x20; /* 有光标 */
     return sht;
 }
 
