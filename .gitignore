@@ -89,7 +89,6 @@ nosetests.xml
 
 # Vim temp.
 *.swp
-*.sw*
 *.*~
 
 # Thumbs.db

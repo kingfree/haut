@@ -48,12 +48,15 @@ void console_task(sheet_t *sheet, unsigned int memtotal)
                 }
                 timer_settime(cons.timer, 50);
             }
-            if (i == 2) {   /* 光标ON */
+            if (i == 2) { /* 光标ON */
                 cons.cur_c = base3;
             }
-            if (i == 3) {   /* 光标OFF */
+            if (i == 3) { /* 光标OFF */
                 boxfill8(sheet->buf, sheet->bxsize, base03, cons.cur_x, cons.cur_y, cons.cur_x + FNT_W - 1, cons.cur_y + FNT_H - 1);
                 cons.cur_c = -1;
+            }
+            if (i == 4) { /* 关闭窗口 */
+                cmd_exit(&cons, fat);
             }
             if (256 <= i && i <= 511) { /* 键盘数据（从任务A） */
                 if (i == 8 + 256) {
