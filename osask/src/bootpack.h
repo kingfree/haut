@@ -280,6 +280,7 @@ typedef struct TASK {
     tss32 tss;
     struct CONSOLE *cons;
     int ds_base;
+    int cons_stack;
 } task_t;
 
 typedef struct TASKLEVEL {
@@ -339,6 +340,7 @@ void cmd_mem(console *cons, unsigned int memtotal);
 void cmd_cls(console *cons);
 void cmd_dir(console *cons);
 void cmd_type(console *cons, int *fat, char *cmdline);
+void cmd_exit(console *cons, int *fat);
 int cmd_app(console *cons, int *fat, char *cmdline);
 int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
 int *inthandler0c(int *esp);

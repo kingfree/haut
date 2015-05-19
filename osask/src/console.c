@@ -176,6 +176,8 @@ void cons_runcmd(char *cmdline, console *cons, int *fat, unsigned int memtotal)
         cmd_dir(cons);
     } else if (strncmp(cmdline, "cat ", 4) == 0 || strncmp(cmdline, "type ", 5) == 0) {
         cmd_type(cons, fat, cmdline + (cmdline[0] == 'c' ? 4 : 5));
+    } else if (strcmp(cmdline, "exit") == 0) {
+        cmd_exit(cons, fat);
     } else if (cmdline[0] != 0) {
         if (cmd_app(cons, fat, cmdline) == 0) {
             /* 不是有效命令，也不是空行 */
@@ -253,6 +255,22 @@ void cmd_type(console *cons, int *fat, char *filename)
     }
     cons_newline(cons);
     return;
+}
+
+void cmd_exit(console *cons, int *fat)
+{
+    memman_t *memman = (memman_t *) MEMMAN_ADDR;
+    task_t *task = task_now();
+    shtctl_t *shtctl = (shtctl_t *) *((int *) 0x0fe4);
+    fifo32 *fifo = (fifo32 *) *((int *) 0x0fec);
+    timer_cancel(cons->timer);
+    memman_free_4k(memman, (int) fat, 4 * 2880);
+    io_cli();
+    fifo32_put(fifo, cons->sht - shtctl->sheets0 + 768);    /* 768〜1023 */
+    io_sti();
+    for (;;) {
+        task_sleep(task);
+    }
 }
 
 int cmd_app(console *cons, int *fat, char *cmdline)
