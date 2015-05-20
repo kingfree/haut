@@ -9,6 +9,7 @@
 %%%% 开始 %%%%
 
 \setcounter{part}{0}
+\def\today{2015~年~5~月~15~日}
 \input{source/title}
 
 \iffalse
@@ -66,11 +67,28 @@ $ vim ~/.vimrc
 如图\ref{fig:Vim编辑器}，这里编辑的是Vim的配置文件。
 
 Vim常用三个模式：命令模式、插入模式、可视模式。
-在命令模式下，用|h j k l|左下上右移动光标，|w e b|移动到单词首尾，\verb+0 ^ $+移动到行首尾，|gg G|移动到文档首尾。|yy|复制行，|yw|复制单词，|p P|粘贴，|dd dw D x|剪切。命令前加数字可以重复。
-进入插入模式用|i|，或者|a|从光标后插入，|o O|另起新行，|I A|插入到行首尾。用|Esc|退出插入模式。
+
+在命令模式下，用|h j k l|左下上右移动光标，|w e b|移动到单词首尾，\verb+0 ^ $+移动到行首尾，|gg G|移动到文档首尾。
+
+|yy|复制行，|yw|复制单词，|p P|粘贴，|dd dw D x|剪切。命令前加数字可以重复。
+
+进入插入模式用|i|，或者|a|从光标后插入，|o O|另起新行，|I A|插入到行首尾。
+
+用|Esc|退出插入模式。
+
 可视模式不常用，按|v|进入，可以选择文本。
-冒号指令|:w|保存，|:e|编辑，|:q|退出，|:x|保存并退出。|/pattern|查找，\verb+:%s/find/replace/g+替换。
+
+冒号指令|:w|保存，|:e|编辑，|:q|退出，|:x|保存并退出。
+
+|/pattern|查找，\verb+:%s/find/replace/g+替换。
+
 随时可以参考Vim自带的文档（有中文版），剩下的就是熟能生巧了。
+
+\begin{figure}[htp]
+\image{exp1/2-dir.png}{目录操作}
+\end{figure}
+
+\clearpage
 
 \item 如图\ref{fig:目录操作}，使用如下命令建立、进入、删除了一个名为test的目录：
 
@@ -85,16 +103,16 @@ $ ls
 
 这几个命令都有着共同的特点，就是可以跟一个目录名参数。
 
-\begin{figure}[htp]
-\image{exp1/2-dir.png}{目录操作}
-\end{figure}
-
 \begin{itemize}
 \item |ls|列出目录内容，常用|-a|列出全部文件，用|-l|列出列表，用|-1|每行单列通过管道传送到|xargs|，新版本的有|-h|可以以人类可读方式来显示文件大小。
 \item |mkdir|创建目录，常用|-p|递归创建目录层级。
 \item |cd|改变当前目录，是Shell的内建命令。常用|.|为当前目录，|..|为上级目录。
 \item |rmdir|移除目录，只能移除空目录，常用|-p|递归移除目录。
 \end{itemize}
+
+\begin{figure}[htp]
+\image{exp1/3-ps.png}{进程操作}
+\end{figure}
 
 \item 如图\ref{fig:进程操作}，键入
 \begin{Verbatim}
@@ -109,16 +127,12 @@ $ ps
   820 ttys000    0:00.61 -zsh
  1148 ttys000    0:00.00 cat
 \end{Verbatim}
-可以看到在当前终端回话中运行的进程，这里看到进程号为1148，那么执行
+可以看到在当前终端会话中运行的进程，这里看到进程号为1148，那么执行
 \begin{Verbatim}
 $ kill 1148
 [1]  + 1148 terminated  cat
 \end{Verbatim}
 就可以结束掉该进程。
-
-\begin{figure}[htp]
-\image{exp1/3-ps.png}{进程操作}
-\end{figure}
 
 \item 经典的UNIX的手册共有七部分，分别是
 \begin{enumerate}[label={\arabic*.}]
@@ -147,9 +161,16 @@ $ man ps
 $ man printf
 $ man 3 printf
 \end{Verbatim}
-第一个会显示第一部分的内建指令|printf|，而第二个会显示第三部分C语言|<stdio.h>|提供的|printf()|函数。
+第一个（如图\ref{fig:man printf}）会显示第一部分的内建指令|printf|，而第二个（如图\ref{fig:man 3 printf}）会显示第三部分C语言|<stdio.h>|提供的|printf()|函数。
 
-GNU计划提供的|info|也是非常好用的手册工具。应用程序提供的|--help|选项通常也是有效的参考。
+\begin{figure}[htp]
+\begin{minipage}[t]{0.5\textwidth}\image[width=\textwidth]{exp1/man1.png}{man printf}\end{minipage}
+\begin{minipage}[t]{0.5\textwidth}\image[width=\textwidth]{exp1/man2.png}{man 3 printf}\end{minipage}
+\end{figure}
+
+GNU计划提供的|info|也是非常好用的手册工具。
+
+应用程序提供的|--help|选项通常也是有效的参考。
 
 \end{enumerate}
 
