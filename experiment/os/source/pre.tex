@@ -5,6 +5,7 @@ colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black
 pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \usepackage{latexsym,amsmath,amssymb,bm}
 \usepackage{graphicx}
+\usepackage{xcolor}
 \usepackage{fancyvrb}
 \DefineShortVerb{\|}
 \fvset{frame=single}
@@ -13,6 +14,24 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
 \setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
 \setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\usepackage{listings} % 排版代码
+\lstset{language=C,
+  numbers=left,
+  numberstyle=\small,
+  basicstyle=\tt,
+  commentstyle=\color{gray},
+  keywordstyle=\bfseries\color{blue},
+  stringstyle=\color{teal},
+  showstringspaces=false,
+  frame=tb,
+  extendedchars=false,
+%     % identifierstyle=\sf,
+%     breaklines=true,
+  escapeinside=` `,
+%     % texcl=true,  % 为true时，注释内容被当做LaTeX代码来处理
+}
+
 
 \CJKsetecglue{\hspace{0.1em}}
 \renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
