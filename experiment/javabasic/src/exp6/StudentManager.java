@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
 
@@ -26,6 +28,7 @@ public class StudentManager {
         System.out.println("学生信息管理系统");
         System.out.println("1 显示所有学生信息 2 按学号查找 3 按姓名查找");
         System.out.println("4 按学号删除 5 按成绩排序 6 退出");
+        System.out.println("7 添加学生");
         System.out.println("请输入数字(1-6)");
         int sel = in.nextInt();
         return sel;
@@ -51,12 +54,62 @@ public class StudentManager {
             case 5:
                 sortScore();
                 break;
+            case 7:
+                addStudent();
             case 6:
             default:
                 System.out.println("成功退出系统！");
                 return;
             }
         } while (sel != 0);
+    }
+
+    private static void add(Student stu) {
+        String sql = "INSERT INTO students (id, name, os, math, java) VALUES (?, ?, ?, ?, ?)";
+        try {
+            int res = DBUtils.execute(conn, sql, stu.getId(), stu.getName(),
+                    stu.getOs(), stu.getMath(), stu.getJava());
+            if (res == 1) {
+                System.out.println("成功添加学生。");
+            } else {
+                System.out.println("添加操作出现异常！");
+            }
+        } catch (Exception e) {
+            System.out.println("添加失败！");
+        }
+    }
+
+    public static Student inputStudent(Scanner in) {
+        for (;;) {
+            System.out.print(">");
+            try (Scanner line = new Scanner(in.nextLine())) {
+                line.findInLine(Pattern
+                        .compile("(\\d+)\\s(.+)\\s(\\d+)\\s(\\d+)\\s(\\d+)"));
+                try {
+                    MatchResult result = line.match();
+                    int id = Integer.parseInt(result.group(1));
+                    String name = result.group(2);
+                    int os = Integer.parseInt(result.group(3));
+                    int math = Integer.parseInt(result.group(3));
+                    int java = Integer.parseInt(result.group(3));
+                    Student you = new Student(id, name, os, math, java);
+                    return you;
+                } catch (Exception e) {
+                    System.out.println("输入格式有误，请重新输入！");
+                }
+            }
+        }
+    }
+
+    private static void addStudent() {
+        System.out.println("请输入学生信息: ");
+        System.out.println("格式: <学号> <姓名> <数学成绩> <Java成绩> <操作系统成绩>");
+
+        try (Scanner in = new Scanner(System.in)) {
+            Student you = inputStudent(in);
+            System.out.println("成功读入学生 '" + you + "'");
+            add(you);
+        }
     }
 
     private static void sortScore() {
@@ -111,6 +164,33 @@ public class StudentManager {
     private static void delById() {
         System.out.println("请输入学号：");
         int id = in.nextInt();
+        String sql = "SELECT * FROM students WHERE id = ?";
+        try {
+            Student you = DBUtils.queryBean(conn, sql, Student.class, id);
+            System.out.println("你确定删除学生 '" + you + "' 吗？(Y/n)");
+            String s = in.nextLine();
+            s = in.nextLine();
+            char c = s.charAt(0);
+            System.out.println(s);
+            System.out.println(c);
+            if (!(c == 'y' || c == 'Y')) {
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("没有找到学生！");
+            return;
+        }
+        sql = "DELETE FROM students WHERE id = ?";
+        try {
+            int res = DBUtils.execute(conn, sql, id);
+            if (res == 1) {
+                System.out.println("已删除。");
+            } else {
+                System.out.println("删除操作出现异常！");
+            }
+        } catch (Exception e) {
+            System.out.println("删除失败！");
+        }
     }
 
     private static void findByName() {

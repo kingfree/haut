@@ -27,13 +27,17 @@ public class Student implements Serializable {
         setMath(math);
         setJava(java);
     }
+    
+    private static int parseScore(int score) {
+        return Math.abs(score) % 100;
+    }
 
     public int getOs() {
         return os;
     }
 
     public void setOs(int os) {
-        this.os = os;
+        this.os = parseScore(os);
     }
 
     public int getMath() {
@@ -41,7 +45,7 @@ public class Student implements Serializable {
     }
 
     public void setMath(int math) {
-        this.math = math;
+        this.math = parseScore(math);
     }
 
     public int getJava() {
@@ -49,7 +53,7 @@ public class Student implements Serializable {
     }
 
     public void setJava(int java) {
-        this.java = java;
+        this.java = parseScore(java);
     }
 
     private void setId(int id) {
