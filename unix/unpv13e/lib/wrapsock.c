@@ -1,5 +1,5 @@
 /*
- * Socket wrapper functions.
+ * 套接字包装函数。
  * These could all go into separate files, so only the ones needed cause
  * the corresponding function to be added to the executable.  If sockets
  * are a library (SVR4) this might make a difference (?), but if sockets
@@ -32,7 +32,7 @@ again:
 #endif
 			goto again;
 		else
-			err_sys("accept error");
+			err_sys("accept 错误");
 	}
 	return(n);
 }
@@ -41,35 +41,35 @@ void
 Bind(int fd, const struct sockaddr *sa, socklen_t salen)
 {
 	if (bind(fd, sa, salen) < 0)
-		err_sys("bind error");
+		err_sys("bind 错误");
 }
 
 void
 Connect(int fd, const struct sockaddr *sa, socklen_t salen)
 {
 	if (connect(fd, sa, salen) < 0)
-		err_sys("connect error");
+		err_sys("connect 错误");
 }
 
 void
 Getpeername(int fd, struct sockaddr *sa, socklen_t *salenptr)
 {
 	if (getpeername(fd, sa, salenptr) < 0)
-		err_sys("getpeername error");
+		err_sys("getpeername 错误");
 }
 
 void
 Getsockname(int fd, struct sockaddr *sa, socklen_t *salenptr)
 {
 	if (getsockname(fd, sa, salenptr) < 0)
-		err_sys("getsockname error");
+		err_sys("getsockname 错误");
 }
 
 void
 Getsockopt(int fd, int level, int optname, void *optval, socklen_t *optlenptr)
 {
 	if (getsockopt(fd, level, optname, optval, optlenptr) < 0)
-		err_sys("getsockopt error");
+		err_sys("getsockopt 错误");
 }
 
 #ifdef	HAVE_INET6_RTH_INIT
@@ -80,7 +80,7 @@ Inet6_rth_space(int type, int segments)
 	
 	ret = inet6_rth_space(type, segments);
 	if (ret < 0)
-		err_quit("inet6_rth_space error");
+		err_quit("inet6_rth_space 错误");
 
 	return ret;
 }
@@ -92,7 +92,7 @@ Inet6_rth_init(void *rthbuf, socklen_t rthlen, int type, int segments)
 
 	ret = inet6_rth_init(rthbuf, rthlen, type, segments);
 	if (ret == NULL)
-		err_quit("inet6_rth_init error");
+		err_quit("inet6_rth_init 错误");
 
 	return ret;
 }
@@ -101,14 +101,14 @@ void
 Inet6_rth_add(void *rthbuf, const struct in6_addr *addr)
 {
 	if (inet6_rth_add(rthbuf, addr) < 0)
-		err_quit("inet6_rth_add error");
+		err_quit("inet6_rth_add 错误");
 }
 
 void
 Inet6_rth_reverse(const void *in, void *out)
 {
 	if (inet6_rth_reverse(in, out) < 0)
-		err_quit("inet6_rth_reverse error");
+		err_quit("inet6_rth_reverse 错误");
 }
 
 int
@@ -118,7 +118,7 @@ Inet6_rth_segments(const void *rthbuf)
 
 	ret = inet6_rth_segments(rthbuf);
 	if (ret < 0)
-		err_quit("inet6_rth_segments error");
+		err_quit("inet6_rth_segments 错误");
 
 	return ret;
 }
@@ -130,7 +130,7 @@ Inet6_rth_getaddr(const void *rthbuf, int idx)
 
 	ret = inet6_rth_getaddr(rthbuf, idx);
 	if (ret == NULL)
-		err_quit("inet6_rth_getaddr error");
+		err_quit("inet6_rth_getaddr 错误");
 
 	return ret;
 }
@@ -143,7 +143,7 @@ Kqueue(void)
 	int ret;
 
 	if ((ret = kqueue()) < 0)
-		err_sys("kqueue error");
+		err_sys("kqueue 错误");
 	return ret;
 }
 
@@ -155,7 +155,7 @@ Kevent(int kq, const struct kevent *changelist, int nchanges,
 
 	if ((ret = kevent(kq, changelist, nchanges,
 					  eventlist, nevents, timeout)) < 0)
-		err_sys("kevent error");
+		err_sys("kevent 错误");
 	return ret;
 }
 #endif
@@ -167,12 +167,12 @@ Listen(int fd, int backlog)
 {
 	char	*ptr;
 
-		/*4can override 2nd argument with environment variable */
+    /* 如果可能的话用环境变量替换第二个参数 */
 	if ( (ptr = getenv("LISTENQ")) != NULL)
 		backlog = atoi(ptr);
 
 	if (listen(fd, backlog) < 0)
-		err_sys("listen error");
+		err_sys("listen 错误");
 }
 /* end Listen */
 
@@ -183,7 +183,7 @@ Poll(struct pollfd *fdarray, unsigned long nfds, int timeout)
 	int		n;
 
 	if ( (n = poll(fdarray, nfds, timeout)) < 0)
-		err_sys("poll error");
+		err_sys("poll 错误");
 
 	return(n);
 }
@@ -195,7 +195,7 @@ Recv(int fd, void *ptr, size_t nbytes, int flags)
 	ssize_t		n;
 
 	if ( (n = recv(fd, ptr, nbytes, flags)) < 0)
-		err_sys("recv error");
+		err_sys("recv 错误");
 	return(n);
 }
 
@@ -206,7 +206,7 @@ Recvfrom(int fd, void *ptr, size_t nbytes, int flags,
 	ssize_t		n;
 
 	if ( (n = recvfrom(fd, ptr, nbytes, flags, sa, salenptr)) < 0)
-		err_sys("recvfrom error");
+		err_sys("recvfrom 错误");
 	return(n);
 }
 
@@ -216,7 +216,7 @@ Recvmsg(int fd, struct msghdr *msg, int flags)
 	ssize_t		n;
 
 	if ( (n = recvmsg(fd, msg, flags)) < 0)
-		err_sys("recvmsg error");
+		err_sys("recvmsg 错误");
 	return(n);
 }
 
@@ -227,7 +227,7 @@ Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
 	int		n;
 
 	if ( (n = select(nfds, readfds, writefds, exceptfds, timeout)) < 0)
-		err_sys("select error");
+		err_sys("select 错误");
 	return(n);		/* can return 0 on timeout */
 }
 
@@ -235,7 +235,7 @@ void
 Send(int fd, const void *ptr, size_t nbytes, int flags)
 {
 	if (send(fd, ptr, nbytes, flags) != (ssize_t)nbytes)
-		err_sys("send error");
+		err_sys("send 错误");
 }
 
 void
@@ -243,7 +243,7 @@ Sendto(int fd, const void *ptr, size_t nbytes, int flags,
 	   const struct sockaddr *sa, socklen_t salen)
 {
 	if (sendto(fd, ptr, nbytes, flags, sa, salen) != (ssize_t)nbytes)
-		err_sys("sendto error");
+		err_sys("sendto 错误");
 }
 
 void
@@ -257,21 +257,21 @@ Sendmsg(int fd, const struct msghdr *msg, int flags)
 		nbytes += msg->msg_iov[i].iov_len;
 
 	if (sendmsg(fd, msg, flags) != nbytes)
-		err_sys("sendmsg error");
+		err_sys("sendmsg 错误");
 }
 
 void
 Setsockopt(int fd, int level, int optname, const void *optval, socklen_t optlen)
 {
 	if (setsockopt(fd, level, optname, optval, optlen) < 0)
-		err_sys("setsockopt error");
+		err_sys("setsockopt 错误");
 }
 
 void
 Shutdown(int fd, int how)
 {
 	if (shutdown(fd, how) < 0)
-		err_sys("shutdown error");
+		err_sys("shutdown 错误");
 }
 
 int
@@ -280,7 +280,7 @@ Sockatmark(int fd)
 	int		n;
 
 	if ( (n = sockatmark(fd)) < 0)
-		err_sys("sockatmark error");
+		err_sys("sockatmark 错误");
 	return(n);
 }
 
@@ -291,7 +291,7 @@ Socket(int family, int type, int protocol)
 	int		n;
 
 	if ( (n = socket(family, type, protocol)) < 0)
-		err_sys("socket error");
+		err_sys("socket 错误");
 	return(n);
 }
 /* end Socket */
@@ -302,5 +302,5 @@ Socketpair(int family, int type, int protocol, int *fd)
 	int		n;
 
 	if ( (n = socketpair(family, type, protocol, fd)) < 0)
-		err_sys("socketpair error");
+		err_sys("socketpair 错误");
 }

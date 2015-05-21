@@ -20,7 +20,7 @@ Sockfd_to_family(int sockfd)
 	int		rc;
 
 	if ( (rc = sockfd_to_family(sockfd)) < 0)
-		err_sys("sockfd_to_family error");
+		err_sys("sockfd_to_family 错误");
 
 	return(rc);
 }

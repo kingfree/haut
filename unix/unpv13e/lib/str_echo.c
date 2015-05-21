@@ -13,5 +13,5 @@ again:
 	if (n < 0 && errno == EINTR)
 		goto again;
 	else if (n < 0)
-		err_sys("str_echo: read error");
+		err_sys("str_echo: read 错误");
 }

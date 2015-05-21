@@ -9,7 +9,7 @@ char *
 sock_ntop(const struct sockaddr *sa, socklen_t salen)
 {
     char		portstr[8];
-    static char str[128];		/* Unix domain is largest */
+    static char str[128];		/* 最大的是 Unix 域套接字 */
 
 	switch (sa->sa_family) {
 	case AF_INET: {
@@ -68,7 +68,7 @@ sock_ntop(const struct sockaddr *sa, socklen_t salen)
 	}
 #endif
 	default:
-		snprintf(str, sizeof(str), "sock_ntop: unknown AF_xxx: %d, len %d",
+		snprintf(str, sizeof(str), "sock_ntop: 未知的 AF_xxx: %d, 长度 %d",
 				 sa->sa_family, salen);
 		return(str);
 	}
@@ -81,6 +81,6 @@ Sock_ntop(const struct sockaddr *sa, socklen_t salen)
 	char	*ptr;
 
 	if ( (ptr = sock_ntop(sa, salen)) == NULL)
-		err_sys("sock_ntop error");	/* inet_ntop() sets errno */
+		err_sys("sock_ntop 错误");	/* inet_ntop() 设置 errno */
 	return(ptr);
 }

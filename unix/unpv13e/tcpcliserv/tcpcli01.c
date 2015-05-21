@@ -7,7 +7,7 @@ main(int argc, char **argv)
 	struct sockaddr_in	servaddr;
 
 	if (argc != 2)
-		err_quit("usage: tcpcli <IPaddress>");
+		err_quit("用法: tcpcli <IP地址>");
 
 	sockfd = Socket(AF_INET, SOCK_STREAM, 0);
 
