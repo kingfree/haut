@@ -1,4 +1,4 @@
-#include	"unpifi.h"
-#include	"ntp.h"
+#include "unpifi.h"
+#include "ntp.h"
 
-void	 sntp_proc(char *, ssize_t, struct timeval *);
+void sntp_proc(char*, ssize_t, struct timeval*);

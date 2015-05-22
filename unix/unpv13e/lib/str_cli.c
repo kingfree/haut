@@ -1,17 +1,16 @@
-#include	"unp.h"
+#include "unp.h"
 
-void
-str_cli(FILE *fp, int sockfd)
+void str_cli(FILE* fp, int sockfd)
 {
-	char	sendline[MAXLINE], recvline[MAXLINE];
+    char sendline[MAXLINE], recvline[MAXLINE];
 
-	while (Fgets(sendline, MAXLINE, fp) != NULL) {
+    while (Fgets(sendline, MAXLINE, fp) != NULL) {
 
-		Writen(sockfd, sendline, strlen(sendline));
+        Writen(sockfd, sendline, strlen(sendline));
 
-		if (Readline(sockfd, recvline, MAXLINE) == 0)
-			err_quit("str_cli: 服务器过早关闭");
+        if (Readline(sockfd, recvline, MAXLINE) == 0)
+            err_quit("str_cli: 服务器过早关闭");
 
-		Fputs(recvline, stdout);
-	}
+        Fputs(recvline, stdout);
+    }
 }

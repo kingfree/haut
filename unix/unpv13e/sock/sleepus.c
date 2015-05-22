@@ -1,20 +1,19 @@
-#include	<sys/types.h>
-#include	<sys/time.h>
-#include	<errno.h>
-#include	<stddef.h>
-#include	"ourhdr.h"
+#include <sys/types.h>
+#include <sys/time.h>
+#include <errno.h>
+#include <stddef.h>
+#include "ourhdr.h"
 
-void
-sleep_us(unsigned int nusecs)
+void sleep_us(unsigned int nusecs)
 {
-	struct timeval	tval;
+    struct timeval tval;
 
-	for ( ; ; ) {
-		tval.tv_sec = nusecs / 1000000;
-		tval.tv_usec = nusecs % 1000000;
-		if (select(0, NULL, NULL, NULL, &tval) == 0)
-			break;		/* all OK */
-		/*
+    for (;;) {
+        tval.tv_sec = nusecs / 1000000;
+        tval.tv_usec = nusecs % 1000000;
+        if (select(0, NULL, NULL, NULL, &tval) == 0)
+            break; /* all OK */
+        /*
 		 * Note than on an interrupted system call (i.e, SIGIO) there's not
 		 * much we can do, since the timeval{} isn't updated with the time
 		 * remaining.  We could obtain the clock time before the call, and
@@ -22,8 +21,8 @@ sleep_us(unsigned int nusecs)
 		 * how long select() blocked before it was interrupted, but that
 		 * seems like too much work :-)
 		 */
-		if (errno == EINTR)
-			continue;
-		err_sys("sleep_us: select error");
-	}
+        if (errno == EINTR)
+            continue;
+        err_sys("sleep_us: select error");
+    }
 }
