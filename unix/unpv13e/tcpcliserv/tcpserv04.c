@@ -20,22 +20,22 @@ main(int argc, char **argv)
 
 	Listen(listenfd, LISTENQ);
 
-	Signal(SIGCHLD, sig_chld);	/* must call waitpid() */
+	Signal(SIGCHLD, sig_chld);	/* 必须调用 waitpid() */
 
 	for ( ; ; ) {
 		clilen = sizeof(cliaddr);
 		if ( (connfd = accept(listenfd, (SA *) &cliaddr, &clilen)) < 0) {
 			if (errno == EINTR)
-				continue;		/* back to for() */
+				continue;		/* 继续下一个 for() */
 			else
 				err_sys("accept error");
 		}
 
-		if ( (childpid = Fork()) == 0) {	/* child process */
-			Close(listenfd);	/* close listening socket */
-			str_echo(connfd);	/* process the request */
+		if ( (childpid = Fork()) == 0) {	/* 子进程 */
+			Close(listenfd);	/* 关闭监听的套接字 */
+			str_echo(connfd);	/* 处理请求 */
 			exit(0);
 		}
-		Close(connfd);			/* parent closes connected socket */
+		Close(connfd);			/* 父进程关闭已连接的套接字 */
 	}
 }
