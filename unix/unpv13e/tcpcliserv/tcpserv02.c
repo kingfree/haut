@@ -26,11 +26,11 @@ main(int argc, char **argv)
 		clilen = sizeof(cliaddr);
 		connfd = Accept(listenfd, (SA *) &cliaddr, &clilen);
 
-		if ( (childpid = Fork()) == 0) {	/* child process */
-			Close(listenfd);	/* close listening socket */
-			str_echo(connfd);	/* process the request */
+		if ( (childpid = Fork()) == 0) {	/* 子进程 */
+			Close(listenfd);	/* 关闭监听的套接字 */
+			str_echo(connfd);	/* 处理请求 */
 			exit(0);
 		}
-		Close(connfd);			/* parent closes connected socket */
+		Close(connfd);			/* 父进程关闭已连接的套接字 */
 	}
 }

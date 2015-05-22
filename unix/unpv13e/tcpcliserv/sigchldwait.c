@@ -7,6 +7,6 @@ sig_chld(int signo)
 	int		stat;
 
 	pid = wait(&stat);
-	printf("child %d terminated\n", pid);
+	printf("子进程 %d 结束\n", pid);
 	return;
 }
