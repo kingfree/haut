@@ -7,26 +7,24 @@
 #include <sys/filio.h>
 #endif
 
-int
-setasync(int sockfd)
+int setasync(int sockfd)
 {
-	int n;
+    int n;
 
-	if (fcntl(sockfd, F_SETOWN, getpid()) < 0)
-		return(-1);
-	n = 1;
-	if (ioctl(sockfd, FIOASYNC, &n) < 0)
-		return(-1);
-	return(0);
+    if (fcntl(sockfd, F_SETOWN, getpid()) < 0)
+        return (-1);
+    n = 1;
+    if (ioctl(sockfd, FIOASYNC, &n) < 0)
+        return (-1);
+    return (0);
 }
 
-int
-clrasync(int sockfd)
+int clrasync(int sockfd)
 {
-	int n;
+    int n;
 
-	n = 0;
-	if (ioctl(sockfd, FIOASYNC, &n) < 0)
-		return(-1);
-	return(0);
+    n = 0;
+    if (ioctl(sockfd, FIOASYNC, &n) < 0)
+        return (-1);
+    return (0);
 }
