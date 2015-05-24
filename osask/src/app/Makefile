@@ -31,6 +31,9 @@ full :
 	$(MAKE) -C beepdown
 	$(MAKE) -C color
 	$(MAKE) -C color2
+	$(MAKE) -C primes
+	$(MAKE) -C primes2
+	$(MAKE) -C primes3
 
 clean :
 	$(MAKE) -C a			clean
@@ -49,6 +52,9 @@ clean :
 	$(MAKE) -C beepdown		clean
 	$(MAKE) -C color		clean
 	$(MAKE) -C color2		clean
+	$(MAKE) -C primes		clean
+	$(MAKE) -C primes2		clean
+	$(MAKE) -C primes3		clean
 
 src_only :
 	$(MAKE) -C a			src_only
@@ -67,3 +73,6 @@ src_only :
 	$(MAKE) -C beepdown		src_only
 	$(MAKE) -C color		src_only
 	$(MAKE) -C color2		src_only
+	$(MAKE) -C primes		src_only
+	$(MAKE) -C primes2		src_only
+	$(MAKE) -C primes3		src_only

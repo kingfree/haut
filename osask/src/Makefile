@@ -14,7 +14,7 @@ default :
 
 # 文件生成规则
 
-pripara.img : sys/ipl10.bin sys/pripara.sys Makefile \
+pripara.img : sys/ipl10.bin sys/pripara.sys \
 		app/a/a.hrb \
 		app/beepdown/beepdown.hrb \
 		app/color/color.hrb \
@@ -30,7 +30,11 @@ pripara.img : sys/ipl10.bin sys/pripara.sys Makefile \
 		app/walk/walk.hrb \
 		app/winhelo/winhelo.hrb \
 		app/winhelo2/winhelo2.hrb \
-		app/winhelo3/winhelo3.hrb
+		app/winhelo3/winhelo3.hrb \
+		app/primes/primes.hrb \
+		app/primes2/primes2.hrb \
+		app/primes3/primes3.hrb \
+		Makefile
 	$(EDIMG)   imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:sys/ipl10.bin len:512 from:0 to:0 \
 		copy from:sys/pripara.sys to:@: \
@@ -52,6 +56,9 @@ pripara.img : sys/ipl10.bin sys/pripara.sys Makefile \
 		copy from:app/winhelo/winhelo.hrb to:@: \
 		copy from:app/winhelo2/winhelo2.hrb to:@: \
 		copy from:app/winhelo3/winhelo3.hrb to:@: \
+		copy from:app/primes/primes.hrb to:@: \
+		copy from:app/primes2/primes2.hrb to:@: \
+		copy from:app/primes3/primes3.hrb to:@: \
 		imgout:pripara.img
 
 # 各个命令
