@@ -11,11 +11,14 @@ void console_task(sheet_t* sheet, unsigned int memtotal)
     int i, *fat = (int *)memman_alloc_4k(memman, 4 * 2880);
     console cons;
     char cmdline[CONS_COLN];
+    filehandle fhandle[8];
+
     cons.sht = sheet;
     cons.cur_x = CONS_LEFT;
     cons.cur_y = CONS_TOP;
     cons.cur_c = -1;
     task->cons = &cons;
+    task->cmdline = cmdline;
 
     if (cons.sht != 0) {
         cons.timer = timer_alloc();
@@ -23,6 +26,11 @@ void console_task(sheet_t* sheet, unsigned int memtotal)
         timer_settime(cons.timer, 50);
     }
     file_readfat(fat, (unsigned char*)(ADR_DISKIMG + 0x000200));
+    for (i = 0; i < 8; i++) {
+        fhandle[i].buf = 0; /* 未使用 */
+    }
+    task->fhandle = fhandle;
+    task->fat = fat;
 
     /* 命令提示符 */
     cons_putchar(&cons, '$', 1);
@@ -192,8 +200,6 @@ void cons_runcmd(char* cmdline, console* cons, int* fat, unsigned int memtotal)
         cmd_cls(cons);
     } else if (strcmp(cmdline, "ls -l") == 0 || strcmp(cmdline, "dir") == 0) {
         cmd_dir(cons);
-    } else if (strncmp(cmdline, "cat ", 4) == 0 || strncmp(cmdline, "type ", 5) == 0) {
-        cmd_type(cons, fat, cmdline + (cmdline[0] == 'c' ? 4 : 5));
     } else if (strcmp(cmdline, "exit") == 0) {
         cmd_exit(cons, fat);
     } else if (strncmp(cmdline, "start ", 6) == 0) {
@@ -256,26 +262,6 @@ void cmd_dir(console* cons)
             }
         }
     }
-    return;
-}
-
-void cmd_type(console* cons, int* fat, char* filename)
-{
-    memman_t* memman = (memman_t*)MEMMAN_ADDR;
-    fileinfo* finfo = file_search(filename, (fileinfo*)(ADR_DISKIMG + 0x002600), 224);
-    char *p, s[CONS_COLN];
-    if (finfo != 0) {
-        /* 找到文件 */
-        p = (char*)memman_alloc_4k(memman, finfo->size);
-        file_loadfile(finfo->clustno, finfo->size, p, fat, (char*)(ADR_DISKIMG + 0x003e00));
-        cons_putstr1(cons, p, finfo->size);
-        memman_free_4k(memman, (int)p, finfo->size);
-    } else {
-        /* 未找到文件 */
-        sprintf(s, "File '%s' not found.", filename);
-        cons_putstr0(cons, s);
-    }
-    cons_newline(cons);
     return;
 }
 
@@ -378,12 +364,18 @@ int cmd_app(console* cons, int* fat, char* cmdline)
                 q[esp + i] = p[dathrb + i];
             }
             start_app(0x1b, 0 * 8 + 4, esp, 1 * 8 + 4, &(task->tss.esp0));
-            shtctl = (struct SHTCTL*)*((int*)0x0fe4);
+            shtctl = (shtctl_t*)*((int*)0x0fe4);
             for (i = 0; i < MAX_SHEETS; i++) {
                 sht = &(shtctl->sheets0[i]);
                 if ((sht->flags & 0x11) == 0x11 && sht->task == task) {
                     /* 找到应用程序遗留的窗口 */
                     sheet_free(sht); /* 关闭之 */
+                }
+            }
+            for (i = 0; i < 8; i++) { /* 关闭所有打开的文件 */
+                if (task->fhandle[i].buf != 0) {
+                    memman_free_4k(memman, (int)task->fhandle[i].buf, task->fhandle[i].size);
+                    task->fhandle[i].buf = 0;
                 }
             }
             timer_cancelall(&task->fifo);
@@ -412,6 +404,10 @@ int* hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
     /* 强行改写通过PUSHAD保存的值 */
     /* reg[0] : EDI,   reg[1] : ESI,   reg[2] : EBP,   reg[3] : ESP */
     /* reg[4] : EBX,   reg[5] : EDX,   reg[6] : ECX,   reg[7] : EAX */
+    int i;
+    fileinfo* finfo;
+    filehandle* fh;
+    memman_t* memman = (memman_t*)MEMMAN_ADDR;
 
     if (edx == 1) {
         cons_putchar(cons, eax & 0xff, 1);
@@ -481,7 +477,7 @@ int* hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
                     return 0;
                 }
             }
-            int i = fifo32_get(&task->fifo);
+            i = fifo32_get(&task->fifo);
             io_sti();
             if (i <= 1) { /* 光标用计时器 */
                 /* 应用程序运行时并不需要显示光标 */
@@ -517,16 +513,86 @@ int* hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
         timer_free((timer_t*)ebx);
     } else if (edx == 20) {
         if (eax == 0) {
-            int i = io_in8(0x61);
+            i = io_in8(0x61);
             io_out8(0x61, i & 0x0d);
         } else {
-            int i = 1193180000 / eax;
+            i = 1193180000 / eax;
             io_out8(0x43, 0xb6);
             io_out8(0x42, i & 0xff);
             io_out8(0x42, i >> 8);
             i = io_in8(0x61);
             io_out8(0x61, (i | 0x03) & 0x0f);
         }
+    } else if (edx == 21) {
+        for (i = 0; i < 8; i++) {
+            if (task->fhandle[i].buf == 0) {
+                break;
+            }
+        }
+        fh = &task->fhandle[i];
+        reg[7] = 0;
+        if (i < 8) {
+            finfo = file_search((char*)ebx + ds_base,
+                (fileinfo*)(ADR_DISKIMG + 0x002600), 224);
+            if (finfo != 0) {
+                reg[7] = (int)fh;
+                fh->buf = (char*)memman_alloc_4k(memman, finfo->size);
+                fh->size = finfo->size;
+                fh->pos = 0;
+                file_loadfile(finfo->clustno, finfo->size, fh->buf, task->fat, (char*)(ADR_DISKIMG + 0x003e00));
+            }
+        }
+    } else if (edx == 22) {
+        fh = (filehandle*)eax;
+        memman_free_4k(memman, (int)fh->buf, fh->size);
+        fh->buf = 0;
+    } else if (edx == 23) {
+        fh = (filehandle*)eax;
+        if (ecx == 0) {
+            fh->pos = ebx;
+        } else if (ecx == 1) {
+            fh->pos += ebx;
+        } else if (ecx == 2) {
+            fh->pos = fh->size + ebx;
+        }
+        if (fh->pos < 0) {
+            fh->pos = 0;
+        }
+        if (fh->pos > fh->size) {
+            fh->pos = fh->size;
+        }
+    } else if (edx == 24) {
+        fh = (filehandle*)eax;
+        if (ecx == 0) {
+            reg[7] = fh->size;
+        } else if (ecx == 1) {
+            reg[7] = fh->pos;
+        } else if (ecx == 2) {
+            reg[7] = fh->pos - fh->size;
+        }
+    } else if (edx == 25) {
+        fh = (filehandle*)eax;
+        for (i = 0; i < ecx; i++) {
+            if (fh->pos == fh->size) {
+                break;
+            }
+            *((char*)ebx + ds_base + i) = fh->buf[fh->pos];
+            fh->pos++;
+        }
+        reg[7] = i;
+    } else if (edx == 26) {
+        i = 0;
+        for (;;) {
+            *((char *) ebx + ds_base + i) =  task->cmdline[i];
+            if (task->cmdline[i] == 0) {
+                break;
+            }
+            if (i >= ecx) {
+                break;
+            }
+            i++;
+        }
+        reg[7] = i;
     }
     return 0;
 }

@@ -2,7 +2,7 @@
 #define BOOTPACK_H
 
 #define SYSNAME "PriPara OS"
-#define SYSVERS "27"
+#define SYSVERS "28"
 #define SYSNAMEVER SYSNAME " " SYSVERS
 
 /* asmhead.nas */
@@ -265,6 +265,9 @@ typedef struct TASK {
     struct CONSOLE* cons;
     int ds_base;
     int cons_stack;
+    struct FILEHANDLE *fhandle;
+    int *fat;
+    char *cmdline;
 } task_t;
 
 typedef struct TASKLEVEL {
@@ -315,6 +318,11 @@ typedef struct CONSOLE {
     int cur_x, cur_y, cur_c;
     timer_t* timer;
 } console;
+typedef struct FILEHANDLE {
+    char *buf;
+    int size;
+    int pos;
+} filehandle;
 void console_task(sheet_t* sheet, unsigned int memtotal);
 void cons_putchar(console* cons, int chr, char move);
 void cons_newline(console* cons);
@@ -324,7 +332,6 @@ void cons_runcmd(char* cmdline, console* cons, int* fat, unsigned int memtotal);
 void cmd_mem(console* cons, unsigned int memtotal);
 void cmd_cls(console* cons);
 void cmd_dir(console* cons);
-void cmd_type(console* cons, int* fat, char* cmdline);
 void cmd_exit(console* cons, int* fat);
 void cmd_start(console* cons, char* cmdline, int memtotal);
 void cmd_open(console* cons, char* cmdline, int memtotal);

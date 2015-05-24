@@ -34,6 +34,7 @@ pripara.img : sys/ipl10.bin sys/pripara.sys \
 		app/primes/primes.hrb \
 		app/primes2/primes2.hrb \
 		app/primes3/primes3.hrb \
+		app/cat/cat.hrb \
 		Makefile
 	$(EDIMG)   imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:sys/ipl10.bin len:512 from:0 to:0 \
@@ -59,6 +60,7 @@ pripara.img : sys/ipl10.bin sys/pripara.sys \
 		copy from:app/primes/primes.hrb to:@: \
 		copy from:app/primes2/primes2.hrb to:@: \
 		copy from:app/primes3/primes3.hrb to:@: \
+		copy from:app/cat/cat.hrb to:@: \
 		imgout:pripara.img
 
 # 各个命令
