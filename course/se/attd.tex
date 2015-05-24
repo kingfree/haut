@@ -24,8 +24,8 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \fvset{frame=single}
 
 \setmainfont{Times New Roman}
-\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
-\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}
+\setCJKsansfont[BoldFont={STZhongsong}]{华文细黑}
 \setCJKmonofont{KFKai} % 等宽字体：楷体
 
 \CJKsetecglue{\hspace{0.1em}}
@@ -59,6 +59,14 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
     \des{返回}{#5}
 
     \des{描述}{#6}
+% \end{minipage}
+\par
+\CTEXindent}
+\newcommand{\interface}[3][public]{\CTEXnoindent\vspace{1em}\par
+% \begin{minipage}{\textwidth}
+    \underline{\makebox[\textwidth][l]{{\sf {\bfseries #1 interface} {{#2}} \{\} }}}
+
+    \des{描述}{#3}
 % \end{minipage}
 \par
 \CTEXindent}
@@ -98,6 +106,8 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 \begin{multicols}{2}
 \tableofcontents
 \end{multicols}
+
+{\color{white}{ふぁっくゆ〜}}
 
 \clearpage
 
@@ -357,35 +367,123 @@ pdftitle={\titlec \version},pdfauthor={\tjf}]{hyperref}
 
 \section{客户端}
 
-客户端与服务端后台进行通信，是C/S架构中的C。客户端本身采用MVC（模型-视图-控制器）的架构来设计，简述如下。
+客户端与服务端后台进行通信，是C/S架构中的C。客户端本身采用MVC（模型-视图-控制器）的架构来设计，简述如下。由于没有实际的Android编程经验，该设计存在不可避免的错误。
 
 \subsection{模型 model}
 
-\subsubsection{课程类 Subjects}
+\subsubsection{学生类 StudentModel}
 
-\subsubsection{班级类 Classes}
+提供对学生访问和识别的方法。
 
-\subsubsection{学生类 Students}
+\subsubsection{设备类 DeviceModel}
+
+提供对设备唯一识别ID访问和确认的方法。
+
+\subsubsection{图像类 ImageModel}
+
+一个图像数据的包装类。
+
+\subsubsection{声音类 AudioModel}
+
+一个声音数据的包装类。
 
 \subsection{视图 ui}
 
-\subsubsection{活动接口 IActivity}
+\subsubsection{主界面类 MainActivity}
+
+{\noindent \sf MainActivity {\bfseries extends} Activity}
+
+\function[{\itshape @Override} public]{onCreate}
+{\vars{Bundle}{savedInstanceState}}
+{void}{无。}
+{创建主界面。载入主控制器。显示欢迎信息并等待接收指令。}
 
 \subsubsection{登录类 LoginActivity}
 
+{\noindent \sf LoginActivity {\bfseries extends} Activity}
+
+\function[{\itshape @Override} public]{onCreate}
+{\vars{Bundle}{savedInstanceState}}
+{void}{无。}
+{创建登录界面。允许学生用户输入学号和密码以登录系统。}
+
+\subsubsection{签到类 SignInActivity}
+
+{\noindent \sf SignInActivity {\bfseries extends} Activity}
+
+\function[{\itshape @Override} public]{onCreate}
+{\vars{Bundle}{savedInstanceState}}
+{void}{无。}
+{创建签到界面。提示用户要通过验证，应该做的动作和发出的声音。}
+
 \subsubsection{验证类 VerifyActivity}
 
-\subsubsection{签到类 SigninActivity}
+{\noindent \sf VerifyActivity {\bfseries extends} Activity}
+
+\function[{\itshape @Override} public]{onCreate}
+{\vars{Bundle}{savedInstanceState}}
+{void}{无。}
+{创建验证界面。即时显示从前置摄像头获取的图像信息，动态录取话筒接收的声音波形图。}
 
 \subsection{控制器 logic}
 
 \subsubsection{主控类 MainServices}
 
+\function{login}
+{\vars{String}{id}, \vars{String}{passwd}}
+{void}{无。}
+{执行登录。将用户名和密码（加密后）打包，调用通信控制器向服务端发送数据包，等待服务端返回登录状态。如果成功则跳转到登陆成功页面，失败则提示继续登录。}
+
+\interface{signInListener}
+{签到监听器。创建与服务端链接的套接字，并监听服务器的签到请求，跳转到签到界面。}
+
+\function{signIn}
+{}
+{void}{无。}
+{执行签到。获取当前环境的学生信息，向服务端发送待签到学生的识别信息，等待服务端返回签到内容，进入签到验证逻辑。}
+
+\function{verify}
+{}
+{void}{无。}
+{执行验证。获取用户的声音和图像信息，检测到可识别的图像和声音之后，与服务端建立连接并上传数据，等待服务端返回验证信息。如果验证成功，提示签到成功；如果验证失败，返回验证逻辑继续采集并签到。}
+
 \subsubsection{通信类 Communication}
+
+虽然作为客户端，但是我们需要监听服务端发送来的指令，所以也应提供相应接口。当然，说是自定义的通信类，实际上是对套接字类做了一个封装而已。
+
+\function{Communication}
+{}
+{}{无。}
+{创建与服务端连接的套接字。从配置文件中读入服务器地址，建立相应连接。失败则抛出异常，由调用者捕获。}
+
+\function{recv}
+{}
+{JSONObject}{数据包。}
+{接收数据。从服务器接收数据，监听服务器发送来的指令，当没有监听到时返回空，监听到时返回获得的数据。该方法需要轮询调用。}
+
+\function{send}
+{\vars{JSONObject}{数据包}}
+{void}{无。}
+{传送数据。向服务器发送该数据包，该方法将一直阻塞直到服务器确认数据已经收到。}
+
+\function{close}
+{}
+{void}{无。}
+{关闭连接。}
 
 \subsubsection{图像处理类 Image{}Processor}
 
+\function{isPortrait}
+{\vars{Images}{图像}}
+{bool}{是否为人像。}
+{检查图像是否为人像。程序将图像处理为矩阵进行计算，判断是否为人的形象。当吻合率达到设定比率时返回真。注意，判断是否为本人的逻辑应在服务端完成而不是客户端！}
+
 \subsubsection{音频处理类 Audio{}Processor}
+
+\function{isSentence}
+{\vars{Audios}{声音}, \vars{String}{句子}}
+{bool}{是否为句子。}
+{检查声音是否为指定句子。程序将声音分解为语音元素，判断语音是否与句子类似。当吻合率达到设定比率时返回真。同样注意，判断是否为本人的逻辑应在服务端完成而不是客户端！}
 
 \section{数据处理约定}
 
