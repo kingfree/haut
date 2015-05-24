@@ -403,11 +403,11 @@ int cmd_app(console* cons, int* fat, char* cmdline)
 int* hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax)
 {
     task_t* task = task_now();
-    console* cons = task->cons;
     int ds_base = task->ds_base;
+    console* cons = task->cons;
     shtctl_t* shtctl = (shtctl_t*)*((int*)0x0fe4);
-    fifo32* sys_fifo = (fifo32*)*((int*)0x0fec);
     sheet_t* sht;
+    fifo32* sys_fifo = (fifo32*)*((int*)0x0fec);
     int* reg = &eax + 1; /* eax后面的地址 */
     /* 强行改写通过PUSHAD保存的值 */
     /* reg[0] : EDI,   reg[1] : ESI,   reg[2] : EBP,   reg[3] : ESP */
@@ -434,7 +434,7 @@ int* hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
         sht = (sheet_t*)(ebx & 0xfffffffe);
         putfonts8_asc(sht->buf, sht->bxsize, esi, edi, eax, (char*)ebp + ds_base);
         if ((ebx & 1) == 0) {
-            sheet_refresh(sht, esi, edi, esi + ecx * 8, edi + 16);
+            sheet_refresh(sht, esi, edi, esi + ecx * FNT_W, edi + FNT_H);
         }
     } else if (edx == 7) {
         sht = (sheet_t*)(ebx & 0xfffffffe);

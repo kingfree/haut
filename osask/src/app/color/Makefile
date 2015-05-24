@@ -1,5 +1,5 @@
 APP      = color
 STACK    = 1k
-MALLOC   = 0k
+MALLOC   = 56k
 
 include ../Makefile.app
