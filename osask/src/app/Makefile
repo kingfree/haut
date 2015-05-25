@@ -35,6 +35,7 @@ full :
 	$(MAKE) -C primes2
 	$(MAKE) -C primes3
 	$(MAKE) -C cat
+	$(MAKE) -C utf8
 
 clean :
 	$(MAKE) -C a			clean
@@ -57,6 +58,7 @@ clean :
 	$(MAKE) -C primes2		clean
 	$(MAKE) -C primes3		clean
 	$(MAKE) -C cat			clean
+	$(MAKE) -C utf8			clean
 
 src_only :
 	$(MAKE) -C a			src_only
@@ -78,4 +80,5 @@ src_only :
 	$(MAKE) -C primes		src_only
 	$(MAKE) -C primes2		src_only
 	$(MAKE) -C primes3		src_only
-	$(MAKE) -C cat		src_only
+	$(MAKE) -C cat			src_only
+	$(MAKE) -C utf8			src_only

@@ -113,9 +113,7 @@ void console_task(sheet_t* sheet, unsigned int memtotal)
 
 void cons_putchar(console* cons, int chr, char move)
 {
-    char s[2];
-    s[0] = chr;
-    s[1] = 0;
+    int s[2] = {chr, 0};
     if (s[0] == 0x09) { /* Tab */
         for (;;) {
             if (cons->sht != 0) {
@@ -176,8 +174,9 @@ void cons_newline(console* cons)
 
 void cons_putstr0(console* cons, char* s)
 {
-    for (; *s != 0; s++) {
-        cons_putchar(cons, *s, 1);
+    int c;
+    while (s = utf8char(s, &c)) {
+        cons_putchar(cons, c, 1);
     }
     return;
 }
@@ -593,6 +592,7 @@ int* hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
             i++;
         }
         reg[7] = i;
+    } else if (edx == 27) { /* 从UTF-8转换成Unicode */
     }
     return 0;
 }

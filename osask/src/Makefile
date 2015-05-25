@@ -35,12 +35,13 @@ pripara.img : sys/ipl10.bin sys/pripara.sys \
 		app/primes2/primes2.hrb \
 		app/primes3/primes3.hrb \
 		app/cat/cat.hrb \
+		app/utf8/utf8.hrb \
 		Makefile
 	$(EDIMG)   imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:sys/ipl10.bin len:512 from:0 to:0 \
 		copy from:sys/pripara.sys to:@: \
 		copy from:sys/ipl10.nas to:@: \
-		copy from:sys/int.c to:@: \
+		copy from:app/utf8/utf8.c to:@: \
 		copy from:app/a/a.hrb to:@: \
 		copy from:app/beepdown/beepdown.hrb to:@: \
 		copy from:app/color/color.hrb to:@: \
@@ -61,6 +62,8 @@ pripara.img : sys/ipl10.bin sys/pripara.sys \
 		copy from:app/primes2/primes2.hrb to:@: \
 		copy from:app/primes3/primes3.hrb to:@: \
 		copy from:app/cat/cat.hrb to:@: \
+		copy from:font/unifont.fnt to:@: \
+		copy from:app/utf8/utf8.hrb to:@: \
 		imgout:pripara.img
 
 # 各个命令
