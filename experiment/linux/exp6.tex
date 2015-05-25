@@ -1,0 +1,160 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{Linux系统管理与维护（1）：用户和用户群管理；软件包的管理}
+\usepackage[a4paper,margin=2.2cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+%\CTEXsetup[number=\chinese{section}, format={\large\sf\bfseries}]{section}
+\usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+\DefineShortVerb{\|}
+\fvset{frame=single}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2} % 行距
+
+\usepackage[inline]{enumitem} % 调整列表样式
+\setlist{noitemsep,align=left}
+%\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate,1]{label={(\arabic*)}}
+\setlist[enumerate,2]{label={\arabic*)}}
+
+\CTEXsetup[beforeskip={0pt},afterskip={0pt}]{paragraph}
+
+%\makeindex
+\pagestyle{plain}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\input{source/title}
+
+% \CTEXnoindent
+
+\paragraph{实验题目：}\titlec
+
+\paragraph{实验目的：}
+（1）理解系统管理的各种配置文件；（2）掌握用户的添加、删除方法；（3）掌握组的添加、删除方法；（4）掌握软件包的管理工具的使用。
+
+\paragraph{实验内容：}
+\begin{enumerate}
+\item 与用户账号有关的系统文件有哪些？使用cat命令查看这些文件并解释每一个文件中的各个字段所表示的含义是什么？
+\item 与用户组有关的系统文件有哪些？使用cat命令查看这些文件并解释每一个文件中的各个字段所表示的含义是什么？
+\item 分别用命令行的形式和图形化的形式添加用户newuser1和newuser2，然后用新用户登陆，看是否成功，然后用命令行的形式删除用户newuser2。
+\item 分别用命令行的形式和图形化的形式添加用户组newgroup1和newgroup2，在组newgroup1加入用户newuser1。
+\item 在Ubuntu系统下有哪些软件包的管理工具？
+\item 网络配置涉及哪些配置文件？查看其内容，并解释文件的基本内容。
+\item 如何使用命令配置一个网卡（IP地址、子网掩码、网管），如何使用命令挂载或卸载一个网卡？
+\end{enumerate}
+
+\paragraph{实验步骤：}
+
+\newcommand{\image}[3][width=\textwidth]{
+  \begin{minipage}[t]{0.5\textwidth}
+    \centering
+        \includegraphics[#1]{images/exp6/#2.png}
+    \caption{#3}
+    \label{fig:#3}
+  \end{minipage}
+}
+
+\begin{enumerate}
+
+\item 本地用户信息储存在/etc/passwd文件中。要查看系统上所有用户账户：
+\begin{Verbatim}
+$ cat /etc/passwd
+\end{Verbatim}
+
+一行代表一个用户，格式如下：
+\begin{Verbatim}
+account:password:UID:GID:GECOS:directory:shell
+\end{Verbatim}
+
+此处：
+\begin{itemize}
+\item |account|：用户名
+\item |password|：用户密码
+\item |UID|：用户的数字ID
+\item |GID|：用户所在主组的数字ID
+\item |GECOS|：可选的注释字段，通常记录用户全名
+\item |directory|：用户的主目录（{\tt\$HOME}）
+\item |shell|：用户的登陆shell（默认为|/bin/sh|）
+\end{itemize}
+
+现在的系统多使用影子密码。|passwd|文件对所有人可读，在里面存储密码（无论是否加密过）是很不安全的。在|password|字段，通常使用一个占位字符（|x|）代替。加密过的密码储存在|/etc/shadow|文件，该文件对普通用户限制访问。
+
+\begin{figure}[htp]
+\image{1.passwd}{用户文件}
+\image{2.shadow}{密码文件}
+\end{figure}
+
+
+
+\begin{figure}[htp]
+\image{3.shadow}{密码文件（尾部）}
+\image{4.group}{用户组文件}
+\end{figure}
+
+
+
+\begin{figure}[htp]
+\image{5.gshadow}{用户组密码}
+\image{6.sudoers}{超级用户组}
+\end{figure}
+
+
+
+\begin{figure}[htp]
+\image{7.newuser1}{建立用户1}
+\image{12.login1}{登录用户1}
+\end{figure}
+
+
+
+\begin{figure}[htp]
+\image{8.useracc}{用户账户}
+\image{10.disabled}{默认禁用}
+\end{figure}
+
+
+
+\begin{figure}[htp]
+\image{9.newuser2}{建立用户2}
+\image{11.changepasswd}{激活用户}
+\end{figure}
+
+
+
+\begin{figure}[htp]
+\image{13.login2}{登录用户2}
+\image{14.userdel}{删除用户2}
+\end{figure}
+
+
+
+\begin{figure}[htp]
+\image{15.newgroup1}{建立用户组}
+\image{16.apthelp}{软件包管理器}
+\end{figure}
+
+\end{enumerate}
+
+\paragraph{实验体会：}\quad
+
+
+\end{document}
