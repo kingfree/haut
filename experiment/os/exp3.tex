@@ -1,0 +1,94 @@
+\documentclass[c5size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{高(动态)优先权优先的进程调度算法模拟}
+\input{source/pre}
+\linespread{1.1} % 行距
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\setcounter{part}{2}
+\input{source/title}
+
+\iffalse
+\section{实验目的}
+通过动态优先权算法的模拟加深对进程概念和进程调度过程的理解。
+
+\section{实验环境}
+装有操作系统Windows XP和开发工具VC++6.0，内存在256M以上的微机；
+
+或者：装有Linux(Fedora 7)操作系统和gcc编译器，内存在256M以上的微机。
+
+\fi
+
+\section{实验内容}
+\begin{enumerate}[label={(\arabic*)}]
+\item 用C语言来实现对N个进程采用动态优先权优先算法的进程调度。
+\item 每个用来标识进程的进程控制块PCB用结构来描述，包括以下字段：
+\begin{itemize}
+\item 进程标识数ID；
+\item 进程优先数PRIORITY，并规定优先数越大的进程，其优先权越高；
+\item 进程已占用的CPU时间CPUTIME；
+\item 进程还需占用的CPU时间NEEDTIME。当进程运行完毕时，NEEDTIME变为0；
+\item 进程的阻塞时间STARTBLOCK，表示当进程再运行STARTBLOCK个时间片后，进程将进入阻塞状态；
+\item 进程被阻塞的时间BLOCKTIME，表示已阻塞的进程再等待BLOCKTIME个时间片后，进程将转换成就绪状态；
+\item 进程状态STATE；(READY, RUNNING, BLOCK, FINISH)
+\item 队列指针NEXT，用来将PCB排成队列。
+\end{itemize}
+\item 优先数改变的原则：
+\begin{itemize}
+\item 进程在就绪队列中呆一个时间片，优先数增加1；
+\item 进程每运行一个时间片，优先数减3。
+\end{itemize}
+\item 假设在调度前，系统中有5个进程，它们的初始状态如下：
+\begin{verbatim}
+ID              0       1       2       3       4
+PRIORITY        9      38      30      29       0
+CPUTIME         0       0       0       0       0
+NEEDTIME        3       3       6       3       4
+STARTBLOCK      2      -1      -1      -1      -1
+BLOCKTIME       3       0       0       0       0
+STATE       READY   READY   READY   READY   READY
+\end{verbatim}
+\item 为了清楚地观察进程的调度过程，程序应将每个时间片内的进程的情况显示出来，参照的具体格式如下：
+\begin{verbatim}
+            RUNNING PROCESS: $id0
+            READY QUEUE:  $id1->$id2
+            BLOCK QUEUE:  $id3->$id4
+    FINISH QUEUE:  $id0->$id1->$id2->$id3->$id4
+====================================================================
+ID    PRIORITY  CPUTIME   NEEDTIME   STATE   STARTBLOCK   BLOCKTIME
+0       XX        XX       XX         XX       XX          XX
+1       XX        XX       XX         XX       XX          XX
+2       XX        XX       XX         XX       XX          XX
+3       XX        XX       XX         XX       XX          XX
+4       XX        XX       XX         XX       XX          XX   
+====================================================================
+\end{verbatim}
+
+\end{enumerate}
+
+\section{实验要求}
+\begin{enumerate}[label={(\arabic*)}]
+\item 将源程序(|priority.c|)和程序运行结果写入实验报告。
+\item 将该算法执行过程与高响应比优先调度算法的执行过程进行比较。
+\end{enumerate}
+
+\section{实验步骤}
+
+\begin{enumerate}
+
+\item 以下是{\tt priority.c}的源代码：
+
+% \lstinputlisting[caption={\tt parent\_child.c}]{exp2/parent_child.c}
+
+
+\begin{figure}[htp]
+% \image[width=\textwidth]{exp2/progs.png}{实际执行过程}
+\end{figure}
+
+\end{enumerate}
+
+\end{document}
