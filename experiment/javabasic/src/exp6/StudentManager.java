@@ -35,6 +35,7 @@ public class StudentManager {
     }
 
     public static void cli() {
+        init();
         int sel = 0;
         do {
             sel = mainMenu();
@@ -65,7 +66,7 @@ public class StudentManager {
     }
 
     private static void add(Student stu) {
-        String sql = "INSERT INTO students (id, name, os, math, java) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO students (id, class_id, name, os, math, java) VALUES (?, 1, ?, ?, ?, ?)";
         try {
             int res = DBUtils.execute(conn, sql, stu.getId(), stu.getName(),
                     stu.getOs(), stu.getMath(), stu.getJava());
@@ -253,17 +254,15 @@ public class StudentManager {
      * @param args 指定启动方式
      */
     public static void main(String[] args) {
-        String arg = "-cli";
+        String arg = "-gui";
         if (args.length > 0) {
             arg = args[0].toLowerCase();
         }
         switch (arg) {
         case "-gui":
-            init();
             gui();
             break;
         case "-cli":
-            init();
             cli();
             break;
         case "-test":
@@ -283,13 +282,23 @@ public class StudentManager {
 
             List<String> sql = new ArrayList<String>();
 
-            sql.add("DROP TABLE IF EXISTS students");
-            sql.add("CREATE TABLE students(id INTEGER PRIMARY KEY, name STRING"
-                    + ", os INTEGER, math INTEGER, java INTEGER)");
+            // sql.add("DROP TABLE IF EXISTS students");
+            sql.add("CREATE TABLE IF NOT EXISTS students(id INTEGER PRIMARY KEY, class_id INTEGER"
+                    + ", name STRING, os INTEGER, math INTEGER, java INTEGER)");
 
-            sql.add("INSERT INTO students VALUES(1, '张三', 90, 90, 90)");
-            sql.add("INSERT INTO students VALUES(2, '李四', 80, 70, 91)");
-            sql.add("INSERT INTO students VALUES(3, '王五', 60, 67, 70)");
+            // sql.add("INSERT INTO students VALUES(1, 1, '张三', 90, 90, 90)");
+            // sql.add("INSERT INTO students VALUES(4, 1, '小明', 89, 72, 88)");
+            // sql.add("INSERT INTO students VALUES(2, 2, '李四', 80, 70, 91)");
+            // sql.add("INSERT INTO students VALUES(3, 3, '王五', 60, 67, 70)");
+
+            // sql.add("DROP TABLE IF EXISTS classes");
+            sql.add("CREATE TABLE IF NOT EXISTS classes(id INTEGER PRIMARY KEY, name STRING)");
+
+            // sql.add("INSERT INTO classes VALUES(1, '软件1301')");
+            // sql.add("INSERT INTO classes VALUES(2, '软件1302')");
+            // sql.add("INSERT INTO classes VALUES(3, '软件1303')");
+            // sql.add("INSERT INTO classes VALUES(4, '软件1304')");
+            // sql.add("INSERT INTO classes VALUES(5, '软件1305')");
 
             DBUtils.executeAsBatch(conn, sql);
         } catch (SQLException e) {
