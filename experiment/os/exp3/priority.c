@@ -123,10 +123,15 @@ tasklist* read_table(const char* filename)
 
 void run_tasklist(tasklist* tl)
 {
-    int now = 0;
+    tasklist* ready = new_tasklist();
+    tasklist* block = new_tasklist();
+    int i, now = 0;
     while (tl->length) {
         now++;
         print_tasklist(tl);
+        for (i = 0; i < tl->length; i++) {
+            if (tl->at[i].state == READY) {}
+        }
     }
 }
 
