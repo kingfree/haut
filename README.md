@@ -37,7 +37,17 @@
 * [pccb](pccb)：《挑战程序设计竞赛》
 
 ### [course](course) 课程
+
 ### [experiment](experiment) 实验报告
+
+* [alys](alys) 《算法设计与分析》实验报告
+* [c](c) 《程序设计基础（C 语言）》实验报告
+* [cpp](cpp) 《面向对象程序设计（C++）》实验报告
+* [java](java) Java实验要求
+* [javabasic](javabasic) Java实验
+* [linux](linux)
+* [os](os)
+
 ### [coursedesign](coursedesign) 课程设计
 
 ### 计算机系统和原理
@@ -63,10 +73,10 @@
 * **tlpi**：《Linux/UNIX 系统编程手册》 *The Linux Programming Interface*
 * **devlang**：《自制编程语言》 *「プログラミング言語を作る」*
 * **clang**：C 语言
-* **clang/exp**：课程《程序设计基础（C 语言）》实验报告
+* **clang/exp**：
 * **clang/exam**：课程《程序设计实践》课程设计：*标准化考试系统*
 * **oop**：面向对象
-* **oop/cpp**：课程《面向对象程序设计（C++）》实验报告
+* **oop/cpp**：
 * **oop/ooppro**：课程《面向对象程序设计（C++）》课程设计：*猜数字游戏*
 
 ### 软件工程实践
@@ -86,7 +96,7 @@
 * **ds**：数据结构与算法
 * **ds/ywm**：严蔚敏版数据结构
 * **ds/maic**：用 C 语言实现的数据结构
-* **ds/alys**：《算法设计与分析》实验报告
+* **ds/alys**：
 * **ds/zip**：《数据结构》课程设计：*用哈夫曼算法压缩文件*
 
 ### 大学课程
