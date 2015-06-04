@@ -4,6 +4,7 @@
 \def\titlec{高(动态)优先权优先的进程调度算法模拟}
 \input{source/pre}
 \linespread{1.1} % 行距
+\fvset{frame=none}
 
 \begin{document}
 
@@ -20,8 +21,6 @@
 装有操作系统Windows XP和开发工具VC++6.0，内存在256M以上的微机；
 
 或者：装有Linux(Fedora 7)操作系统和gcc编译器，内存在256M以上的微机。
-
-\fi
 
 \section{实验内容}
 \begin{enumerate}[label={(\arabic*)}]
@@ -43,7 +42,7 @@
 \item 进程每运行一个时间片，优先数减3。
 \end{itemize}
 \item 假设在调度前，系统中有5个进程，它们的初始状态如下：
-\begin{verbatim}
+\begin{Verbatim}
 ID              0       1       2       3       4
 PRIORITY        9      38      30      29       0
 CPUTIME         0       0       0       0       0
@@ -51,9 +50,9 @@ NEEDTIME        3       3       6       3       4
 STARTBLOCK      2      -1      -1      -1      -1
 BLOCKTIME       3       0       0       0       0
 STATE       READY   READY   READY   READY   READY
-\end{verbatim}
+\end{Verbatim}
 \item 为了清楚地观察进程的调度过程，程序应将每个时间片内的进程的情况显示出来，参照的具体格式如下：
-\begin{verbatim}
+\begin{Verbatim}
             RUNNING PROCESS: $id0
             READY QUEUE:  $id1->$id2
             BLOCK QUEUE:  $id3->$id4
@@ -66,7 +65,7 @@ ID    PRIORITY  CPUTIME   NEEDTIME   STATE   STARTBLOCK   BLOCKTIME
 3       XX        XX       XX         XX       XX          XX
 4       XX        XX       XX         XX       XX          XX   
 ====================================================================
-\end{verbatim}
+\end{Verbatim}
 
 \end{enumerate}
 
@@ -76,17 +75,34 @@ ID    PRIORITY  CPUTIME   NEEDTIME   STATE   STARTBLOCK   BLOCKTIME
 \item 将该算法执行过程与高响应比优先调度算法的执行过程进行比较。
 \end{enumerate}
 
+\fi
+
 \section{实验步骤}
 
 \begin{enumerate}
 
-\item 以下是{\tt priority.c}的源代码：
+\item 以下是{\tt priority.c}的源代码，注释已详细给出：
 
 {\small\linespread{1}\lstinputlisting[caption={\tt parent\_child.c}]{exp3/priority.c}}
 
-\begin{figure}[htp]
-% \image[width=\textwidth]{exp2/progs.png}{实际执行过程}
-\end{figure}
+我们为该程序准备了一个输入文件：
+
+\VerbatimInput[frame=lines]{exp3/pros.in}
+
+编译并执行该程序：
+
+\begin{Verbatim}[frame=single]
+$ cc -Wall priority.c -o priority
+$ ./priority pros.in > 1
+\end{Verbatim}
+
+得到输出结果如下，可以看到这个模拟程序按照既定的规则，共执行了19个时间片。
+
+\VerbatimInput[fontsize=\small,frame=lines]{exp3/1}
+
+\item 该算法即{\bf 高优先权优先调度算法}，每次执行一次排序，并执行优先级最高的可执行的任务，直到执行完毕或进入阻塞。这种方法要求给出进程的优先级，调度程序动态调整其优先级，按照其“重要程度”顺序执行任务。适用于实时系统。
+
+而{\bf 高响应比优先调度算法}的基本思想是把CPU分配给就绪队列中响应比（作业响应时间与作业执行时间的比值）最高的进程。这种方法兼顾了短作业与先后次序，且不会使长作业长期得不到服务。但是响应比计算用到了除法，增加了系统开销，所以更适合于批处理系统。
 
 \end{enumerate}
 

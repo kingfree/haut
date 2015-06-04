@@ -3,43 +3,51 @@
 #include <string.h>
 #include <errno.h>
 
-typedef enum STATE {
+typedef enum STATE { /* 状态的枚举类型 */
     READY,
     RUNNING,
     BLOCK,
     FINISH
-} state_t;
+} state;
 
-const char* state_str[] = {
+const char* STATES[] = { /* 状态字符串 */
     "READY",
     "RUNNING",
     "BLOCK",
     "FINISH"
 };
 
-typedef struct PCB {
-    int id; // 进程标识数ID;
-    int priority; // 进程优先数PRIORITY,并规定优先数越大的进程,其优先权越高;
-    int cputime; // 进程已占用的CPU时间CPUTIME;
-    int needtime; // 进程还需占用的CPU时间NEEDTIME。当进程运行完毕时,NEEDTIME变为0;
-    int startblock; // 进程的阻塞时间STARTBLOCK,表示当进程再运行STARTBLOCK个时间片后,进程将进入阻塞状态;
-    int blocktime; // 进程被阻塞的时间BLOCKTIME,表示已阻塞的进程再等待BLOCKTIME个时间片后,进程将转换成就绪状态;
-    state_t state; // 进程状态STATE;(READY, RUNNING, BLOCK, FINISH)
-    // struct PCB* next; // 队列指针NEXT,用来将PCB排成队列。
+typedef struct PCB { /* 进程控制块 */
+    int id; /* 进程标识 */
+    int priority; /* 进程优先级 */
+    int cputime; /* 进程已占用时间 */
+    int needtime; /* 进程还需占用时间 */
+    int startblock; /* 进程开始阻塞的时刻 */
+    int blocktime; /* 进程需要阻塞的时长 */
+    state state; /* 进程状态 */
+    // struct PCB* next; /* 因为用了数组所以不再需要 */
 } pcb;
 
-typedef struct TASKLIST {
-    pcb* at[1024];
-    size_t length;
+typedef struct TASKLIST { /* 任务列表 */
+    pcb* at[1024]; /* 任务列表指针数组 */
+    size_t length; /* 任务列表长度 */
+    int finished; /* 已完成任务数 */
 } tasklist;
 
+/* 创建任务列表 */
 tasklist* new_tasklist()
 {
     tasklist* tl = (tasklist*)malloc(sizeof(tasklist));
+    if (tl == NULL) {
+        perror("创建任务列表失败");
+        exit(-1);
+    }
     tl->length = 0;
+    tl->finished = 0;
     return tl;
 }
 
+/* 将进程控制块加入任务列表 */
 int create_process(tasklist* tl, pcb* proc)
 {
     if (proc == NULL) {
@@ -52,61 +60,86 @@ int create_process(tasklist* tl, pcb* proc)
     return 0;
 }
 
-pcb* process_at(tasklist* tl, int index)
-{
-    int i;
-    for (i = 0; i < tl->length; i++) {
-        pcb* p = tl->at[i];
-        if (p->id == index) {
-            return p;
-        }
-    }
-    return NULL;
-}
-
+/* 打印一个进程控制块信息 */
 void print_pcb(const pcb* proc)
 {
     printf("%2d    %8d  %7d   %8d %7s   %10d   %10d\n",
         proc->id, proc->priority, proc->cputime, proc->needtime,
-        state_str[proc->state], proc->startblock, proc->blocktime);
+        STATES[proc->state], proc->startblock, proc->blocktime);
 }
 
+/* 打印指定状态的任务队列 */
+void print_queue(const tasklist* tl, state st)
+{
+    static int id[1024];
+    int i, l = 0;
+    for (i = 0; i < tl->length; i++) {
+        pcb* p = tl->at[i];
+        if (p->state == st) {
+            id[l++] = p->id;
+        }
+    }
+    if (l > 0) {
+        printf("%d", id[0]);
+    }
+    for (i = 1; i < l; i++) {
+        printf("->%d", id[i]);
+    }
+}
+
+/* 打印任务列表 */
 void print_tasklist(const tasklist* tl)
 {
-    printf("        RUNNING PROCESS: $id0\n");
-    printf("        READY QUEUE:  $id1->$id2\n");
-    printf("        BLOCK QUEUE:  $id3->$id4\n");
-    printf("FINISH QUEUE:  $id0->$id1->$id2->$id3->$id4\n");
-    printf("====================================================================\n");
+    printf(  "        RUNNING PROCESS: ");
+    print_queue(tl, RUNNING);
+    printf("\n        READY QUEUE    : ");
+    print_queue(tl, READY);
+    printf("\n        BLOCK QUEUE    : ");
+    print_queue(tl, BLOCK);
+    printf("\n        FINISH QUEUE   : ");
+    print_queue(tl, FINISH);
+    printf("\n====================================================================\n");
     printf("ID    PRIORITY  CPUTIME   NEEDTIME   STATE   STARTBLOCK   BLOCKTIME\n");
     int i;
     for (i = 0; i < tl->length; i++) {
         print_pcb(tl->at[i]);
     }
-    printf("====================================================================\n");
+    printf(  "====================================================================\n");
 }
 
+/* 读入任务列表 */
 tasklist* read_table(const char* filename)
 {
+    /* 打开文件 */
     FILE* fin = fopen(filename, "r");
     if (fin == NULL) {
         fprintf(stderr, "打开文件 '%s' 失败: %s\n", filename, strerror(errno));
         exit(-1);
     }
-    int i, j, n;
+    int i, n;
+    /* 申请任务列表内存 */
     tasklist* tl = new_tasklist();
-    fscanf(fin, "%d", &n);
+    /* 读入任务数 */
+    int x = fscanf(fin, "%d", &n);
+    if (x != 1) {
+        fprintf(stderr, "读入任务列表失败\n");
+        exit(-1);
+    }
     for (i = 0; i < n; i++) {
+        /* 申请进程控制块内存 */
         pcb* p = (pcb*)malloc(sizeof(pcb));
-        fscanf(fin, "%d %d %d %d %d %d %d", &p->id, &p->priority, &p->cputime,
+        if (p == NULL) {
+            perror("创建进程控制块失败");
+            exit(-1);
+        }
+        /* 读入一个进程信息 */
+        x = fscanf(fin, "%d %d %d %d %d %d %d", &p->id, &p->priority, &p->cputime,
             &p->needtime, &p->startblock, &p->blocktime, &p->state);
-        // for (j = 0; j < 4; j++) {
-        //     if (strcmp(s, state_str[j]) == 0) {
-        //         p->state = j;
-        //         break;
-        //     }
-        // }
-        // p->next = NULL;
+        if (x != 7) {
+            fprintf(stderr, "读入任务列表失败\n");
+            exit(-1);
+        }
+        /* 创建进程到任务列表中 */
         if (create_process(tl, p) != 0) {
             fprintf(stderr, "创建进程 '%d' 失败\n", i);
             fclose(fin);
@@ -114,6 +147,7 @@ tasklist* read_table(const char* filename)
         }
     }
     fclose(fin);
+    /* 安全检查 */
     if (tl->length != n) {
         fprintf(stderr, "创建进程表失败\n");
         exit(-1);
@@ -121,17 +155,99 @@ tasklist* read_table(const char* filename)
     return tl;
 }
 
+/* 进程列表的比较函数 */
+int cmp(const void* x, const void* y)
+{
+    pcb* a = *(pcb**)x; /* 指向指针的指针 */
+    pcb* b = *(pcb**)y;
+
+    /* 只有一个运行中的任务，一定排在最前 */
+    if (a->state == RUNNING) {
+        return -1;
+    }
+    if (b->state == RUNNING) {
+        return 1;
+    }
+
+    /* 相同的状态比较优先级大小 */
+    if (a->state == b->state) {
+        return b->priority - a->priority;
+    }
+
+    /* 阻塞进程和已完成进程放在最后 */
+    if (a->state == BLOCK || a->state == FINISH) {
+        return 1;
+    }
+    if (b->state == BLOCK || b->state == FINISH) {
+        return -1;
+    }
+
+    /* 其他情况不排序 */
+    return 0;
+}
+
+/* 进程列表的排序函数 */
+void sort_tasklist(tasklist* tl)
+{
+    qsort(tl->at, tl->length, sizeof(tl->at[0]), cmp);
+}
+
+/* 运行任务列表 */
 void run_tasklist(tasklist* tl)
 {
-    tasklist* ready = new_tasklist();
-    tasklist* block = new_tasklist();
     int i, now = 0;
-    while (tl->length) {
-        now++;
-        print_tasklist(tl);
-        for (i = 0; i < tl->length; i++) {
-            if (tl->at[i].state == READY) {}
+    while (tl->finished < tl->length) {
+        /* 首先将优先级最高的就绪任务设为运行态 */
+        sort_tasklist(tl);
+        if (tl->at[0]->state != RUNNING) {
+            for (i = 0; i < tl->length; i++) {
+                pcb* p = tl->at[i];
+                if (p->state == READY) {
+                    p->state = RUNNING;
+                    break;
+                }
+            }
         }
+        /* 打印任务列表 */
+        printf("时间片 %d:\n", now++);
+        print_tasklist(tl);
+        /* 对每个任务 */
+        int finished = 0;
+        for (i = 0; i < tl->length; i++) {
+            pcb* p = tl->at[i];
+            if (p->state == READY) {
+                /* 就绪 */
+                p->priority++; /* 优先级加1 */
+            } else if (p->state == RUNNING) {
+                /* 运行 */
+                if (p->needtime > 0) {
+                    p->needtime--;
+                    p->cputime++; /* 运行了一个时间片 */
+                }
+                if (p->needtime == 0) {
+                    p->state = FINISH; /* 运行完 */
+                }
+                p->priority -= 3; /* 优先级减3 */
+                if (p->startblock >= 0) {
+                    p->startblock--;
+                }
+                if (p->startblock == 0) {
+                    p->state = BLOCK; /* 进入阻塞状态 */
+                }
+            } else if (p->state == BLOCK) {
+                /* 阻塞 */
+                if (p->blocktime > 0) {
+                    p->blocktime--;
+                }
+                if (p->blocktime == 0) {
+                    p->state = READY; /* 进入就绪状态 */
+                }
+            } else if (p->state == FINISH) {
+                /* 完成 */
+                finished++; /* 记录已完成的任务数 */
+            }
+        }
+        tl->finished = finished;
     }
 }
 
@@ -143,8 +259,9 @@ int main(int argc, const char* argv[])
     }
 
     tasklist* tl = read_table(argv[1]);
+    printf("初始进程表:\n");
     print_tasklist(tl);
-    // run_tasklist(tl);
+    run_tasklist(tl);
 
     return 0;
 }

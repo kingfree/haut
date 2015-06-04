@@ -4,11 +4,3 @@
 2 30 0 6 -1 0 0
 3 29 0 3 -1 0 0
 4 0 0 4 -1 0 0
-
-ID              0       1       2       3       4
-PRIORITY        9      38      30      29       0
-CPUTIME         0       0       0       0       0
-NEEDTIME        3       3       6       3       4
-STARTBLOCK      2      -1      -1      -1      -1
-BLOCKTIME       3       0       0       0       0
-STATE       READY   READY   READY   READY   READY
