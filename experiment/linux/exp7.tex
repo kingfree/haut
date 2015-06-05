@@ -1,0 +1,174 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{Linux系统管理与维护（2）：网络配置管理}
+\usepackage[a4paper,margin=2.2cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=blue,anchorcolor=black,citecolor=black,urlcolor=blue,
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+%\CTEXsetup[number=\chinese{section}, format={\large\sf\bfseries}]{section}
+\usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+\DefineShortVerb{\|}
+\fvset{frame=single}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2} % 行距
+
+\usepackage[inline]{enumitem} % 调整列表样式
+\setlist{noitemsep,align=left}
+\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate,1]{label={(\arabic*)}}
+\setlist[enumerate,2]{label={\arabic*)}}
+
+\CTEXsetup[beforeskip={0pt},afterskip={0pt}]{paragraph}
+
+%\makeindex
+\pagestyle{plain}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\input{source/title}
+
+% \CTEXnoindent
+
+\paragraph{实验题目：}\titlec
+
+\paragraph{实验目的：}
+（1）理解网络的基本配置和相关文件；（2）掌握一些网络服务器的安装与配置。
+
+\paragraph{实验内容：}
+\begin{enumerate}
+\item 查看IP地址配置文件，并解释文件的基本内容。
+\item 查看主机名配置文件。
+\item 使用命令查看主机名。
+\item 使用命令更改主机名。
+\item 域名服务器DNS的作用是什么？查看设置域名服务器DNS的配置文件。
+\item 使用命令测试域名解析，以网站\url{www.haut.edu.cn}为例。 
+\item 使用命令查看一个网卡的信息。
+\item 使用命令卸载网卡，通过浏览器测试能否连接网络。再使用命令挂载网卡，再通过浏览器测试能否连接网络。
+\item 使用命令跟踪一个发往某个地址的数据包路径。 
+\item 简述DHCP的工作原理，并阐述如何安装、启动、停止DHCP服务器。
+\end{enumerate}
+
+\paragraph{实验步骤：}
+
+\newcommand{\image}[3][width=0.8\textwidth]{
+  %\begin{minipage}[t]{0.8\textwidth}
+    \centering
+        \includegraphics[#1]{images/exp7/#2.png}
+    \caption{#3}
+    \label{fig:#3}
+  %\end{minipage}
+}
+
+本次实验是通过SSH连接上一台远端Ubuntu Linux服务器来进行的。
+
+\begin{enumerate}
+
+\item 最常用|ifconfig|来查看和配置网络，键入：
+\begin{Verbatim}
+$ ifconfig lo
+\end{Verbatim}
+来查看本地环回的网络配置，如图\ref{fig:IP配置}。也可以查看文件|/etc/network/interfaces|，然而这里并没有什么内容。根据Linux发行版的不同，配置IP的方法也各不相同；UNIX的不同实现更是五花八门。
+
+\begin{figure}[htp]
+\image{ip}{IP配置}
+\end{figure}
+
+\item 如图\ref{fig:主机名}，键入：
+\begin{Verbatim}
+$ cat /etc/hostname
+\end{Verbatim}
+查看主机名配置文件。
+
+\begin{figure}[htp]
+\image{hostname}{主机名}
+\end{figure}
+
+\item 如图\ref{fig:主机名}，键入：
+\begin{Verbatim}
+$ hostname
+\end{Verbatim}
+查看主机名。
+
+\item 如图\ref{fig:主机名}，键入：
+\begin{Verbatim}
+$ sudo hostname <新主机名>
+\end{Verbatim}
+更改主机名。这里我将主机名更改之后又改回去原来的了。
+
+\item 域名系统（Domain Name System，DNS）简单来说就是将人类可读的域名解析为相应IP地址的系统。如图\ref{fig:DNS配置}，键入：
+\begin{Verbatim}
+$ cat /etc/resolv.conf
+\end{Verbatim}
+来查看本机DNS服务器的配置。
+
+\begin{figure}[htp]
+\image{dns}{DNS配置}
+\end{figure}
+
+\item 如图\ref{fig:DNS配置}，键入：
+\begin{Verbatim}
+$ nslookup www.haut.edu.cn
+\end{Verbatim}
+测试\url{www.haut.edu.cn}的域名解析，可以看到解析到的地址为123.15.36.150。 
+
+\item 如图\ref{fig:IP配置}，键入：
+\begin{Verbatim}
+$ ifconfig lo
+\end{Verbatim}
+来查看本地环回的网络配置。在|ifconfig|后面跟上诸如|eth0|可以查看相应网卡或虚拟网卡的配置信息。
+
+\item 使用命令
+\begin{Verbatim}
+# ifdown <网卡>
+\end{Verbatim}
+卸载网卡。因为执行该操作会使远程服务器断开网络，造成服务中断，所以不再实验。使用命令
+\begin{Verbatim}
+# ifup <网卡>
+\end{Verbatim}
+可以挂载网卡。两个操作都需要超级用户权限。
+
+\begin{figure}[htp]
+\image{trace}{追踪}
+\end{figure}
+
+\item 如图\ref{fig:追踪}，使用
+\begin{Verbatim}
+$ traceroute <IP地址>
+\end{Verbatim}
+可以追踪相关数据包。这里我追踪了本地环回的数据包和本机。追踪连接到该服务器的本机IP地址，可以看到，只有当我键入回车时，服务器才会收到数据包并处理，按|CTRL-C|终止追踪。
+
+\item 动态主机设定协定（Dynamic Host Configuration Protocol，DHCP）用来动态分配IP网络地址。
+DHCP工作过程分为四个步骤：
+\begin{enumerate}
+\item[第一步：]客户端发送广播查找可以给自己提供IP地址的DHCP服务器，
+\item[第二步：]DHCP服务器发送广播提供一个可用的IP地址，并在地址池中将该地址打上标记，以防再次分配。
+\item[第三步：]客户端收到广播后再次发送一个广播请求该地址，如果有多台DHCP响应，则第一个收到的优先。
+\item[第四步：]DHCP服务器收到广播后再发送一个广播，确认该地址分配给这台主机使用，并在地址池中将该地址打上标记，以防再次分配。
+\end{enumerate}
+
+通过编辑|/etc/dhcpd.conf|可以配置DHCP服务器，|/etc/init.d/dhcpd|是服务项，可以用来启动和关闭服务。
+
+\end{enumerate}
+
+\paragraph{实验体会：}\quad
+
+网络配置管理是一个非常复杂的系统工程，这是由于网络的先天复杂性所造成的。然而这又是一项很有趣的工作，和Linux服务器打交道的人不免要接触到各种各样的网络工具，而这些各种各样的工具，确实也为我们提供了不少方便。
+
+\end{document}
