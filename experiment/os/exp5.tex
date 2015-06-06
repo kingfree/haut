@@ -1,0 +1,101 @@
+\documentclass[c5size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{页式存储管理的页面置换算法模拟}
+\input{source/pre}
+\linespread{1.1} % 行距
+\fvset{frame=none}
+\UndefineShortVerb{\|}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\setcounter{part}{4}
+\input{source/title}
+
+% \iffalse
+\section{实验目的}
+通过请求页式存储管理中页面置换算法模拟设计，了解虚拟存储技术的特点，掌握请求页式存储管理的页面置换算法。
+
+\section{实验环境}
+装有操作系统Windows XP和开发工具VC++6.0，内存在256M以上的微机；
+
+或者：装有Linux(Fedora 7)操作系统和gcc编译器，内存在256M以上的微机。
+
+\section{实验内容}
+\begin{enumerate}[label={(\arabic*)}]
+\item 通过随机数产生一个指令序列，共320条指令。指令的地址按下述原则生成：
+\begin{enumerate}[label={\textcircled{\small\arabic*}}]
+\item 50\%的指令是顺序执行的；
+\item 25\%的指令是均匀分布在前地址部分；
+\item 25\%的指令是均匀分布在后地址部分；
+\end{enumerate}
+
+具体的实施方法是：
+\begin{enumerate}[label={\textcircled{\small\arabic*}}]
+\item 在$[0,319]$的指令地址之间随机选取一起点$m$；
+\item 顺序执行一条指令，即执行地址为$m+1$的指令；
+\item 在前地址$[0,m+1]$中随机选取一条指令并执行，该指令的地址为$m'$；
+\item 顺序执行一条指令，其地址为$m'+1$的指令；
+\item 在后地址$[m'+2,319]$中随机选取一条指令并执行；
+\item 重复上述步骤\textcircled{\small1}～\textcircled{\small5}，直到执行320次指令。
+\end{enumerate}
+
+\item 将指令序列变换为页地址流
+\begin{enumerate}[label={\textcircled{\small\arabic*}}]
+\item 设页面大小为1K；
+\item 分配内存容量为4K到32K；
+\item 用户虚存容量为32K。
+\end{enumerate}
+
+在用户虚存中，按每K存放10条指令排列虚存地址，即320条指令在虚存中的存放方式为：\\
+第0条～第9条指令为第0页（对应虚存地址为$[0,9]$）；\\
+第10条～第19条指令为第1页（对应虚存地址为$[10,19]$）；\\
+……\\
+……\\
+第310条～第319条指令为第31页（对应虚存地址为$[310,319]$）。\\
+按以上方式，用户指令可组成32页。
+\item 计算先进先出（FIFO）算法或最近最少使用（LRU）算法在不同内存容量下的命中率。
+
+其中，$\text{命中率}=1-\text{页面失效次数}/\text{页地址流长度}$
+\end{enumerate}
+
+\section{实验要求}
+\begin{enumerate}[label={(\arabic*)}]
+\item 将FIFO或者LRU算法的源程序及程序执行结果写入实验报告；
+\item 将FIFO和LRU算法的工作机理写入实验报告。
+\end{enumerate}
+
+% \fi
+
+\section{实验步骤}
+
+\begin{enumerate}
+
+\item %以下是{\tt priority.c}的源代码，注释已详细给出：
+
+% {\small\linespread{1}\lstinputlisting[caption={\tt parent\_child.c}]{exp3/priority.c}}
+
+% 我们为该程序准备了一个输入文件：
+
+% \VerbatimInput[frame=lines]{exp3/pros.in}
+
+% 编译并执行该程序：
+
+% \begin{Verbatim}[frame=single]
+% $ cc -Wall priority.c -o priority
+% $ ./priority pros.in > 1
+% \end{Verbatim}
+
+% 得到输出结果如下，可以看到这个模拟程序按照既定的规则，共执行了20个时间片。
+
+% \VerbatimInput[fontsize=\small,frame=lines]{exp3/1}
+
+% \item 该算法即{\bf 高优先权优先调度算法}，每次执行一次排序，并执行优先级最高的可执行的任务，直到执行完毕或进入阻塞。这种方法要求给出进程的优先级，调度程序动态调整其优先级，按照其“重要程度”顺序执行任务。适用于实时系统。
+
+% 而{\bf 高响应比优先调度算法}的基本思想是把CPU分配给就绪队列中响应比（作业响应时间与作业执行时间的比值）最高的进程。这种方法兼顾了短作业与先后次序，且不会使长作业长期得不到服务。但是响应比计算用到了除法，增加了系统开销，所以更适合于批处理系统。
+
+\end{enumerate}
+
+\end{document}

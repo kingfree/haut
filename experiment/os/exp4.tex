@@ -1,0 +1,96 @@
+\documentclass[c5size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{可变分区的内存分配算法模拟}
+\input{source/pre}
+\linespread{1.1} % 行距
+\fvset{frame=none}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\setcounter{part}{3}
+\input{source/title}
+
+\iffalse
+\section{实验目的}
+通过模拟可变分区的以下内存分配算法，掌握连续分配存储器管理的特点，掌握以下四种分配算法的优缺点并进行对比。
+\begin{enumerate}
+\item 首次适应分配算法；
+\item 循环适应分配算法；
+\item 最佳适应分配算法；
+\item 最坏适应分配算法。
+\end{enumerate}
+
+\section{实验环境}
+装有操作系统Windows XP和开发工具VC++6.0，内存在256M以上的微机；
+
+或者：装有Linux(Fedora 7)操作系统和gcc编译器，内存在256M以上的微机。
+
+\section{实验内容}
+\begin{enumerate}[label={(\arabic*)}]
+\item 用户可用的内存空间为64K，按下面的现有分区情况进行初始化，可在屏幕上显示当前的内存状态。
+\UndefineShortVerb{\|}
+\begin{tabular}{|c|c|c|}\hline
+起始地址 & 分区大小 & 状态\\\hline
+0K & 10K & 未使用\\\hline
+10K & 8K & 未使用\\\hline
+18K & 10K & 未使用\\\hline
+28K & 6K & 未使用\\\hline
+34K & 10K & 未使用\\\hline
+44K & 20K & 未使用\\\hline
+\end{tabular}
+\DefineShortVerb{\|}
+\item 接收用户进程的内存申请格式为：作业名、申请空间的大小。按照上述的一种分配算法进行分配，修改空闲分区表，并在屏幕上显示分配后的内存状态。
+\item 用户进程执行完成后，或者从外部撤销用户进程，将内存进行回收，修改空闲分区表，并在屏幕上显示回收后的内存状态。
+\end{enumerate}
+
+\section{实验要求}
+\begin{enumerate}[label={(\arabic*)}]
+\item 将四种算法的源程序及程序执行结果写入实验报告；
+\item 将四种算法的工作机理写入实验报告。
+\end{enumerate}
+
+\fi
+
+\section{实验步骤}
+
+\begin{enumerate}
+
+\item 以下是{\tt memory.c}的源代码，注释已详细给出：
+
+{\small\linespread{1}\lstinputlisting[caption={\tt memory.c}]{exp4/memory.c}}
+
+我们为该程序准备了一个输入文件：
+
+\VerbatimInput[fontsize=\small,frame=lines]{exp4/mtable.in}
+
+编译并执行该程序：
+
+\begin{Verbatim}[frame=single]
+$ cc -Wall memory.c -o memory
+$ ./memory mtable.in > 1
+\end{Verbatim}
+
+得到输出结果如下，每行为一个操作后的内存分布图，其中每个内存块之间用竖线和空格隔开，每个内存块的表示方法为 |<起始地址>[<内存块大小>](<进程编号>)|：
+
+\VerbatimInput[fontsize=\small,frame=lines]{exp4/1}
+
+程序将四种算法分别在相同的数据集上执行了一遍，出现了不同的结果。其中，首次适应分配算法和循环适应分配算法的差别并不是很大，而最佳适应分配算法和最坏适应分配算法则表现出了截然不同的行为。
+
+该程序的实现使用的是数组，以实现随机访问。当然也可以使用链表，对于此题来说，使用链表会得到更好的时间和空间效率。这里作为实验，就暂时用数组实现以减小难度。
+
+内存块类型|memblk|是一个结构，存储该内存块的起始地址、内存块大小和进程编号。当然，当该内存块为空时进程编号指定为特殊值。内存管理使用了一个|memman|结构，包含了一个内存块的数组和其长度。|memman_alloc|用来分配内存，当空间较大时分成两个块，空间正好时直接分配。|memman_free|用来释放内存块，释放后会将前后的空闲块进行合并。程序中没有对超过申请大小的操作作错误检查。
+
+\item 下面来分析四个分配算法：
+\begin{enumerate}
+\item {\bf 首次适应分配算法}（|first_fit|），也叫{\bf 最先匹配法}，是最简单的一种算法。算法从链表的首结点开始，将每一个空闲结点的大小与待分配大小相比较，看看是不是大于或等于它，只要找到第一个符合大小要求的节点，就将内存分配到这里。这种算法查找的结点很少，速度很快。
+\item {\bf 循环适应分配算法}（|next_fit|），也叫{\bf 下次匹配法}，与首次适应匹配算法是累死的，只不过每一次找到合适的内存块后，就记录下来当前位置。等到下一次查找的时候，从上次记录的位置开始查找，如果走到链表尾部，则循环到链表头直到找一遍找到。这种算法查找的结点也不多，速度也很快。缺点是，较大的空闲分区不容易保留。
+\item {\bf 最佳适应分配算法}（|best_fit|），基本思路是搜索整个链表，将能够装得下该进程的最小空闲区域分配出去。这种算法是很慢的，因为它每次都要遍历整个链表。而且出人意料的是，这种算法在性能上比前两种还要差，因为每次选择的都是与进程大小最接近的空闲内存块，这导致了分割以后剩余的空间将会很小以至于无法使用，造成大量小的碎片，反而浪费了不少空间。
+\item {\bf 最坏适应分配算法}（|worst_fit|）是为了克服最佳适应分配算法导致大量碎片产生的。与之相反，该算法每次找到空闲最大的空间来分配内存。可惜的是，这种算法虽然不会留下太多的小碎片，但却使得一个大的进程到来找不到合适的空闲分区。这种算法的性能也不是很理想。
+\end{enumerate}
+
+\end{enumerate}
+
+\end{document}
