@@ -2,34 +2,29 @@ OBJS_BOOTPACK = bootpack.obj naskfunc.obj graphic.obj dsctbl.obj \
 		int.obj fifo.obj keyboard.obj mouse.obj memory.obj sheet.obj timer.obj \
 		mtask.obj window.obj console.obj file.obj utf-8.obj
 
-TOOLPATH = ../../z_tools/
-INCPATH  = ../../z_tools/haribote/
-
-MAKE     = $(TOOLPATH)make.exe -r
-NASK     = $(TOOLPATH)nask.exe
-CC1      = $(TOOLPATH)cc1.exe -I$(INCPATH) -Os -Wall -quiet
-GAS2NASK = $(TOOLPATH)gas2nask.exe -a
-OBJ2BIM  = $(TOOLPATH)obj2bim.exe
-MAKEFONT = $(TOOLPATH)makefont.exe
-BIN2OBJ  = $(TOOLPATH)bin2obj.exe
-BIM2HRB  = $(TOOLPATH)bim2hrb.exe
+MAKE     = make -r
+# NASK     = nasm
+CC1 		= wine ../../z_tools/cc1.exe -I../../z_tools/haribote/ -Os -Wall -quiet
+GAS2NASK 	= wine ../../z_tools/gas2nask.exe -a
+NASK 		= wine ../../z_tools/nask.exe
+OBJ2BIM 	= wine ../../z_tools/obj2bim.exe
 RULEFILE = ../Makefile.rule
-EDIMG    = $(TOOLPATH)edimg.exe
-IMGTOL   = $(TOOLPATH)imgtol.com
-GOLIB    = $(TOOLPATH)golib00.exe 
-COPY     = copy
-DEL      = del
+BIM2HRB 	= wine ../../z_tools/bim2hrb.exe
+BIN2OBJ		= wine ../../z_tools/bin2obj.exe
+GOLIB		= wine ../../z_tools/golib00.exe
+COPY     = cp
+DEL      = rm
 
 # デフォルト動作
 
 default :
-	$(MAKE) ipl10.bin
+	$(MAKE) ipl.bin
 	$(MAKE) pripara.sys
 
 # ファイル生成規則
 
-ipl10.bin : ipl10.nas Makefile
-	$(NASK) ipl10.nas ipl10.bin ipl10.lst
+ipl.bin : ipl.nas Makefile
+	$(NASK) ipl.nas ipl.bin ipl.lst
 
 asmhead.bin : asmhead.nas Makefile
 	$(NASK) asmhead.nas asmhead.bin asmhead.lst
@@ -43,7 +38,7 @@ bootpack.hrb : bootpack.bim Makefile
 	$(BIM2HRB) bootpack.bim bootpack.hrb 0
 
 pripara.sys : asmhead.bin bootpack.hrb Makefile
-	copy /B asmhead.bin+bootpack.hrb pripara.sys
+	cat asmhead.bin bootpack.hrb > pripara.sys
 
 # 一般規則
 

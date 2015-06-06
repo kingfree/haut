@@ -1,11 +1,3 @@
-TOOLPATH = ../../z_tools/
-INCPATH  = ../../z_tools/haribote/
-
-MAKE     = $(TOOLPATH)make.exe -r
-EDIMG    = $(TOOLPATH)edimg.exe
-IMGTOL   = $(TOOLPATH)imgtol.com
-COPY     = copy
-DEL      = del
 
 # 默认动作
 

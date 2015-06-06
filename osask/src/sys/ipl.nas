@@ -1,182 +1,154 @@
-; https://github.com/ishanthilina/USB-FAT32-Bootloader/blob/master/src/boot.asm
+; ; ; 
+;2x10x18x512字节读入到ram中
+;在内存中的地址是0x08200到0x034fff
+;kernel.img程序的地址在0x4400,复制到ram后为0xc400
+CYLS EQU 10
+org 0x7c00
+jmp entry  ;two bye instructon
+;some information about fat12
+db 0x00
+db "PURIPARA"
+dw 512  ;bytes per sector
+db 1    ;sectors per cluser
+dw 1     ;number of reserved sectors
+db 2    ;number of fats ,fat#1,tat#2
+dw 224  ;maximum number of root director entries
+dw 2880 ;total sector count
+db 0xf0 ;ignore
+dw 9    ;sectors per fat,fat#1,fat#2
+dw 18   ;sectors per track  80x18  ,cylinder=track
+dw 2    ;number of heads  ;head 0 ,head 1
+dd 0    ;ignore
+dd 2880    ;total sector count for fat32 (0 for fat12/16)d
+db 0x00
+db 0x00 ;ignore
+db 0x29 ;boot signature
+dd 0xffffffff     ;4bytes volume id
+db "PRIPARA-OS " ; volume label 11bytes
+db "FAT12   "    ;fs  8bytes
+resb 18          ;ignore
+entry:
+mov ax ,0
+mov ds ,ax
+mov es, ax
+mov ss, ax
+mov [0x7dfe],dl ; save usb driver number
 
-[BITS 16]
-ORG 0x7C00
+mov sp, 0x7c00
 
-jmp     START
-    OEM_ID                db       "PURIPARA"
-    BytesPerSector        dw       0x0200
-    SectorsPerCluster     db       0x08
-    ReservedSectors       dw       0x0020
-    TotalFATs             db       0x02
-    MaxRootEntries        dw       0x0000
-    NumberOfSectors       dw       0x0000
-    MediaDescriptor       db       0xF8
-    SectorsPerFAT         dw       0x0000
-    SectorsPerTrack       dw       0x003D
-    SectorsPerHead        dw       0x0002
-    HiddenSectors         dd       0x00000000
-    TotalSectors          dd       0x00FE3B1F      
-    BigSectorsPerFAT      dd       0x00000778
-    Flags                 dw       0x0000
-    FSVersion             dw       0x0000
-    RootDirectoryStart    dd       0x00000002
-    FSInfoSector          dw       0x0001
-    BackupBootSector      dw       0x0006
-    TIMES 13 DB 0 ;jumping to next offset
-    DriveNumber           db       0x00
-    Signature             db       0x29
-    VolumeID              dd       0xFFFFFFFF
-    VolumeLabel           db       "PRIPARA-OS "
-    SystemID              db       "FAT32   "
-START:
-; code located at 0000:7C00, adjust segment registers
-    cli
-    mov     ax, 0x07C0
-    mov     ds, ax
-    mov     es, ax
-    ; mov     fs, ax
-    ; mov     gs, ax
-; create stack
-    mov     ax, 0x0000
-    mov     ss, ax
-    mov     sp, 0xFFFF
-    sti
- ; size of a cluster in sectors is stored in cx
-    mov     cx, WORD[SectorsPerCluster]
-; compute location of the begining of the Data area and store in ax
-    mov     al, BYTE [TotalFATs]                ; Total number of FATs
-    mul     WORD[BigSectorsPerFAT]                ; Number of sectors for a FAT
-    add     ax, WORD [ReservedSectors]          ; Find the start of the Data area
-    mov     WORD [datasector], ax               ; Store the begining of the Data area
-; read 1st data cluster into memory (7C00:0200)
-    mov     ax, WORD[RootDirectoryStart]
-    call    ClusterLBA
-    mov     bx, 0x0200                          ; copy 1st data cluter above bootcode
-    call    ReadSectors
-; Point Index register to 1st File Entry
-    mov     di, 0x0200 + 0x20
-    mov     si, msgCRLF
-    call    DisplayMessage
- ;Point to the offset where the file location information contains
-    mov     dx, WORD [di + 0x001A]
-    mov     WORD [cluster], dx
-;Set up the segments where the kernel needs to be loaded
-    mov ax, 0100h       ; set ES:BX = 0100:0000
-    mov es, ax
-    mov bx, 0
-;Read the cluster which contains the kernel
-    mov cx, 0x0008 
-    mov ax, WORD[cluster]
-    call    ClusterLBA
-    call    ReadSectors
-    mov     si, msgCRLF
-    call    DisplayMessage
-;Jump to the location where the kernel was loded
-    push    WORD 0x0100
-    push    WORD 0x0000
-    retf
-;An error has occured if this part is executed
-    mov     si, msgFailure
-    call    DisplayMessage
-    mov     ah, 0x00
-    int     0x16                                ; await keypress
-    int     0x19                                ; warm boot computer
-;*************************************************************************
-; PROCEDURE ReadSectors
-; reads cx sectors from disk starting at ax into
-;memory location es:bx
-;*************************************************************************
-ReadSectors:
-.MAIN
-    mov     di, 0x0005                          ; five retries for error
-.SECTORLOOP
-    push    ax
-    push    bx
-    push    cx
-    call    LBACHS
-    mov     ah, 0x02                            ; BIOS read sector
-    mov     al, 0x01                            ; read one sector
-    mov     ch, BYTE [absoluteTrack]            ; track
-    mov     cl, BYTE [absoluteSector]           ; sector
-    mov     dh, BYTE [absoluteHead]             ; head
-    mov     dl, BYTE [DriveNumber]              ; drive
-    int     0x13                                ; invoke BIOS
-    jnc     .SUCCESS                            ; test for read error
-    xor     ax, ax                              ; BIOS reset disk
-    int     0x13                                ; invoke BIOS
-    dec     di                                  ; decrement error counter
-    pop     cx
-    pop     bx
-    pop     ax
-    jnz     .SECTORLOOP                         ; attempt to read again
-    int     0x18
-.SUCCESS
-    mov     si, msgProgress
-    call    DisplayMessage
-    pop     cx
-    pop     bx
-    pop     ax
-    add     bx, WORD [BytesPerSector]           ; queue next buffer
-    inc     ax                                  ; queue next sector
-    loop    .MAIN                               ; read next sector
+mov si,msg  ;helloworld
+call puts
+
+mov si,cpmsg ;start copying to sdram
+call puts
+
+    mov ax,0x0820
+    mov es,ax
+
+    mov ch,0
+    mov dh,0
+    mov cl,2
+readloop
+    mov si,0
+retry:
+
+    mov bx,0
+    call cp2ram
+    jnc next   ;copy sucessfully
+
+    add si,1   ;copy failed
+    cmp si,5
+    jae error
+
+    mov ah,0x00
+    ;mov dl,0x00  ;if dl=0x00 ,it means floppy ,so i have to write a 
+    int 0x13
+    jmp retry
+
+next:
+    mov ax,es
+    add ax,0x0020
+    mov es,ax
+
+    add cl,1 ;sector++
+    ;cmp cl,18
+    cmp cl ,63
+    jbe readloop
+    
+    mov cl,1 ;sector 是从扇区１形始
+    add dh,1   ;head++
+    ;cmp dh,2
+    cmp dh,10
+    jb  readloop
+
+    ;mov dh,0
+    ;add ch,1  ;cylinder++
+    ;cmp ch,CYLS  ;这里用了一个宏定义
+    ;jb readloop    
+    ;mov [0x0ff0],ch ;把10cylineder保存到内存0x0ff0位置处
+    jmp ok
+    
+    
+    
+error:
+    mov si,errormsg
+    call puts   
+    jmp $          ;if read error ,we hang it here
+
+ok:
+    mov si,okmsg
+    call puts
+    jmp finish
+
+finish:
+
+    
+;   hlt
+;       jmp finish
+    jmp 0xc400  ;because of finishing copying,so jump to kernel in ram
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;this is a assemble function use "call cp2ram" to use it
+cp2ram:
+    mov ah,0x02
+    mov al,1
+    mov dl,[0x7dfe]
+    ;mov dl,0x00
+
+    int 0x13
     ret
-;*************************************************************************
-; PROCEDURE DisplayMessage
-; display ASCIIZ string at ds:si via BIOS
-;*************************************************************************
-DisplayMessage:
-    lodsb                                       ; load next character
-    or      al, al                              ; test for NUL character
-    jz      .DONE
-    mov     ah, 0x0E                            ; BIOS teletype
-    mov     bh, 0x00                            ; display page 0
-    mov     bl, 0x07                            ; text attribute
-    int     0x10                                ; invoke BIOS
-    jmp     DisplayMessage
-.DONE:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;this is a assemble function use call to use it
+
+puts:
+    mov al,[si]
+    add si,1
+    cmp al,0
+    je over
+    mov ah,0x0e
+    mov bx,15
+    int 0x10
+    jmp puts
+
+over:
     ret
-;*************************************************************************
-;*************************************************************************
-; PROCEDURE ClusterLBA
-; convert FAT cluster into LBA addressing scheme
-; FileStartSector = ((X − 2) * SectorsPerCluster(0x08))
-;*************************************************************************
-ClusterLBA:
-    sub     ax, 0x0002                          ; zero base cluster number
-    xor     cx, cx
-    mov     cl, BYTE [SectorsPerCluster]        ; convert byte to word
-    mul     cx
-    add     ax, WORD [datasector]               ; base data sector
-    ret
-;*************************************************************************
-; PROCEDURE LBACHS
-; convert ax LBA addressing scheme to CHS addressing scheme
-; absolute sector = (logical sector / sectors per track) + 1
-; absolute head   = (logical sector / sectors per track) MOD number of heads
-; absolute track  = logical sector / (sectors per track * number of heads)
-;*************************************************************************
-LBACHS:
-    xor     dx, dx                              ; prepare dx:ax for operation
-    div     WORD [SectorsPerTrack]              ; calculate
-    inc     dl                                  ; adjust for sector 0
-    mov     BYTE [absoluteSector], dl
-    xor     dx, dx                              ; prepare dx:ax for operation
-    div     WORD [SectorsPerHead]                     ; calculate
-    mov     BYTE [absoluteHead], dl
-    mov     BYTE [absoluteTrack], al
-    ret
-;************************************************************************
-absoluteSector db 0x00
-absoluteHead   db 0x00
-absoluteTrack  db 0x00
-cluster     dw 0x0000
-datasector  dw 0x0000
-;*******************************************************************************
-;messages that needs to be shown
-msgProgress db ".", 0x00
-msgFailure  db 0x0D, 0x0A, "Kernel loading failed...", 0x0D, 0x0A, 0x00
-msgCRLF     db 0x0D, 0x0A, 0x00
-    TIMES 510-($-$$) DB 0
-    DW 0xAA55
-;*************************************************************************
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+msg:
+    db 0x0a,0x0a
+    db "hello,world"
+    db 0x0a,0x00 
+cpmsg:
+    db 0x0d
+    db "start copying kernel to ram..."
+    db 0x0a,0x0d,0x00
+errormsg:
+    db 0x0d
+    db "copy failed"
+    db 0x00
+okmsg:
+    db 0x0d
+    db "copy kernel sucessfully"
+    db 0x00
+
+times 510-($-$$) db 0
+db 0x55,0xaa
