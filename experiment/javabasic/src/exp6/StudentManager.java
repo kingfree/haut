@@ -16,7 +16,7 @@ import javax.swing.SwingUtilities;
 /**
  * 学生信息管理系统
  * 
- * @version 2015-5-14
+ * @version 2015-6-6
  * @author Kingfree
  */
 public class StudentManager {
@@ -237,10 +237,6 @@ public class StudentManager {
         }
     }
 
-    public static void test() {
-        System.out.println("Test");
-    }
-
     public static void gui() {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -265,14 +261,10 @@ public class StudentManager {
         case "-cli":
             cli();
             break;
-        case "-test":
-            test();
-            break;
         default:
             System.out.println("用法: java ssys.StudentManager [参数]");
             System.out.println("参数: \t-gui \t图形界面（默认）");
             System.out.println("     \t-cli \t命令行界面");
-            System.out.println("     \t-test \t测试模式");
         }
     }
 
