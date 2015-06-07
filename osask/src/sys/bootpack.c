@@ -49,9 +49,6 @@ void HariMain(void)
     sheet_t *sht = 0, *key_win, *sht_back, *sht_mouse, *sht2;
     shtctl_t* shtctl;
     task_t *task_a, *task;
-    int *fat;
-    unsigned char *unifont;
-    fileinfo *finfo;
 
     init_gdtidt();
     init_pic();
@@ -103,21 +100,6 @@ void HariMain(void)
     sheet_updown(key_win, 1);
     sheet_updown(sht_mouse, 2);
     keywin_on(key_win);
-
-    /* 最初にキーボード状態との食い違いがないように、設定しておくことにする */
-    fifo32_put(&keycmd, KEYCMD_LED);
-    fifo32_put(&keycmd, key_leds);
-
-    /* 加载unifont.fnt */
-    unifont = (unsigned char *) memman_alloc_4k(memman, FNT_A);
-    fat = (int *) memman_alloc_4k(memman, 4 * 2880);
-    file_readfat(fat, (unsigned char *) (ADR_DISKIMG + 0x000200));
-    finfo = file_search("unifont.fnt", (fileinfo *) (ADR_DISKIMG + 0x002600), 224);
-    if (finfo != 0) {
-        file_loadfile(finfo->clustno, finfo->size, unifont, fat, (char *) (ADR_DISKIMG + 0x003e00));
-    }
-    *((int *) 0x0fe8) = (int) unifont;
-    memman_free_4k(memman, (int) fat, 4 * 2880);
 
     for (;;) {
         if (fifo32_status(&keycmd) > 0 && keycmd_wait < 0) {

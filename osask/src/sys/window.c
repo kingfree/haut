@@ -38,7 +38,7 @@ void make_wtitle8(unsigned char* buf, int xsize, char* title, char act)
     return;
 }
 
-void putfonts8_asc_sht(sheet_t* sht, int x, int y, int c, int b, int* s, int l)
+void putfonts8_asc_sht(sheet_t* sht, int x, int y, int c, int b, char* s, int l)
 {
     boxfill8(sht->buf, sht->bxsize, b, x, y, x + l * FNT_W - 1, y + FNT_H - 1);
     putfonts8_asc(sht->buf, sht->bxsize, x, y, c, s);

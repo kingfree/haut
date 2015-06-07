@@ -98,74 +98,42 @@ void putfont8(char* vram, int xsize, int x, int y, char c, char* font)
     for (i = 0; i < FNT_H; i++) {
         p = vram + (y + i) * xsize + x;
         d = font[i];
-        if ((d & 0x80) != 0) { p[0] = c; }
-        if ((d & 0x40) != 0) { p[1] = c; }
-        if ((d & 0x20) != 0) { p[2] = c; }
-        if ((d & 0x10) != 0) { p[3] = c; }
-        if ((d & 0x08) != 0) { p[4] = c; }
-        if ((d & 0x04) != 0) { p[5] = c; }
-        if ((d & 0x02) != 0) { p[6] = c; }
-        if ((d & 0x01) != 0) { p[7] = c; }
+        if ((d & 0x80) != 0) {
+            p[0] = c;
+        }
+        if ((d & 0x40) != 0) {
+            p[1] = c;
+        }
+        if ((d & 0x20) != 0) {
+            p[2] = c;
+        }
+        if ((d & 0x10) != 0) {
+            p[3] = c;
+        }
+        if ((d & 0x08) != 0) {
+            p[4] = c;
+        }
+        if ((d & 0x04) != 0) {
+            p[5] = c;
+        }
+        if ((d & 0x02) != 0) {
+            p[6] = c;
+        }
+        if ((d & 0x01) != 0) {
+            p[7] = c;
+        }
     }
     return;
 }
 
-void putfont16(char* vram, int xsize, int x, int y, char c, char* font)
+void putfonts8_asc(char* vram, int xsize, int x, int y, char c, unsigned char* s)
 {
-    int i;
-    char *p, d /* data */;
-    for (i = 0; i < FNT_H; i++) {
-        p = vram + (y + i) * xsize + x;
-        d = font[i * 2];
-        if ((d & 0x80) != 0) { p[0] = c; }
-        if ((d & 0x40) != 0) { p[1] = c; }
-        if ((d & 0x20) != 0) { p[2] = c; }
-        if ((d & 0x10) != 0) { p[3] = c; }
-        if ((d & 0x08) != 0) { p[4] = c; }
-        if ((d & 0x04) != 0) { p[5] = c; }
-        if ((d & 0x02) != 0) { p[6] = c; }
-        if ((d & 0x01) != 0) { p[7] = c; }
-        p += 8;
-        d = font[i * 2 + 1];
-        if ((d & 0x80) != 0) { p[0] = c; }
-        if ((d & 0x40) != 0) { p[1] = c; }
-        if ((d & 0x20) != 0) { p[2] = c; }
-        if ((d & 0x10) != 0) { p[3] = c; }
-        if ((d & 0x08) != 0) { p[4] = c; }
-        if ((d & 0x04) != 0) { p[5] = c; }
-        if ((d & 0x02) != 0) { p[6] = c; }
-        if ((d & 0x01) != 0) { p[7] = c; }
+    extern char hankaku[256 * FNT_H + FNT_OFFSET];
+    char* start = hankaku + FNT_OFFSET;
+    for (; *s != 0x00; s++) {
+        putfont8(vram, xsize, x, y, c, start + *s * FNT_H);
+        x += FNT_W;
     }
-    return;
-}
-
-int ishalf(const char *font)
-{
-    font += FNT_H;
-    int i;
-    for (i = 0; i < FNT_H; i++) {
-        if (font[i] != 0) {
-            return 0; /* 全角字符 */
-        }
-    }
-    return 1; /* 半角字符 */
-}
-
-void putfonts8_asc(char* vram, int xsize, int x, int y, char color, int* s)
-{
-    char *unifont = (char*)*((int*)0x0fe8);
-    char *font;
-    for (; *s; s++) {
-        font = unifont + (*s * FNT_S);
-        if (ishalf(font)) {
-            putfont8(vram, xsize, x, y, color, font);
-            x += FNT_W;
-        } else {
-            putfont16(vram, xsize, x, y, color, font);
-            x += FNT_Q;
-        }
-    }
-
     return;
 }
 
@@ -247,14 +215,14 @@ void init_screen8(char* vram, int x, int y)
 
     {
         /* 托盘区*/
-        int right = 120, bar = 2;
+        int right = 100, bar = 2;
         boxsize8(vram, x, base3, x - right, y - height, bar, height);
 
         /* 操作系统版本 */
         int pox = x - (right - bar + strlen(SYSNAMEVER) * FNT_W) / 2,
             poy = y - (height + FNT_H) / 2;
-        putfonts8_asc(vram, x, pox, poy, magenta, utf8str(SYSNAMEVER));
-        putfonts8_asc(vram, x, pox + 1, poy, magenta, utf8str(SYSNAME));
+        putfonts8_asc(vram, x, pox, poy, magenta, SYSNAMEVER);
+        putfonts8_asc(vram, x, pox + 1, poy, magenta, SYSNAME);
     }
 
     return;

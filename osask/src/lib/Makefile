@@ -5,20 +5,23 @@ OBJS_API =	api001.obj api002.obj api003.obj api004.obj api005.obj api006.obj \
 			api025.obj api026.obj \
 			alloca.obj
 
-MAKE     = make -r
-NASK     = wine ../../z_tools/nask.exe
-CC1      = wine ../../z_tools/cc1.exe -I../../z_tools/haribote/ -Os -Wall -quiet
-GAS2NASK = wine ../../z_tools/gas2nask.exe -a
-OBJ2BIM  = wine ../../z_tools/obj2bim.exe
-MAKEFONT = wine ../../z_tools/makefont.exe
-BIN2OBJ  = wine ../../z_tools/bin2obj.exe
-BIM2HRB  = wine ../../z_tools/bim2hrb.exe
+TOOLPATH = ../../z_tools/
+INCPATH  = ../../z_tools/haribote/
+
+MAKE     = $(TOOLPATH)make.exe -r
+NASK     = $(TOOLPATH)nask.exe
+CC1      = $(TOOLPATH)cc1.exe -I$(INCPATH) -Os -Wall -quiet
+GAS2NASK = $(TOOLPATH)gas2nask.exe -a
+OBJ2BIM  = $(TOOLPATH)obj2bim.exe
+MAKEFONT = $(TOOLPATH)makefont.exe
+BIN2OBJ  = $(TOOLPATH)bin2obj.exe
+BIM2HRB  = $(TOOLPATH)bim2hrb.exe
 RULEFILE = ../Makefile.rule
-EDIMG    = wine ../../z_tools/edimg.exe
-IMGTOL   = wine ../../z_tools/imgtol.com
-GOLIB    = wine ../../z_tools/golib00.exe 
-COPY     = cp
-DEL      = rm
+EDIMG    = $(TOOLPATH)edimg.exe
+IMGTOL   = $(TOOLPATH)imgtol.com
+GOLIB    = $(TOOLPATH)golib00.exe 
+COPY     = copy
+DEL      = del
 
 # デフォルト動作
 

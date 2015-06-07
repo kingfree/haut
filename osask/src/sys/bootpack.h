@@ -65,7 +65,7 @@ void boxsize8(unsigned char* vram, int X, unsigned char c,
     int x0, int y0, int width, int height);
 void init_screen8(char* vram, int x, int y);
 void putfont8(char* vram, int xsize, int x, int y, char c, char* font);
-void putfonts8_asc(char* vram, int xsize, int x, int y, char color, int* s);
+void putfonts8_asc(char* vram, int xsize, int x, int y, char c, unsigned char* s);
 void init_mouse_cursor8(char* mouse, char bc);
 void putblock8_8(char* vram, int vxsize, int pxsize,
     int pysize, int px0, int py0, char* buf, int bxsize);
@@ -91,11 +91,9 @@ void putblock8_8(char* vram, int vxsize, int pxsize,
 #define BGM cyan
 
 /* 字体 */
-#define FNT_H 16 /* 字体高度 */
-#define FNT_W  8 /* 半角宽度 */
-#define FNT_Q 16 /* 全角宽度 */
-#define FNT_S 32 /* 每个字形所占字节数 */
-#define FNT_A 2097152 /* 字体文件大小 0x10000 * 32 */
+#define FNT_H 12
+#define FNT_W 6 // FNT_H / 2
+#define FNT_OFFSET 726 // 60 * FNT_H
 
 /* 鼠标指针 */
 #define CURSOR_X 12
@@ -302,12 +300,12 @@ void task_sleep(task_t* task);
 void make_window8(unsigned char* buf, int xsize, int ysize, char* title, char act);
 void make_wtitle8(unsigned char* buf, int xsize, char* title, char act);
 void make_textbox8(sheet_t* sht, int x0, int y0, int sx, int sy, int c);
-void putfonts8_asc_sht(sheet_t* sht, int x, int y, int c, int b, int* s, int l);
+void putfonts8_asc_sht(sheet_t* sht, int x, int y, int c, int b, char* s, int l);
 void change_wtitle8(sheet_t* sht, char act);
 
 /* console.c */
-#define CONS_COLN 60 /* 列数（自定义） */
-#define CONS_LINE 22 /* 行数（自定义） */
+#define CONS_COLN 80 /* 列数（自定义） */
+#define CONS_LINE 30 /* 行数（自定义） */
 #define CONS_COLW (FNT_W * CONS_COLN) /* 列宽 */
 #define CONS_LINH (FNT_H * CONS_LINE) /* 行高 */
 #define CONS_LEFT 3 /* 左边宽度 */
@@ -359,10 +357,5 @@ fileinfo* file_search(char* name, fileinfo* finfo, int max);
 /* bootpack.c */
 task_t* open_constask(sheet_t* sht, unsigned int memtotal);
 sheet_t* open_console(shtctl_t* shtctl, unsigned int memtotal);
-
-/* utf-8.c */
-int utf8len(const char* s);
-int* utf8str(const char* s);
-char* utf8char(const char* s, int* code);
 
 #endif

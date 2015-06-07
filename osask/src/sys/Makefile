@@ -1,33 +1,44 @@
-OBJS_BOOTPACK = bootpack.obj naskfunc.obj graphic.obj dsctbl.obj \
+OBJS_BOOTPACK = bootpack.obj naskfunc.obj hankaku.obj graphic.obj dsctbl.obj \
 		int.obj fifo.obj keyboard.obj mouse.obj memory.obj sheet.obj timer.obj \
-		mtask.obj window.obj console.obj file.obj utf-8.obj
+		mtask.obj window.obj console.obj file.obj
 
-MAKE     = make -r
-# NASK     = nasm
-CC1 		= wine ../../z_tools/cc1.exe -I../../z_tools/haribote/ -Os -Wall -quiet
-GAS2NASK 	= wine ../../z_tools/gas2nask.exe -a
-NASK 		= wine ../../z_tools/nask.exe
-OBJ2BIM 	= wine ../../z_tools/obj2bim.exe
+TOOLPATH = ../../z_tools/
+INCPATH  = ../../z_tools/haribote/
+
+MAKE     = $(TOOLPATH)make.exe -r
+NASK     = $(TOOLPATH)nask.exe
+CC1      = $(TOOLPATH)cc1.exe -I$(INCPATH) -Os -Wall -quiet
+GAS2NASK = $(TOOLPATH)gas2nask.exe -a
+OBJ2BIM  = $(TOOLPATH)obj2bim.exe
+MAKEFONT = $(TOOLPATH)makefont.exe
+BIN2OBJ  = $(TOOLPATH)bin2obj.exe
+BIM2HRB  = $(TOOLPATH)bim2hrb.exe
 RULEFILE = ../Makefile.rule
-BIM2HRB 	= wine ../../z_tools/bim2hrb.exe
-BIN2OBJ		= wine ../../z_tools/bin2obj.exe
-GOLIB		= wine ../../z_tools/golib00.exe
-COPY     = cp
-DEL      = rm
+EDIMG    = $(TOOLPATH)edimg.exe
+IMGTOL   = $(TOOLPATH)imgtol.com
+GOLIB    = $(TOOLPATH)golib00.exe 
+COPY     = copy
+DEL      = del
 
 # デフォルト動作
 
 default :
-	$(MAKE) ipl.bin
+	$(MAKE) ipl10.bin
 	$(MAKE) pripara.sys
 
 # ファイル生成規則
 
-ipl.bin : ipl10.nas Makefile
-	$(NASK) ipl10.nas ipl.bin ipl.lst
+ipl10.bin : ipl10.nas Makefile
+	$(NASK) ipl10.nas ipl10.bin ipl10.lst
 
 asmhead.bin : asmhead.nas Makefile
 	$(NASK) asmhead.nas asmhead.bin asmhead.lst
+
+hankaku.bin : ZpixEX2-12.fnt Makefile
+	$(COPY) ZpixEX2-12.fnt hankaku.bin
+
+hankaku.obj : hankaku.bin Makefile
+	$(BIN2OBJ) hankaku.bin hankaku.obj _hankaku
 
 bootpack.bim : $(OBJS_BOOTPACK) Makefile
 	$(OBJ2BIM) @$(RULEFILE) out:bootpack.bim stack:3136k map:bootpack.map \
@@ -38,7 +49,7 @@ bootpack.hrb : bootpack.bim Makefile
 	$(BIM2HRB) bootpack.bim bootpack.hrb 0
 
 pripara.sys : asmhead.bin bootpack.hrb Makefile
-	cat asmhead.bin bootpack.hrb > pripara.sys
+	copy /B asmhead.bin+bootpack.hrb pripara.sys
 
 # 一般規則
 
@@ -55,7 +66,7 @@ pripara.sys : asmhead.bin bootpack.hrb Makefile
 
 clean :
 	-$(DEL) asmhead.bin
-	-$(DEL) unifont.bin
+	-$(DEL) hankaku.bin
 	-$(DEL) *.lst
 	-$(DEL) *.obj
 	-$(DEL) *.map

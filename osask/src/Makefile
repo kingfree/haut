@@ -1,10 +1,11 @@
 TOOLPATH = ../z_tools/
 INCPATH  = ../z_tools/haribote/
 
-MAKE     = make -r
-COPY     = cp
-DEL      = rm
-PRIPARA  = pripara.img
+MAKE     = $(TOOLPATH)make.exe -r
+EDIMG    = $(TOOLPATH)edimg.exe
+IMGTOL   = $(TOOLPATH)imgtol.com
+COPY     = copy
+DEL      = del
 
 # 默认动作
 
@@ -13,7 +14,7 @@ default :
 
 # 文件生成规则
 
-$(PRIPARA) : sys/ipl.bin sys/pripara.sys \
+pripara.img : sys/ipl10.bin sys/pripara.sys \
 		app/a/a.hrb \
 		app/beepdown/beepdown.hrb \
 		app/color/color.hrb \
@@ -34,18 +35,33 @@ $(PRIPARA) : sys/ipl.bin sys/pripara.sys \
 		app/primes2/primes2.hrb \
 		app/primes3/primes3.hrb \
 		app/cat/cat.hrb \
-		app/utf8/utf8.hrb \
 		Makefile
-	dd if=sys/ipl.bin of=$(PRIPARA) count=1 bs=512
-	dd if=/dev/zero of=$(PRIPARA) bs=512 seek=1 skip=1 count=16383
-	hdiutil attach -imagekey diskimage-class=CRawDiskImage -nomount $(PRIPARA)
-	mount -t msdos /dev/disk2 ../mnt
-	cp sys/pripara.sys ../mnt
-	#cp sys/int.c ../mnt
-	#cp app/*/*.hrb ../mnt
-	#cp font/unifont.bin ../mnt/unifont.fnt
-	umount ../mnt
-	hdiutil eject disk2
+	$(EDIMG)   imgin:../z_tools/fdimg0at.tek \
+		wbinimg src:sys/ipl10.bin len:512 from:0 to:0 \
+		copy from:sys/pripara.sys to:@: \
+		copy from:sys/ipl10.nas to:@: \
+		copy from:sys/int.c to:@: \
+		copy from:app/a/a.hrb to:@: \
+		copy from:app/beepdown/beepdown.hrb to:@: \
+		copy from:app/color/color.hrb to:@: \
+		copy from:app/color2/color2.hrb to:@: \
+		copy from:app/hello3/hello3.hrb to:@: \
+		copy from:app/hello4/hello4.hrb to:@: \
+		copy from:app/hello5/hello5.hrb to:@: \
+		copy from:app/lines/lines.hrb to:@: \
+		copy from:app/noodle/noodle.hrb to:@: \
+		copy from:app/star1/star1.hrb to:@: \
+		copy from:app/stars/stars.hrb to:@: \
+		copy from:app/stars2/stars2.hrb to:@: \
+		copy from:app/walk/walk.hrb to:@: \
+		copy from:app/winhelo/winhelo.hrb to:@: \
+		copy from:app/winhelo2/winhelo2.hrb to:@: \
+		copy from:app/winhelo3/winhelo3.hrb to:@: \
+		copy from:app/primes/primes.hrb to:@: \
+		copy from:app/primes2/primes2.hrb to:@: \
+		copy from:app/primes3/primes3.hrb to:@: \
+		copy from:app/cat/cat.hrb to:@: \
+		imgout:pripara.img
 
 # 各个命令
 
@@ -53,6 +69,10 @@ run :
 	$(MAKE) pripara.img
 	$(COPY) pripara.img ..\z_tools\qemu\fdimage0.bin
 	$(MAKE) -C ../z_tools/qemu
+
+install :
+	$(MAKE) pripara.img
+	$(IMGTOL) w a: pripara.img
 
 full :
 	$(MAKE) -C sys
@@ -64,6 +84,10 @@ run_full :
 	$(MAKE) full
 	$(COPY) pripara.img ..\z_tools\qemu\fdimage0.bin
 	$(MAKE) -C ../z_tools/qemu
+
+install_full :
+	$(MAKE) full
+	$(IMGTOL) w a: pripara.img
 
 run_os :
 	$(MAKE) -C sys
