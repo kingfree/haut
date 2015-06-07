@@ -23,8 +23,8 @@ default :
 
 # ファイル生成規則
 
-ipl.bin : ipl.nas Makefile
-	$(NASK) ipl.nas ipl.bin ipl.lst
+ipl.bin : ipl10.nas Makefile
+	$(NASK) ipl10.nas ipl.bin ipl.lst
 
 asmhead.bin : asmhead.nas Makefile
 	$(NASK) asmhead.nas asmhead.bin asmhead.lst

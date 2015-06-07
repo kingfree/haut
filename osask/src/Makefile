@@ -37,14 +37,13 @@ $(PRIPARA) : sys/ipl.bin sys/pripara.sys \
 		app/utf8/utf8.hrb \
 		Makefile
 	dd if=sys/ipl.bin of=$(PRIPARA) count=1 bs=512
-	dd if=/dev/zero of=$(PRIPARA) bs=512 seek=1 skip=1 count=10000
-	hdiutil eject disk2
+	dd if=/dev/zero of=$(PRIPARA) bs=512 seek=1 skip=1 count=16383
 	hdiutil attach -imagekey diskimage-class=CRawDiskImage -nomount $(PRIPARA)
 	mount -t msdos /dev/disk2 ../mnt
 	cp sys/pripara.sys ../mnt
-	cp sys/int.c ../mnt
-	cp font/unifont.bin ../mnt/unifont.fnt
-	cp app/*/*.hrb ../mnt
+	#cp sys/int.c ../mnt
+	#cp app/*/*.hrb ../mnt
+	#cp font/unifont.bin ../mnt/unifont.fnt
 	umount ../mnt
 	hdiutil eject disk2
 
