@@ -1,0 +1,117 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{shell编程}
+\usepackage[a4paper,margin=2.2cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=blue,anchorcolor=black,citecolor=black,urlcolor=blue,
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+%\CTEXsetup[number=\chinese{section}, format={\large\sf\bfseries}]{section}
+\usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{subfigure}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+% \DefineShortVerb{\|}
+\fvset{frame=single}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2} % 行距
+
+\usepackage{listings} % 排版代码
+\lstset{language=bash,
+  numbers=left,
+  numberstyle=\small,
+  basicstyle=\tt,
+  commentstyle=\color{gray},
+  keywordstyle=\bfseries\color{blue},
+  stringstyle=\color{teal},
+  showstringspaces=false,
+  frame=tb,
+  extendedchars=false
+}
+
+\usepackage[inline]{enumitem} % 调整列表样式
+\setlist{noitemsep,align=left}
+\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+% \setlist[enumerate,1]{label={(\arabic*)}}
+% \setlist[enumerate,2]{label={\arabic*)}}
+
+\CTEXsetup[beforeskip={0pt},afterskip={0pt}]{paragraph}
+
+%\makeindex
+\pagestyle{plain}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\input{source/title}
+
+% \CTEXnoindent
+
+\paragraph{实验题目：}\titlec
+
+\paragraph{实验目的：}
+（1）理解Shell脚本的作用；（2）掌握Shell脚本的基本语法，包括变量的运算、逻辑判断表达式等；（3）掌握Shell编程的控制结构，包括分支结构、循环结构等。
+
+\paragraph{实验内容：}
+\begin{enumerate}
+\item 简单的编写一个脚本，打印“hello Shell”，并运行。
+\item 要求用户输入一个目录，然后进行判断此目录下的文件哪些是具有读权限的？如果是，显示该文件的详细信息。
+\item 输入一个成绩值,判定该成绩的等级。
+\item 通过循环依次输入5个数,求其总值,要求输入数的个数大于5个时,使用break退出循环. 
+\end{enumerate}
+
+\paragraph{实验步骤：}\quad
+
+\newcommand{\image}[3][width=0.9\textwidth]{
+    \centering
+        \includegraphics[#1]{images/exp8/#2.png}
+    \caption{#3}
+    \label{fig:#3}
+}
+
+本次实验在Mac OS X Yosemite上运行。
+
+脚本的运行结果如图\ref{fig:脚本运行情况}。
+
+\begin{enumerate}
+
+\item 
+
+{\linespread{1}\lstinputlisting[caption={\tt hello.sh}]{exp8/hello.sh}}
+
+\item 
+
+{\linespread{1}\lstinputlisting[caption={\tt dir.sh}]{exp8/dir.sh}}
+
+\item 
+
+{\linespread{1}\lstinputlisting[caption={\tt score.sh}]{exp8/score.sh}}
+
+\item 
+
+{\linespread{1}\lstinputlisting[caption={\tt loop.sh}]{exp8/loop.sh}}
+
+\begin{figure}[htp]
+\image{shell}{脚本运行情况}
+\end{figure}
+
+\end{enumerate}
+
+\paragraph{实验体会：}\quad
+
+Shell提供了常用的逻辑处理结构，实现了顺序、循环、选择三大结构，通过与应用程序和终端用户的交互，实现对常用事务的处理。在动态编程语言还不流行的时代，Shell脚本为处理系统事务提供了相当的便利。Shell也有很多衍生版本，在语法上存在细微的差异。
+
+\end{document}
