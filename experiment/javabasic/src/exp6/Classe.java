@@ -73,6 +73,17 @@ public class Classe {
             return null;
         }
     }
+
+    public static Classe selectById(int id) {
+        String sql = "SELECT * FROM classes WHERE id = ?";
+        try {
+            Classe you = DBUtils.queryBean(conn, sql, Classe.class, id);
+            return you;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
 }
 
 class ClassIResultSetCall implements IResultSetCall<Classe> {

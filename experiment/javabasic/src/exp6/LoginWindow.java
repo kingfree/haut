@@ -1,10 +1,7 @@
 package exp6;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Point;
-import java.awt.Rectangle;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -38,9 +35,9 @@ public class LoginWindow extends JFrame {
     }
 
     private void 初始化() {
-        this.setSize(240, 140);
-        this.setContentPane(取主面板());
         this.setTitle("登录");
+        this.setContentPane(取主面板());
+        pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null); // 居中
         this.setVisible(true);
@@ -49,8 +46,9 @@ public class LoginWindow extends JFrame {
     private JPanel 取主面板() {
         if (主面板 == null) {
             主面板 = new JPanel();
-            用户标签 = new JLabel("用户名:", SwingConstants.RIGHT);
-            密码标签 = new JLabel("密码:", SwingConstants.RIGHT);
+            主面板.setLayout(new BorderLayout());
+            用户标签 = new JLabel("用户名: ", SwingConstants.RIGHT);
+            密码标签 = new JLabel("密码: ", SwingConstants.RIGHT);
             JPanel 输入面板 = new JPanel();
             输入面板.setLayout(new GridLayout(2, 2));
             输入面板.add(用户标签);

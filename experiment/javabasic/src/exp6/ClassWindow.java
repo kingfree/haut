@@ -1,7 +1,7 @@
 package exp6;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.List;
@@ -12,7 +12,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -40,12 +39,20 @@ public class ClassWindow extends JFrame {
         this.setVisible(true);
     }
 
+    @Override
+    public Insets getInsets() {
+        Insets squeeze = new Insets(40, 20, 20, 20); // 上左下右
+        return squeeze;
+    }
+
     private JPanel 取主面板() {
         if (主面板 == null) {
             主面板 = new JPanel();
-            
+            主面板.setLayout(new BorderLayout());
+
             JPanel 班级面板 = new JPanel();
-            班级面板.add(new JLabel("班级:"));
+            班级面板.setLayout(new BorderLayout());
+            班级面板.add(new JLabel("班级: "), BorderLayout.WEST);
 
             List<Classe> classes = Classe.selectAll();
             for (Classe cls : classes) {
@@ -63,14 +70,15 @@ public class ClassWindow extends JFrame {
             班级面板.add(班级下拉框);
 
             JPanel 学生面板 = new JPanel();
-            学生面板.add(new JLabel("学生:"));
-            学生列表框 = new JList<>(学生模型); 
-            
+            学生面板.setLayout(new BorderLayout());
+            学生面板.add(new JLabel("学生: "), BorderLayout.WEST);
+            学生列表框 = new JList<>(学生模型);
+
             JScrollPane 列表框面板 = new JScrollPane(学生列表框);
             学生面板.add(列表框面板);
 
             主面板.add(班级面板, BorderLayout.NORTH);
-            主面板.add(学生面板, BorderLayout.SOUTH);
+            主面板.add(学生面板);
 
             if (classes != null && !classes.isEmpty()) {
                 changeList(classes.get(0));

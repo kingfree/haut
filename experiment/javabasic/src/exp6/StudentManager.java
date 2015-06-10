@@ -1,14 +1,11 @@
 package exp6;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
-
-import javax.swing.SwingUtilities;
 
 /**
  * 学生信息管理系统
