@@ -159,7 +159,7 @@ public final class DBUtils {
         try {
             preStmt = con.prepareStatement(sql);
             for (int i = 0; i < params.length; i++)
-                preStmt.setObject(i + 1, params[i]);// 下标从1开始
+                preStmt.setObject(i + 1, params[i]);
             rs = preStmt.executeQuery();
             fields = beanClass.getDeclaredFields();
             for (Field f : fields)
@@ -229,7 +229,7 @@ public final class DBUtils {
             throws SQLException, InstantiationException, IllegalAccessException {
         List<T> lists = queryBeanList(con, sql, beanClass);
         if (lists.size() != 1)
-            throw new SQLException("SqlError：期待一行返回值，却返回了太多行！");
+            throw new SQLException("SQLError：期待一行返回值，却返回了太多行！");
         return lists.get(0);
     }
 
@@ -238,7 +238,7 @@ public final class DBUtils {
             InstantiationException, IllegalAccessException {
         List<T> lists = queryBeanList(con, sql, beanClass, params);
         if (lists.size() != 1)
-            throw new SQLException("SqlError：期待一行返回值，却返回了太多行！");
+            throw new SQLException("SQLError：期待一行返回值，却返回了太多行！");
         return lists.get(0);
     }
 
@@ -310,7 +310,7 @@ public final class DBUtils {
             IllegalAccessException {
         List<T> lists = queryObjectList(con, sql, objClass);
         if (lists.size() != 1)
-            throw new SQLException("SqlError：期待一行返回值，却返回了太多行！");
+            throw new SQLException("SQLError：期待一行返回值，却返回了太多行！");
         return lists.get(0);
     }
 
@@ -319,7 +319,7 @@ public final class DBUtils {
             InstantiationException, IllegalAccessException {
         List<T> lists = queryObjectList(con, sql, objClass, params);
         if (lists.size() != 1)
-            throw new SQLException("SqlError：期待一行返回值，却返回了太多行！");
+            throw new SQLException("SQLError：期待一行返回值，却返回了太多行！");
         return lists.get(0);
     }
 
@@ -382,7 +382,7 @@ public final class DBUtils {
         try {
             preStmt = con.prepareStatement(sql);
             for (int i = 0; i < params.length; i++)
-                preStmt.setObject(i + 1, params[i]);// 下标从1开始
+                preStmt.setObject(i + 1, params[i]);
             return preStmt.executeUpdate();
         } finally {
             if (null != preStmt)
@@ -392,7 +392,6 @@ public final class DBUtils {
 
     private static <T> void setValue(T t, Field f, Object value)
             throws IllegalAccessException {
-        // TODO 以数据库类型为准绳，还是以java数据类型为准绳？还是混合两种方式？
         if (null == value)
             return;
         String v = value.toString();

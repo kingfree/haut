@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,13 +25,11 @@ import javax.swing.plaf.FontUIResource;
 /**
  * 主窗口
  * 
- * @version 2015-6-6
+ * @version 2015-6-10
  * @author Kingfree
  */
-public class MainWindow implements ItemListener {
-    private static Connection conn = null;
-    JFrame frame;
-    DefaultListModel<Student> model = new DefaultListModel<>();
+public class MainWindow {
+    JFrame 主窗口;
 
     private static void InitGlobalFont(Font font) {
         FontUIResource fontRes = new FontUIResource(font);
@@ -51,79 +50,23 @@ public class MainWindow implements ItemListener {
             InitGlobalFont(new Font("微软雅黑", Font.PLAIN, 12));
         } catch (Exception e) {
         }
+        
+        主窗口 = new JFrame("学生信息管理系统");
+        主窗口.setSize(200, 400);
+        主窗口.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        主窗口.setLocationRelativeTo(null); // 居中
+        主窗口.setLayout(new FlowLayout());
 
-        init();
-
-        frame = new JFrame("学生信息管理系统");
-        frame.setSize(300, 200);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null); // 居中
-        frame.setLayout(new FlowLayout());
-
-        JLabel label1 = new JLabel("班级：");
-        frame.add(label1);
-
-        Vector<Classe> classes = new Vector<>();
-
-        String sql = new String("SELECT * FROM classes");
-        try {
-            DBUtils.queryBeanList(conn, sql, new IResultSetCall<Classe>() {
-                public Classe invoke(ResultSet rs) throws SQLException {
-                    Classe cls = new Classe(rs.getInt("id"), rs
-                            .getString("name"));
-                    classes.add(cls);
-                    return cls;
-                }
-            });
-            JComboBox<Classe> combobox = new JComboBox<>(classes);
-            combobox.addItemListener(this);
-            frame.add(combobox);
-        } catch (Exception e) {
-        }
-
-        JList<Student> list = new JList<>(model);
-        JScrollPane listPane = new JScrollPane(list);
-        frame.add(listPane);
-
-        changeList(classes.elementAt(0));
-        frame.setVisible(true);
+        JButton 班级和学生 = new JButton("班级和学生");
+        班级和学生.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                new ClassWindow();
+            }
+        });
+        
+        主窗口.add(班级和学生);
+        
+        主窗口.setVisible(true);
     }
 
-    private void changeList(Classe cls) {
-        String sql = "SELECT * FROM students WHERE class_id = " + cls.getId();
-        try {
-            model.clear();
-            DBUtils.queryBeanList(conn, sql, new IResultSetCall<String>() {
-                public String invoke(ResultSet rs) throws SQLException {
-                    Student stu = new Student(rs.getInt("id"), rs
-                            .getString("name"), rs.getInt("os"), rs
-                            .getInt("math"), rs.getInt("java"));
-                    model.addElement(stu);
-                    return stu.toString();
-                }
-            });
-        } catch (Exception e) {
-        }
-    }
-
-    public void itemStateChanged(ItemEvent ie) {
-        if (ie.getStateChange() == ItemEvent.SELECTED) {
-            this.changeList((Classe) ie.getItem());
-        }
-    }
-
-    private static void init() {
-        try {
-            conn = DBUtils.openConnection();
-
-            List<String> sql = new ArrayList<String>();
-
-            sql.add("CREATE TABLE IF NOT EXISTS students(id INTEGER PRIMARY KEY, class_id INTEGER"
-                    + ", name STRING, os INTEGER, math INTEGER, java INTEGER)");
-            sql.add("CREATE TABLE IF NOT EXISTS classes(id INTEGER PRIMARY KEY, name STRING)");
-
-            DBUtils.executeAsBatch(conn, sql);
-        } catch (SQLException e) {
-        }
-    }
 }
