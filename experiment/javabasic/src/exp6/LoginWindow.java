@@ -12,6 +12,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 public class LoginWindow extends JFrame {
 
@@ -30,6 +31,12 @@ public class LoginWindow extends JFrame {
 
     public LoginWindow() {
         super();
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+        }
+
         初始化();
         主窗口 = this;
     }

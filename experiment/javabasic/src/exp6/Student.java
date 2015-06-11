@@ -36,7 +36,7 @@ public class Student implements Serializable {
     }
 
     private static int parseScore(int score) {
-        return Math.abs(score) % 100;
+        return Math.abs(score) % 101;
     }
 
     public int getOs() {
@@ -113,6 +113,16 @@ public class Student implements Serializable {
         }
     }
 
+    public static int getMaxId() {
+        String sql = "SELECT MAX(id) FROM students";
+        try {
+            int id = DBUtils.queryObject(conn, sql, Integer.class);
+            return id;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+    
     public static List<Student> selectAll() {
         String sql = "SELECT * FROM students";
         try {

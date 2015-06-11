@@ -1,20 +1,15 @@
 package exp6;
 
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.util.Enumeration;
+import java.util.List;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
@@ -113,7 +108,7 @@ public class MainWindow extends JFrame {
                 new StudentAddWindow();
             }
         });
-        // 主窗口.add(添加学生);
+        主窗口.add(添加学生);
 
         JButton 删除学生 = new JButton("删除学生");
         删除学生.addActionListener(new java.awt.event.ActionListener() {
