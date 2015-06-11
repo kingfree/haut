@@ -14,7 +14,7 @@
 \setcounter{part}{4}
 \input{source/title}
 
-% \iffalse
+\iffalse
 \section{实验目的}
 通过请求页式存储管理中页面置换算法模拟设计，了解虚拟存储技术的特点，掌握请求页式存储管理的页面置换算法。
 
@@ -67,34 +67,32 @@
 \item 将FIFO和LRU算法的工作机理写入实验报告。
 \end{enumerate}
 
-% \fi
+\fi
 
 \section{实验步骤}
 
 \begin{enumerate}
 
-\item %以下是{\tt priority.c}的源代码，注释已详细给出：
+\item 以下是{\tt page.c}的源代码，注释已详细给出：
 
-% {\small\linespread{1}\lstinputlisting[caption={\tt parent\_child.c}]{exp3/priority.c}}
+{\small\linespread{1}\lstinputlisting[caption={\tt page.c}]{exp5/page.c}}
 
-% 我们为该程序准备了一个输入文件：
+编译并执行该程序：
 
-% \VerbatimInput[frame=lines]{exp3/pros.in}
+\begin{Verbatim}[frame=single]
+$ cc -Wall page.c -o page
+$ ./page > 1
+\end{Verbatim}
 
-% 编译并执行该程序：
+得到输出结果如下：
 
-% \begin{Verbatim}[frame=single]
-% $ cc -Wall priority.c -o priority
-% $ ./priority pros.in > 1
-% \end{Verbatim}
+\VerbatimInput[fontsize=\small,frame=lines]{exp5/1}
 
-% 得到输出结果如下，可以看到这个模拟程序按照既定的规则，共执行了20个时间片。
+可以看到两种算法的差距并不是很大，相对的来说，LRU算法在内存较大的情况下会有比FIFO更好一些的效果。
 
-% \VerbatimInput[fontsize=\small,frame=lines]{exp3/1}
+\item {\bf 先进先出}算法（First-In, First-Out, FIFO）是一个经典的队列实现，它也是一种低开销的页面置换算法。我们维护一个链表，链表中记录了所有位于内存中的虚拟页面，从链表的排列顺序看，链表头部页面的驻留时间最长，链表尾部页面的驻留时间最短。当发生一个缺页中断时，将链表头部的页面淘汰出局，并把新的页面添加到链表尾部。FIFO算法的性能不是很好，被它淘汰出去的页面可能是经常要访问的页面。基于这个原因，FIFO算法很少被单独使用。
 
-% \item 该算法即{\bf 高优先权优先调度算法}，每次执行一次排序，并执行优先级最高的可执行的任务，直到执行完毕或进入阻塞。这种方法要求给出进程的优先级，调度程序动态调整其优先级，按照其“重要程度”顺序执行任务。适用于实时系统。
-
-% 而{\bf 高响应比优先调度算法}的基本思想是把CPU分配给就绪队列中响应比（作业响应时间与作业执行时间的比值）最高的进程。这种方法兼顾了短作业与先后次序，且不会使长作业长期得不到服务。但是响应比计算用到了除法，增加了系统开销，所以更适合于批处理系统。
+{\bf 最近最久未使用}算法（Least Recently Used, LRU）的基本思路是，当一个缺页中断发生时，从内存中选择最久未被使用的那个页面，把它淘汰出局。这种算法实质上是对最优页面置换算法的一个近似，理论依据就是程序的局部性原理。LRU算法的策略就是根据程序的局部性原理，利用过去的、已知的页面访问情况，来预测将来的情况。LRU的实现开销比较大，改程序中的模拟实际上效率是比较差的。一种好的解决方案是{\bf 最不经常使用}算法（Not Frequently Used, NFU）的变体——老化算法，具体可以参考《操作系统设计与实现（第三版）》第273--275页的内容。
 
 \end{enumerate}
 
