@@ -145,7 +145,8 @@ public class MainWindow extends JFrame {
         关于.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 JOptionPane.showMessageDialog(null,
-                        "<html><h1>关于</h1><p>作者: 田劲锋</p></html>", "关于",
+                        "<html><h1>关于</h1><p>作者: 田劲锋</p>"
+                                + "<p>最后修改时间: 2015年6月11日</p></html>", "关于",
                         JOptionPane.INFORMATION_MESSAGE);
             }
         });

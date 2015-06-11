@@ -29,6 +29,14 @@ public class StudentWindow extends JFrame {
         初始化();
     }
 
+    StudentWindow(Student stu) {
+        super();
+        if (stu != null) {
+            this.学生.add(stu);
+        }
+        初始化();
+    }
+
     private void 初始化() {
         this.setTitle("学生信息");
         this.setContentPane(取主面板());
