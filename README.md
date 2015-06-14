@@ -85,5 +85,6 @@
 
 ### [coursedesign](coursedesign) 课程设计
 
-* **clang/exam**：课程《程序设计实践》课程设计：*标准化考试系统*
-* **oop/ooppro**：课程《面向对象程序设计（C++）》课程设计：*猜数字游戏*
+* **coursedesign/exam**：课程《程序设计实践》课程设计：*标准化考试系统*
+* **coursedesign/ooppro**：课程《面向对象程序设计（C++）》课程设计：*猜数字游戏*
+* **coursedesign/zip**：课程《数据结构》课程设计：*用哈夫曼算法压缩文件*
