@@ -13,7 +13,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \usepackage{subfigure}
 \usepackage{wrapfig}
 \usepackage{fancyvrb}
-% \DefineShortVerb{\|}
+\DefineShortVerb{\|}
 \fvset{frame=single}
 
 \setmainfont{Times New Roman}
@@ -33,12 +33,19 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
   numberstyle=\small,
   basicstyle=\tt,
   commentstyle=\color{gray},
-  keywordstyle=\bfseries\color{blue},
+  keywordstyle=\bfseries,
   stringstyle=\color{teal},
   showstringspaces=false,
   frame=tb,
   extendedchars=false
 }
+\lstdefinelanguage
+   [x64]{Assembler}     % add a "x64" dialect of Assembler
+   [x86masm]{Assembler} % based on the "x86masm" dialect
+   % with these extra keywords:
+   {morekeywords={rax,rbx,rcx,rdx,rip,rdi,rsi,rsp,subq,decl,movq,movl,xorl,imull,popq,leaq,pushq,callq,movb,addl,retq,rbp,r8d,addq}%
+    ,morekeywords=[2]{.file,.section,.string,.text,.globl,.cfi_startproc,.cfi_def_cfa_offset,.cfi_endproc,.size,.ident,.cfi_offset,.macosx_version_min,.cfi_def_cfa_register,.asciz,.subsections_via_symbols}%
+} %
 
 \usepackage[inline]{enumitem} % 调整列表样式
 \setlist{noitemsep,align=left}
@@ -80,9 +87,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
     \label{fig:#3}
 }
 
-本次实验在Mac OS X Yosemite上运行。
-
-脚本的运行结果如图\ref{fig:脚本运行情况}。
+本次实验在 Mac OS X Yosemite 上运行，使用的 GCC 是 Apple LLVM 版本 6.1.0 (clang-602.0.49) （基于 LLVM 3.6.0svn）。
 
 \begin{enumerate}
 
@@ -90,6 +95,11 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 这里我们编写了一个简单的相加程序。
 
 {\linespread{1}\lstinputlisting[caption={\tt aplusb.c}]{exp9/aplusb.c}}
+
+预处理文件过大这里不在列出，但是可以看一下编译出来的汇编代码（x64汇编）。
+{\small\linespread{1}\lstinputlisting[caption={\tt aplusb.s},language={[x64]Assembler}]{exp9/aplusb.s}}
+
+在|Ltmp2|段，进行了一系列弹栈操作之后，将操作数压入栈中，调用|_scanf|获取两个值到|-20(%rbp)|和|-24(%rbp)|中，相加后再压栈调用|_printf|输出出来。可以看到x86-64汇编使用了很多额外的寄存器。
 
 如下，预处理、编译、汇编、连接并运行该程序：
 \begin{Verbatim}
@@ -112,26 +122,33 @@ $ ./aplusb
 46
 \end{Verbatim}
 
-预处理文件过大这里不在列出，但是可以看一下编译出来的汇编代码（x64汇编）。
-{\linespread{1}\lstinputlisting[caption={\tt aplusb.s},language=x86masm]{exp9/aplusb.s}}
-
 \item 
 
-% {\linespread{1}\lstinputlisting[caption={\tt aplusb.i}]{exp9/aplusb.i}}
+这次我们考虑写一个计算数组元素和的程序。
+首先是头文件：
+{\linespread{1}\lstinputlisting[caption={\tt vector.h}]{exp9/vector.h}}
+实现：
+{\linespread{1}\lstinputlisting[caption={\tt vector.c}]{exp9/vector.c}}
 
-\item 
+在主程序中声明进来|vector.h|即可：
+{\linespread{1}\lstinputlisting[caption={\tt test.c}]{exp9/test.c}}
 
+为了编译这个程序，我们编写了一个Makefile。顺便把上一题也写进去吧：
+{\linespread{1}\lstinputlisting[caption={\tt Makefile}]{exp9/Makefile}}
+该Makefile用到了一些通配符，也写了清理操作。
 
-\item 
-
+如图\ref{fig:编译执行情况}展示了这两个程序的编译执行情况。
 
 \begin{figure}[htp]
-% \image{shell}{脚本运行情况}
+\image{make}{编译执行情况}
 \end{figure}
 
 \end{enumerate}
 
 \paragraph{实验体会：}\quad
 
+在UNIX/Linux上进行C语言编程是一件令人享受的事情。不管是gcc还是clang编译器都是非常优秀和好用的，这也为编译和调试提供了相当便利。从源代码到可执行文件的过程，在这个试验中也很好地复习到了。
+
+不过说起来，OS X自带的llvm clang编译器和Linux自带的gcc还是有不少区别啊，而且编译出来的汇编代码也有微妙的区别呢。
 
 \end{document}
