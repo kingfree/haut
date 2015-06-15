@@ -1,0 +1,137 @@
+\documentclass[cs4size,a4paper,nofonts]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{Linux下C语言编程}
+\usepackage[a4paper,margin=2.2cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=blue,anchorcolor=black,citecolor=black,urlcolor=blue,
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+%\CTEXsetup[number=\chinese{section}, format={\large\sf\bfseries}]{section}
+\usepackage{latexsym,amsmath,amssymb,bm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{subfigure}
+\usepackage{wrapfig}
+\usepackage{fancyvrb}
+% \DefineShortVerb{\|}
+\fvset{frame=single}
+
+\setmainfont{Times New Roman}
+\setCJKmainfont[BoldFont={SimHei}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1.2} % 行距
+
+\usepackage{listings} % 排版代码
+\lstset{language=C,
+  numbers=left,
+  numberstyle=\small,
+  basicstyle=\tt,
+  commentstyle=\color{gray},
+  keywordstyle=\bfseries\color{blue},
+  stringstyle=\color{teal},
+  showstringspaces=false,
+  frame=tb,
+  extendedchars=false
+}
+
+\usepackage[inline]{enumitem} % 调整列表样式
+\setlist{noitemsep,align=left}
+\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+% \setlist[enumerate,1]{label={(\arabic*)}}
+% \setlist[enumerate,2]{label={\arabic*)}}
+
+\CTEXsetup[beforeskip={0pt},afterskip={0pt}]{paragraph}
+
+%\makeindex
+\pagestyle{plain}
+
+\begin{document}
+
+%%%% 开始 %%%%
+
+\input{source/title}
+
+% \CTEXnoindent
+
+\paragraph{实验题目：}\titlec
+
+\paragraph{实验目的：}
+（1）理解GCC；（2）理解程序维护工具make。
+
+\paragraph{实验内容：}
+\begin{enumerate}
+\item 简单的编写一个C语言程序，使用GCC编译该程序，要求按照以下步骤进行：预处理、编译、汇编、连接，并查看中间结果。
+\item 编写两个C语言程序，其中一个程序的编译需要另一个程序的编译完成，试写出一个makefile文件，并测试。
+\end{enumerate}
+
+\paragraph{实验步骤：}\quad
+
+\newcommand{\image}[3][width=0.9\textwidth]{
+    \centering
+        \includegraphics[#1]{images/exp9/#2.png}
+    \caption{#3}
+    \label{fig:#3}
+}
+
+本次实验在Mac OS X Yosemite上运行。
+
+脚本的运行结果如图\ref{fig:脚本运行情况}。
+
+\begin{enumerate}
+
+\item 
+这里我们编写了一个简单的相加程序。
+
+{\linespread{1}\lstinputlisting[caption={\tt aplusb.c}]{exp9/aplusb.c}}
+
+如下，预处理、编译、汇编、连接并运行该程序：
+\begin{Verbatim}
+$ ls
+aplusb.c
+$ gcc -E aplusb.c -o aplusb.i
+$ ls
+aplusb.c aplusb.i
+$ gcc -S aplusb.c -o aplusb.s
+$ ls
+aplusb.c aplusb.i aplusb.s
+$ gcc -c aplusb.s -o aplusb.o
+$ ls
+aplusb.c aplusb.i aplusb.o aplusb.s
+$ gcc aplusb.o -o aplusb
+$ ls
+aplusb   aplusb.c aplusb.i aplusb.o aplusb.s
+$ ./aplusb
+12 34
+46
+\end{Verbatim}
+
+预处理文件过大这里不在列出，但是可以看一下编译出来的汇编代码（x64汇编）。
+{\linespread{1}\lstinputlisting[caption={\tt aplusb.s},language=x86masm]{exp9/aplusb.s}}
+
+\item 
+
+% {\linespread{1}\lstinputlisting[caption={\tt aplusb.i}]{exp9/aplusb.i}}
+
+\item 
+
+
+\item 
+
+
+\begin{figure}[htp]
+% \image{shell}{脚本运行情况}
+\end{figure}
+
+\end{enumerate}
+
+\paragraph{实验体会：}\quad
+
+
+\end{document}
