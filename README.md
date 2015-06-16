@@ -57,34 +57,35 @@
 
 ### 其他
 
-* **counter**：萌战吧战队联赛计票器
-* **saimoe**：日萌相关总结
-* **mini**：难以分类的小程序
+* [counter](counter)：萌战吧战队联赛计票器
+* [saimoe](saimoe)：日萌相关总结
+* [mini](mini)：难以分类的小程序
 
 ### [course](course) 课程
 
-* [se](se) 《软件工程》
+* [course/se](course/se) 《软件工程概论》需求文档
+* [course/mao](course/mao) 《毛泽东思想与中国特色社会主义理论体系概论》实践调研论文
+* [course/jobs](course/jobs) 《职业发展教育与就业指导》
+* [course/english](course/english)：《英语》
 
-* **paper**：论文、课程设计、调研报告、资料整理等
-* **paper/bijitsu**：《美术鉴赏》课程论文
-* **paper/sss**：《马克思主义基本原理概论》论文
-* **paper/marx**：《马克思主义基本原理概论》调研报告
-* **paper/prob**：《概率论与数理统计》总结、《离散数学》概要
-* **paper/xingshi**：《形势与政策》课程论文
-* **english**：英语
+* [paper/bijitsu](paper/bijitsu)：《美术鉴赏》课程论文
+* [paper/sss](paper/sss)：《马克思主义基本原理概论》论文
+* [paper/marx](paper/marx)：《马克思主义基本原理概论》调研报告
+* [paper/prob](paper/prob)：《概率论与数理统计》总结、《离散数学》概要
+* [paper/xingshi](paper/xingshi)：《形势与政策》课程论文
 
 ### [experiment](experiment) 实验报告
 
-* [alys](alys) 《算法设计与分析》实验报告
-* [c](c) 《程序设计基础（C 语言）》实验报告
-* [cpp](cpp) 《面向对象程序设计（C++）》实验报告
-* [java](java) 《Java编程基础》实验要求
-* [javabasic](javabasic) 《Java编程基础》实验内容
-* [linux](linux) 《Linux基础与应用》实验报告
-* [os](os) 《操作系统原理》实验报告
+* [experiment/alys](experiment/alys) 《算法设计与分析》实验报告
+* [experiment/c](experiment/c) 《程序设计基础（C 语言）》实验报告
+* [experiment/cpp](experiment/cpp) 《面向对象程序设计（C++）》实验报告
+* [experiment/java](experiment/java) 《Java编程基础》实验要求
+* [experiment/javabasic](experiment/javabasic) 《Java编程基础》实验内容
+* [experiment/linux](experiment/linux) 《Linux基础与应用》实验报告
+* [experiment/os](experiment/os) 《操作系统原理》实验报告
 
 ### [coursedesign](coursedesign) 课程设计
 
-* **coursedesign/exam**：课程《程序设计实践》课程设计：*标准化考试系统*
-* **coursedesign/ooppro**：课程《面向对象程序设计（C++）》课程设计：*猜数字游戏*
-* **coursedesign/zip**：课程《数据结构》课程设计：*用哈夫曼算法压缩文件*
+* [coursedesign/exam](coursedesign/exam)：课程《程序设计实践》课程设计：*标准化考试系统*
+* [coursedesign/ooppro](coursedesign/ooppro)：课程《面向对象程序设计（C++）》课程设计：*猜数字游戏*
+* [coursedesign/zip](coursedesign/zip)：课程《数据结构》课程设计：*用哈夫曼算法压缩文件*
