@@ -66,7 +66,8 @@ public class StudentWindow extends JFrame {
                 学生模型.addRow(a);
             }
             JTable 学生表格 = new JTable(学生模型);
-            学生表格.setEnabled(false);
+            //学生表格.setEnabled(false);
+            学生表格.setAutoCreateRowSorter(true); 
             主面板.add(学生表格.getTableHeader(), BorderLayout.NORTH);
             主面板.add(学生表格);
         }

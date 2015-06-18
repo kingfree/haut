@@ -1,6 +1,5 @@
 # 大学期间程序仓库
 
-### [ACM相关](acm)
 
 ### [算法和数据结构](algorithms)
 
@@ -8,6 +7,8 @@
 * [algorithms/maic](algorithms/maic) 用 C 语言实现的数据结构
 * [algorithms/clrs](algorithms/clrs) 《算法导论》
 * [algorithms/ywm](algorithms/ywm) 严蔚敏版数据结构
+
+#### [ACM相关](acm)
 
 ### 编程语言
 
@@ -69,13 +70,15 @@
 * [jobs](course/jobs) 《职业发展教育与就业指导》
 * [english](course/english)：《英语》
 
-* [paper/bijitsu](paper/bijitsu)：《美术鉴赏》课程论文
-* [paper/sss](paper/sss)：《马克思主义基本原理概论》论文
-* [paper/marx](paper/marx)：《马克思主义基本原理概论》调研报告
-* [paper/prob](paper/prob)：《概率论与数理统计》总结、《离散数学》概要
-* [paper/xingshi](paper/xingshi)：《形势与政策》课程论文
+#### [论文](paper)
 
-### [实验报告](experiment)
+* [bijitsu](paper/bijitsu)：《美术鉴赏》课程论文
+* [sss](paper/sss)：《马克思主义基本原理概论》论文
+* [marx](paper/marx)：《马克思主义基本原理概论》调研报告
+* [prob](paper/prob)：《概率论与数理统计》总结、《离散数学》概要
+* [xingshi](paper/xingshi)：《形势与政策》课程论文
+
+#### [实验报告](experiment)
 
 * [alys](experiment/alys) 《算法设计与分析》实验报告
 * [c](experiment/c) 《程序设计基础（C 语言）》实验报告
@@ -85,7 +88,7 @@
 * [linux](experiment/linux) 《Linux基础与应用》实验报告
 * [os](experiment/os) 《操作系统原理》实验报告
 
-### [课程设计](coursedesign) 课程设计
+#### [课程设计](coursedesign)
 
 * [exam](coursedesign/exam)：课程《程序设计实践》课程设计：*标准化考试系统*
 * [ooppro](coursedesign/ooppro)：课程《面向对象程序设计（C++）》课程设计：*猜数字游戏*
