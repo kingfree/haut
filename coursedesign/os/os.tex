@@ -1,4 +1,4 @@
-\documentclass[cs4size,a4paper,nofonts,twoside]{ctexart}
+\documentclass[c5size,a4paper,nofonts,twoside]{ctexart}
 \usepackage[utf8]{inputenc}
 \def\tjf{{\tt{田劲锋}}}
 \def\titlec{一个小型图形界面操作系统}
@@ -18,7 +18,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \usepackage{xcolor} % 颜色
 \usepackage{wallpaper} % 背景图片
 \usepackage{listings} % 排版代码
-\usepackage{verbatim} % 排版代码
+\usepackage{fancyvrb}
 \usepackage{url} % 排版链接
 \usepackage{shortvrb}
 \usepackage{uml} % 画 UML
@@ -27,8 +27,6 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \usepackage{rotating} % 横排大图
 \usepackage{caption}
 \captionsetup{font={small}} % 标题字体大小
-\usepackage[inline]{enumitem} % 调整列表样式
-%\usepackage{paralist} % 排序列表环境
 
 \usepackage{tikz}
 \usetikzlibrary{arrows,shadows} % for pgf-umlsd
@@ -51,11 +49,10 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \setlength{\parskip}{2pt plus 2pt}
 \renewcommand{\baselinestretch}{1.5}
 
-% \setlength{\abovecaptionskip}{1pt}
-% \setlength{\belowcaptionskip}{0pt}
-\setlength{\intextsep}{8pt}
-\setlist{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
-%\setlist[enumerate,1]{label=（\Alph*）}
+\usepackage[inline]{enumitem} % 调整列表样式
+\setlist{noitemsep,align=left}
+\setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
+\setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
 
 \makeindex
 \pagestyle{plain}
@@ -66,32 +63,24 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 %%%% 开始 %%%%
 
 \pagestyle{empty}
-\include{source/title}\newpage
-\pagestyle{empty}\quad\newpage
-\include{source/task}\quad\newpage
-\setcounter{page}{0}\pagestyle{plain}
-\linespread{1}\tableofcontents\linespread{1.5}\newpage
+\include{source/title}
+\cleardoublepage
+\include{source/task}
+\cleardoublepage
+\setcounter{page}{1}
+\pagestyle{plain}
+\tableofcontents
+\cleardoublepage
 
 \input{source/design}
-% \input{source/classes}
-% \clearpage
-% \input{source/algorithms}
-% \clearpage
-
-% \input{source/program}
-% \clearpage
-
-% \input{source/testcase}
-% \clearpage
-
+\input{source/detail}
 \input{source/conclusion}
-\clearpage
 
+\cleardoublepage
 \appendix
-
-\clearpage
-
 \input{source/reference}
+\cleardoublepage
+\input{source/program}
 
 %%%% 结束 %%%%
 
