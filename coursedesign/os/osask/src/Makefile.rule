@@ -1,0 +1,17 @@
+format:
+	/* 这部分表示链接方式 */
+	code(align:1, logic:0x24,      file:0x24);
+	data(align:4, logic:stack_end, file:code_end);
+
+file:
+	/* 这部分包含命令中的.obj和.lib文件 */
+	/* 也可写作绝对路径 */
+	../../z_tools/haribote/harilibc.lib;
+	../../z_tools/haribote/golibc.lib;
+
+label:
+	/* 指定必须链接的级别 */
+	/* 最好指定入口点 */
+	_HariStartup;
+
+	/* 上面三个部分不能改变顺序! */

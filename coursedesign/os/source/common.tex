@@ -1,0 +1,25 @@
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+\newcommand{\tabincelll}[3]{\begin{tabular*}{#1}{@{}#2@{}}#3\end{tabular*}}
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+\newcommand{\vil}{\,\vline \hspace{.5em} }
+
+
+\newcommand{\des}[2]{\makebox[2em][s]{\bf #1}\quad #2}
+\newcommand{\function}[5]{\CTEXnoindent\vspace{1em}\par
+\begin{minipage}{\textwidth}
+    \underline{\makebox[\textwidth][l]{\it{#1}}}\\
+    {\tt {{#3}} {\bfseries #1}(#2);}\\
+    \des{返回}{#4}\\
+    \des{描述}{#5}
+\end{minipage}\par
+\CTEXindent}
+
+\newcommand\pictext{\linespread{1}\centering}
+
+\lstset{language=C++,
+  numbers=left,
+  keywordstyle=\bfseries,
+  frame=tb,
+  morekeywords=[1]{perror,assert,printf,fprintf,scanf,sscanf},
+  morekeywords=[2]{},
+}
