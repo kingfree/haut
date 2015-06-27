@@ -15,16 +15,12 @@ BIM2BIN  = $(TOOLPATH)bim2bin.exe
 RULEFILE = ../Makefile.rule
 EDIMG    = $(TOOLPATH)edimg.exe
 IMGTOL   = $(TOOLPATH)imgtol.com
-GOLIB    = $(TOOLPATH)golib00.exe 
+GOLIB    = $(TOOLPATH)golib00.exe
 COPY     = copy
 DEL      = del
 
-# デフォルト動作
-
 default :
 	$(MAKE) $(APP).hrb
-
-# ファイル生成規則
 
 $(APP).bim : $(APP).obj $(APILIBPATH)apilib.lib Makefile ../app_make.txt
 	-$(OBJ2BIM) @$(RULEFILE) out:$(APP).bim map:$(APP).map stack:$(STACK) \
@@ -33,18 +29,14 @@ $(APP).bim : $(APP).obj $(APILIBPATH)apilib.lib Makefile ../app_make.txt
 $(APP).hrb : $(APP).bim Makefile ../app_make.txt
 	$(BIM2HRB) $(APP).bim $(APP).hrb $(MALLOC)
 
-# 一般規則
-
 %.gas : %.c ../../apilib.h Makefile ../app_make.txt
 	$(CC1) -o $*.gas $*.c
 
 %.nas : %.gas Makefile ../app_make.txt
 	$(GAS2NASK) $*.gas $*.nas
 
-%.obj : %.nas Makefile ../Makefile.app
+%.obj : %.nas Makefile ../app_make.txt
 	$(NASK) $*.nas $*.obj $*.lst
-
-# コマンド
 
 clean :
 	-$(DEL) *.lst

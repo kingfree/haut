@@ -1,4 +1,4 @@
-MAIN = ooppro
+MAIN = os
 
 all:
 	xelatex $(MAIN)
@@ -6,5 +6,5 @@ all:
 	xelatex $(MAIN)
 
 clean:
-	$(RM) *.aux *.log *.out *.toc *.bbl *.idx *.blg
-	$(RM) source/*.aux
+	-$(RM) *.aux *.log *.out *.toc *.bbl *.idx *.blg
+	-$(RM) source/*.aux

@@ -2,21 +2,6 @@
 
 \label{codes}
 
-\lstset{language=C,
-  numbers=left,
-  numberstyle=\tiny,
-  basicstyle=\tiny\tt,
-  commentstyle=\color{gray},
-  keywordstyle=\bfseries\color{violet},
-  stringstyle=\color{red!80!black},
-  showstringspaces=false,
-  frame=trBL,
-  morekeywords=[1]{cout,cin,cerr,std,stdin,printf,scanf,perror},
-  keywordstyle=[1]{\color{blue}},
-  % morekeywords=[2]{Score,Number,UI,string,vector,ifstream,ofstream,pair},
-  % keywordstyle=[2]{\color{teal}},
-}
-
 \linespread{1}
 \small
 \begin{Verbatim}
@@ -145,6 +130,10 @@
 
 \VerbatimInput{osask/LICENSE}
 
+\lstinputlisting[caption={\tt sys/ipl10.nas},language={[x64]Assembler}]{osask/src/sys/ipl10.nas}
+\lstinputlisting[caption={\tt sys/asmhead.nas},language={[x64]Assembler}]{osask/src/sys/asmhead.nas}
+\lstinputlisting[caption={\tt sys/naskfunc.nas},language={[x64]Assembler}]{osask/src/sys/naskfunc.nas}
+
 \lstinputlisting[caption={\tt sys/bootpack.h}]{osask/src/sys/bootpack.h}
 % \lstinputlisting[caption={\tt sys/bootpack.c}]{osask/src/sys/bootpack.c}
 % \lstinputlisting[caption={\tt sys/console.c}]{osask/src/sys/console.c}
@@ -160,9 +149,6 @@
 % \lstinputlisting[caption={\tt sys/sheet.c}]{osask/src/sys/sheet.c}
 % \lstinputlisting[caption={\tt sys/timer.c}]{osask/src/sys/timer.c}
 % \lstinputlisting[caption={\tt sys/window.c}]{osask/src/sys/window.c}
-% \lstinputlisting[caption={\tt sys/asmhead.nas}]{osask/src/sys/asmhead.nas}
-% \lstinputlisting[caption={\tt sys/ipl10.nas}]{osask/src/sys/ipl10.nas}
-% \lstinputlisting[caption={\tt sys/naskfunc.nas}]{osask/src/sys/naskfunc.nas}}
 
 % tjf@bogon ~/h/c/o/o/src> find . -name "*.c" -o -name "*.h" | xargs wc -l
 %       26 ./apilib.h

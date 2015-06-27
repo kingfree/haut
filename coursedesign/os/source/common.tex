@@ -16,10 +16,40 @@
 
 \newcommand\pictext{\linespread{1}\centering}
 
-\lstset{language=C++,
+\makeatletter
+\lst@Key{matchrangestart}{f}{\lstKV@SetIf{#1}\lst@ifmatchrangestart}
+\def\lst@SkipToFirst{%
+    \lst@ifmatchrangestart\c@lstnumber=\numexpr-1+\lst@firstline\fi
+    \ifnum \lst@lineno<\lst@firstline
+        \def\lst@next{\lst@BeginDropInput\lst@Pmode
+        \lst@Let{13}\lst@MSkipToFirst
+        \lst@Let{10}\lst@MSkipToFirst}%
+        \expandafter\lst@next
+    \else
+        \expandafter\lst@BOLGobble
+    \fi}
+\makeatother
+
+\lstset{language=C,
   numbers=left,
-  keywordstyle=\bfseries,
-  frame=tb,
-  morekeywords=[1]{perror,assert,printf,fprintf,scanf,sscanf},
-  morekeywords=[2]{},
+  matchrangestart=t,
+  numberstyle=\tiny,
+  basicstyle=\tiny\tt,
+  commentstyle=\color{gray},
+  keywordstyle=\bfseries\color{violet},
+  stringstyle=\color{red!80!black},
+  showstringspaces=false,
+  frame=trBL,
+  morekeywords=[1]{cout,cin,cerr,std,stdin,printf,scanf,perror},
+  keywordstyle=[1]{\color{blue}},
+  % morekeywords=[2]{Score,Number,UI,string,vector,ifstream,ofstream,pair},
+  % keywordstyle=[2]{\color{teal}},
 }
+
+\lstdefinelanguage
+   [x64]{Assembler}     % add a "x64" dialect of Assembler
+   [x86masm]{Assembler} % based on the "x86masm" dialect
+   % with these extra keywords:
+   {morekeywords={RAX,RBX,RCX,RDX,RIP,RDI,RSI,RSP,SUBQ,DECL,MOVQ,MOVL,XORL,IMULL,POPQ,LEAQ,PUSHQ,%
+   CALLQ,MOVB,ADDL,RETQ,RBP,R8D,ADDQ,IRETD,RESB,ALIGNB,GLOBAL,EXTERN,RESB}%
+} %

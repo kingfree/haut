@@ -40,6 +40,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
 \setCJKmonofont{KFKai} % 等宽字体：楷体
 \setCJKfamilyfont{liti}{隶书} \newcommand{\liti}{\CJKfamily{liti}}
+\setCJKfamilyfont{ja}{MS PMincho} \newcommand{\ja}{\CJKfamily{ja}}
 
 \CJKsetecglue{\hspace{0.1em}}
 \renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
@@ -50,7 +51,7 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \renewcommand{\baselinestretch}{1.5}
 
 \usepackage[inline]{enumitem} % 调整列表样式
-\setlist{noitemsep,align=left}
+\setlist{noitemsep,align=right}
 \setlist[itemize]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
 \setlist[enumerate]{topsep=0pt,partopsep=0pt,itemsep=0pt,parsep=0pt}
 
@@ -72,15 +73,15 @@ pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
 \tableofcontents
 \cleardoublepage
 
-\input{source/design}
-\input{source/detail}
-\input{source/conclusion}
+\include{source/design}
+\include{source/detail}
+\include{source/conclusion}
 
 \cleardoublepage
 \appendix
-\input{source/reference}
+\include{source/reference}
 \cleardoublepage
-\input{source/program}
+\include{source/program}
 
 %%%% 结束 %%%%
 
