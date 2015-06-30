@@ -1,6 +1,12 @@
+#/bin/sh
+if [[ $# == 1 ]]; then
+  cd /Users/tjf/Library/Developer/Xcode/DerivedData/$1-*/Build/Products/Debug
+  sudo cp -R $1.kext /tmp
+  cd /tmp
+  sudo chown -R root:wheel $1.kext
+  sudo kextload $1.kext
+fi
 
-cd /Users/tjf/Library/Developer/Xcode/DerivedData/SocksTest-dammgxwrrimwhwfzvrottlpoomuc/Build/Products/Debug
-sudo cp -R SocksTest.kext /tmp
-cd /tmp
-sudo chown -R root:wheel SocksTest.kext
-sudo kextload SocksTest.kext
+if [[ x$2 == x"-u" ]]; then
+  sudo kextunload -b kingfree.$1
+fi
