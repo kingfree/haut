@@ -48,14 +48,20 @@
 {\linespread{1}\lstinputlisting[caption={初始化桌面},linerange={70-71,77-79,83-84}]{osask/src/sys/bootpack.c}}
 
 初始化鼠标指针：
-{\linespread{1}\lstinputlisting[caption={初始化鼠标},linerange={89-94}]{osask/src/sys/bootpack.c}}
+{\linespread{1}\lstinputlisting[caption={初始化鼠标},linerange={89-92}]{osask/src/sys/bootpack.c}}
 
-接下来进入一个无限循环，该循环查询CPU中断事件，并给与相应：
+这时候系统就已经算是启动完成了。接下来进入一个无限循环，该循环查询CPU中断事件，并给与响应：
 {\linespread{1}\lstinputlisting[caption={主循环},linerange={104-106,110-113,126-129,136-137,239-239,330-332}]{osask/src/sys/bootpack.c}}
-
 
 \subsection{设备管理}
 \label{sub:设备管理}
+
+\subsubsection{中断处理}
+\label{subs:中断处理}
+
+首先是初始化GDT和IDT：
+{\linespread{1}\lstinputlisting[caption={初始化GDT和IDT},linerange={5-36}]{osask/src/sys/dsctbl.c}}
+
 
 \subsection{进程管理}
 \label{sub:进程管理}

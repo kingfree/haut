@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>216E7FE4-B1C9-453A-A44B-DCFEBC63C17B</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>AppFireWall</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>2D949BDC29F3F75DB95BA2C74428A717BCF50ED1</key>
 		<string>https://github.com/kingfree/haut</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>inlonlife/socks5exp/AppFireWall/AppFireWall.xcodeproj/project.xcworkspace</string>
+	<string>inlonlife/socks5exp/AppFireWall/AppFireWall.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>2D949BDC29F3F75DB95BA2C74428A717BCF50ED1</key>

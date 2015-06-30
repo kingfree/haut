@@ -7,7 +7,7 @@
 %% merlin.mbs  (with options: `annote,seq-no,ed-au,dt-jnl,yrp-per,yrpp-xsp,atit-u,jxper,jttl-rm,vol-bf,pp-last,num-xser,numser,btit-rm,bt-rm,bkpg-x,add-pub,pub-date,pub-xpar,pre-pub,edparc,bkedcap,in-x,fin-bare,pp,abr,xedn,and-com,and-com-ed,xand,etal-it,revdata,eprint,url,url-blk,em-x')
 %% ----------------------------------------
 %% *** For chinese BIB Gen. by WuYingnian 2002.12.29 ***
-%% 
+%%
 %% Copyright 1994-2002 Patrick W Daly
  % ===============================================================
  % IMPORTANT NOTICE:
@@ -239,25 +239,25 @@ FUNCTION {space.word}
  % Each function has a name bbl.xxx where xxx is the English word.
  % The language selected here is ENGLISH
 FUNCTION {bbl.and}
-{ "and"}
+{ "å’Œ" }
 
 FUNCTION {bbl.etal}
-{ "et~al." }
+{ "ç­‰" }
 
 FUNCTION {bbl.editors}
-{ "editors" }
+{ "ç¼–è¾‘" }
 
 FUNCTION {bbl.editor}
-{ "editor" }
+{ "ç¼–è¾‘" }
 
 FUNCTION {bbl.edby}
-{ "edited by" }
+{ "ç¼–è¾‘" }
 
 FUNCTION {bbl.edition}
-{ "edn." }
+{ "ç‰ˆ" }
 
 FUNCTION {bbl.volume}
-{ "vol." }
+{ "å·" }
 
 FUNCTION {bbl.of}
 { "of" }
@@ -272,16 +272,16 @@ FUNCTION {bbl.in}
 { "in" }
 
 FUNCTION {bbl.pages}
-{ "pp." }
+{ "é¡µ" }
 
 FUNCTION {bbl.page}
-{ "p." }
+{ "é¡µ" }
 
 FUNCTION {bbl.eidpp}
-{ "pages" }
+{ "é¡µ" }
 
 FUNCTION {bbl.chapter}
-{ "chap." }
+{ "ç« " }
 
 FUNCTION {bbl.techrep}
 { "Tech. Rep." }
@@ -709,7 +709,7 @@ FUNCTION {format.vol.num.pages}
       "volume" bibinfo.check
     }
   if$
-%  bolden   % ÓÃÕı³£×ÖÌå¼´¿É
+%  bolden   % ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å¼´ï¿½ï¿½
   number "number" bibinfo.check duplicate$ empty$ 'skip$
     {
       swap$ duplicate$ empty$
@@ -932,7 +932,7 @@ FUNCTION {article}
   crossref missing$
     {
       journal
-%      remove.dots     % ·ñÔòÆÚ¿¯ËõĞ´»áÈ¥µô.ºÅ
+%      remove.dots     % ï¿½ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½Ğ´ï¿½ï¿½È¥ï¿½ï¿½.ï¿½ï¿½
       "journal" bibinfo.check
       "journal" output.check
       new.block
@@ -969,7 +969,7 @@ FUNCTION {book}
   new.block
   format.btitle "title" output.check
   new.block
-  format.edition output		%°æ´ÎÔÚÊéÃûºóÃæ
+  format.edition output		%ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   crossref missing$
     { format.bvolume output
       new.block
@@ -983,7 +983,7 @@ FUNCTION {book}
       format.date "year" output.check
     }
   if$
-  format.pages "pages" output.check %Êä³öÊé¼®µÄÒıÓÃÒ³Âë
+  format.pages "pages" output.check %ï¿½ï¿½ï¿½ï¿½ï¿½é¼®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½
   new.block
   format.note output
   format.eprint output
@@ -1145,7 +1145,7 @@ FUNCTION {mastersthesis}
   new.block
 %  address "address" bibinfo.check output
   format.date "year" output.check
-  format.pages "pages" output.check    %Êä³öÒıÓÃÒ³Âë
+  format.pages "pages" output.check    %ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½
   new.block
   format.note output
   format.eprint output
@@ -1176,11 +1176,11 @@ FUNCTION {phdthesis}
   "title" output.check
   new.block
   school "school" bibinfo.warn output
-  bbl.phdthesis format.thesis.type output.nonnull %ÂÛÎÄ¼¶±ğÔÚÑ§Ğ£ºóÃæ
+  bbl.phdthesis format.thesis.type output.nonnull %ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½Ñ§Ğ£ï¿½ï¿½ï¿½ï¿½
   new.block
-%  address "address" bibinfo.check output %²©Ê¿ÂÛÎÄÎŞĞèÊä³öµØÖ·
+%  address "address" bibinfo.check output %ï¿½ï¿½Ê¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
   format.date "year" output.check
-  format.pages "pages" output.check    %Êä³öÒıÓÃÒ³Âë
+  format.pages "pages" output.check    %ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½
   format.note output
   format.eprint output
   format.url output
