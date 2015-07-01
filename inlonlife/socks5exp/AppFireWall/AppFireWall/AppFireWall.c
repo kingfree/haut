@@ -179,6 +179,18 @@ failed:
     return result;
 }
 
+void appwall_sock_upcall(socket_t so, void *cookie, int waitf)
+{
+//    struct sockaddr sin, sout;
+//    sock_getsockname(so, &sin, sizeof(sin));
+//    sock_getpeername(so, &sout, sizeof(sout));
+//    printf("应用防火墙: ");
+//    log_ip_and_port_addr((struct sockaddr_in*)&sin);
+//    printf(" - ");
+//    log_ip_and_port_addr((struct sockaddr_in*)&sout);
+//    printf(" ... (%d)\n", waitf);
+}
+
 static errno_t appwall_data_out(void* cookie, socket_t so, const struct sockaddr* to, mbuf_t* data, mbuf_t* control, sflt_data_flag_t flags)
 {
     struct appwall_entry* entry;
@@ -190,22 +202,22 @@ static errno_t appwall_data_out(void* cookie, socket_t so, const struct sockaddr
     
     lck_mtx_lock(g_mutex);
     
-//    mbuf_t* newdata;
-//    mbuf_allocpacket(MBUF_DONTWAIT, mbuf_maxlen(*data), &chunks, newdata);
-//    mbuf_copydata(*data, 0, mbuf_len(*data), newdata);
     size_t len = mbuf_pkthdr_len(*data);
+//    mbuf_t* newdata;
+//    mbuf_allocpacket(MBUF_DONTWAIT, mbuf_maxlen(*data), &len, newdata);
+//    mbuf_copydata(*data, 0, mbuf_len(*data), newdata);
 
     struct sockaddr sin, sout;
     sock_getsockname(so, &sin, sizeof(sin));
     sock_getpeername(so, &sout, sizeof(sout));
-//
+
 //    socket_t newso;
 //    printf("应用防火墙: 尝试建立套接字: ");
 //    log_ip_and_port_addr((struct sockaddr_in*)&sin);
 //    printf(" - ");
 //    log_ip_and_port_addr((struct sockaddr_in*)&sout);
 //    printf(" ...\n");
-//    if (sock_socket(PF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, cookie, &newso) == 0) {
+//    if (sock_socket(PF_INET, SOCK_STREAM, IPPROTO_TCP, appwall_sock_upcall, cookie, &newso) == 0) {
 //        printf("已建立套接字..");
 //        if (sock_connect(newso, &sout, MSG_DONTWAIT) == 0) {
 //            printf("已连接套接字..");
@@ -295,6 +307,20 @@ failed:
     return result;
 }
 
+static char* event_t_string[] = {
+    "",
+    "sock_evt_connecting",
+    "sock_evt_connected",
+    "sock_evt_disconnecting",
+    "sock_evt_disconnected",
+    "sock_evt_flush_read",
+    "sock_evt_shutdown",
+    "sock_evt_cantrecvmore",
+    "sock_evt_cantsendmore",
+    "sock_evt_closing",
+    "sock_evt_bound"
+};
+
 void appwall_notify_func(void *cookie, socket_t so, sflt_event_t event, void *param)
 {
     struct appwall_entry* entry;
@@ -306,7 +332,7 @@ void appwall_notify_func(void *cookie, socket_t so, sflt_event_t event, void *pa
     lck_mtx_lock(g_mutex);
     
     struct sockaddr name;
-    printf("应用防火墙: %s ", entry->desc.name);
+    printf("应用防火墙: %s 状态 %s ", entry->desc.name, event_t_string[event]);
     sock_getsockname(so, &name, sizeof(name));
     log_ip_and_port_addr((struct sockaddr_in*)&name);
     printf(" - ");
