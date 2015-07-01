@@ -1,0 +1,61 @@
+\documentclass[c5size,b5paper,nofonts,twoside]{ctexart}
+\usepackage[utf8]{inputenc}
+\def\tjf{{\tt{田劲锋}}}
+\def\titlec{Source Code}
+\usepackage[top=2cm,bottom=2cm,left=1.4cm,right=2cm]{geometry} % 页面设置
+\usepackage[unicode,breaklinks=true,
+colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,urlcolor=black,
+pdftitle={\titlec},pdfauthor={\tjf}]{hyperref}
+\usepackage{color} % 颜色
+\usepackage{xcolor} % 颜色
+\usepackage{listings} % 排版代码
+\usepackage{fancyvrb}
+\usepackage{url} % 排版链接
+\usepackage{shortvrb}
+\usepackage{caption}
+\captionsetup{font={small}} % 标题字体大小
+
+﻿\setmainfont{Times New Roman}
+﻿\setsansfont{Menlo}
+﻿\setmonofont{Ubuntu Mono}
+﻿\setCJKmainfont[BoldFont={SimHei},ItalicFont={STFangsong}]{SimSun}  % 主要字体：宋体、黑体
+\setCJKsansfont[BoldFont={STZhongsong}]{STFangsong} % 次要字体：仿宋、中宋
+\setCJKmonofont{KFKai} % 等宽字体：楷体
+
+\CJKsetecglue{\hspace{0.1em}}
+\renewcommand\CJKglue{\hskip -0.3pt plus 0.08\baselineskip}
+\frenchspacing
+\widowpenalty=10000
+\linespread{1} % 1.5 倍行距
+\setlength{\parskip}{2pt plus 2pt}
+\renewcommand{\baselinestretch}{1}
+
+\lstset{language=Java,
+  numbers=left,
+  numberstyle=\small,
+  basicstyle=\small\tt,
+  commentstyle=\color{gray},
+  keywordstyle=\bfseries\color{blue!60!black},
+  stringstyle=\color{red!80!black},
+  showstringspaces=false
+}
+
+\pagestyle{plain}
+
+\begin{document}
+
+\lstinputlisting[caption={\tt Student.java}]{Student.java}
+\lstinputlisting[caption={\tt Classe.java}]{Classe.java}
+
+\lstinputlisting[caption={\tt DBUtils.java}]{DBUtils.java}
+\lstinputlisting[caption={\tt IResultSetCall.java}]{IResultSetCall.java}
+
+\lstinputlisting[caption={\tt StudentManager.java}]{StudentManager.java}
+
+\lstinputlisting[caption={\tt MainWindow.java}]{MainWindow.java}
+\lstinputlisting[caption={\tt ClassWindow.java}]{ClassWindow.java}
+\lstinputlisting[caption={\tt LoginWindow.java}]{LoginWindow.java}
+\lstinputlisting[caption={\tt StudentAddWindow.java}]{StudentAddWindow.java}
+\lstinputlisting[caption={\tt StudentWindow.java}]{StudentWindow.java}
+
+\end{document}
