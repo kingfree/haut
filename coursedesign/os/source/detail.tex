@@ -6,7 +6,7 @@
 编译成为启动镜像文件的\verb|Makefile|适用于Windows平台（可以移植到其他平台），在\verb|z_tools|目录中提供了
 所需要的编译程序和链接库。
 
-\lstset{basicstyle=\small\tt}
+% \lstset{basicstyle=\small\tt}
 
 \subsection{引导程序}
 \label{sub:引导程序}
@@ -53,14 +53,60 @@
 这时候系统就已经算是启动完成了。接下来进入一个无限循环，该循环查询CPU中断事件，并给与响应：
 {\linespread{1}\lstinputlisting[caption={主循环},linerange={104-106,110-113,126-129,136-137,239-239,330-332}]{osask/src/sys/bootpack.c}}
 
-\subsection{设备管理}
-\label{sub:设备管理}
-
 \subsubsection{中断处理}
 \label{subs:中断处理}
 
 首先是初始化GDT和IDT：
 {\linespread{1}\lstinputlisting[caption={初始化GDT和IDT},linerange={5-36}]{osask/src/sys/dsctbl.c}}
+
+初始化PIC：
+{\linespread{1}\lstinputlisting[caption={初始化PIC},linerange={6-25}]{osask/src/sys/int.c}}
+
+\subsection{设备管理}
+\label{sub:设备管理}
+
+\subsubsection{键盘}
+\label{subs:键盘}
+
+{\linespread{1}\lstinputlisting[caption={PS/2键盘中断},linerange={9-16}]{osask/src/sys/keyboard.c}}
+{\linespread{1}\lstinputlisting[caption={键盘初始化},linerange={36-47}]{osask/src/sys/keyboard.c}}
+
+\subsubsection{鼠标}
+\label{subs:鼠标}
+
+{\linespread{1}\lstinputlisting[caption={PS/2鼠标中断},linerange={9-17}]{osask/src/sys/mouse.c}}
+
+因为鼠标中断是多个字节，所以需要特殊处理：
+{\linespread{1}\lstinputlisting[caption={鼠标中断处理},linerange={36-74}]{osask/src/sys/mouse.c}}
+
+\subsubsection{屏幕}
+\label{subs:屏幕}
+
+初始化一个$6\times6\times6$的调色板：
+{\linespread{1}\lstinputlisting[caption={初始化调色板},linerange={7-40,55-72}]{osask/src/sys/graphic.c}}
+
+初始化鼠标光标：
+{\linespread{1}\lstinputlisting[caption={初始化鼠标光标},linerange={140-179}]{osask/src/sys/graphic.c}}
+
+在屏幕上显示一个半角字符：
+{\linespread{1}\lstinputlisting[caption={初始化鼠标光标},linerange={94-127}]{osask/src/sys/graphic.c}}
+
+显示字符串：
+{\linespread{1}\lstinputlisting[caption={初始化鼠标光标},linerange={129-138}]{osask/src/sys/graphic.c}}
+
+\subsubsection{窗口管理器}
+\label{subs:窗口管理器}
+
+{\linespread{1}\lstinputlisting[caption={初始化图层管理器},linerange={7-30}]{osask/src/sys/sheet.c}}
+{\linespread{1}\lstinputlisting[caption={为新图层分配内存},linerange={32-46}]{osask/src/sys/sheet.c}}
+
+重绘一个图层相对比较麻烦，需要处理透明色，以及一个小的优化：
+{\linespread{1}\lstinputlisting[caption={重绘图层},linerange={57-131}]{osask/src/sys/sheet.c}}
+
+改变图层层次：
+{\linespread{1}\lstinputlisting[caption={改变图层层次},linerange={233-291}]{osask/src/sys/sheet.c}}
+
+% {\linespread{1}\lstinputlisting[caption={},linerange={129-138}]{osask/src/sys/window.c}}
 
 
 \subsection{进程管理}
