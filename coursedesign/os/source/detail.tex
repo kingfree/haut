@@ -89,10 +89,10 @@
 {\linespread{1}\lstinputlisting[caption={初始化鼠标光标},linerange={140-179}]{osask/src/sys/graphic.c}}
 
 在屏幕上显示一个半角字符：
-{\linespread{1}\lstinputlisting[caption={初始化鼠标光标},linerange={94-127}]{osask/src/sys/graphic.c}}
+{\linespread{1}\lstinputlisting[caption={显示字符},linerange={94-127}]{osask/src/sys/graphic.c}}
 
 显示字符串：
-{\linespread{1}\lstinputlisting[caption={初始化鼠标光标},linerange={129-138}]{osask/src/sys/graphic.c}}
+{\linespread{1}\lstinputlisting[caption={显示字符串},linerange={129-138}]{osask/src/sys/graphic.c}}
 
 \subsubsection{窗口管理器}
 \label{subs:窗口管理器}
@@ -101,16 +101,27 @@
 {\linespread{1}\lstinputlisting[caption={为新图层分配内存},linerange={32-46}]{osask/src/sys/sheet.c}}
 
 重绘一个图层相对比较麻烦，需要处理透明色，以及一个小的优化：
-{\linespread{1}\lstinputlisting[caption={重绘图层},linerange={57-131}]{osask/src/sys/sheet.c}}
+{\linespread{1}\lstinputlisting[caption={重绘图层},linerange={57-132,293-299}]{osask/src/sys/sheet.c}}
 
 改变图层层次：
-{\linespread{1}\lstinputlisting[caption={改变图层层次},linerange={233-291}]{osask/src/sys/sheet.c}}
+{\linespread{1}\lstinputlisting[caption={改变图层层次},linerange={233-291,300-314}]{osask/src/sys/sheet.c}}
 
-% {\linespread{1}\lstinputlisting[caption={},linerange={129-138}]{osask/src/sys/window.c}}
+创建新窗口：
+{\linespread{1}\lstinputlisting[caption={创建新窗口},linerange={6-39}]{osask/src/sys/window.c}}
 
+改变活动窗口和不活动窗口的状态：
+{\linespread{1}\lstinputlisting[caption={改变窗口状态},linerange={57-85}]{osask/src/sys/window.c}}
 
 \subsection{进程管理}
 \label{sub:进程管理}
+
+{\linespread{1}\lstinputlisting[caption={新建进程},linerange={8-21}]{osask/src/sys/mtask.c}}
+{\linespread{1}\lstinputlisting[caption={移除进程},linerange={23-52}]{osask/src/sys/mtask.c}}
+{\linespread{1}\lstinputlisting[caption={切换进程},linerange={54-66,161-180}]{osask/src/sys/mtask.c}}
+{\linespread{1}\lstinputlisting[caption={进程休眠},linerange={68-73,181-196}]{osask/src/sys/mtask.c}}
+{\linespread{1}\lstinputlisting[caption={初始化进程控制块},linerange={75-110}]{osask/src/sys/mtask.c}}
+{\linespread{1}\lstinputlisting[caption={分配进程控制块内存},linerange={112-138}]{osask/src/sys/mtask.c}}
+{\linespread{1}\lstinputlisting[caption={执行进程},linerange={140-160}]{osask/src/sys/mtask.c}}
 
 \subsection{内存管理}
 \label{sub:内存管理}
