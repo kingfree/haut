@@ -38,6 +38,8 @@
 
 \lstset{language={C}}
 
+{\linespread{1}\lstinputlisting[caption={启动信息结构体},linerange={9-16}]{osask/src/sys/bootpack.h}}
+
 操作系统首先初始化中断描述符表、系统FIFO队列、鼠标键盘等：
 {\linespread{1}\lstinputlisting[caption={初始化设备},linerange={53-63}]{osask/src/sys/bootpack.c}}
 
@@ -53,8 +55,17 @@
 这时候系统就已经算是启动完成了。接下来进入一个无限循环，该循环查询CPU中断事件，并给与响应：
 {\linespread{1}\lstinputlisting[caption={主循环},linerange={104-106,110-113,126-129,136-137,239-239,330-332}]{osask/src/sys/bootpack.c}}
 
+\subsection{设备管理}
+\label{sub:设备管理}
+
+我们用多个先进先出（FIFO）队列来管理系统中的各种消息：
+{\linespread{1}\lstinputlisting[caption={队列结构体},linerange={48-52}]{osask/src/sys/bootpack.h}}
+{\linespread{1}\lstinputlisting[caption={FIFO队列},linerange={7-63}]{osask/src/sys/fifo.c}}
+
 \subsubsection{中断处理}
 \label{subs:中断处理}
+
+{\linespread{1}\lstinputlisting[caption={GDT和IDT结构体},linerange={103-113}]{osask/src/sys/bootpack.h}}
 
 首先是初始化GDT和IDT：
 {\linespread{1}\lstinputlisting[caption={初始化GDT和IDT},linerange={5-36}]{osask/src/sys/dsctbl.c}}
@@ -62,17 +73,18 @@
 初始化PIC：
 {\linespread{1}\lstinputlisting[caption={初始化PIC},linerange={6-25}]{osask/src/sys/int.c}}
 
-\subsection{设备管理}
-\label{sub:设备管理}
-
 \subsubsection{键盘}
 \label{subs:键盘}
+
+{\linespread{1}\lstinputlisting[caption={键缓冲区结构体},linerange={132-135}]{osask/src/sys/bootpack.h}}
 
 {\linespread{1}\lstinputlisting[caption={PS/2键盘中断},linerange={9-16}]{osask/src/sys/keyboard.c}}
 {\linespread{1}\lstinputlisting[caption={键盘初始化},linerange={36-47}]{osask/src/sys/keyboard.c}}
 
 \subsubsection{鼠标}
 \label{subs:鼠标}
+
+{\linespread{1}\lstinputlisting[caption={鼠标设备结构体},linerange={164-167}]{osask/src/sys/bootpack.h}}
 
 {\linespread{1}\lstinputlisting[caption={PS/2鼠标中断},linerange={9-17}]{osask/src/sys/mouse.c}}
 
@@ -97,6 +109,8 @@
 \subsubsection{窗口管理器}
 \label{subs:窗口管理器}
 
+{\linespread{1}\lstinputlisting[caption={图层管理器结构体},linerange={197-209}]{osask/src/sys/bootpack.h}}
+
 {\linespread{1}\lstinputlisting[caption={初始化图层管理器},linerange={7-30}]{osask/src/sys/sheet.c}}
 {\linespread{1}\lstinputlisting[caption={为新图层分配内存},linerange={32-46}]{osask/src/sys/sheet.c}}
 
@@ -115,6 +129,8 @@
 \subsection{进程管理}
 \label{sub:进程管理}
 
+{\linespread{1}\lstinputlisting[caption={进程相关结构体},linerange={252-284}]{osask/src/sys/bootpack.h}}
+
 {\linespread{1}\lstinputlisting[caption={新建进程},linerange={8-21}]{osask/src/sys/mtask.c}}
 {\linespread{1}\lstinputlisting[caption={移除进程},linerange={23-52}]{osask/src/sys/mtask.c}}
 {\linespread{1}\lstinputlisting[caption={切换进程},linerange={54-66,161-180}]{osask/src/sys/mtask.c}}
@@ -126,11 +142,38 @@
 \subsection{内存管理}
 \label{sub:内存管理}
 
+{\linespread{1}\lstinputlisting[caption={内存块结构体},linerange={177-179}]{osask/src/sys/bootpack.h}}
+{\linespread{1}\lstinputlisting[caption={内存管理器结构体},linerange={181-184}]{osask/src/sys/bootpack.h}}
+
+{\linespread{1}\lstinputlisting[caption={初始化内存管理器},linerange={41-48}]{osask/src/sys/memory.c}}
+{\linespread{1}\lstinputlisting[caption={空闲内存总大小},linerange={51-58}]{osask/src/sys/memory.c}}
+{\linespread{1}\lstinputlisting[caption={分配内存块},linerange={61-81}]{osask/src/sys/memory.c}}
+{\linespread{1}\lstinputlisting[caption={释放内存块},linerange={84-144}]{osask/src/sys/memory.c}}
+
 \subsection{文件管理}
 \label{sub:文件管理}
+
+{\linespread{1}\lstinputlisting[caption={文件结构体},linerange={346-351}]{osask/src/sys/bootpack.h}}
+{\linespread{1}\lstinputlisting[caption={读入FAT表},linerange={6-15}]{osask/src/sys/file.c}}
+{\linespread{1}\lstinputlisting[caption={读入一个文件},linerange={17-35}]{osask/src/sys/file.c}}
+{\linespread{1}\lstinputlisting[caption={查找指定文件},linerange={37-76}]{osask/src/sys/file.c}}
 
 \subsection{系统接口}
 \label{sub:系统接口}
 
-\subsection{应用程序}
-\label{sub:应用程序}
+{\linespread{1}\lstinputlisting[caption={系统接口声明}]{osask/src/apilib.h}}
+{\linespread{1}\lstinputlisting[caption={系统接口},linerange={395-598}]{osask/src/sys/console.c}}
+
+\subsubsection{终端}
+\label{subs:终端}
+
+{\linespread{1}\lstinputlisting[caption={终端结构体},linerange={316-320}]{osask/src/sys/bootpack.h}}
+{\linespread{1}\lstinputlisting[caption={启动一个终端},linerange={7-112}]{osask/src/sys/console.c}}
+{\linespread{1}\lstinputlisting[caption={向终端中写出字符},linerange={114-149}]{osask/src/sys/console.c}}
+{\linespread{1}\lstinputlisting[caption={终端中换行},linerange={151-175}]{osask/src/sys/console.c}}
+{\linespread{1}\lstinputlisting[caption={向终端中写出字符串},linerange={177-192}]{osask/src/sys/console.c}}
+{\linespread{1}\lstinputlisting[caption={运行命令},linerange={194-218}]{osask/src/sys/console.c}}
+{\linespread{1}\lstinputlisting[caption={清屏},linerange={229-241}]{osask/src/sys/console.c}}
+{\linespread{1}\lstinputlisting[caption={列举目录},linerange={243-266}]{osask/src/sys/console.c}}
+{\linespread{1}\lstinputlisting[caption={退出},linerange={268-286}]{osask/src/sys/console.c}}
+{\linespread{1}\lstinputlisting[caption={执行程序},linerange={288-392}]{osask/src/sys/console.c}}

@@ -21,26 +21,60 @@
   \item 系统结构
 \end{itemize}
 
-\subsection{进程}
+该操作系统实现了基本的进程管理、内存管理、窗口和图层管理，以及简陋的文件管理。
 
-进程（process），是计算机中已运行程序的实体。进程为曾经是分时系统的基本运作单位。
+下面的截图展示了操作系统的实际运行效果。
 
-一个计算机系统进程包括下列数据：
-\begin{itemize}
-  \item 那个程序的可运行机器码的一个在存储器的映像。
-  \item 分配到的存储器。存储器的内容包括可运行代码、特定于进程的数据、调用堆栈、堆栈。
-  \item 分配给该进程的资源的操作系统描述符，诸如文件描述符、数据源和数据终端。
-  \item 安全特性，诸如进程拥有者和进程的权限集。
-  \item 处理器状态，诸如寄存器内容、物理存储器定址等。当进程正在运行时，状态通常存储在寄存器，其他情况在存储器。
-\end{itemize}
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=12cm]{image/p1.png}
+    \caption{}
+    \label{fig:p1}
+\end{figure}
 
-进程在运行时，状态（state）会改变。所谓状态，就是指进程目前的动作：
-\begin{itemize}
-  \item 创建（new）：进程新产生中。
-  \item 运行（running）：正在运行。
-  \item 等待（waiting）：等待某事发生，例如等待用户输入完成。亦称“阻塞”（blocked）。
-  \item 就绪（ready）：排班中，等待CPU。
-  \item 完成（finish）：完成运行。
-\end{itemize}
+% \begin{figure}[htp]
+%     \centering
+%     \includegraphics[width=12cm]{image/p2.png}
+%     \caption{}
+%     \label{fig:p2}
+% \end{figure}
 
-\subsection{存储器管理}
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=12cm]{image/p3.png}
+    \caption{}
+    \label{fig:p3}
+\end{figure}
+
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=12cm]{image/p4.png}
+    \caption{}
+    \label{fig:p4}
+\end{figure}
+
+
+%
+% \subsection{进程}
+%
+% 进程（process），是计算机中已运行程序的实体。进程为曾经是分时系统的基本运作单位。
+%
+% 一个计算机系统进程包括下列数据：
+% \begin{itemize}
+%   \item 那个程序的可运行机器码的一个在存储器的映像。
+%   \item 分配到的存储器。存储器的内容包括可运行代码、特定于进程的数据、调用堆栈、堆栈。
+%   \item 分配给该进程的资源的操作系统描述符，诸如文件描述符、数据源和数据终端。
+%   \item 安全特性，诸如进程拥有者和进程的权限集。
+%   \item 处理器状态，诸如寄存器内容、物理存储器定址等。当进程正在运行时，状态通常存储在寄存器，其他情况在存储器。
+% \end{itemize}
+%
+% 进程在运行时，状态（state）会改变。所谓状态，就是指进程目前的动作：
+% \begin{itemize}
+%   \item 创建（new）：进程新产生中。
+%   \item 运行（running）：正在运行。
+%   \item 等待（waiting）：等待某事发生，例如等待用户输入完成。亦称“阻塞”（blocked）。
+%   \item 就绪（ready）：排班中，等待CPU。
+%   \item 完成（finish）：完成运行。
+% \end{itemize}
+%
+% \subsection{存储器管理}

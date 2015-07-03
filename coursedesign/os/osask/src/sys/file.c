@@ -1,8 +1,8 @@
-/* ÎÄ¼şÏà¹Ø */
+/* æ–‡ä»¶ç›¸å…³ */
 
 #include "bootpack.h"
 
-/* ½âÑ¹ËõFAT12¸ñÊ½ */
+/* è§£å‹ç¼©FAT12æ ¼å¼ */
 void file_readfat(int* fat, unsigned char* img)
 {
     int i, j = 0;
@@ -44,14 +44,14 @@ fileinfo* file_search(char* name, fileinfo* finfo, int max)
     j = 0;
     for (i = 0; name[i] != 0; i++) {
         if (j >= 11) {
-            return 0; /* ÕÒ²»µ½ */
+            return 0; /* æ‰¾ä¸åˆ° */
         }
         if (name[i] == '.' && j <= 8) {
             j = 8;
         } else {
             s[j] = name[i];
             if ('a' <= s[j] && s[j] <= 'z') {
-                /* ×ª³É´óĞ´ */
+                /* è½¬æˆå¤§å†™ */
                 s[j] -= 0x20;
             }
             j++;
@@ -67,10 +67,10 @@ fileinfo* file_search(char* name, fileinfo* finfo, int max)
                     goto next;
                 }
             }
-            return finfo + i; /* ÕÒµ½ÎÄ¼ş */
+            return finfo + i; /* æ‰¾åˆ°æ–‡ä»¶ */
         }
     next:
         i++;
     }
-    return 0; /* Î´ÕÒµ½ÎÄ¼ş */
+    return 0; /* æœªæ‰¾åˆ°æ–‡ä»¶ */
 }
