@@ -1612,7 +1612,7 @@ tl_connect_out_fn(void* cookie, socket_t so, const struct sockaddr* to)
         // ensure port is in host format
         tlp->tle_remote6.sin6_port = ntohs(tlp->tle_remote6.sin6_port);
     }
-    if (tl_stats.tls_log > 0) {
+    if (tl_stats.tls_log > 0) { 
         unsigned char addrString[256];
         in_port_t port;
         if (tlp->tle_protocol == AF_INET) {

@@ -224,7 +224,7 @@
 		26EECAB31B43BD2000632A30 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Developer ID";
+				CODE_SIGN_IDENTITY = "";
 				INFOPLIST_FILE = SocketForward/Info.plist;
 				MODULE_NAME = kingfree.SocketForward;
 				MODULE_START = SocketForward_start;
@@ -238,7 +238,7 @@
 		26EECAB41B43BD2000632A30 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Developer ID";
+				CODE_SIGN_IDENTITY = "";
 				INFOPLIST_FILE = SocketForward/Info.plist;
 				MODULE_NAME = kingfree.SocketForward;
 				MODULE_START = SocketForward_start;
