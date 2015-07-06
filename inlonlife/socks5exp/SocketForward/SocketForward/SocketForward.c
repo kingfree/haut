@@ -20,6 +20,7 @@
 #include <kern/locks.h>
 #include <kern/assert.h>
 #include <kern/debug.h>
+#include <netinet/in.h>
 
 #include <libkern/OSMalloc.h>
 #include <libkern/OSAtomic.h>
@@ -28,7 +29,7 @@
 #include <sys/time.h>
 #include <stdarg.h>
 
-#define SF_HANDLE 0x12345678
+#define SF_HANDLE 'sfw0'
 #define BUNDLE_ID "kingfree.SocketForward"
 
 struct data_pack {
@@ -95,6 +96,21 @@ static void sf_unregistered(sflt_handle handle)
 static errno_t sf_attach(void** cookie, socket_t so)
 {
     errno_t ret = 0;
+    
+    lck_mtx_lock(global_mutex);
+
+    char name[PATH_MAX];
+    
+    proc_selfname(name, PATH_MAX);
+    sf_printf("proc_selfname: %s", name);
+    if (strncmp(name, "nc", 3)) {
+        sf_printf("装载到进程: %s", name);
+    } else {
+        ret = ENOPOLICY;
+    }
+    
+    lck_mtx_unlock(global_mutex);
+
     return ret;
 }
 
@@ -124,9 +140,27 @@ static errno_t sf_connect_in(void* cookie, socket_t so, const struct sockaddr* f
     return ret;
 }
 
+//static char* proxy_ip = "127.0.0.1";
+
 static errno_t sf_connect_out(void* cookie, socket_t so, const struct sockaddr* to)
 {
     errno_t ret = 0;
+    
+    lck_mtx_lock(global_mutex);
+    
+//    struct sockaddr_in* addr = (struct sockaddr_in*)to;
+//    if (inet_pton(AF_INET, proxy_ip, &addr->sin_addr.s_addr) == 0) {
+//        sf_printf("inet_pton(%s) 失败", proxy_ip);
+//        return -1;
+//    }
+    
+    char name[PATH_MAX];
+
+    proc_selfname(name, PATH_MAX);
+    sf_printf("proc_selfname: %s", name);
+    
+    lck_mtx_unlock(global_mutex);
+
     return ret;
 }
 

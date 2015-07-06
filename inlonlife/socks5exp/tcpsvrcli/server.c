@@ -1,15 +1,4 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define SERV_PORT 9877
-#define LISTENQ 1024
-#define MAX_LEN 1024
+#include "network.h"
 
 int main(int argc, char const* argv[])
 {
@@ -45,8 +34,7 @@ int main(int argc, char const* argv[])
         if (conn_fd == -1) {
             if (errno == EINTR) {
                 continue;
-            }
-            else {
+            } else {
                 perror("accept()");
                 exit(-1);
             }
@@ -56,31 +44,18 @@ int main(int argc, char const* argv[])
         if (child_pid == 0) {
             close(listen_fd);
             for (;;) {
-                int n = 0;
-                n = read(conn_fd, buf, MAX_LEN);
-                if (n == -1) {
-                    if (errno != EINTR) {
-                        perror("read()");
-                        exit(-1);
-                    }
-                }
-                else if (n == 0) {
+                int n = readn(conn_fd, buf, MAX_LEN);
+                if (n < 0) {
+                    perror("readn()");
+                    exit(-1);
+                } else if (n == 0) {
                     break;
                 }
 
-                int m = 0, r = 0;
-                while (r < n) {
-                    m = write(conn_fd, buf + r, n - r);
-                    if (m == -1) {
-                        if (errno != EINTR) {
-                            perror("write()");
-                            exit(-1);
-                        }
-                    }
-                    else if (m == 0) {
-                        break;
-                    }
-                    r += m;
+                int m = writen(conn_fd, buf, n);
+                if (m < 0) {
+                    perror("writen()");
+                    exit(-1);
                 }
             }
             exit(0);

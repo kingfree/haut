@@ -7,13 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		26B005E51B4222BB008990A3 /* AppFireWall.c in Sources */ = {isa = PBXBuildFile; fileRef = 26B005E41B4222BB008990A3 /* AppFireWall.c */; };
+		2663E0D31B4A4CCB00F0F39D /* socks5.c in Sources */ = {isa = PBXBuildFile; fileRef = 2663E0D11B4A4CCB00F0F39D /* socks5.c */; };
+		2663E0D41B4A4CCB00F0F39D /* socks5.h in Headers */ = {isa = PBXBuildFile; fileRef = 2663E0D21B4A4CCB00F0F39D /* socks5.h */; };
+		2663E0D61B4A502000F0F39D /* AppFireWall.c in Sources */ = {isa = PBXBuildFile; fileRef = 2663E0D51B4A502000F0F39D /* AppFireWall.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2663E0D11B4A4CCB00F0F39D /* socks5.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = socks5.c; sourceTree = "<group>"; };
+		2663E0D21B4A4CCB00F0F39D /* socks5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socks5.h; sourceTree = "<group>"; };
+		2663E0D51B4A502000F0F39D /* AppFireWall.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = AppFireWall.c; sourceTree = "<group>"; };
 		26B005DF1B4222BB008990A3 /* AppFireWall.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppFireWall.kext; sourceTree = BUILT_PRODUCTS_DIR; };
 		26B005E31B4222BB008990A3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		26B005E41B4222BB008990A3 /* AppFireWall.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = AppFireWall.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,7 +50,9 @@
 		26B005E11B4222BB008990A3 /* AppFireWall */ = {
 			isa = PBXGroup;
 			children = (
-				26B005E41B4222BB008990A3 /* AppFireWall.c */,
+				2663E0D51B4A502000F0F39D /* AppFireWall.c */,
+				2663E0D11B4A4CCB00F0F39D /* socks5.c */,
+				2663E0D21B4A4CCB00F0F39D /* socks5.h */,
 				26B005E21B4222BB008990A3 /* Supporting Files */,
 			);
 			path = AppFireWall;
@@ -67,6 +73,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2663E0D41B4A4CCB00F0F39D /* socks5.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,7 +144,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				26B005E51B4222BB008990A3 /* AppFireWall.c in Sources */,
+				2663E0D31B4A4CCB00F0F39D /* socks5.c in Sources */,
+				2663E0D61B4A502000F0F39D /* AppFireWall.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

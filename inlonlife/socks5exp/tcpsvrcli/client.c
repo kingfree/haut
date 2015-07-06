@@ -1,16 +1,4 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define SERV_PORT 9877
-#define LISTENQ 1024
-#define MAX_LEN 1024
+#include "network.h"
 
 int main(int argc, char const* argv[])
 {
@@ -25,7 +13,7 @@ int main(int argc, char const* argv[])
         exit(-1);
     }
 
-    struct sockaddr_in server_addr, client_addr;
+    struct sockaddr_in server_addr;
     bzero(&server_addr, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(SERV_PORT);
@@ -40,23 +28,23 @@ int main(int argc, char const* argv[])
     }
 
     char buf[MAX_LEN];
+    char recv[MAX_LEN];
 
     while (fgets(buf, MAX_LEN, stdin) != NULL) {
-        int m = 0, n = strlen(buf), r = 0;
-        while (r < n) {
-            m = write(socket_fd, buf + r, n - r);
-            if (m == -1) {
-                if (errno != EINTR) {
-                    perror("write()");
-                    exit(-1);
-                }
-            }
-            else if (m == 0) {
-                break;
-            }
-            r += m;
+        int m = writen(socket_fd, buf, strlen(buf));
+        if (m < 0) {
+            perror("writen()");
+            exit(-1);
         }
-        fputs(buf, stdout);
+        int n = readline(socket_fd, recv, MAX_LEN);
+        if (n < 0) {
+            perror("readline()");
+            exit(-1);
+        } else if (n == 0) {
+            printf("服务器已关闭\n");
+            exit(0);
+        }
+        fputs(recv, stdout);
     }
 
     return 0;
