@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>CFFCE70F-A406-4B4D-839F-93E610C69A91</string>
 	<key>IDESourceControlProjectName</key>
-	<string>TcpLogNKE</string>
+	<string>project</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>2D949BDC29F3F75DB95BA2C74428A717BCF50ED1</key>
 		<string>https://github.com/kingfree/haut</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>inlonlife/socks5exp/TcpLogNKE/TcpLogNKE.xcodeproj</string>
+	<string>inlonlife/socks5exp/TcpLogNKE/TcpLogNKE.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>2D949BDC29F3F75DB95BA2C74428A717BCF50ED1</key>

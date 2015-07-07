@@ -108,6 +108,7 @@ static void appwall_unregistered(sflt_handle handle)
 
 static errno_t appwall_attach(void** cookie, socket_t so)
 {
+    sf_println("appwall_attach");
     errno_t result = 0;
     struct appwall_entry* entry;
     char name[PATH_MAX];
@@ -140,6 +141,7 @@ static errno_t appwall_attach(void** cookie, socket_t so)
 
 static void appwall_detach(void* cookie, socket_t so)
 {
+    sf_println("appwall_detach");
     struct appwall_entry* entry;
 
     if (cookie) {
@@ -174,6 +176,7 @@ static void appwall_detach(void* cookie, socket_t so)
 
 static errno_t appwall_data_in(void* cookie, socket_t so, const struct sockaddr* from, mbuf_t* data, mbuf_t* control, sflt_data_flag_t flags)
 {
+    sf_println("appwall_data_in");
     struct appwall_entry* entry;
     errno_t result = 0;
 
@@ -207,18 +210,33 @@ void appwall_sock_upcall(socket_t so, void* cookie, int waitf)
 
 }
 
+static mbuf_tag_id_t appwall_id;
+static mbuf_tag_type_t appwall_type;
+
 static errno_t appwall_data_out(void* cookie, socket_t so, const struct sockaddr* to, mbuf_t* data, mbuf_t* control, sflt_data_flag_t flags)
 {
+    sf_println("appwall_data_out");
     struct appwall_entry* entry;
     errno_t result = 0;
+    size_t len;
 
     if (!(entry = (struct appwall_entry*)cookie)) {
+        sf_println("no cookie");
         goto failed;
     }
 
+    int* tag_ref;
+    errno_t status = mbuf_tag_find(*data, appwall_id, appwall_type, &len, (void**)&tag_ref);
+    if (status == 0 && *tag_ref == 4 && len == sizeof(int)) {
+        sf_println("获取到标记");
+        return 0;
+    }
+    
+    sf_println("getting mutex");
     lck_mtx_lock(g_mutex);
+    sf_println("get mutex");
 
-    size_t len = mbuf_pkthdr_len(*data);
+    len = mbuf_pkthdr_len(*data);
 
     struct sockaddr sin, sout;
     sock_getsockname(so, &sin, sizeof(sin));
@@ -241,7 +259,7 @@ static errno_t appwall_data_out(void* cookie, socket_t so, const struct sockaddr
         result = EPERM;
     
     if (entry->desc.do_forward) {
-
+        sf_println("do_forward");
     }
 
     lck_mtx_unlock(g_mutex);
@@ -252,6 +270,7 @@ failed:
 
 static errno_t appwall_connect_in(void* cookie, socket_t so, const struct sockaddr* from)
 {
+    sf_println("appwall_connect_in");
     struct appwall_entry* entry;
     errno_t result = 0;
 
@@ -280,6 +299,7 @@ failed:
 
 static errno_t appwall_connect_out(void* cookie, socket_t so, const struct sockaddr* to)
 {
+    sf_println("appwall_connect_out");
     struct appwall_entry* entry;
     errno_t result = 0;
 
@@ -332,12 +352,39 @@ static char* event_t_string[] = {
     "sock_evt_bound"
 };
 
+static errno_t
+prepend_mbuf_hdr(mbuf_t* data, size_t pkt_len)
+{
+    mbuf_t new_hdr;
+    errno_t status;
+    
+    status = mbuf_gethdr(MBUF_WAITOK, MBUF_TYPE_DATA, &new_hdr);
+    if (status == 0) {
+        /* we've created a replacement header, now we have to set things up */
+        /* set the mbuf argument as the next mbuf in the chain */
+        mbuf_setnext(new_hdr, *data);
+        
+        /* set the next packet attached to the mbuf argument in the pkt hdr */
+        mbuf_setnextpkt(new_hdr, mbuf_nextpkt(*data));
+        /* set the total chain len field in the pkt hdr */
+        mbuf_pkthdr_setlen(new_hdr, pkt_len);
+        mbuf_setlen(new_hdr, 0);
+        
+        mbuf_pkthdr_setrcvif(*data, NULL);
+        
+        /* now set the new mbuf_t as the new header mbuf_t */
+        *data = new_hdr;
+    }
+    return status;
+}
+
 void appwall_notify_func(void* cookie, socket_t so, sflt_event_t event, void* param)
 {
+    sf_println("appwall_notify_func");
     struct appwall_entry* entry;
 
     if (!(entry = (struct appwall_entry*)cookie)) {
-        goto failed;
+        goto finally;
     }
 
     lck_mtx_lock(g_mutex);
@@ -355,7 +402,7 @@ void appwall_notify_func(void* cookie, socket_t so, sflt_event_t event, void* pa
         mbuf_t data;
         char buf[256] = {0}, *p;
         size_t len;
-        unsigned int chunks;
+        unsigned int chunks = 0;
         
         struct sockaddr sin, sout;
         sock_getsockname(so, &sin, sizeof(sin));
@@ -367,76 +414,123 @@ void appwall_notify_func(void* cookie, socket_t so, sflt_event_t event, void* pa
         log_ip_and_port_addr((struct sockaddr_in*)&sout);
         sf_println(" 地址");
         
-        p = buf;
-        *p++ = 0x05; // version
-        *p++ = 0x02; // user pass auth
-        *p++ = 0x00;
-        *p++ = 0x02;
         if (mbuf_allocpacket(MBUF_DONTWAIT, 256, &chunks, &data) != 0) {
             sf_println("mbuf_allocpacket() 失败");
             goto failed;
         }
         sf_println("mbuf_allocpacket()");
-        if (mbuf_copyback(data, 0, 256, buf, MBUF_DONTWAIT) != 0) {
+        
+        p = buf;
+        *p++ = 0x05; // VER
+        *p++ = 0x01; // NMETHODS
+        *p++ = 0x02; // METHODS[1]
+        len = p - buf;
+        
+        if (mbuf_copyback(data, 0, len, buf, MBUF_DONTWAIT) != 0) {
             sf_println("mbuf_copyback() 失败");
             goto failed;
         }
         sf_println("mbuf_copyback()");
-        if (sock_sendmbuf(so, NULL, data, MSG_DONTWAIT, &len) != 0) {
+        
+        int* tag_ref = NULL;
+        int value = 4;
+        errno_t status = mbuf_tag_allocate(data, appwall_id, appwall_type, sizeof(value), MBUF_WAITOK, (void**)&tag_ref);
+        if (status == 0) {
+            *tag_ref = value;
+            sf_println("已打上标记");
+        } else if (status == EINVAL) {
+            mbuf_flags_t flags;
+            // check to see if the mbuf_tag_allocate failed because the mbuf_t has the M_PKTHDR flag bit not set
+            flags = mbuf_flags(data);
+            if ((flags & MBUF_PKTHDR) == 0) {
+                mbuf_t m = data;
+                size_t totalbytes = 0;
+                
+                /* the packet is missing the MBUF_PKTHDR bit. In order to use the mbuf_tag_allocate, function,
+                 we need to prepend an mbuf to the mbuf which has the MBUF_PKTHDR bit set.
+                 We cannot just set this bit in the flags field as there are assumptions about the internal
+                 fields which there are no API's to access.
+                 */
+                sf_println("mbuf_t missing MBUF_PKTHDR bit");
+                
+                while (m) {
+                    totalbytes += mbuf_len(m);
+                    m = mbuf_next(m); // look at the next mbuf
+                }
+                status = prepend_mbuf_hdr(&data, totalbytes);
+                if (status == KERN_SUCCESS) {
+                    status = mbuf_tag_allocate(data, appwall_id, appwall_type, sizeof(value), MBUF_WAITOK, (void**)&tag_ref);
+                    if (status) {
+                        sf_println("mbuf_tag_allocate failed a second time, status was %d", status);
+                    }
+                }
+            }
+        }
+        
+        if (sock_sendmbuf(so, NULL, data, 0, &len) != 0) {
+//        if (sock_send(so, buf, 0, &len) != 0) {
             sf_println("sock_sendmbuf() 失败");
             goto failed;
         }
-        sf_println("sock_sendmbuf()");
-        sf_println("协商方法 长度 %zu ...", len);
+        sf_println("sock_sendmbuf(%uz)", len);
+
         if (sock_receivembuf(so, NULL, &data, MSG_DONTWAIT, &len) != 0) {
             sf_println("sock_receivembuf() 失败");
             goto failed;
         }
-        sf_println("响应 长度 %zu", len);
+        sf_println("sock_receivembuf() %zu", len);
         
-        if (buf[1] != 0x02) {
-            sf_println("协议有误");
+        if (buf[0] != 0x05 || buf[1] != 0x02) { // VER | METHOD
+            sf_println("不可认证");
             goto failed;
         }
-        
+        sf_println("协商成功");
+
         p = buf;
-        *p++ = 0x01; // version
+        *p++ = 0x01; // VER
         
         len = strlen(PROXY_USER);
-        *p++ = len;
-        strncpy(p, PROXY_USER, len);
-        p += len;
-
-        len = strlen(PROXY_PASS);
-        *p++ = len;
-        strncpy(p, PROXY_PASS, len);
+        *p++ = len; // ULEN
+        strncpy((char*)p, PROXY_USER, len); // UNAME
         p += len;
         
-        if (mbuf_copyback(data, 0, 256, buf, MBUF_DONTWAIT) != 0) {
+        len = strlen(PROXY_PASS);
+        *p++ = len; // PLEN
+        strncpy((char*)p, PROXY_PASS, len); // PASSWD
+        p += len;
+        
+        len = p - buf;
+        
+        if (mbuf_copyback(data, 0, len, buf, MBUF_DONTWAIT) != 0) {
             sf_println("mbuf_setdata() 失败");
             goto failed;
         }
+        sf_println("mbuf_setdata()");
+
         if (sock_sendmbuf(so, NULL, data, MSG_DONTWAIT, &len) != 0) {
             sf_println("sock_sendmbuf() 失败");
             goto failed;
         }
-        sf_println("协商方法 长度 %zu ...", len);
+        sf_println("sock_sendmbuf() %zu", len);
+
         if (sock_receivembuf(so, NULL, &data, MSG_DONTWAIT, &len) != 0) {
             sf_println("sock_receivembuf() 失败");
             goto failed;
         }
-        sf_println("响应 长度 %zu", len);
+        sf_println("sock_receivembuf() %zu", len);
         
-        if (buf[1] != 0) {
-            sf_println("验证失败");
+        if (buf[0] != 0x01 || buf[1] != 0x00) { // VER | STATUS
+            sf_println("认证失败");
             goto failed;
         }
-        
+        sf_println("认证成功");
+
+    failed:
         mbuf_free(data);
     }
 
 
-failed:
+finally:
 
     lck_mtx_unlock(g_mutex);
     
@@ -504,22 +598,27 @@ kern_return_t AppFireWall_start(kmod_info_t* ki, void* d)
     TAILQ_INIT(&g_block_list);
 
     if (!(g_osm_tag = OSMalloc_Tagalloc(BUNDLE_ID, OSMT_DEFAULT))) {
-        printf("应用防火墙: 初始化内存标记失败\n");
+        sf_println("初始化内存标记失败");
         goto failed;
     }
 
     if (!(g_mutex_group = lck_grp_alloc_init(BUNDLE_ID, LCK_GRP_ATTR_NULL))) {
-        printf("应用防火墙: 初始化锁组失败\n");
+        sf_println("初始化锁组失败");
         goto failed;
     }
 
     if (!(g_mutex = lck_mtx_alloc_init(g_mutex_group, LCK_ATTR_NULL))) {
-        printf("应用防火墙: 初始化锁失败\n");
+        sf_println("初始化锁失败");
+        goto failed;
+    }
+    
+    if (mbuf_tag_id_find(BUNDLE_ID, &appwall_id) != 0) {
+        sf_println("mbuf_tag_id_find 失败");
         goto failed;
     }
 
     if (sflt_register(&socket_tcp_filter, PF_INET, SOCK_STREAM, IPPROTO_TCP) != KERN_SUCCESS) {
-        printf("应用防火墙: 注册套接字过滤器失败\n");
+        sf_println("注册套接字过滤器失败");
         goto failed;
     }
 
