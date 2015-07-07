@@ -42,7 +42,7 @@ typedef struct _SOCKS5_REQUEST // 客户端请求连接真实主机
     char version; // 客户端支持的Socks 版本，0x04 或者0x05
     char cmd; // 客户端命令，CONNECT 为0x01，BIND 为0x02，UDP 为0x03，一般 为0x01
     char reserved; // 保留位，恒定位0x00
-    char address_type; // 客户端请求的真实主机的地址类型，IP V4 为0x01,IP  V6 为0x04，域名为0x03
+    char address_type; // 客户端请求的真实主机的地址类型，IP V4 为0x00,IP  V6 为0x04，域名为0x03
     char address_port[1]; // 如果address_type 为域名，此处第一字节为域名长度，其后为域名本身，无0 字符结尾,域名后为真实主机绑定端口
 } SOCKS5_REQUEST;
 #endif

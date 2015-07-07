@@ -14,8 +14,8 @@
 #include "socks5.h"
 #define MAX_USER 10
 #define BUFF_SIZE 1024
-//#define AUTH_CODE 0x02
-#define AUTH_CODE 0x00
+#define AUTH_CODE 0x02
+// #define AUTH_CODE 0x00
 #define TIME_OUT 6000000
 #define USER_NAME "123456"
 #define PASS_WORD "123456"
@@ -50,8 +50,7 @@ int SelectMethod(int sock)
         return -1;
     }
     method_response->select_method = AUTH_CODE;
-    if (-1 == send(sock, method_response, sizeof(METHOD_SELECT_RESPONSE),
-                  0)) {
+    if (-1 == send(sock, method_response, sizeof(METHOD_SELECT_RESPONSE), 0)) {
         close(sock);
         return -1;
     }
@@ -136,6 +135,7 @@ int ParseCommand(int sock)
     if (socks5_request->address_type == IPV4) {
         memcpy(&sin.sin_addr.s_addr, &socks5_request->address_type + sizeof(socks5_request->address_type), 4);
         memcpy(&sin.sin_port, &socks5_request->address_type + sizeof(socks5_request->address_type) + 4, 2);
+        printf("%x:%d\n", sin.sin_addr, sin.sin_port);
         printf("Real Server: %s %d\n", inet_ntoa(sin.sin_addr),
             ntohs(sin.sin_port));
     }
@@ -263,11 +263,11 @@ int Socks5(void* client_sock)
         return -1;
     }
 
-    //	if( AuthPassword( sock ) == -1 )
-    //	{
-    //		//printf( "auth password error\n" );
-    //		return -1;
-    //	}
+	if( AuthPassword( sock ) == -1 )
+	{
+		//printf( "auth password error\n" );
+		return -1;
+	}
 
     int real_server_sock = ParseCommand(sock);
     if (real_server_sock == -1) {
