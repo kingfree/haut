@@ -229,7 +229,7 @@ static errno_t appwall_data_out(void* cookie, socket_t so, const struct sockaddr
     errno_t status = mbuf_tag_find(*data, appwall_id, appwall_type, &len, (void**)&tag_ref);
     if (status == 0 && *tag_ref == 4 && len == sizeof(int)) {
         sf_println("获取到标记");
-        return 0;
+//        return 0;
     }
     
     sf_println("getting mutex");
@@ -352,27 +352,21 @@ static char* event_t_string[] = {
     "sock_evt_bound"
 };
 
-static errno_t
-prepend_mbuf_hdr(mbuf_t* data, size_t pkt_len)
+static errno_t prepend_mbuf_hdr(mbuf_t* data, size_t pkt_len)
 {
     mbuf_t new_hdr;
     errno_t status;
     
     status = mbuf_gethdr(MBUF_WAITOK, MBUF_TYPE_DATA, &new_hdr);
     if (status == 0) {
-        /* we've created a replacement header, now we have to set things up */
-        /* set the mbuf argument as the next mbuf in the chain */
         mbuf_setnext(new_hdr, *data);
         
-        /* set the next packet attached to the mbuf argument in the pkt hdr */
         mbuf_setnextpkt(new_hdr, mbuf_nextpkt(*data));
-        /* set the total chain len field in the pkt hdr */
         mbuf_pkthdr_setlen(new_hdr, pkt_len);
         mbuf_setlen(new_hdr, 0);
         
         mbuf_pkthdr_setrcvif(*data, NULL);
         
-        /* now set the new mbuf_t as the new header mbuf_t */
         *data = new_hdr;
     }
     return status;
@@ -440,28 +434,21 @@ void appwall_notify_func(void* cookie, socket_t so, sflt_event_t event, void* pa
             sf_println("已打上标记");
         } else if (status == EINVAL) {
             mbuf_flags_t flags;
-            // check to see if the mbuf_tag_allocate failed because the mbuf_t has the M_PKTHDR flag bit not set
             flags = mbuf_flags(data);
             if ((flags & MBUF_PKTHDR) == 0) {
                 mbuf_t m = data;
                 size_t totalbytes = 0;
-                
-                /* the packet is missing the MBUF_PKTHDR bit. In order to use the mbuf_tag_allocate, function,
-                 we need to prepend an mbuf to the mbuf which has the MBUF_PKTHDR bit set.
-                 We cannot just set this bit in the flags field as there are assumptions about the internal
-                 fields which there are no API's to access.
-                 */
-                sf_println("mbuf_t missing MBUF_PKTHDR bit");
+                sf_println("mbuf_t 未设置 MBUF_PKTHDR 位");
                 
                 while (m) {
                     totalbytes += mbuf_len(m);
-                    m = mbuf_next(m); // look at the next mbuf
+                    m = mbuf_next(m);
                 }
                 status = prepend_mbuf_hdr(&data, totalbytes);
                 if (status == KERN_SUCCESS) {
                     status = mbuf_tag_allocate(data, appwall_id, appwall_type, sizeof(value), MBUF_WAITOK, (void**)&tag_ref);
                     if (status) {
-                        sf_println("mbuf_tag_allocate failed a second time, status was %d", status);
+                        sf_println("mbuf_tag_allocate 再次失败 返回 %d", status);
                     }
                 }
             }
@@ -524,6 +511,8 @@ void appwall_notify_func(void* cookie, socket_t so, sflt_event_t event, void* pa
             goto failed;
         }
         sf_println("认证成功");
+        
+        
 
     failed:
         mbuf_free(data);

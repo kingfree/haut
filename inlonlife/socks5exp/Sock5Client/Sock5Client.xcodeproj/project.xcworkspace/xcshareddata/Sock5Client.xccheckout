@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>CC392C5E-733D-4CF3-87CA-2829369C90A4</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>Sock5Client</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>2D949BDC29F3F75DB95BA2C74428A717BCF50ED1</key>
 		<string>https://github.com/kingfree/haut</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>inlonlife/socks5exp/Sock5Client/Sock5Client.xcodeproj/project.xcworkspace</string>
+	<string>inlonlife/socks5exp/Sock5Client/Sock5Client.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>2D949BDC29F3F75DB95BA2C74428A717BCF50ED1</key>
