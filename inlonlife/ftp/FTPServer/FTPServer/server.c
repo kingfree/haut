@@ -62,7 +62,6 @@ void pe(const char* fmt, ...)
 
 #define MAXPATH 128
 
-int port = 21;
 int timedout = 900 * 1000;
 char buff[MAXPATH];
 
@@ -84,7 +83,7 @@ struct ftpstate {
     char wd[MAXPATH + 1];
     char* renamefrom;
     int uid;
-    int epsvall;
+//    int epsvall;
     int loggedin;
     int guest;
     int restartat;
@@ -153,6 +152,20 @@ void doreply(struct ftpstate* fs)
     
     fs->firstreply = fs->lastreply = NULL;
     fflush(fs->out);
+}
+
+/* 报告错误 */
+void error(struct ftpstate* fs, int code, char* msg)
+{
+    int err = errno;
+    if (err == 0) {
+        pe("%s", msg);
+        addreply(fs, code, "%s", msg);
+    } else {
+        char* errmsg = strerror(errno);
+        pe("%s: %s", msg, errmsg);
+        addreply(fs, code, "%s: %s", msg, errmsg);
+    }
 }
 
 /* 登录 */
@@ -240,6 +253,52 @@ void dopass(struct ftpstate* fs, char* password)
     }
 }
 
+/* 回应端口 */
+void doport(struct ftpstate* fs, unsigned int ip, unsigned int port)
+{
+    struct sockaddr_in sin;
+    
+    if (fs->datasock != -1) {
+        close(fs->datasock);
+        fs->datasock = -1;
+    }
+    
+    fs->datasock = socket(AF_INET, SOCK_STREAM, 0);
+    if (fs->datasock < 0) {
+        error(fs, 425, "无法创建套接字");
+        return;
+    }
+    
+    sin.sin_family = AF_INET;
+    sin.sin_addr.s_addr = INADDR_ANY;
+    sin.sin_port = htons(20); // 数据连接
+    if (bind(fs->datasock, (struct sockaddr*)&sin, sizeof(sin)) < 0) {
+        error(fs, 220, "绑定套接字失败");
+        close(fs->datasock);
+        fs->datasock = -1;
+        return;
+    }
+    
+    if (fs->debug) {
+        addreply(fs, 0, "数据连接端在 %s:%d", inet_ntoa(sin.sin_addr), ntohs(sin.sin_port));
+    }
+    
+    fs->dataport = port;
+    
+    if (htonl(ip) != fs->peer.sin_addr.s_addr) {
+        addreply(fs, 425, "不会打开到 %d.%d.%d.%d 的连接 (仅限 %s)",
+                 (ip >> 24) & 255, (ip >> 16) & 255, (ip >> 8) & 255, ip & 255,
+                 inet_ntoa(fs->peer.sin_addr));
+        close(fs->datasock);
+        fs->datasock = -1;
+        return;
+    }
+    
+    fs->passive = 0;
+    
+    addreply(fs, 200, "PORT 命令完成");
+}
+
 /* 执行命令 */
 int docmd(struct ftpstate* fs)
 {
@@ -287,21 +346,32 @@ int docmd(struct ftpstate* fs)
     }
     
     pp("命令 [%s %s]", cmd, arg);
-    if (strcmp(cmd, "user") == 0) {
+    if (strcmp(cmd, "user") == 0) { // USER NAME
         douser(fs, arg);
-    } else if (strcmp(cmd, "pass") == 0) {
+    } else if (strcmp(cmd, "pass") == 0) { // PASSWORD
         dopass(fs, arg);
-    } else if (strcmp(cmd, "quit") == 0) {
+    } else if (strcmp(cmd, "quit") == 0) { // LOGOUT
         addreply(fs, 221, "再见");
         return 0;
-    } else if (strcmp(cmd, "noop") == 0) {
+    } else if (strcmp(cmd, "noop") == 0) { // NOOP
         addreply(fs, 200, "冒泡");
-    } else if (strcmp(cmd, "syst") == 0) {
+    } else if (strcmp(cmd, "syst") == 0) { // SYSTEM
         struct utsname unameData;
         if (uname(&unameData) == 0) {
             addreply(fs, 215, "%s", unameData.sysname);
         }
-    } else {
+    } else if (strcmp(cmd, "feat") == 0) { // Feature
+        addreply(fs, 500, "不支持 RFC 959 以外的命令");
+    } else if (strcmp(cmd, "port") == 0) { // DATA PORT
+        unsigned int a1, a2, a3, a4, p1, p2;
+        if (sscanf(arg, "%u,%u,%u,%u,%u,%u", &a1, &a2, &a3, &a4, &p1, &p2) == 6
+            && a1 < 256 && a2 < 256 && a3 < 256 && a4 < 256 && p1 < 256 && p2 < 256) {
+            doport(fs, (a1 << 24) + (a2 << 16) + (a3 << 8) + a4, ((p1 << 8) + p2));
+        } else {
+            addreply(fs, 501, "语法错误");
+        }
+    }
+    else {
         addreply(fs, 500, "未知命令");
     }
     return 1;
@@ -380,7 +450,7 @@ int main(int argc, char* argv[])
     bzero(&server, sizeof(server));
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = htonl(INADDR_ANY);
-    server.sin_port = htons(port);
+    server.sin_port = htons(21); // 命令连接
     p("正在绑定套接字...");
     ret = bind(listen_fd, (struct sockaddr*)&server, sizeof(server));
     if (ret < 0) {
