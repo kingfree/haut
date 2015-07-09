@@ -1,12 +1,16 @@
 #include <stdio.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <syslog.h>
+#include <errno.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/utsname.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <pwd.h>
 
 /* 打印调试信息 */
 void p(const char* fmt, ...)
@@ -15,11 +19,12 @@ void p(const char* fmt, ...)
     char buf[128];
     
     va_start(p, fmt);
+    vsprintf(buf, fmt, p);
+    fprintf(stderr, "调试: %s\n", buf);
+    va_end(p);
     
-    vsnprintf(buf, sizeof(buf), fmt, p);
-    fprintf(stderr, "FTPServer: %s\n", buf);
+    va_start(p, fmt);
     syslog(LOG_DEBUG, fmt, p);
-    
     va_end(p);
 }
 
@@ -30,11 +35,12 @@ void pp(const char* fmt, ...)
     char buf[128];
     
     va_start(p, fmt);
-    
-    vsnprintf(buf, sizeof(buf), fmt, p);
-    fprintf(stderr, "FTPServer: %s\n", buf);
+    vsprintf(buf, fmt, p);
+    fprintf(stderr, "信息: %s\n", buf);
+    va_end(p);
+
+    va_start(p, fmt);
     syslog(LOG_INFO, fmt, p);
-    
     va_end(p);
 }
 
@@ -45,11 +51,12 @@ void pe(const char* fmt, ...)
     char buf[128];
     
     va_start(p, fmt);
+    vsprintf(buf, fmt, p);
+    fprintf(stderr, "错误: %s\n", buf);
+    va_end(p);
     
-    vsnprintf(buf, sizeof(buf), fmt, p);
-    fprintf(stderr, "FTPServer: %s\n", buf);
+    va_start(p, fmt);
     syslog(LOG_ERR, fmt, p);
-    
     va_end(p);
 }
 
@@ -148,15 +155,163 @@ void doreply(struct ftpstate* fs)
     fflush(fs->out);
 }
 
+/* 登录 */
+int login(struct ftpstate* fs, struct passwd* pw)
+{
+    if (initgroups(pw->pw_name, pw->pw_gid) < 0) {
+        return -1;
+    }
+    if (setgid(pw->pw_gid) < 0) {
+        return -1;
+    }
+    if (setuid(pw->pw_uid) < 0) {
+        return -1;
+    }
+    
+    fs->uid = pw->pw_uid;
+    strcpy(fs->wd, pw->pw_dir);
+    
+    return 0;
+}
+
+/* 验证用户 */
+void douser(struct ftpstate* fs, char* username)
+{
+    struct passwd* pw;
+    
+    if (fs->loggedin) {
+        if (username) {
+            if (!fs->guest) {
+                addreply(fs, 530, "您已登录");
+            } else {
+                addreply(fs, 230, "您已匿名登录");
+            }
+        }
+        return;
+    }
+
+    if (username && strcmp(username, "ftp") != 0 && strcmp(username, "anonymous") != 0) {
+        pw = getpwnam(username);
+        if (pw == NULL) {
+            addreply(fs, 331, "未知用户 %s ", username);
+        } else {
+            fs->uid = pw->pw_uid;
+            addreply(fs, 331, "用户 %s 需要密码", pw->pw_name);
+        }
+        
+        fs->loggedin = 0;
+    } else {
+        pw = getpwnam("ftp");
+        if (!pw) {
+            addreply(fs, 530, "不允许匿名用户");
+        } else {
+            if (login(fs, pw) < 0) {
+                addreply(fs, 530, "匿名用户无法登录");
+            } else {
+                addreply(fs, 230, "匿名用户登录成功");
+                fs->loggedin = fs->guest = 1;
+                pp("匿名用户登录");
+            }
+        }
+    }
+}
+
+/* 验证密码 */
+void dopass(struct ftpstate* fs, char* password)
+{
+    struct passwd* pw;
+    
+    if (fs->uid < 0) {
+        addreply(fs, 332, "需要用户");
+    } else if ((pw = getpwuid(fs->uid)) == NULL) {
+        addreply(fs, 331, "未知用户");
+    } else if (strcmp(pw->pw_passwd, crypt(password, pw->pw_passwd)) == 0) {
+        if (login(fs, pw) < 0) {
+            addreply(fs, 530, "用户无法登录");
+        } else {
+            fs->loggedin = 1;
+            addreply(fs, 230, "登陆成功。当前目录 %s", fs->wd);
+            pp("用户 %s 已登录", pw->pw_name);
+        }
+    } else {
+        // p("%s %s %s", password, pw->pw_passwd, crypt(password, pw->pw_passwd));
+        // 在 OS X 中这招行不通
+        addreply(fs, 530, "密码有误");
+    }
+}
+
 /* 执行命令 */
 int docmd(struct ftpstate* fs)
 {
-    return 0;
+    char* arg;
+    char* cmd;
+    unsigned long cmdsize;
+    int n = 0;
+    
+    if (!fgets(fs->cmd, sizeof(fs->cmd), fs->in)) {
+        if (errno == ETIMEDOUT) {
+            addreply(fs, 421, "超时 (%d 秒)", fs->idletime / 1000);
+        }
+        return -1;
+    }
+    cmd = fs->cmd;
+    cmdsize = strlen(cmd);
+    
+    if (fs->debug) {
+        addreply(fs, 0, "%s", cmd);
+    }
+    
+    n = 0;
+    while (isalpha(cmd[n]) && n < cmdsize) {
+        cmd[n] = tolower(cmd[n]);
+        n++;
+    }
+    
+    if (!n) {
+        addreply(fs, 221, "再见");
+        return 0;
+    }
+    
+    while (isspace(cmd[n]) && n < cmdsize) {
+        cmd[n++] = '\0';
+    }
+    arg = cmd + n;
+    
+    while (cmd[n] && n < cmdsize) {
+        n++;
+    }
+    n--;
+    
+    while (isspace(cmd[n])) {
+        cmd[n--] = '\0';
+    }
+    
+    pp("命令 [%s %s]", cmd, arg);
+    if (strcmp(cmd, "user") == 0) {
+        douser(fs, arg);
+    } else if (strcmp(cmd, "pass") == 0) {
+        dopass(fs, arg);
+    } else if (strcmp(cmd, "quit") == 0) {
+        addreply(fs, 221, "再见");
+        return 0;
+    } else if (strcmp(cmd, "noop") == 0) {
+        addreply(fs, 200, "冒泡");
+    } else if (strcmp(cmd, "syst") == 0) {
+        struct utsname unameData;
+        if (uname(&unameData) == 0) {
+            addreply(fs, 215, "%s", unameData.sysname);
+        }
+    } else {
+        addreply(fs, 500, "未知命令");
+    }
+    return 1;
 }
 
 /* FTP 服务器进程 */
 void ftp_task(int fd)
 {
+    p("新服务器进程！");
+    
     struct ftpstate state;
     
     bzero(&state, sizeof(state));
@@ -184,12 +339,14 @@ void ftp_task(int fd)
         return;
     }
     
-    addreply(&state, 220, "Service ready for new user.");
+    addreply(&state, 220, "欢迎");
     for (;;) {
         doreply(&state);
+        p("正在执行命令...");
         if (docmd(&state) <= 0) {
             break;
         }
+        p("执行命令");
     }
     doreply(&state);
     
