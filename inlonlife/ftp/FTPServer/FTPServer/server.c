@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/utsname.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -168,6 +169,33 @@ void error(struct ftpstate* fs, int code, char* msg)
     }
 }
 
+/* 转换路径 */
+int convert(struct ftpstate* fs, char* filename, char* buf)
+{
+    char buffer[2 * MAXPATH];
+    char* p;
+    
+    if (*filename == '/' || *filename == '\\') {
+        strcpy(buffer, filename);
+    } else {
+        strcpy(buffer, fs->wd);
+        strcat(buffer, "/");
+        strcat(buffer, filename);
+    }
+    
+    if (realpath(buffer, buf) == NULL) {
+        return -1;
+    }
+    
+    for (p = buf; *p; p++) {
+        if (*p == '\\') {
+            *p = '/';
+        }
+    }
+    
+    return 0;
+}
+
 /* 登录 */
 int login(struct ftpstate* fs, struct passwd* pw)
 {
@@ -253,6 +281,26 @@ void dopass(struct ftpstate* fs, char* password)
     }
 }
 
+/* CHANGE WORKING DIRECTORY */
+void docwd(struct ftpstate* fs, char* dir)
+{
+    char newwd[MAXPATH];
+    struct stat st;
+    
+    if (convert(fs, dir, newwd) < 0 || stat(newwd, &st) < 0) {
+        addreply(fs, 530, "无法切换目录到 %s: %s", dir, strerror(errno));
+        return;
+    }
+    
+    if (!S_ISDIR(st.st_mode)) {
+        addreply(fs, 530, "无此目录");
+        return;
+    }
+    
+    strcpy(fs->wd, newwd);
+    addreply(fs, 250, "切换目录到 %s", fs->wd);
+}
+
 /* 回应端口 */
 void doport(struct ftpstate* fs, unsigned int ip, unsigned int port)
 {
@@ -297,6 +345,52 @@ void doport(struct ftpstate* fs, unsigned int ip, unsigned int port)
     fs->passive = 0;
     
     addreply(fs, 200, "PORT 命令完成");
+}
+
+/* 被动模式 */
+void dopasv(struct ftpstate* fs)
+{
+    unsigned int a;
+    unsigned int p;
+    struct sockaddr_in sin;
+    unsigned int len;
+    
+    if (fs->datasock != -1) {
+        close(fs->datasock);
+        fs->datasock = -1;
+    }
+    
+    len = sizeof(sin);
+    if (getsockname(fs->ctrlsock, (struct sockaddr*)&sin, &len) < 0) {
+        error(fs, 425, "无法获取套接字名");
+        return;
+    }
+    
+    fs->datasock = socket(AF_INET, SOCK_STREAM, 0);
+    if (fs->datasock < 0) {
+        error(fs, 425, "无法打开被动连接");
+        return;
+    }
+    
+    sin.sin_port = 0;
+    if (bind(fs->datasock, (struct sockaddr*)&sin, sizeof(sin)) < 0) {
+        error(fs, 425, "无法绑定套接字");
+        return;
+    }
+    
+    len = sizeof(sin);
+    if (getsockname(fs->datasock, (struct sockaddr*)&sin, &len) < 0) {
+        error(fs, 425, "无法获取套接字名");
+        return;
+    }
+    
+    listen(fs->datasock, 1);
+    
+    a = ntohl(sin.sin_addr.s_addr);
+    p = ntohs(sin.sin_port);
+    addreply(fs, 227, "启用被动模式 (%d,%d,%d,%d,%d,%d)", (a >> 24) & 255, (a >> 16) & 255, (a >> 8) & 255, a & 255, (p >> 8) & 255, p & 255);
+    
+    fs->passive = 1;
 }
 
 /* 执行命令 */
@@ -346,7 +440,7 @@ int docmd(struct ftpstate* fs)
     }
     
     pp("命令 [%s %s]", cmd, arg);
-    if (strcmp(cmd, "user") == 0) { // USER NAME
+    if (strcmp(cmd, "user") == 0) {        // USER NAME
         douser(fs, arg);
     } else if (strcmp(cmd, "pass") == 0) { // PASSWORD
         dopass(fs, arg);
@@ -370,6 +464,26 @@ int docmd(struct ftpstate* fs)
         } else {
             addreply(fs, 501, "语法错误");
         }
+    } else if (strcmp(cmd, "pasv") == 0) { // PASSIVE
+        dopasv(fs);
+    } else if (strcmp(cmd, "pwd") == 0) {
+        if (fs->loggedin) {
+            addreply(fs, 257, "\"%s\"", fs->wd);
+        } else {
+            addreply(fs, 550, "未登录");
+        }
+    } else {
+        goto login_logic;
+    }
+    return 1;
+    
+login_logic:
+    douser(fs, NULL);
+    
+    if (strcmp(cmd, "cwd") == 0) {         // CHANGE WORKING DIRECTORY
+        docwd(fs, arg);
+    } else if (strcmp(cmd, "cdup") == 0) { // CHANGE TO PARENT DIRECTORY
+        docwd(fs, "..");
     }
     else {
         addreply(fs, 500, "未知命令");
@@ -380,7 +494,7 @@ int docmd(struct ftpstate* fs)
 /* FTP 服务器进程 */
 void ftp_task(int fd)
 {
-    p("新服务器进程！");
+//    p("新服务器进程！");
     
     struct ftpstate state;
     
@@ -412,11 +526,11 @@ void ftp_task(int fd)
     addreply(&state, 220, "欢迎");
     for (;;) {
         doreply(&state);
-        p("正在执行命令...");
+//        p("正在执行命令...");
         if (docmd(&state) <= 0) {
             break;
         }
-        p("执行命令");
+//        p("执行命令");
     }
     doreply(&state);
     
@@ -439,27 +553,27 @@ int main(int argc, char* argv[])
     
     openlog("FTPServer", LOG_PID | LOG_NDELAY, LOG_FTP);
     
-    p("正在创建套接字...");
+//    p("正在创建套接字...");
     listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (listen_fd < 0) {
         pe("创建套接字失败: %m");
         exit(-1);
     }
-    p("创建套接字");
+//    p("创建套接字");
 
     bzero(&server, sizeof(server));
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = htonl(INADDR_ANY);
     server.sin_port = htons(21); // 命令连接
-    p("正在绑定套接字...");
+//    p("正在绑定套接字...");
     ret = bind(listen_fd, (struct sockaddr*)&server, sizeof(server));
     if (ret < 0) {
         pe("绑定套接字失败: %m");
         exit(-1);
     }
-    p("绑定套接字");
+//    p("绑定套接字");
     
-    p("正在监听套接字...");
+//    p("正在监听套接字...");
     ret = listen(listen_fd, 5); // 传统为 5
     if (ret < 0) {
         pe("监听套接字失败: %m");
@@ -470,13 +584,13 @@ int main(int argc, char* argv[])
     for (;;) {
         struct sockaddr_in client;
         socklen_t len;
-        p("正在接收连接...");
+//        p("正在接收连接...");
         int connect_fd = accept(listen_fd, (struct sockaddr*)&client, &len);
         if (connect_fd < 0) {
             pe("接收连接失败: %m");
             exit(-1);
         }
-        p("接收连接");
+//        p("接收连接");
 
         pp("客户端请求 %s:%d", inet_ntop(AF_INET, &client.sin_addr, buff, sizeof(buff)), ntohs(client.sin_port));
         pid_t pid = fork();
@@ -485,10 +599,10 @@ int main(int argc, char* argv[])
             exit(-1);
         } else if (pid == 0) {
             close(listen_fd);
-            p("关闭监听描述符");
+//            p("关闭监听描述符");
             ftp_task(connect_fd);
             close(connect_fd);
-            p("关闭连接描述符");
+//            p("关闭连接描述符");
             exit(0);
         }
         close(connect_fd);
