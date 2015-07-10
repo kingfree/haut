@@ -6,8 +6,11 @@
 #include <stdarg.h>
 #include <syslog.h>
 #include <errno.h>
+#include <dirent.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <grp.h>
+#include <uuid/uuid.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
@@ -374,6 +377,131 @@ void docwd(struct ftpstate* fs, char* dir)
     addreply(fs, 250, "切换目录到 %s", fs->wd);
 }
 
+/* 列出目录文件 */
+void dolist(struct ftpstate* fs, char* args)
+{
+    char dirname[MAXPATH];
+    int show_list = 0;
+    int show_all = 0;
+    
+    while (isspace(*args)) {
+        args++;
+    }
+    
+    while (*args == '-') {
+        while (isalnum(*++args)) {
+            switch (*args) {
+                case 'l':
+                    show_list = 1;
+                    break;
+                case 'a':
+                    show_all = 1;
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        while (isspace(*args)) {
+            args++;
+        }
+    }
+    
+    if (convert(fs, args, dirname) < 0) {
+        error(fs, 550, args);
+        return;
+    }
+    
+    DIR* dir = opendir(dirname);
+    if (dir == NULL) {
+        error(fs, 550, dirname);
+        return;
+    }
+    
+    int sock = opendata(fs);
+    if (sock < 0) {
+        closedir(dir);
+        return;
+    }
+    doreply(fs);
+    
+    struct dirent* d;
+    int total = 0;
+    while ((d = readdir(dir)) != NULL) {
+        char buf[MAXPATH + 128];
+        
+        if (!show_all && d->d_name[0] == '.') { // 不显示隐藏文件
+            continue;
+        }
+        if (show_list) {
+            struct stat st;
+            char filename[MAXPATH * 2 + 2];
+            strcpy(filename, dirname);
+            strcat(filename, "/");
+            strcat(filename, d->d_name);
+            
+            if (stat(filename, &st) < 0) {
+                continue;
+            }
+            
+            char perms[11];
+            strcpy(perms, "----------");
+            switch (st.st_mode & S_IFWHT) {
+            case S_IFREG:
+                perms[0] = '-';
+                break;
+            case S_IFLNK:
+                perms[0] = 'l';
+                break;
+            case S_IFDIR:
+                perms[0] = 'd';
+                break;
+            case S_IFBLK:
+                perms[0] = 'b';
+                break;
+            case S_IFCHR:
+                perms[0] = 'c';
+                break;
+            default:
+                break;
+            }
+            if (st.st_mode & S_IRUSR) perms[1] = 'r';
+            if (st.st_mode & S_IWUSR) perms[2] = 'w';
+            if (st.st_mode & S_IXUSR) perms[3] = 'x';
+            if (st.st_mode & S_IRGRP) perms[4] = 'r';
+            if (st.st_mode & S_IWGRP) perms[5] = 'w';
+            if (st.st_mode & S_IXGRP) perms[6] = 'x';
+            if (st.st_mode & S_IROTH) perms[7] = 'r';
+            if (st.st_mode & S_IWOTH) perms[8] = 'w';
+            if (st.st_mode & S_IXOTH) perms[9] = 'x';
+            
+            struct tm* tm;
+            if ((tm = localtime(&st.st_mtimespec.tv_sec)) == NULL) {
+                continue;
+            }
+            char tms[20];
+            strftime(tms, 20, "%G/%m/%d %T", tm);
+            
+            struct passwd* pwd = getpwuid(st.st_uid);
+            struct group* grp = getgrgid(st.st_gid);
+            if (pwd == NULL || grp == NULL) {
+                continue;
+            }
+
+            sprintf(buf, "%10s %3d\t%s\t%s %7lld %s %s\r\n",
+                    perms, st.st_nlink, pwd->pw_name, grp->gr_name, st.st_size, tms, d->d_name);
+        } else {
+            sprintf(buf, "%s\r\n", d->d_name);
+        }
+        send(sock, buf, strlen(buf), 0);
+        total++;
+    }
+    addreply(fs, 226, "总计 %d", total);
+    
+    close(sock);
+    closedir(dir);
+}
+
 /* 取回文件 */
 void doretr(struct ftpstate* fs, char* name)
 {
@@ -667,6 +795,8 @@ login_logic:
         else {
             addreply(fs, 501, "No file name");
         }
+    } else if (strcmp(cmd, "list") == 0) { // LIST
+        dolist(fs, (arg && *arg) ? arg : "-l");
     }
     else {
         addreply(fs, 500, "未知命令");
