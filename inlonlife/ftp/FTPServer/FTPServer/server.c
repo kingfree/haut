@@ -2,10 +2,12 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <stdarg.h>
 #include <syslog.h>
 #include <errno.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
@@ -20,7 +22,7 @@ void p(const char* fmt, ...)
     char buf[128];
     
     va_start(p, fmt);
-    vsprintf(buf, fmt, p);
+    vsnprintf(buf, sizeof(buf), fmt, p);
     fprintf(stderr, "调试: %s\n", buf);
     va_end(p);
     
@@ -36,7 +38,7 @@ void pp(const char* fmt, ...)
     char buf[128];
     
     va_start(p, fmt);
-    vsprintf(buf, fmt, p);
+    vsnprintf(buf, sizeof(buf), fmt, p);
     fprintf(stderr, "信息: %s\n", buf);
     va_end(p);
 
@@ -52,7 +54,7 @@ void pe(const char* fmt, ...)
     char buf[128];
     
     va_start(p, fmt);
-    vsprintf(buf, fmt, p);
+    vsnprintf(buf, sizeof(buf), fmt, p);
     fprintf(stderr, "错误: %s\n", buf);
     va_end(p);
     
@@ -156,16 +158,25 @@ void doreply(struct ftpstate* fs)
 }
 
 /* 报告错误 */
-void error(struct ftpstate* fs, int code, char* msg)
+void error(struct ftpstate* fs, int code, char* fmt, ...)
 {
+    va_list p;
     int err = errno;
     if (err == 0) {
-        pe("%s", msg);
-        addreply(fs, code, "%s", msg);
+        va_start(p, fmt);
+        pe(fmt, p);
+        va_end(p);
+        va_start(p, fmt);
+        addreply(fs, code, fmt, p);
+        va_end(p);
     } else {
         char* errmsg = strerror(errno);
-        pe("%s: %s", msg, errmsg);
-        addreply(fs, code, "%s: %s", msg, errmsg);
+        char buf[128];
+        va_start(p, fmt);
+        vsnprintf(buf, sizeof(buf), fmt, p);
+        va_end(p);
+        pe("%s: %s", buf, errmsg);
+        addreply(fs, code, "%s: %s", buf, errmsg);
     }
 }
 
@@ -213,6 +224,68 @@ int login(struct ftpstate* fs, struct passwd* pw)
     strcpy(fs->wd, pw->pw_dir);
     
     return 0;
+}
+
+/* 打开数据连接 */
+int opendata(struct ftpstate* fs)
+{
+    struct sockaddr_in sin;
+    int sock;
+    
+    if (fs->datasock < 0) {
+        addreply(fs, 425, "无数据连接");
+        return -1;
+    }
+    
+    if (fs->passive) { // 被动模式
+        fd_set rs;
+        struct timeval tv;
+        
+        FD_ZERO(&rs);
+        FD_SET(fs->datasock, &rs);
+        tv.tv_sec = fs->idletime;
+        tv.tv_usec = 0;
+        if (select(fs->datasock + 1, &rs, NULL, NULL, &tv) < 0) { // 等待请求
+            addreply(fs, 421, "超时 (已 %d 秒无连接)", fs->idletime);
+            return -1;
+        }
+        
+        socklen_t len = sizeof(sin);
+        sock = accept(fs->datasock, (struct sockaddr*)&sin, &len);
+        if (sock < 0) {
+            error(fs, 421, "接受请求失败");
+            close(fs->datasock);
+            fs->datasock = -1;
+            return -1;
+        }
+        
+        if (!fs->guest && sin.sin_addr.s_addr != fs->peer.sin_addr.s_addr) {
+            addreply(fs, 425, "连接必须来自 %s", inet_ntoa(fs->peer.sin_addr));
+            close(sock);
+            close(fs->datasock);
+            fs->datasock = -1;
+            return -1;
+        }
+        
+        addreply(fs, 150, "接受到来自 %s:%d 的请求", inet_ntoa(sin.sin_addr), ntohs(sin.sin_port));
+    } else { // 主动模式
+        sin.sin_addr.s_addr = fs->peer.sin_addr.s_addr;
+        sin.sin_port = htons(fs->dataport);
+        sin.sin_family = AF_INET;
+        
+        if (connect(fs->datasock, (struct sockaddr*)&sin, sizeof(sin)) < 0) { // 主动连接
+            addreply(fs, 425, "无法打开数据连接到 %s:%d: %s", inet_ntoa(sin.sin_addr), fs->dataport, strerror(errno));
+            close(fs->datasock);
+            fs->datasock = -1;
+            return -1;
+        }
+        
+        sock = fs->datasock;
+        fs->datasock = -1;
+        addreply(fs, 150, "连接到 %s:%d", inet_ntoa(sin.sin_addr), fs->dataport);
+    }
+    
+    return sock;
 }
 
 /* 验证用户 */
@@ -281,7 +354,7 @@ void dopass(struct ftpstate* fs, char* password)
     }
 }
 
-/* CHANGE WORKING DIRECTORY */
+/* 切换工作目录 */
 void docwd(struct ftpstate* fs, char* dir)
 {
     char newwd[MAXPATH];
@@ -299,6 +372,111 @@ void docwd(struct ftpstate* fs, char* dir)
     
     strcpy(fs->wd, newwd);
     addreply(fs, 250, "切换目录到 %s", fs->wd);
+}
+
+/* 取回文件 */
+void doretr(struct ftpstate* fs, char* name)
+{
+    char filename[MAXPATH];
+    struct stat st;
+    char buf[4096];
+    
+    if (convert(fs, name, filename) < 0) {
+        error(fs, 550, name);
+        return;
+    }
+    
+    int fd = open(filename, O_RDONLY);
+    if (fd < 0) {
+        error(fs, 550, "无法打开 %s", name);
+        return;
+    }
+    
+    if (fstat(fd, &st)) {
+        close(fd);
+        error(fs, 451, "无法获取文件大小");
+        return;
+    }
+    
+    if (fs->restartat && fs->restartat > st.st_size) {
+        addreply(fs, 451, "文件偏移位置 %d 大于文件大小 %d\n重设偏移为 0", fs->restartat, st.st_size);
+        return;
+    }
+    
+    if (!S_ISREG(st.st_mode)) {
+        close(fd);
+        addreply(fs, 450, "非常规文件");
+        return;
+    }
+    
+    int sock = opendata(fs);
+    if (sock < 0) {
+        close(fd);
+        return;
+    }
+    
+    if (fs->restartat == st.st_size) {
+        close(fd);
+        close(sock);
+        addreply(fs, 226, "无可下载的数据\n重设偏移为 0");
+        return;
+    }
+
+    doreply(fs);
+    
+    clock_t started = clock();
+    int ofs = fs->restartat;
+    if (ofs != 0) {
+        lseek(fd, ofs, SEEK_SET);
+    }
+    
+    while (ofs < st.st_size) {
+        long n = st.st_size - ofs;
+        if (n > sizeof(buf))
+            n = sizeof(buf);
+        
+        n = read(fd, buf, n);
+        if (n <= 0) {
+            if (n == 0) {
+                addreply(fs, 451, "意外的文件结束符");
+            } else {
+                error(fs, 451, "读取文件出错");
+            }
+            
+            close(fd);
+            close(sock);
+            return;
+        }
+        
+        if (send(sock, buf, n, 0) < 0) {
+            addreply(fs, 426, "传送中止");
+            close(fd);
+            close(sock);
+            return;
+        }
+        
+        ofs += n;
+    }
+    
+    clock_t ended = clock();
+    
+    double t = (ended - started) / 1000.0;
+    addreply(fs, 226, "文件成功写出");
+    
+    double speed = 0.0;
+    if (t != 0.0 && st.st_size - fs->restartat > 0) {
+        speed = (st.st_size - fs->restartat) / t;
+    }
+    
+    pp("用时 %.3f 秒 (服务器统计), 速度 %.2f %sb/s", t, speed > 524288 ? speed / 1048576 : speed / 1024, speed > 524288 ? "M" : "K");
+    
+    close(fd);
+    close(sock);
+    
+    if (fs->restartat != 0) {
+        fs->restartat = 0;
+        addreply(fs, 0, "重设偏移为 0");
+    }
 }
 
 /* 回应端口 */
@@ -350,8 +528,6 @@ void doport(struct ftpstate* fs, unsigned int ip, unsigned int port)
 /* 被动模式 */
 void dopasv(struct ftpstate* fs)
 {
-    unsigned int a;
-    unsigned int p;
     struct sockaddr_in sin;
     unsigned int len;
     
@@ -386,8 +562,8 @@ void dopasv(struct ftpstate* fs)
     
     listen(fs->datasock, 1);
     
-    a = ntohl(sin.sin_addr.s_addr);
-    p = ntohs(sin.sin_port);
+    unsigned int a = ntohl(sin.sin_addr.s_addr);
+    unsigned int p = ntohs(sin.sin_port);
     addreply(fs, 227, "启用被动模式 (%d,%d,%d,%d,%d,%d)", (a >> 24) & 255, (a >> 16) & 255, (a >> 8) & 255, a & 255, (p >> 8) & 255, p & 255);
     
     fs->passive = 1;
@@ -484,6 +660,13 @@ login_logic:
         docwd(fs, arg);
     } else if (strcmp(cmd, "cdup") == 0) { // CHANGE TO PARENT DIRECTORY
         docwd(fs, "..");
+    } else if (strcmp(cmd, "retr") == 0) { // RETRIEVE
+        if (arg && *arg) {
+            doretr(fs, arg);
+        }
+        else {
+            addreply(fs, 501, "No file name");
+        }
     }
     else {
         addreply(fs, 500, "未知命令");
