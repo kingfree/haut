@@ -407,9 +407,10 @@ void dolist(struct ftpstate* fs, char* args)
         }
     }
     
-    if (convert(fs, args, dirname) < 0) {
-        error(fs, 550, args);
-        return;
+    convert(fs, args, dirname);
+    if (dirname[0] <= ' ') {
+        dirname[0] = '.'; // 默认为当前目录
+        dirname[1] = '\0';
     }
     
     DIR* dir = opendir(dirname);
