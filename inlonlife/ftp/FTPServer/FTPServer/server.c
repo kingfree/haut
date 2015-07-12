@@ -161,7 +161,7 @@ void doreply(struct ftpstate* fs)
 }
 
 /* 报告错误 */
-void error(struct ftpstate* fs, int code, char* fmt, ...)
+void doerror(struct ftpstate* fs, int code, char* fmt, ...)
 {
     va_list p;
     int err = errno;
@@ -256,7 +256,7 @@ int opendata(struct ftpstate* fs)
         socklen_t len = sizeof(sin);
         sock = accept(fs->datasock, (struct sockaddr*)&sin, &len);
         if (sock < 0) {
-            error(fs, 421, "接受请求失败");
+            doerror(fs, 421, "接受请求失败");
             close(fs->datasock);
             fs->datasock = -1;
             return -1;
@@ -377,6 +377,37 @@ void docwd(struct ftpstate* fs, char* dir)
     addreply(fs, 250, "切换目录到 %s", fs->wd);
 }
 
+/* 创建目录 */
+void domkd(struct ftpstate* fs, char* name)
+{
+    char filename[MAXPATH];
+    
+    convert(fs, name, filename);
+    
+    if (mkdir(filename, 0755) < 0) {
+        doerror(fs, 550, "无法创建目录");
+    } else {
+        addreply(fs, 257, "目录 '%s' 创建成功", name);
+    }
+}
+
+/* 移除目录 */
+void dormd(struct ftpstate* fs, char* name)
+{
+    char filename[MAXPATH];
+    
+    if (convert(fs, name, filename) < 0) {
+        doerror(fs, 550, name);
+        return;
+    }
+    
+    if (rmdir(filename) < 0) {
+        doerror(fs, 550, "无法移除目录");
+    } else {
+        addreply(fs, 250, "目录 '%s' 移除成功", name);
+    }
+}
+
 /* 列出目录文件 */
 void dolist(struct ftpstate* fs, char* args)
 {
@@ -415,7 +446,7 @@ void dolist(struct ftpstate* fs, char* args)
     
     DIR* dir = opendir(dirname);
     if (dir == NULL) {
-        error(fs, 550, dirname);
+        doerror(fs, 550, dirname);
         return;
     }
     
@@ -511,19 +542,19 @@ void doretr(struct ftpstate* fs, char* name)
     char buf[4096];
     
     if (convert(fs, name, filename) < 0) {
-        error(fs, 550, name);
+        doerror(fs, 550, name);
         return;
     }
     
     int fd = open(filename, O_RDONLY);
     if (fd < 0) {
-        error(fs, 550, "无法打开 %s", name);
+        doerror(fs, 550, "无法打开 %s", name);
         return;
     }
     
     if (fstat(fd, &st)) {
         close(fd);
-        error(fs, 451, "无法获取文件大小");
+        doerror(fs, 451, "无法获取文件大小");
         return;
     }
     
@@ -569,7 +600,7 @@ void doretr(struct ftpstate* fs, char* name)
             if (n == 0) {
                 addreply(fs, 451, "意外的文件结束符");
             } else {
-                error(fs, 451, "读取文件出错");
+                doerror(fs, 451, "读取文件出错");
             }
             
             close(fd);
@@ -620,7 +651,7 @@ void doport(struct ftpstate* fs, unsigned int ip, unsigned int port)
     
     fs->datasock = socket(AF_INET, SOCK_STREAM, 0);
     if (fs->datasock < 0) {
-        error(fs, 425, "无法创建套接字");
+        doerror(fs, 425, "无法创建套接字");
         return;
     }
     
@@ -628,7 +659,7 @@ void doport(struct ftpstate* fs, unsigned int ip, unsigned int port)
     sin.sin_addr.s_addr = INADDR_ANY;
     sin.sin_port = htons(20); // 数据连接
     if (bind(fs->datasock, (struct sockaddr*)&sin, sizeof(sin)) < 0) {
-        error(fs, 220, "绑定套接字失败");
+        doerror(fs, 220, "绑定套接字失败");
         close(fs->datasock);
         fs->datasock = -1;
         return;
@@ -667,25 +698,25 @@ void dopasv(struct ftpstate* fs)
     
     len = sizeof(sin);
     if (getsockname(fs->ctrlsock, (struct sockaddr*)&sin, &len) < 0) {
-        error(fs, 425, "无法获取套接字名");
+        doerror(fs, 425, "无法获取套接字名");
         return;
     }
     
     fs->datasock = socket(AF_INET, SOCK_STREAM, 0);
     if (fs->datasock < 0) {
-        error(fs, 425, "无法打开被动连接");
+        doerror(fs, 425, "无法打开被动连接");
         return;
     }
     
     sin.sin_port = 0;
     if (bind(fs->datasock, (struct sockaddr*)&sin, sizeof(sin)) < 0) {
-        error(fs, 425, "无法绑定套接字");
+        doerror(fs, 425, "无法绑定套接字");
         return;
     }
     
     len = sizeof(sin);
     if (getsockname(fs->datasock, (struct sockaddr*)&sin, &len) < 0) {
-        error(fs, 425, "无法获取套接字名");
+        doerror(fs, 425, "无法获取套接字名");
         return;
     }
     
@@ -792,12 +823,27 @@ login_logic:
     } else if (strcmp(cmd, "retr") == 0) { // RETRIEVE
         if (arg && *arg) {
             doretr(fs, arg);
-        }
-        else {
-            addreply(fs, 501, "No file name");
+        } else {
+            addreply(fs, 501, "缺少文件名");
         }
     } else if (strcmp(cmd, "list") == 0) { // LIST
         dolist(fs, (arg && *arg) ? arg : "-l");
+    } else if (strcmp(cmd, "nlst") == 0) { // NAME LIST
+        dolist(fs, "");
+    } else if (strcmp(cmd, "pwd") == 0) {  // PRINT WORKING DIRECTORY
+        addreply(fs, 257, "\"%s\"", fs->wd);
+    } else if (strcmp(cmd, "mkd") == 0) {  // MAKE DIRECTORY
+        if (arg && *arg) {
+            domkd(fs, arg);
+        } else {
+            addreply(fs, 501, "缺少目录名");
+        }
+    } else if (strcmp(cmd, "rmd") == 0) {  // REMOVE DIRECTORY
+        if (arg && *arg) {
+            dormd(fs, arg);
+        } else {
+            addreply(fs, 550, "缺少目录名");
+        }
     }
     else {
         addreply(fs, 500, "未知命令");
