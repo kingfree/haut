@@ -581,7 +581,7 @@ void doretr(struct ftpstate* fs, char* name)
         addreply(fs, 226, "无可下载的数据\n重设偏移为 0");
         return;
     }
-
+    
     doreply(fs);
     
     clock_t started = clock();
@@ -592,8 +592,9 @@ void doretr(struct ftpstate* fs, char* name)
     
     while (ofs < st.st_size) {
         long n = st.st_size - ofs;
-        if (n > sizeof(buf))
+        if (n > sizeof(buf)) {
             n = sizeof(buf);
+        }
         
         n = read(fd, buf, n);
         if (n <= 0) {
@@ -628,7 +629,7 @@ void doretr(struct ftpstate* fs, char* name)
         speed = (st.st_size - fs->restartat) / t;
     }
     
-    pp("用时 %.3f 秒 (服务器统计), 速度 %.2f %sb/s", t, speed > 524288 ? speed / 1048576 : speed / 1024, speed > 524288 ? "M" : "K");
+    pp("用时 %.3f 秒 (服务器统计), 速度 %.2lf KB/s", t, speed / 1024 / 8);
     
     close(fd);
     close(sock);
@@ -636,6 +637,106 @@ void doretr(struct ftpstate* fs, char* name)
     if (fs->restartat != 0) {
         fs->restartat = 0;
         addreply(fs, 0, "重设偏移为 0");
+    }
+}
+
+/* 传送文件 */
+void dostor(struct ftpstate* fs, char* name)
+{
+    char filename[MAXPATH];
+    struct stat st;
+    char buf[4096];
+    
+    convert(fs, name, filename);
+    
+    if (stat(filename, &st) < 0 && errno != ENOENT) {
+        doerror(fs, 553, "无法检测文件状态");
+        return;
+    }
+    
+    int fd = open(filename, O_CREAT | O_TRUNC | O_WRONLY, 0600); // 创建文件要求有权限
+    if (fd < 0) {
+        doerror(fs, 553, "无法打开文件 %s", filename);
+        return;
+    }
+    
+    if (fs->restartat && lseek(fd, fs->restartat, SEEK_SET) < 0) {
+        close(fd);
+        doerror(fs, 451, "无法设定偏移量");
+        return;
+    }
+    
+    int sock = opendata(fs);
+    if (sock < 0) {
+        close(fd);
+        return;
+    }
+    doreply(fs);
+    
+    clock_t started = clock();
+    for (;;) {
+        ssize_t n = recv(sock, buf, sizeof(buf), 0);
+        if (n < 0) {
+            doerror(fs, 451, "从数据连接中读取出错");
+            close(fd);
+            close(sock);
+            addreply(fs, 451, "%s %s", name, unlink(filename) ? "上传了部分" : "已移除");
+            return;
+        }
+        
+        if (n == 0) {
+            break;
+        }
+        
+        if (write(fd, buf, n) < 0) {
+            doerror(fs, 450, "写出文件出错");
+            close(fd);
+            close(sock);
+            addreply(fs, 450, "%s %s", name, unlink(filename) ? "上传了部分" : "已移除");
+            return;
+        }
+    }
+    fchmod(fd, 0644);
+    clock_t ended = clock();
+    
+    double t = (ended - started) / 1000.0;
+    addreply(fs, 226, "文件成功写出");
+    
+    if (fstat(fd, &st)) {
+        close(fd);
+        doerror(fs, 451, "无法获取文件大小");
+        return;
+    }
+    double speed = 0.0;
+    if (t != 0.0 && st.st_size - fs->restartat > 0) {
+        speed = (st.st_size - fs->restartat) / t;
+    }
+    
+    pp("用时 %.3f 秒 (服务器统计), 速度 %.2lf KB/s", t, speed / 1024 / 8);
+    
+    close(fd);
+    close(sock);
+    
+    if (fs->restartat) {
+        fs->restartat = 0;
+        addreply(fs, 0, "重设偏移为 0");
+    }
+}
+
+/* 删除文件 */
+void dodele(struct ftpstate* fs, char* name)
+{
+    char filename[MAXPATH];
+    
+    if (convert(fs, name, filename) < 0) {
+        doerror(fs, 550, name);
+        return;
+    }
+    
+    if (unlink(filename) < 0) {
+        addreply(fs, 550, "无法删除 '%s': %s", name, strerror(errno));
+    } else {
+        addreply(fs, 250, "已删除 '%s'", name);
     }
 }
 
@@ -823,6 +924,18 @@ login_logic:
     } else if (strcmp(cmd, "retr") == 0) { // RETRIEVE
         if (arg && *arg) {
             doretr(fs, arg);
+        } else {
+            addreply(fs, 501, "缺少文件名");
+        }
+    } else if (strcmp(cmd, "dele") == 0) { // DELETE
+        if (arg && *arg) {
+            dodele(fs, arg);
+        } else {
+            addreply(fs, 501, "缺少文件名");
+        }
+    } else if (strcmp(cmd, "stor") == 0) { // STORE
+        if (arg && *arg) {
+            dostor(fs, arg);
         } else {
             addreply(fs, 501, "缺少文件名");
         }
