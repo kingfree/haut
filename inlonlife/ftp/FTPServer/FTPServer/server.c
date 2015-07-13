@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <pwd.h>
 #include <grp.h>
 #include <uuid/uuid.h>
 #include <sys/socket.h>
@@ -16,7 +17,6 @@
 #include <sys/utsname.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <pwd.h>
 
 /* 打印调试信息 */
 void p(const char* fmt, ...)
@@ -585,13 +585,13 @@ void doretr(struct ftpstate* fs, char* name)
     doreply(fs);
     
     clock_t started = clock();
-    int ofs = fs->restartat;
-    if (ofs != 0) {
-        lseek(fd, ofs, SEEK_SET);
+    int i = fs->restartat;
+    if (i != 0) {
+        lseek(fd, i, SEEK_SET);
     }
     
-    while (ofs < st.st_size) {
-        long n = st.st_size - ofs;
+    while (i < st.st_size) {
+        long n = st.st_size - i;
         if (n > sizeof(buf)) {
             n = sizeof(buf);
         }
@@ -616,7 +616,7 @@ void doretr(struct ftpstate* fs, char* name)
             return;
         }
         
-        ofs += n;
+        i += n;
     }
     
     clock_t ended = clock();
@@ -881,6 +881,8 @@ int docmd(struct ftpstate* fs)
         douser(fs, arg);
     } else if (strcmp(cmd, "pass") == 0) { // PASSWORD
         dopass(fs, arg);
+    } else if (strcmp(cmd, "acct") == 0) { // ACCOUNT
+        addreply(fs, 500, "不支持账户认证");
     } else if (strcmp(cmd, "quit") == 0) { // LOGOUT
         addreply(fs, 221, "再见");
         return 0;
@@ -903,12 +905,6 @@ int docmd(struct ftpstate* fs)
         }
     } else if (strcmp(cmd, "pasv") == 0) { // PASSIVE
         dopasv(fs);
-    } else if (strcmp(cmd, "pwd") == 0) {
-        if (fs->loggedin) {
-            addreply(fs, 257, "\"%s\"", fs->wd);
-        } else {
-            addreply(fs, 550, "未登录");
-        }
     } else {
         goto login_logic;
     }
@@ -942,7 +938,7 @@ login_logic:
     } else if (strcmp(cmd, "list") == 0) { // LIST
         dolist(fs, (arg && *arg) ? arg : "-l");
     } else if (strcmp(cmd, "nlst") == 0) { // NAME LIST
-        dolist(fs, "");
+        dolist(fs, arg);
     } else if (strcmp(cmd, "pwd") == 0) {  // PRINT WORKING DIRECTORY
         addreply(fs, 257, "\"%s\"", fs->wd);
     } else if (strcmp(cmd, "mkd") == 0) {  // MAKE DIRECTORY
@@ -957,6 +953,28 @@ login_logic:
         } else {
             addreply(fs, 550, "缺少目录名");
         }
+    } else if (strcmp(cmd, "type") == 0) { // REPRESENTATION TYPE
+        if (arg && tolower(*arg) == 'i') {
+            addreply(fs, 200, "二进制类型文件");
+        } else {
+            addreply(fs, 504, "只支持二进制类型文件");
+        }
+    } else if (strcmp(cmd, "stru") == 0) { // FILE STRUCTURE
+        if (arg && tolower(*arg) == 'f') {
+            addreply(fs, 200, "文件结构");
+        } else {
+            addreply(fs, 504, "只支持文件结构");
+        }
+    } else if (strcmp(cmd, "mode") == 0) { // TRANSFER MODE
+        if (arg && tolower(*arg) == 's') {
+            addreply(fs, 200, "流模式");
+        } else {
+            addreply(fs, 504, "只支持流模式");
+        }
+    } else if (strcmp(cmd, "abor") == 0) { // ABORT
+        addreply(fs, 226, "中止");
+    } else if (strcmp(cmd, "site") == 0) { // SITE PARAMETERS
+        addreply(fs, 200, "没什么可做的");
     }
     else {
         addreply(fs, 500, "未知命令");
