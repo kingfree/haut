@@ -13,7 +13,7 @@ void process_packet(u_char *arg, const struct pcap_pkthdr *pkthdr, const u_char 
     printf("序号: %d\n", ++(*counter));
     printf("大小: %d\n", pkthdr->len);
     printf("内容: \n");
-    for (int i = 0; i < pkthdr->len; i++) {
+    for (size_t i = 0; i < pkthdr->len; i++) {
         printf("%c ", isprint(packet[i]) ? packet[i] : '.');
         if (((i + 1) % 16 == 0 && i != 0) || i == pkthdr->len - 1) {
             printf("\n");

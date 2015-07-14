@@ -51,13 +51,13 @@ int main(int argc, char *argv[])
         printf("动作: %s\n", (ntohs(arpheader->oper) == ARP_REQUEST) ? "ARP请求" : "ARP应答");
 
         if (ntohs(arpheader->htype) == 1 && ntohs(arpheader->ptype) == 0x800) {
-            printf("发送端 MAC 地址:");
+            printf("发送端 MAC 地址: ");
             for (i = 0; i < 6; i++) printf("%02X:", arpheader->sha[i]);
-            printf("\n发送端 IP 地址:");
+            printf("\n发送端 IP 地址: ");
             for (i = 0; i < 4; i++) printf("%0d.", arpheader->spa[i]);
-            printf("\n目的端 MAC 地址:");
+            printf("\n目的端 MAC 地址: ");
             for (i = 0; i < 6; i++) printf("%02X:", arpheader->tha[i]);
-            printf("\n目的端 IP 地址:");
+            printf("\n目的端 IP 地址: ");
             for (i = 0; i < 4; i++) printf("%0d.", arpheader->tpa[i]);
             printf("\n");
         }
