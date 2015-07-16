@@ -5,6 +5,9 @@
 #include <ctype.h>
 #include <netinet/if_ether.h>
 #include <netinet/ip.h>
+#include <netinet/ip_icmp.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
 #include <net/if_arp.h>
 #include <arpa/inet.h>
 
@@ -13,6 +16,9 @@
 void process_packet(const struct pcap_pkthdr *pkthdr, const u_char *packet)
 {
     int i;
+    if (packet == NULL) {
+        return;
+    }
     printf("\n大小: %d\n", pkthdr->len);
 
     struct ether_header *ethheader = (struct ether_header *)packet;
@@ -22,10 +28,10 @@ void process_packet(const struct pcap_pkthdr *pkthdr, const u_char *packet)
     for (i = 0; i < 6; i++) printf("%02X:", ethheader->ether_shost[i]);
 
     u_short type = ntohs(ethheader->ether_type);
-    printf("\n类型: %04x", type);
+    printf("\n类型: %04x\n", type);
 
     if (type == ETHERTYPE_IP) {
-        printf(" %s\n", "IPv4");
+        printf("=== %s ===\n", "IPv4");
         struct ip *ip = (struct ip *)(packet + sizeof(struct ether_header));
         printf("版本: %d\n", ip->ip_v);
         printf("首部长度: %d\n", ip->ip_hl);
@@ -53,8 +59,44 @@ void process_packet(const struct pcap_pkthdr *pkthdr, const u_char *packet)
         printf("来源IP地址: %s\n", inet_ntoa(ip->ip_src));
         printf("目的IP地址: %s\n", inet_ntoa(ip->ip_dst));
 
+        int proto = ip->ip_p;
+        u_char *hdr = (u_char *)ip + sizeof(struct ip);
+        if (proto == IPPROTO_ICMP) {
+            printf("--- %s ---\n", "ICMP");
+            struct icmp *ic = (struct icmp *)hdr;
+            printf("类型: %d\n", ic->icmp_type);
+            printf("代码: %d\n", ic->icmp_code);
+            printf("校验和: %x\n", ic->icmp_cksum);
+        } else if (proto == IPPROTO_TCP) {
+            printf("--- %s ---\n", "TCP");
+            struct tcphdr *tcp = (struct tcphdr *)hdr;
+            printf("源端口号: %d\n", ntohs(tcp->th_sport));
+            printf("目的端口号: %d\n", ntohs(tcp->th_dport));
+            printf("序号: %u\n", ntohl(tcp->th_seq));
+            printf("确认序号: %u\n", ntohl(tcp->th_ack));
+            printf("首部长度: %d\n", tcp->th_off);
+            printf("标志:");
+            if (tcp->th_flags & TH_FIN ) printf(" [FIN] 完成");
+            if (tcp->th_flags & TH_SYN ) printf(" [SYN] 同步"); 
+            if (tcp->th_flags & TH_RST ) printf(" [RST] 重连"); 
+            if (tcp->th_flags & TH_PUSH) printf(" [PSH] 接收方尽快转交"); 
+            if (tcp->th_flags & TH_ACK ) printf(" [ACK] 确认"); 
+            if (tcp->th_flags & TH_URG ) printf(" [URG] 紧急指针"); 
+            if (tcp->th_flags & TH_ECE ) printf(" [ECE] "); 
+            if (tcp->th_flags & TH_CWR ) printf(" [CWR] "); 
+            printf("\n窗口大小: %d\n", ntohs(tcp->th_win));
+            printf("校验和: %x\n", ntohs(tcp->th_sum));
+            printf("紧急指针: %d\n", ntohs(tcp->th_urp));
+        } else if (proto == IPPROTO_UDP) {
+            printf("--- %s ---\n", "UDP");
+            struct udphdr *udp = (struct udphdr *)hdr;
+            printf("源端口号: %d\n", ntohs(udp->uh_sport));
+            printf("目的端口号: %d\n", ntohs(udp->uh_dport));
+            printf("长度: %d\n", ntohs(udp->uh_ulen));
+            printf("校验和: %x\n", ntohs(udp->uh_sum));
+        }
     } else if (type == ETHERTYPE_ARP) {
-        printf(" %s\n", "ARP");
+        printf("=== %s ===\n", "ARP");
         struct arphdr *arp = (struct arphdr *)(packet + sizeof(struct ether_header));
         printf("硬件类型: %04x ", ntohs(arp->ar_hrd));
         switch (ntohs(arp->ar_hrd)) {
@@ -111,9 +153,9 @@ void process_packet(const struct pcap_pkthdr *pkthdr, const u_char *packet)
         printf("\n");
 
     } else if (type == ETHERTYPE_REVARP) {
-        printf(" %s\n", "RARP");
+        printf("=== %s ===\n", "RARP");
     } else {
-        printf(" %s\n", "未知");
+        printf("=== %s ===\n", "未知");
     }
 
     //  printf("内容: \n");
@@ -145,7 +187,7 @@ int main(int argc, char *argv[])
     pcap_lookupnet(argv[1], &netaddr, &mask, errbuf);
 
     // struct bpf_program filter;
-    // pcap_compile(descr, &filter, "rarp", 1, mask);
+    // pcap_compile(descr, &filter, "tcp", 1, mask);
     // pcap_setfilter(descr, &filter);
 
     for (;;) {
