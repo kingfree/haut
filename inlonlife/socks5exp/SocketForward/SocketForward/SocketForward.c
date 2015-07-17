@@ -21,9 +21,6 @@
 #include <kern/assert.h>
 #include <kern/debug.h>
 #include <netinet/in.h>
-
-#include <libkern/OSMalloc.h>
-#include <libkern/OSAtomic.h>
 #include <sys/kern_control.h>
 #include <sys/kauth.h>
 #include <sys/time.h>
@@ -39,10 +36,14 @@ struct data_pack {
 static lck_mtx_t* global_mutex = NULL;
 static lck_grp_t* global_mutex_group = NULL;
 
+static boolean_t g_filter_registered = FALSE;
+static boolean_t g_filter_unregister_started = FALSE;
+
+
 kern_return_t SocketForward_start(kmod_info_t* ki, void* d);
 kern_return_t SocketForward_stop(kmod_info_t* ki, void* d);
 
-static void sf_printf(const char* fmt, ...)
+static void pp(const char* fmt, ...)
 {
     va_list p;
     char buf[128];
@@ -55,20 +56,20 @@ static void sf_printf(const char* fmt, ...)
     va_end(p);
 }
 
-static errno_t alloc_locks(void)
+static errno_t alloc_locks()
 {
     errno_t ret = 0;
 
     global_mutex_group = lck_grp_alloc_init(BUNDLE_ID, LCK_GRP_ATTR_NULL);
     if (global_mutex_group == NULL) {
-        sf_printf("lck_grp_alloc_init 失败");
+        pp("lck_grp_alloc_init 失败");
         ret = ENOMEM;
     }
 
     if (ret == 0) {
         global_mutex = lck_mtx_alloc_init(global_mutex_group, LCK_ATTR_NULL);
         if (global_mutex == NULL) {
-            sf_printf("lck_mtx_alloc_init 失败");
+            pp("lck_mtx_alloc_init 失败");
             ret = ENOMEM;
         }
     }
@@ -76,7 +77,7 @@ static errno_t alloc_locks(void)
     return ret;
 }
 
-static void free_locks(void)
+static void free_locks()
 {
     if (global_mutex) {
         lck_mtx_free(global_mutex, global_mutex_group);
@@ -91,6 +92,8 @@ static void free_locks(void)
 
 static void sf_unregistered(sflt_handle handle)
 {
+    pp("尝试注销");
+    g_filter_registered = FALSE;
 }
 
 static errno_t sf_attach(void** cookie, socket_t so)
@@ -102,9 +105,9 @@ static errno_t sf_attach(void** cookie, socket_t so)
     char name[PATH_MAX];
     
     proc_selfname(name, PATH_MAX);
-    sf_printf("proc_selfname: %s", name);
+    pp("proc_selfname: %s", name);
     if (strncmp(name, "nc", 3)) {
-        sf_printf("装载到进程: %s", name);
+        pp("装载到进程: %s", name);
     } else {
         ret = ENOPOLICY;
     }
@@ -157,7 +160,7 @@ static errno_t sf_connect_out(void* cookie, socket_t so, const struct sockaddr* 
     char name[PATH_MAX];
 
     proc_selfname(name, PATH_MAX);
-    sf_printf("proc_selfname: %s", name);
+    pp("proc_selfname: %s", name);
     
     lck_mtx_unlock(global_mutex);
 
@@ -188,45 +191,10 @@ static errno_t sf_listen(void* cookie, socket_t so)
     return ret;
 }
 
-static OSMallocTag gOSMallocTag;
-
 static errno_t sf_init()
 {
     errno_t ret = 0;
-//    
-//    SLIST_HEAD(slisthead, entry) head = SLIST_HEAD_INITIALIZER(head);
-////    struct slisthead *headp;                /* Singly-linked List head. */
-//    struct entry {
-//        SLIST_ENTRY(entry) entries;     /* Singly-linked List. */
-//    } *n1, *n2, *n3, *np;
-//    
-//    SLIST_INIT(&head);                      /* Initialize the list. */
-//    
-//    n1 = OSMalloc(sizeof(struct entry), gOSMallocTag);      /* Insert at the head. */
-//    SLIST_INSERT_HEAD(&head, n1, entries);
-//    
-//    n2 = OSMalloc(sizeof(struct entry), gOSMallocTag);      /* Insert after. */
-//    SLIST_INSERT_AFTER(n1, n2, entries);
-//    
-//    SLIST_REMOVE(&head, n2, entry, entries);/* Deletion. */
-//    OSFree(n2, sizeof(n2), gOSMallocTag);
-//    
-//    n3 = SLIST_FIRST(&head);
-//    SLIST_REMOVE_HEAD(&head, entries);      /* Deletion from the head. */
-//    OSFree(n3, sizeof(n3), gOSMallocTag);
-//    /* Forward traversal. */
-//    SLIST_FOREACH(np, &head, entries) {
-//        //np->do_stuff();
-//        SLIST_REMOVE(&head, np, entry, entries);
-//        OSFree(np, sizeof(np), gOSMallocTag);
-//    }
-//    
-//    while (!SLIST_EMPTY(&head)) {           /* List Deletion. */
-//        n1 = SLIST_FIRST(&head);
-//        SLIST_REMOVE_HEAD(&head, entries);
-//        OSFree(n1, sizeof(n1), gOSMallocTag);
-//    }
-//    
+ 
     return ret;
 
 }
@@ -256,7 +224,7 @@ kern_return_t SocketForward_start(kmod_info_t* ki, void* d)
 {
     kern_return_t ret = KERN_SUCCESS;
 
-    sf_printf("启动");
+    pp("启动");
 
     if (alloc_locks() != 0) {
         ret = KERN_FAILURE;
@@ -270,11 +238,14 @@ kern_return_t SocketForward_start(kmod_info_t* ki, void* d)
 
     ret = sflt_register(&sf_sflt_filter, PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (ret == 0) {
-        sf_printf("sflt_register 注册, 返回 %d.", ret);
-    }
-    else {
+        pp("sflt_register 注册, 返回 %d.", ret);
+    } else {
+        pp("sflt_register 注册失败, 返回 %d.", ret);
         goto finally;
     }
+    return ret;
+    
+    g_filter_registered = TRUE;
 
 finally:
     
@@ -289,17 +260,14 @@ kern_return_t SocketForward_stop(kmod_info_t* ki, void* d)
 {
     kern_return_t ret = KERN_SUCCESS;
 
-    sf_printf("停止");
-    
-    ret = sflt_unregister(SF_HANDLE);
-    if (ret == 0) {
-        sf_printf("sflt_register 注销, 返回 %d.", ret);
+    if (g_filter_registered == TRUE && !g_filter_unregister_started) {
+        sflt_unregister(SF_HANDLE);
+        g_filter_unregister_started = TRUE;
     }
-    else {
-        goto finally;
+    if (g_filter_registered == TRUE) {
+        pp("正在忙，无法卸载");
+        return EBUSY;
     }
-    
-finally:
 
     free_locks();
 

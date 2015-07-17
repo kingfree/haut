@@ -49,7 +49,7 @@ void process_packet(const struct pcap_pkthdr *pkthdr, const u_char *packet)
             printf(" 最小费用");
         }
         printf("\n");
-        printf("总长度: %d\n", ntohs(ip->ip_len));
+        printf("总长度: %d\n", ntohs(ip->ip_len) * 4);
         printf("标识: %d\n", ntohs(ip->ip_id));
         printf("偏移: %d\n", ntohs(ip->ip_off) & IP_OFFMASK);
         printf("生存时间(TTL): %d\n", ip->ip_ttl);

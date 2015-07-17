@@ -1,13 +1,36 @@
-//
-//  socks5.h
-//  SocketForward
-//
-//  Created by 咲衣憧 on 15/7/15.
-//  Copyright (c) 2015年 Kingfree. All rights reserved.
-//
+#ifndef _SOCKS5_H
+#define _SOCKS5_H
 
-#ifndef SocketForward_socks5_h
-#define SocketForward_socks5_h
+#define SVERSION 0x05
+#define CONNECT 0x01
+#define IPV4 0x01
+#define DOMAIN 0x03
+#define IPV6 0x04
+#define CMD_NOT_SUPPORTED 0x07
 
+struct method_select_request {
+    char ver;
+    char nmethods;
+    char methods[255];
+};
 
-#endif
+struct method_select_response {
+    char ver;
+    char method;
+};
+
+struct socks5_request {
+    char ver;
+    char cmd;
+    char rsv;
+    char atyp;
+};
+
+struct socks5_response {
+    char ver;
+    char rep;
+    char rsv;
+    char atyp;
+};
+
+#endif //_SOCKS5_H

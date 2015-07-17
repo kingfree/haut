@@ -25,6 +25,7 @@
 #include <libkern/OSMalloc.h>
 #include <sys/kernel_types.h>
 #include <sys/kern_control.h>
+#include <netinet/ip.h>
 #include "socks5.h"
 
 kern_return_t AppFireWall_start(kmod_info_t* ki, void* d);
@@ -61,8 +62,8 @@ struct appwall_entry {
 static lck_mtx_t* g_mutex = NULL;
 static lck_grp_t* g_mutex_group = NULL;
 
-static boolean_t g_filter_registered = FALSE;
-static boolean_t g_filter_unregister_started = FALSE;
+static boolean_t g_proxy_registered = FALSE;
+static boolean_t g_proxy_unregister_started = FALSE;
 static OSMallocTag g_osm_tag;
 
 TAILQ_HEAD(appwall_entry_list, appwall_entry);
@@ -103,7 +104,7 @@ static struct appwall_entry* find_entry_by_name(const char* name)
 static void appwall_unregistered(sflt_handle handle)
 {
     sf_println("注销");
-    g_filter_registered = FALSE;
+    g_proxy_registered = FALSE;
 }
 
 static errno_t appwall_attach(void** cookie, socket_t so)
@@ -187,15 +188,22 @@ static errno_t appwall_data_in(void* cookie, socket_t so, const struct sockaddr*
     lck_mtx_lock(g_mutex);
 
     size_t len = mbuf_pkthdr_len(*data);
+    u_int8_t *datas = mbuf_data(*data);
+    for (int i = 0; i < len; i++) {
+        printf("%02x ", datas[i]);
+    }
+    printf("\n");
     sf_println(" 检测到 %s 的来路连接 大小: %lu", entry->desc.name, len);
     if (from) {
         printf(" 来自: ");
         log_ip_and_port_addr((struct sockaddr_in*)from);
     }
     printf("\n");
+   
+
     entry->desc.bytes_in += len;
     entry->desc.packets_in++;
-
+    
     if (entry->desc.do_block)
         result = EPERM;
 
@@ -237,6 +245,11 @@ static errno_t appwall_data_out(void* cookie, socket_t so, const struct sockaddr
     sf_println("get mutex");
 
     len = mbuf_pkthdr_len(*data);
+    u_int8_t *datas = mbuf_data(*data);
+    for (int i = 0; i < len; i++) {
+        printf("%02x ", datas[i]);
+    }
+    printf("\n");
 
     struct sockaddr sin, sout;
     sock_getsockname(so, &sin, sizeof(sin));
@@ -320,6 +333,7 @@ static errno_t appwall_connect_out(void* cookie, socket_t so, const struct socka
         result = EPERM;
     }
 
+    /*
     if (entry->desc.do_forward) {
         printf(" 转发来自 %s 的出路连接", entry->desc.name);
         struct sockaddr_in* addr = (struct sockaddr_in*)to;
@@ -330,7 +344,7 @@ static errno_t appwall_connect_out(void* cookie, socket_t so, const struct socka
         printf("到地址 ");
         log_ip_and_port_addr(addr);
         printf("\n");
-    }
+    } */
 
     lck_mtx_unlock(g_mutex);
 
@@ -383,7 +397,7 @@ void appwall_notify_func(void* cookie, socket_t so, sflt_event_t event, void* pa
 
     lck_mtx_lock(g_mutex);
 
-    struct sockaddr name;
+    /* struct sockaddr name;
     sf_println(" %s 状态 %s ", entry->desc.name, event_t_string[event]);
     sock_getsockname(so, &name, sizeof(name));
     log_ip_and_port_addr((struct sockaddr_in*)&name);
@@ -517,7 +531,7 @@ void appwall_notify_func(void* cookie, socket_t so, sflt_event_t event, void* pa
     failed:
         mbuf_free(data);
     }
-
+*/
 
 finally:
 
@@ -610,12 +624,12 @@ kern_return_t AppFireWall_start(kmod_info_t* ki, void* d)
         sf_println("注册套接字过滤器失败");
         goto failed;
     }
-
-    // add_entry("QQ", 0); // 记录所有QQ请求
+    
+    add_entry("QQ", 0); // 记录所有QQ请求
     // add_entry("Thunder", 1); // 拦截所有迅雷请求
     add_entry("nc", 2); // 转发所有nc请求
-
-    g_filter_registered = TRUE;
+    
+    g_proxy_registered = TRUE;
 
     return KERN_SUCCESS;
 
@@ -643,12 +657,12 @@ kern_return_t AppFireWall_stop(kmod_info_t* ki, void* d)
 {
     struct appwall_entry *entry, *next_entry;
 
-    if (g_filter_registered == TRUE && !g_filter_unregister_started) {
+    if (g_proxy_registered == TRUE && !g_proxy_unregister_started) {
         sflt_unregister(APPWALL_FLT_TCP_HANDLE);
-        g_filter_unregister_started = TRUE;
+        g_proxy_unregister_started = TRUE;
     }
     /* 如果注销失败 */
-    if (g_filter_registered == TRUE) {
+    if (g_proxy_registered == TRUE) {
         printf("应用防火墙: 正在忙，无法卸载\n");
         return EBUSY;
     }

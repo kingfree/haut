@@ -104,7 +104,7 @@
 		26B005D61B4222BB008990A3 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0630;
+				LastUpgradeCheck = 0640;
 				ORGANIZATIONNAME = Kingfree;
 				TargetAttributes = {
 					26B005DE1B4222BB008990A3 = {
@@ -233,6 +233,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = AppFireWall/Info.plist;
 				MODULE_NAME = kingfree.AppFireWall;
 				MODULE_START = AppFireWall_start;
@@ -247,6 +248,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = AppFireWall/Info.plist;
 				MODULE_NAME = kingfree.AppFireWall;
 				MODULE_START = AppFireWall_start;

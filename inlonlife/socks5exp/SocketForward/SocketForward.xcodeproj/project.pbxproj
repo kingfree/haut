@@ -11,6 +11,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		266504041B56388900A8CC8A /* socks5.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = socks5.h; sourceTree = "<group>"; };
 		26EECAA91B43BD2000632A30 /* SocketForward.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SocketForward.kext; sourceTree = BUILT_PRODUCTS_DIR; };
 		26EECAAD1B43BD2000632A30 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		26EECAAE1B43BD2000632A30 /* SocketForward.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SocketForward.c; sourceTree = "<group>"; };
@@ -47,6 +48,7 @@
 			isa = PBXGroup;
 			children = (
 				26EECAAE1B43BD2000632A30 /* SocketForward.c */,
+				266504041B56388900A8CC8A /* socks5.h */,
 				26EECAAC1B43BD2000632A30 /* Supporting Files */,
 			);
 			path = SocketForward;
@@ -97,7 +99,7 @@
 		26EECAA01B43BD2000632A30 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0630;
+				LastUpgradeCheck = 0640;
 				ORGANIZATIONNAME = Kingfree;
 				TargetAttributes = {
 					26EECAA81B43BD2000632A30 = {
@@ -225,6 +227,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = SocketForward/Info.plist;
 				MODULE_NAME = kingfree.SocketForward;
 				MODULE_START = SocketForward_start;
@@ -239,6 +242,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = SocketForward/Info.plist;
 				MODULE_NAME = kingfree.SocketForward;
 				MODULE_START = SocketForward_start;
@@ -268,6 +272,7 @@
 				26EECAB41B43BD2000632A30 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
