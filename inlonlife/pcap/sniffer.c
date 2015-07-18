@@ -11,9 +11,42 @@
 #include <net/if_arp.h>
 #include <arpa/inet.h>
 
-#define MAXBYTE2CAPTURE 2048
+struct dns_header {
+    unsigned id : 16;
 
-void process_packet(const struct pcap_pkthdr *pkthdr, const u_char *packet)
+    unsigned qr : 1;
+    unsigned opcode : 4;
+    unsigned aa : 1;
+    unsigned tc : 1;
+    unsigned rd : 1;
+    unsigned ra : 1;
+    unsigned unused : 3;
+    unsigned rcode : 4;
+
+    unsigned qdcount : 16;
+    unsigned ancount : 16;
+    unsigned nscount : 16;
+    unsigned arcount : 16;
+};
+
+struct dns_question {
+    unsigned qname : 32;
+    unsigned qtype : 16;
+    unsigned qclass : 16;
+};
+
+struct dns_resource_record {
+    unsigned rr_name : 32;
+    unsigned rr_type : 16;
+    unsigned rr_class : 16;
+    unsigned rr_ttl : 32;
+    unsigned rr_rdlength : 16;
+    u_char rr_data[0];
+};
+
+#define MAXBYTE2CAPTURE 2048
+    
+void process_packet(const struct pcap_pkthdr* pkthdr, const u_char* packet)
 {
     int i;
     if (packet == NULL) {
@@ -21,33 +54,31 @@ void process_packet(const struct pcap_pkthdr *pkthdr, const u_char *packet)
     }
     printf("\n大小: %d\n", pkthdr->len);
 
-    struct ether_header *ethheader = (struct ether_header *)packet;
+    struct ether_header* ethheader = (struct ether_header*)packet;
     printf("目的地址: ");
-    for (i = 0; i < 6; i++) printf("%02X:", ethheader->ether_dhost[i]);
+    for (i = 0; i < 6; i++)
+        printf("%02X:", ethheader->ether_dhost[i]);
     printf("\n来源地址: ");
-    for (i = 0; i < 6; i++) printf("%02X:", ethheader->ether_shost[i]);
+    for (i = 0; i < 6; i++)
+        printf("%02X:", ethheader->ether_shost[i]);
 
     u_short type = ntohs(ethheader->ether_type);
     printf("\n类型: %04x\n", type);
 
     if (type == ETHERTYPE_IP) {
         printf("=== %s ===\n", "IPv4");
-        struct ip *ip = (struct ip *)(packet + sizeof(struct ether_header));
+        struct ip* ip = (struct ip*)(packet + sizeof(struct ether_header));
         printf("版本: %d\n", ip->ip_v);
         printf("首部长度: %d\n", ip->ip_hl);
         printf("服务类型(TOS): 0x%02x", ip->ip_tos);
-        if (ip->ip_tos & IPTOS_LOWDELAY) {
+        if (ip->ip_tos & IPTOS_LOWDELAY)
             printf(" 最小时延");
-        }
-        if (ip->ip_tos & IPTOS_THROUGHPUT) {
+        if (ip->ip_tos & IPTOS_THROUGHPUT)
             printf(" 最大吞吐量");
-        }
-        if (ip->ip_tos & IPTOS_RELIABILITY) {
+        if (ip->ip_tos & IPTOS_RELIABILITY)
             printf(" 最高可靠性");
-        }
-        if (ip->ip_tos & IPTOS_MINCOST) {
+        if (ip->ip_tos & IPTOS_MINCOST)
             printf(" 最小费用");
-        }
         printf("\n");
         printf("总长度: %d\n", ntohs(ip->ip_len) * 4);
         printf("标识: %d\n", ntohs(ip->ip_id));
@@ -60,101 +91,130 @@ void process_packet(const struct pcap_pkthdr *pkthdr, const u_char *packet)
         printf("目的IP地址: %s\n", inet_ntoa(ip->ip_dst));
 
         int proto = ip->ip_p;
-        u_char *hdr = (u_char *)ip + sizeof(struct ip);
+        u_char* hdr = (u_char*)ip + sizeof(struct ip);
         if (proto == IPPROTO_ICMP) {
             printf("--- %s ---\n", "ICMP");
-            struct icmp *ic = (struct icmp *)hdr;
+            struct icmp* ic = (struct icmp*)hdr;
             printf("类型: %d\n", ic->icmp_type);
             printf("代码: %d\n", ic->icmp_code);
             printf("校验和: %x\n", ic->icmp_cksum);
         } else if (proto == IPPROTO_TCP) {
             printf("--- %s ---\n", "TCP");
-            struct tcphdr *tcp = (struct tcphdr *)hdr;
+            struct tcphdr* tcp = (struct tcphdr*)hdr;
             printf("源端口号: %d\n", ntohs(tcp->th_sport));
             printf("目的端口号: %d\n", ntohs(tcp->th_dport));
             printf("序号: %u\n", ntohl(tcp->th_seq));
             printf("确认序号: %u\n", ntohl(tcp->th_ack));
             printf("首部长度: %d\n", tcp->th_off);
             printf("标志:");
-            if (tcp->th_flags & TH_FIN ) printf(" [FIN] 完成");
-            if (tcp->th_flags & TH_SYN ) printf(" [SYN] 同步"); 
-            if (tcp->th_flags & TH_RST ) printf(" [RST] 重连"); 
-            if (tcp->th_flags & TH_PUSH) printf(" [PSH] 接收方尽快转交"); 
-            if (tcp->th_flags & TH_ACK ) printf(" [ACK] 确认"); 
-            if (tcp->th_flags & TH_URG ) printf(" [URG] 紧急指针"); 
-            if (tcp->th_flags & TH_ECE ) printf(" [ECE] "); 
-            if (tcp->th_flags & TH_CWR ) printf(" [CWR] "); 
+            if (tcp->th_flags & TH_FIN)
+                printf(" [FIN] 完成");
+            if (tcp->th_flags & TH_SYN)
+                printf(" [SYN] 同步");
+            if (tcp->th_flags & TH_RST)
+                printf(" [RST] 重连");
+            if (tcp->th_flags & TH_PUSH)
+                printf(" [PSH] 接收方尽快转交");
+            if (tcp->th_flags & TH_ACK)
+                printf(" [ACK] 确认");
+            if (tcp->th_flags & TH_URG)
+                printf(" [URG] 紧急指针");
+            if (tcp->th_flags & TH_ECE)
+                printf(" [ECE] ");
+            if (tcp->th_flags & TH_CWR)
+                printf(" [CWR] ");
             printf("\n窗口大小: %d\n", ntohs(tcp->th_win));
             printf("校验和: %x\n", ntohs(tcp->th_sum));
             printf("紧急指针: %d\n", ntohs(tcp->th_urp));
         } else if (proto == IPPROTO_UDP) {
             printf("--- %s ---\n", "UDP");
-            struct udphdr *udp = (struct udphdr *)hdr;
-            printf("源端口号: %d\n", ntohs(udp->uh_sport));
-            printf("目的端口号: %d\n", ntohs(udp->uh_dport));
+            struct udphdr* udp = (struct udphdr*)hdr;
+            unsigned short sport, dport;
+            printf("源端口号: %d\n", sport = ntohs(udp->uh_sport));
+            printf("目的端口号: %d\n", dport = ntohs(udp->uh_dport));
             printf("长度: %d\n", ntohs(udp->uh_ulen));
             printf("校验和: %x\n", ntohs(udp->uh_sum));
+            if (sport == 53 || dport == 53) {
+                printf("--- %s ---\n", "DNS");
+                struct dns_header* dns = (struct dns_header*)(udp + sizeof(struct udphdr));
+                printf("标识: %d\n", ntohl(dns->id));
+                printf("报文类型: (%d) %s\n", dns->qr, dns->qr ? "响应" : "查询");
+                static char* opstring[] = {"标准查询", "反向查询", "服务器状态请求"};
+                unsigned short opcode = dns->opcode;
+                printf("查询类型: (%d) %s\n", opcode, opcode > 2 ? "其他" : opstring[opcode]);
+                printf("授权回答: (%d) %s\n", dns->aa, dns->aa ? "是": "否");
+                printf("可截断的: (%d) %s\n", dns->tc, dns->tc ? "是": "否");
+                printf("期望递归: (%d) %s\n", dns->rd, dns->rd ? "是": "否");
+                printf("可用递归: (%d) %s\n", dns->ra, dns->ra ? "是": "否");
+                printf("返回: %d\n", dns->rcode);
+            }
         }
-    } else if (type == ETHERTYPE_ARP) {
+    }
+    else if (type == ETHERTYPE_ARP) {
         printf("=== %s ===\n", "ARP");
-        struct arphdr *arp = (struct arphdr *)(packet + sizeof(struct ether_header));
+        struct arphdr* arp = (struct arphdr*)(packet + sizeof(struct ether_header));
         printf("硬件类型: %04x ", ntohs(arp->ar_hrd));
         switch (ntohs(arp->ar_hrd)) {
-            case ARPHRD_ETHER:
-                printf("以太网");
-                break;
-            case ARPHRD_IEEE802:
-                printf("ioken-ring hardware format");
-                break;
-            case ARPHRD_FRELAY:
-                printf("frame relay hardware format");
-                break;
-            case ARPHRD_IEEE1394:
-                printf("IEEE1394 hardware address");
-                break;
+        case ARPHRD_ETHER:
+            printf("以太网");
+            break;
+        case ARPHRD_IEEE802:
+            printf("ioken-ring hardware format");
+            break;
+        case ARPHRD_FRELAY:
+            printf("frame relay hardware format");
+            break;
+        case ARPHRD_IEEE1394:
+            printf("IEEE1394 hardware address");
+            break;
         }
         printf("\n协议类型: %04x\n", ntohs(arp->ar_pro));
         printf("硬件地址长度: %d\n", arp->ar_hln);
         printf("协议地址长度: %d\n", arp->ar_pln);
         printf("操作: %04x ", ntohs(arp->ar_op));
         switch (ntohs(arp->ar_op)) {
-            case ARPOP_REQUEST:
-                printf("ARP请求");
-                break;
-            case ARPOP_REPLY:
-                printf("ARP应答");
-                break;
-            case ARPOP_REVREQUEST:
-                printf("RARP请求");
-                break;
-            case ARPOP_REVREPLY:
-                printf("RARP应答");
-                break;
-            case ARPOP_INVREQUEST:
-                printf("identify peer请求");
-                break;
-            case ARPOP_INVREPLY:
-                printf("identify peer应答");
-                break;
+        case ARPOP_REQUEST:
+            printf("ARP请求");
+            break;
+        case ARPOP_REPLY:
+            printf("ARP应答");
+            break;
+        case ARPOP_REVREQUEST:
+            printf("RARP请求");
+            break;
+        case ARPOP_REVREPLY:
+            printf("RARP应答");
+            break;
+        case ARPOP_INVREQUEST:
+            printf("identify peer请求");
+            break;
+        case ARPOP_INVREPLY:
+            printf("identify peer应答");
+            break;
         }
-        u_char *add = (u_char *)&arp->ar_op + sizeof(arp->ar_op);
+        u_char* add = (u_char*)&arp->ar_op + sizeof(arp->ar_op);
         printf("\n发送端 MAC 地址: ");
-        for (i = 0; i < arp->ar_hln; i++) printf("%02X:", add[i]);
+        for (i = 0; i < arp->ar_hln; i++)
+            printf("%02X:", add[i]);
         add += arp->ar_hln;
         printf("\n发送端 IP 地址: ");
-        for (i = 0; i < arp->ar_pln; i++) printf("%0d.", add[i]);
+        for (i = 0; i < arp->ar_pln; i++)
+            printf("%0d.", add[i]);
         add += arp->ar_pln;
         printf("\n目的端 MAC 地址: ");
-        for (i = 0; i < arp->ar_hln; i++) printf("%02X:", add[i]);
+        for (i = 0; i < arp->ar_hln; i++)
+            printf("%02X:", add[i]);
         add += arp->ar_hln;
         printf("\n目的端 IP 地址: ");
-        for (i = 0; i < arp->ar_pln; i++) printf("%0d.", add[i]);
+        for (i = 0; i < arp->ar_pln; i++)
+            printf("%0d.", add[i]);
         add += arp->ar_pln;
         printf("\n");
-
-    } else if (type == ETHERTYPE_REVARP) {
+    }
+    else if (type == ETHERTYPE_REVARP) {
         printf("=== %s ===\n", "RARP");
-    } else {
+    }
+    else {
         printf("=== %s ===\n", "未知");
     }
 
@@ -169,13 +229,13 @@ void process_packet(const struct pcap_pkthdr *pkthdr, const u_char *packet)
     return;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     bpf_u_int32 netaddr = 0, mask = 0;
     char errbuf[PCAP_ERRBUF_SIZE];
-    pcap_t *descr = NULL;
+    pcap_t* descr = NULL;
     struct pcap_pkthdr pkthdr;
-    const unsigned char *packet = NULL;
+    const unsigned char* packet = NULL;
     memset(errbuf, 0, PCAP_ERRBUF_SIZE);
 
     if (argc < 2) {
@@ -186,9 +246,9 @@ int main(int argc, char *argv[])
     descr = pcap_open_live(argv[1], MAXBYTE2CAPTURE, 0, 512, errbuf);
     pcap_lookupnet(argv[1], &netaddr, &mask, errbuf);
 
-    // struct bpf_program filter;
-    // pcap_compile(descr, &filter, "tcp", 1, mask);
-    // pcap_setfilter(descr, &filter);
+    struct bpf_program filter;
+    pcap_compile(descr, &filter, "udp", 1, mask);
+    pcap_setfilter(descr, &filter);
 
     for (;;) {
         packet = pcap_next(descr, &pkthdr);
@@ -197,4 +257,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
