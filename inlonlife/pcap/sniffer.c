@@ -93,31 +93,31 @@ struct compression_name {
 
 size_t get_domain_name(void *head, void *qname, char *dst)
 {
-    int flag = 0;
-    // print_mem(qname, 20);
-    struct compression_name* cn = (struct compression_name *)qname;
-    // printf("%x %x %x\n", cn->mark, cn->off, cn->set);
-    if (cn->mark == 3) { // 11
-        qname = (char *)head + ((cn->off << 8) + cn->set);
-        flag = 2;
-    }
-
+    int i = 0, j = 0, l = 0;
+    struct compression_name* cn;
     u_char* p = (u_char *)qname;
-    int i, j = 0;
-    int r = p[0];
-    for (i = 1; ; i++) {
-        if (r-- > 0) {
-            dst[j++] = p[i];
+    while (p[i]) {
+        cn = (struct compression_name *)(p + i);
+        if (cn->mark == 3) { // 11
+            printf("压缩: %x %x %x\n", cn->mark, cn->off, cn->set);
+            l = get_domain_name(head, (char *)head + ((cn->off << 8) + cn->set), dst + j);
+            j += l;
+            i += 2;
+        } else if (p[i] == 0) {
+            break;
         } else {
-            r = p[i];
-            dst[j++] = '.';
-            if (r == 0) {
-                dst[--j] = '\0';
-                break;
+            printf("正常: %x\n", p[i]);
+            for (int k = 1; k <= p[i]; k++) {
+                dst[j++] = p[k + i];
             }
+            dst[j++] = '.';
+            l = p[i];
+            j += l;
+            i += l + 1;
         }
     }
-    return flag ? flag : i + 1;
+    dst[j - 1] = '\0';
+    return i;
 }
 
 void* process_dns(struct dns_header *dns, void* tail) {
