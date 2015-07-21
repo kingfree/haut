@@ -45,14 +45,14 @@ struct dns_header {
 struct dns_question {
     // u_char qname[32]; 不定长
     unsigned qtype : 16;
-#define QTYPE_A      1
-#define QTYPE_NS     2
-#define QTYPE_CNAME  5
-#define QTYPE_PTR   12
+#define QTYPE_A 1
+#define QTYPE_NS 2
+#define QTYPE_CNAME 5
+#define QTYPE_PTR 12
 #define QTYPE_HINFO 13
-#define QTYPE_MX    15
+#define QTYPE_MX 15
 #define QTYPE_AXFR 252
-#define QTYPE_ANY  255
+#define QTYPE_ANY 255
     unsigned qclass : 16;
 };
 
@@ -68,9 +68,9 @@ struct dns_resource_record {
 
 #define MAXBYTE2CAPTURE 2048
 
-void print_mem(void *mem, size_t len)
+void print_mem(void* mem, size_t len)
 {
-    u_char *ch = (u_char *)mem;
+    u_char* ch = (u_char*)mem;
     for (size_t i = 0; i < len; i++) {
         printf("%02x ", ch[i]);
         if (((i + 1) % 16 == 0 && i != 0) || i == len - 1) {
@@ -91,28 +91,33 @@ struct compression_name {
 #endif
 };
 
-size_t get_domain_name(void *head, void *qname, char *dst)
+size_t get_domain_name(void* head, void* qname, char* dst)
 {
     int i = 0, j = 0, l = 0;
     struct compression_name* cn;
-    u_char* p = (u_char *)qname;
-    while (p[i]) {
-        cn = (struct compression_name *)(p + i);
+    u_char* p = (u_char*)qname;
+    while (1) {
+        cn = (struct compression_name*)(p + i);
         if (cn->mark == 3) { // 11
-            printf("压缩: %x %x %x\n", cn->mark, cn->off, cn->set);
-            l = get_domain_name(head, (char *)head + ((cn->off << 8) + cn->set), dst + j);
-            j += l;
+            short offset = ((cn->off << 8) + cn->set);
+            // printf("压缩: %x %x %x %d\n", cn->mark, cn->off, cn->set, offset);
+            l = get_domain_name(head, (char*)head + offset, dst + j);
+            j += strlen(dst + j);
+            dst[j++] = '.';
             i += 2;
-        } else if (p[i] == 0) {
             break;
-        } else {
-            printf("正常: %x\n", p[i]);
-            for (int k = 1; k <= p[i]; k++) {
+        }
+        else if (p[i] == 0) {
+            i += 1;
+            // printf("结束: [%d]\n", i);
+            break;
+        }
+        else {
+            // printf("正常: %x\n", p[i]);
+            for (int k = 1; k <= p[i]; k++)
                 dst[j++] = p[k + i];
-            }
             dst[j++] = '.';
             l = p[i];
-            j += l;
             i += l + 1;
         }
     }
@@ -120,42 +125,65 @@ size_t get_domain_name(void *head, void *qname, char *dst)
     return i;
 }
 
-void* process_dns(struct dns_header *dns, void* tail) {
+struct dns_question* process_dns(struct dns_header* dns, void* tail)
+{
     static char qname[64];
     int qlen = get_domain_name(dns, tail, qname);
-    struct dns_question *dq = (struct dns_question*)((char *)tail + qlen);
+    // printf("[qlen=%d]\n", qlen);
+    struct dns_question* dq = (struct dns_question*)((char*)tail + qlen);
     printf("域名: %s\n", qname);
-    short qtype = ntohs(dq->qtype); 
-    printf("类型: (%d) ", qtype);
+    // print_mem(dq, 20);
+    short qtype = ntohs(dq->qtype);
+    printf("类型: (%d) ", dq->qtype = qtype);
     switch (qtype) {
-        case QTYPE_A:
-            printf("A IP地址");
-            break;
-        case QTYPE_NS:
-            printf("NS 名字服务器");
-            break;
-        case QTYPE_CNAME:
-            printf("CNAME 规范名称");
-            break;
-        case QTYPE_PTR:
-            printf("PTR 指针记录");
-            break;
-        case QTYPE_HINFO:
-            printf("HINFO 主机信息");
-            break;
-        case QTYPE_MX:
-            printf("MX 邮件交换记录");
-            break;
-        case QTYPE_AXFR:
-            printf("AXFR 对区域转换的请求");
-            break;
-        case QTYPE_ANY:
-            printf("ANY 对所有记录的请求");
-            break;
+    case QTYPE_A:
+        printf("A IP地址");
+        break;
+    case QTYPE_NS:
+        printf("NS 名字服务器");
+        break;
+    case QTYPE_CNAME:
+        printf("CNAME 规范名称");
+        break;
+    case QTYPE_PTR:
+        printf("PTR 指针记录");
+        break;
+    case QTYPE_HINFO:
+        printf("HINFO 主机信息");
+        break;
+    case QTYPE_MX:
+        printf("MX 邮件交换记录");
+        break;
+    case QTYPE_AXFR:
+        printf("AXFR 对区域转换的请求");
+        break;
+    case QTYPE_ANY:
+        printf("ANY 对所有记录的请求");
+        break;
     }
     short qclass = ntohs(dq->qclass);
-    printf("\n类: (%d) %s\n", qclass, qclass == 1 ? "IPv4" : "其他");
-    return dq + 1;
+    printf("\n类: (%d) %s\n", dq->qclass = qclass, qclass == 1 ? "IPv4" : "其他");
+    return dq;
+}
+
+void *process_answer(struct dns_header *dns, void *tail)
+{
+    struct dns_question* dq = process_dns(dns, tail);
+    tail = dq + 1;
+    struct dns_resource_record* rr = (struct dns_resource_record*)tail;
+    printf("生存时间: %d s\n", ntohl(rr->rr_ttl));
+    unsigned short rlen = ntohs(rr->rr_rdlength);
+    printf("数据长度: %d\n", rlen);
+    if (dq->qtype == QTYPE_A) {
+        printf("资源地址: %s\n", inet_ntoa(*(struct in_addr*)rr->rr_data));
+    }
+    else if (dq->qtype == QTYPE_CNAME) {
+        static char qname[64];
+        get_domain_name(dns, rr->rr_data, qname);
+        printf("规范名称: %s\n", qname);
+    }
+    tail = rr->rr_data + rlen;
+    return tail;
 }
 
 void process_packet(const struct pcap_pkthdr* pkthdr, const u_char* packet)
@@ -210,7 +238,8 @@ void process_packet(const struct pcap_pkthdr* pkthdr, const u_char* packet)
             printf("类型: %d\n", ic->icmp_type);
             printf("代码: %d\n", ic->icmp_code);
             printf("校验和: 0x%x\n", ic->icmp_cksum);
-        } else if (proto == IPPROTO_TCP) {
+        }
+        else if (proto == IPPROTO_TCP) {
             printf("--- %s ---\n", "TCP");
             struct tcphdr* tcp = (struct tcphdr*)hdr;
             printf("源端口号: %d\n", ntohs(tcp->th_sport));
@@ -238,7 +267,8 @@ void process_packet(const struct pcap_pkthdr* pkthdr, const u_char* packet)
             printf("\n窗口大小: %d\n", ntohs(tcp->th_win));
             printf("校验和: 0x%x\n", ntohs(tcp->th_sum));
             printf("紧急指针: %d\n", ntohs(tcp->th_urp));
-        } else if (proto == IPPROTO_UDP) {
+        }
+        else if (proto == IPPROTO_UDP) {
             printf("--- %s ---\n", "UDP");
             struct udphdr* udp = (struct udphdr*)hdr;
             unsigned short sport, dport;
@@ -251,13 +281,13 @@ void process_packet(const struct pcap_pkthdr* pkthdr, const u_char* packet)
                 struct dns_header* dns = (struct dns_header*)(udp + 1);
                 printf("标识: 0x%04x\n", ntohs(dns->id));
                 printf("报文类型: (%d) %s\n", dns->qr, dns->qr ? "响应" : "查询");
-                static char* opstring[] = {"标准查询", "反向查询", "服务器状态请求"};
+                static char* opstring[] = { "标准查询", "反向查询", "服务器状态请求" };
                 unsigned short opcode = dns->opcode;
                 printf("查询类型: (%d) %s\n", opcode, opcode > 2 ? "其他" : opstring[opcode]);
-                printf("授权回答: (%d) %s\n", dns->aa, dns->aa ? "是": "否");
-                printf("可截断的: (%d) %s\n", dns->tc, dns->tc ? "是": "否");
-                printf("期望递归: (%d) %s\n", dns->rd, dns->rd ? "是": "否");
-                printf("可用递归: (%d) %s\n", dns->ra, dns->ra ? "是": "否");
+                printf("授权回答: (%d) %s\n", dns->aa, dns->aa ? "是" : "否");
+                printf("可截断的: (%d) %s\n", dns->tc, dns->tc ? "是" : "否");
+                printf("期望递归: (%d) %s\n", dns->rd, dns->rd ? "是" : "否");
+                printf("可用递归: (%d) %s\n", dns->ra, dns->ra ? "是" : "否");
                 printf("返回码: %d\n", dns->rcode);
                 unsigned short qdcount = ntohs(dns->qdcount);
                 unsigned short ancount = ntohs(dns->ancount);
@@ -267,22 +297,22 @@ void process_packet(const struct pcap_pkthdr* pkthdr, const u_char* packet)
                 printf("资源记录数: %d\n", ancount);
                 printf("授权资源记录数: %d\n", nscount);
                 printf("额外资源记录数: %d\n", arcount);
-                void *tail = dns + 1;
+                void* tail = dns + 1;
                 for (i = 0; i < qdcount; i++) {
                     printf("[问题%2d]\n", i + 1);
-                    tail = process_dns(dns, tail);
+                    tail = process_dns(dns, tail) + 1;
                 }
                 for (i = 0; i < ancount; i++) {
                     printf("[资源%2d]\n", i + 1);
-                    tail = process_dns(dns, tail);
-                    struct dns_resource_record *rr = (struct dns_resource_record *)tail;
-                    printf("生存时间: %d s\n", ntohl(rr->rr_ttl));
-                    unsigned short rlen = ntohs(rr->rr_rdlength);
-                    if (rlen == 4) {
-                        struct in_addr *ip = (struct in_addr *)rr->rr_data;
-                        printf("资源地址: %s\n", inet_ntoa(*ip));
-                    }
-                    tail = rr->rr_data + rlen;
+                    tail = process_answer(dns, tail);
+                }
+                for (i = 0; i < nscount; i++) {
+                    printf("[授权资源%2d]\n", i + 1);
+                    tail = process_answer(dns, tail);
+                }
+                for (i = 0; i < arcount; i++) {
+                    printf("[额外资源%2d]\n", i + 1);
+                    tail = process_answer(dns, tail);
                 }
             }
         }
@@ -368,16 +398,18 @@ int main(int argc, char* argv[])
     memset(errbuf, 0, PCAP_ERRBUF_SIZE);
 
     if (argc < 2) {
-        printf("用法: %s <接口>\n", argv[0]);
+        printf("用法: %s <接口> [过滤器]\n", argv[0]);
         exit(1);
     }
 
     descr = pcap_open_live(argv[1], MAXBYTE2CAPTURE, 0, 512, errbuf);
     pcap_lookupnet(argv[1], &netaddr, &mask, errbuf);
 
-    struct bpf_program filter;
-    pcap_compile(descr, &filter, "udp", 1, mask);
-    pcap_setfilter(descr, &filter);
+    if (argc > 2) {
+        struct bpf_program filter;
+        pcap_compile(descr, &filter, argv[2], 1, mask);
+        pcap_setfilter(descr, &filter);
+    }
 
     for (;;) {
         packet = pcap_next(descr, &pkthdr);
