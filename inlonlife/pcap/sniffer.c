@@ -13,9 +13,9 @@
 
 #include "sniffer.h"
 
-void print_mem(void* mem, size_t len)
+void print_mem(void *mem, size_t len)
 {
-    u_char* ch = (u_char*)mem;
+    u_char *ch = (u_char *)mem;
     for (size_t i = 0; i < len; i++) {
         printf("%02x ", ch[i]);
         if (((i + 1) % 16 == 0 && i != 0) || i == len - 1) {
@@ -24,31 +24,29 @@ void print_mem(void* mem, size_t len)
     }
 }
 
-size_t get_domain_name(const void* head, void* qname, char* dst)
+size_t get_domain_name(const void *head, void *qname, char *dst)
 {
     int i = 0, j = 0, l = 0;
-    struct compression_name* cn;
-    u_char* p = (u_char*)qname;
+    struct compression_name *cn;
+    u_char *p = (u_char *)qname;
     while (1) {
-        cn = (struct compression_name*)(p + i);
-        if (cn->mark == 3) { // 11
+        cn = (struct compression_name *)(p + i);
+        if (cn->mark == 3) {  // 11
             short offset = ((cn->off << 8) + cn->set);
-            // printf("压缩: %x %x %x %d\n", cn->mark, cn->off, cn->set, offset);
-            l = get_domain_name(head, (char*)head + offset, dst + j);
+            // printf("压缩: %x %x %x %d\n", cn->mark, cn->off, cn->set,
+            // offset);
+            l = get_domain_name(head, (char *)head + offset, dst + j);
             j += strlen(dst + j);
             dst[j++] = '.';
             i += 2;
             break;
-        }
-        else if (p[i] == 0) {
+        } else if (p[i] == 0) {
             i += 1;
             // printf("结束: [%d]\n", i);
             break;
-        }
-        else {
+        } else {
             // printf("正常: %x\n", p[i]);
-            for (int k = 1; k <= p[i]; k++)
-                dst[j++] = p[k + i];
+            for (int k = 1; k <= p[i]; k++) dst[j++] = p[k + i];
             dst[j++] = '.';
             l = p[i];
             i += l + 1;
@@ -58,12 +56,12 @@ size_t get_domain_name(const void* head, void* qname, char* dst)
     return i;
 }
 
-struct dns_question* process_dns_hdr(const struct dns_header* dns, void* tail)
+struct dns_question *process_dns_hdr(const struct dns_header *dns, void *tail)
 {
     static char qname[64];
     int qlen = get_domain_name(dns, tail, qname);
     // printf("[qlen=%d]\n", qlen);
-    struct dns_question* dq = (struct dns_question*)((char*)tail + qlen);
+    struct dns_question *dq = (struct dns_question *)((char *)tail + qlen);
     printf("域名: %s\n", qname);
     // print_mem(dq, 20);
     short qtype = ntohs(dq->qtype);
@@ -95,22 +93,22 @@ struct dns_question* process_dns_hdr(const struct dns_header* dns, void* tail)
         break;
     }
     short qclass = ntohs(dq->qclass);
-    printf("\n类: (%d) %s\n", dq->qclass = qclass, qclass == 1 ? "IPv4" : "其他");
+    printf("\n类: (%d) %s\n", dq->qclass = qclass,
+           qclass == 1 ? "IPv4" : "其他");
     return dq;
 }
 
-void* process_answer(const struct dns_header* dns, void* tail)
+void *process_answer(const struct dns_header *dns, void *tail)
 {
-    struct dns_question* dq = process_dns_hdr(dns, tail);
+    struct dns_question *dq = process_dns_hdr(dns, tail);
     tail = dq + 1;
-    struct dns_resource_record* rr = (struct dns_resource_record*)tail;
+    struct dns_resource_record *rr = (struct dns_resource_record *)tail;
     printf("生存时间: %d s\n", ntohl(rr->rr_ttl));
     unsigned short rlen = ntohs(rr->rr_rdlength);
     printf("数据长度: %d\n", rlen);
     if (dq->qtype == QTYPE_A) {
-        printf("资源地址: %s\n", inet_ntoa(*(struct in_addr*)rr->rr_data));
-    }
-    else if (dq->qtype == QTYPE_CNAME) {
+        printf("资源地址: %s\n", inet_ntoa(*(struct in_addr *)rr->rr_data));
+    } else if (dq->qtype == QTYPE_CNAME) {
         static char qname[64];
         get_domain_name(dns, rr->rr_data, qname);
         printf("规范名称: %s\n", qname);
@@ -119,48 +117,41 @@ void* process_answer(const struct dns_header* dns, void* tail)
     return tail;
 }
 
-struct tcphdr* process_tcp(const void* hdr)
+struct tcphdr *process_tcp(const void *hdr)
 {
     printf("--- %s ---\n", "TCP");
-    struct tcphdr* tcp = (struct tcphdr*)hdr;
+    struct tcphdr *tcp = (struct tcphdr *)hdr;
     printf("源端口号: %d\n", ntohs(tcp->th_sport));
     printf("目的端口号: %d\n", ntohs(tcp->th_dport));
     printf("序号: %u\n", ntohl(tcp->th_seq));
     printf("确认序号: %u\n", ntohl(tcp->th_ack));
     printf("首部长度: %d\n", tcp->th_off);
     printf("标志:");
-    if (tcp->th_flags & TH_FIN)
-        printf(" [FIN] 完成");
-    if (tcp->th_flags & TH_SYN)
-        printf(" [SYN] 同步");
-    if (tcp->th_flags & TH_RST)
-        printf(" [RST] 重连");
-    if (tcp->th_flags & TH_PUSH)
-        printf(" [PSH] 接收方尽快转交");
-    if (tcp->th_flags & TH_ACK)
-        printf(" [ACK] 确认");
-    if (tcp->th_flags & TH_URG)
-        printf(" [URG] 紧急指针");
-    if (tcp->th_flags & TH_ECE)
-        printf(" [ECE] ");
-    if (tcp->th_flags & TH_CWR)
-        printf(" [CWR] ");
+    if (tcp->th_flags & TH_FIN) printf(" [FIN] 完成");
+    if (tcp->th_flags & TH_SYN) printf(" [SYN] 同步");
+    if (tcp->th_flags & TH_RST) printf(" [RST] 重连");
+    if (tcp->th_flags & TH_PUSH) printf(" [PSH] 接收方尽快转交");
+    if (tcp->th_flags & TH_ACK) printf(" [ACK] 确认");
+    if (tcp->th_flags & TH_URG) printf(" [URG] 紧急指针");
+    if (tcp->th_flags & TH_ECE) printf(" [ECE] ");
+    if (tcp->th_flags & TH_CWR) printf(" [CWR] ");
     printf("\n窗口大小: %d\n", ntohs(tcp->th_win));
     printf("校验和: 0x%x\n", ntohs(tcp->th_sum));
     printf("紧急指针: %d\n", ntohs(tcp->th_urp));
     return tcp;
 }
 
-void* process_dns(const struct udphdr* udp)
+void *process_dns(const struct udphdr *udp)
 {
     int i;
     printf("+++ %s +++\n", "DNS");
-    struct dns_header* dns = (struct dns_header*)(udp + 1);
+    struct dns_header *dns = (struct dns_header *)(udp + 1);
     printf("标识: 0x%04x\n", ntohs(dns->id));
     printf("报文类型: (%d) %s\n", dns->qr, dns->qr ? "响应" : "查询");
-    static char* opstring[] = { "标准查询", "反向查询", "服务器状态请求" };
+    static char *opstring[] = {"标准查询", "反向查询", "服务器状态请求"};
     unsigned short opcode = dns->opcode;
-    printf("查询类型: (%d) %s\n", opcode, opcode > 2 ? "其他" : opstring[opcode]);
+    printf("查询类型: (%d) %s\n", opcode,
+           opcode > 2 ? "其他" : opstring[opcode]);
     printf("授权回答: (%d) %s\n", dns->aa, dns->aa ? "是" : "否");
     printf("可截断的: (%d) %s\n", dns->tc, dns->tc ? "是" : "否");
     printf("期望递归: (%d) %s\n", dns->rd, dns->rd ? "是" : "否");
@@ -174,7 +165,7 @@ void* process_dns(const struct udphdr* udp)
     printf("资源记录数: %d\n", ancount);
     printf("授权资源记录数: %d\n", nscount);
     printf("额外资源记录数: %d\n", arcount);
-    void* tail = dns + 1;
+    void *tail = dns + 1;
     for (i = 0; i < qdcount; i++) {
         printf("[问题%2d]\n", i + 1);
         tail = process_dns_hdr(dns, tail) + 1;
@@ -194,10 +185,10 @@ void* process_dns(const struct udphdr* udp)
     return tail;
 }
 
-struct udphdr* process_udp(const void* hdr)
+struct udphdr *process_udp(const void *hdr)
 {
     printf("--- %s ---\n", "UDP");
-    struct udphdr* udp = (struct udphdr*)hdr;
+    struct udphdr *udp = (struct udphdr *)hdr;
     unsigned short sport, dport;
     printf("源端口号: %d\n", sport = ntohs(udp->uh_sport));
     printf("目的端口号: %d\n", dport = ntohs(udp->uh_dport));
@@ -209,11 +200,12 @@ struct udphdr* process_udp(const void* hdr)
     return udp;
 }
 
-struct arphdr* process_arp(const u_char* packet)
+struct arphdr *process_arp(const u_char *packet)
 {
     int i;
     printf("=== %s ===\n", "ARP");
-    struct arphdr* arp = (struct arphdr*)(packet + sizeof(struct ether_header));
+    struct arphdr *arp =
+        (struct arphdr *)(packet + sizeof(struct ether_header));
     printf("硬件类型: %04x ", ntohs(arp->ar_hrd));
     switch (ntohs(arp->ar_hrd)) {
     case ARPHRD_ETHER:
@@ -253,51 +245,43 @@ struct arphdr* process_arp(const u_char* packet)
         printf("identify peer应答");
         break;
     }
-    u_char* add = (u_char*)&arp->ar_op + sizeof(arp->ar_op);
+    u_char *add = (u_char *)&arp->ar_op + sizeof(arp->ar_op);
     printf("\n发送端 MAC 地址: ");
-    for (i = 0; i < arp->ar_hln; i++)
-        printf("%02X:", add[i]);
+    for (i = 0; i < arp->ar_hln; i++) printf("%02X:", add[i]);
     add += arp->ar_hln;
     printf("\n发送端 IP 地址: ");
-    for (i = 0; i < arp->ar_pln; i++)
-        printf("%0d.", add[i]);
+    for (i = 0; i < arp->ar_pln; i++) printf("%0d.", add[i]);
     add += arp->ar_pln;
     printf("\n目的端 MAC 地址: ");
-    for (i = 0; i < arp->ar_hln; i++)
-        printf("%02X:", add[i]);
+    for (i = 0; i < arp->ar_hln; i++) printf("%02X:", add[i]);
     add += arp->ar_hln;
     printf("\n目的端 IP 地址: ");
-    for (i = 0; i < arp->ar_pln; i++)
-        printf("%0d.", add[i]);
+    for (i = 0; i < arp->ar_pln; i++) printf("%0d.", add[i]);
     add += arp->ar_pln;
     printf("\n");
     return arp;
 }
 
-void process_icmp(const void* hdr)
+void process_icmp(const void *hdr)
 {
     printf("--- %s ---\n", "ICMP");
-    struct icmp* ic = (struct icmp*)hdr;
+    struct icmp *ic = (struct icmp *)hdr;
     printf("类型: %d\n", ic->icmp_type);
     printf("代码: %d\n", ic->icmp_code);
     printf("校验和: 0x%x\n", ic->icmp_cksum);
 }
 
-void process_ip(const u_char* packet)
+void process_ip(const u_char *packet)
 {
     printf("=== %s ===\n", "IPv4");
-    struct ip* ip = (struct ip*)(packet + sizeof(struct ether_header));
+    struct ip *ip = (struct ip *)(packet + sizeof(struct ether_header));
     printf("版本: %d\n", ip->ip_v);
     printf("首部长度: %d\n", ip->ip_hl);
     printf("服务类型(TOS): 0x%02x", ip->ip_tos);
-    if (ip->ip_tos & IPTOS_LOWDELAY)
-        printf(" 最小时延");
-    if (ip->ip_tos & IPTOS_THROUGHPUT)
-        printf(" 最大吞吐量");
-    if (ip->ip_tos & IPTOS_RELIABILITY)
-        printf(" 最高可靠性");
-    if (ip->ip_tos & IPTOS_MINCOST)
-        printf(" 最小费用");
+    if (ip->ip_tos & IPTOS_LOWDELAY) printf(" 最小时延");
+    if (ip->ip_tos & IPTOS_THROUGHPUT) printf(" 最大吞吐量");
+    if (ip->ip_tos & IPTOS_RELIABILITY) printf(" 最高可靠性");
+    if (ip->ip_tos & IPTOS_MINCOST) printf(" 最小费用");
     printf("\n");
     printf("总长度: %d\n", ntohs(ip->ip_len) * 4);
     printf("标识: %d\n", ntohs(ip->ip_id));
@@ -310,19 +294,17 @@ void process_ip(const u_char* packet)
     printf("目的IP地址: %s\n", inet_ntoa(ip->ip_dst));
 
     int proto = ip->ip_p;
-    u_char* hdr = (u_char*)ip + sizeof(struct ip);
+    u_char *hdr = (u_char *)ip + sizeof(struct ip);
     if (proto == IPPROTO_ICMP) {
         process_icmp(hdr);
-    }
-    else if (proto == IPPROTO_TCP) {
+    } else if (proto == IPPROTO_TCP) {
         process_tcp(hdr);
-    }
-    else if (proto == IPPROTO_UDP) {
+    } else if (proto == IPPROTO_UDP) {
         process_udp(hdr);
     }
 }
 
-void process_packet(const struct pcap_pkthdr* pkthdr, const u_char* packet)
+void process_packet(const struct pcap_pkthdr *pkthdr, const u_char *packet)
 {
     int i;
     if (packet == NULL) {
@@ -330,40 +312,35 @@ void process_packet(const struct pcap_pkthdr* pkthdr, const u_char* packet)
     }
     printf("\n大小: %d\n", pkthdr->len);
 
-    struct ether_header* ethheader = (struct ether_header*)packet;
+    struct ether_header *ethheader = (struct ether_header *)packet;
     printf("目的地址: ");
-    for (i = 0; i < 6; i++)
-        printf("%02X:", ethheader->ether_dhost[i]);
+    for (i = 0; i < 6; i++) printf("%02X:", ethheader->ether_dhost[i]);
     printf("\n来源地址: ");
-    for (i = 0; i < 6; i++)
-        printf("%02X:", ethheader->ether_shost[i]);
+    for (i = 0; i < 6; i++) printf("%02X:", ethheader->ether_shost[i]);
 
     u_short type = ntohs(ethheader->ether_type);
     printf("\n类型: %04x\n", type);
 
     if (type == ETHERTYPE_IP) {
         process_ip(packet);
-    }
-    else if (type == ETHERTYPE_ARP) {
+    } else if (type == ETHERTYPE_ARP) {
         process_arp(packet);
-    }
-    else if (type == ETHERTYPE_REVARP) {
+    } else if (type == ETHERTYPE_REVARP) {
         printf("=== %s ===\n", "RARP");
-    }
-    else {
+    } else {
         printf("=== %s ===\n", "未知");
     }
 
     return;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     bpf_u_int32 netaddr = 0, mask = 0;
     char errbuf[PCAP_ERRBUF_SIZE];
-    pcap_t* descr = NULL;
+    pcap_t *descr = NULL;
     struct pcap_pkthdr pkthdr;
-    const unsigned char* packet = NULL;
+    const unsigned char *packet = NULL;
     memset(errbuf, 0, PCAP_ERRBUF_SIZE);
 
     if (argc < 2) {
@@ -387,4 +364,3 @@ int main(int argc, char* argv[])
 
     return 0;
 }
-

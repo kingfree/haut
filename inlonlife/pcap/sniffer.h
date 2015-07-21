@@ -73,19 +73,18 @@ struct compression_name {
 #endif
 };
 
-void process_ip(const u_char* packet);
+void process_ip(const u_char *packet);
+struct arphdr *process_arp(const u_char *packet);
 
-void process_icmp(const void* hdr);
-struct tcphdr* process_tcp(const void* hdr);
-struct udphdr* process_udp(const void* hdr);
-struct arphdr* process_arp(const u_char* packet);
+void process_icmp(const void *hdr);
+struct tcphdr *process_tcp(const void *hdr);
+struct udphdr *process_udp(const void *hdr);
 
-void* process_dns(const struct udphdr* udp);
-struct dns_question* process_dns_hdr(const struct dns_header* dns, void* tail);
-void* process_answer(const struct dns_header* dns, void* tail);
-size_t get_domain_name(const void* head, void* qname, char* dst);
+void *process_dns(const struct udphdr *udp);
+struct dns_question *process_dns_hdr(const struct dns_header *dns, void *tail);
+void *process_answer(const struct dns_header *dns, void *tail);
+size_t get_domain_name(const void *head, void *qname, char *dst);
 
-void print_mem(void* mem, size_t len);
+void print_mem(void *mem, size_t len);
 
 #endif
-

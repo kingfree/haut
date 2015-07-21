@@ -6,9 +6,10 @@
 
 #define MAXBYTE2CAPTURE 2048
 
-void process_packet(u_char *arg, const struct pcap_pkthdr *pkthdr, const u_char *packet)
+void process_packet(u_char *arg, const struct pcap_pkthdr *pkthdr,
+                    const u_char *packet)
 {
-    int *counter = (int *) arg;
+    int *counter = (int *)arg;
 
     printf("序号: %d\n", ++(*counter));
     printf("大小: %d\n", pkthdr->len);
@@ -38,4 +39,3 @@ int main()
 
     return 0;
 }
-

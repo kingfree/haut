@@ -46,9 +46,12 @@ int main(int argc, char *argv[])
         packet = pcap_next(descr, &pkthdr);
         arpheader = (struct arphdr *)(packet + 14);
         printf("\n\n大小: %d 字节\n", pkthdr.len);
-        printf("硬件: %s\n", (ntohs(arpheader->htype) == 1) ? "以太网" : "未知");
-        printf("协议: %s\n", (ntohs(arpheader->ptype) == 0x800) ? "IPv4" : "未知");
-        printf("动作: %s\n", (ntohs(arpheader->oper) == ARP_REQUEST) ? "ARP请求" : "ARP应答");
+        printf("硬件: %s\n",
+               (ntohs(arpheader->htype) == 1) ? "以太网" : "未知");
+        printf("协议: %s\n",
+               (ntohs(arpheader->ptype) == 0x800) ? "IPv4" : "未知");
+        printf("动作: %s\n",
+               (ntohs(arpheader->oper) == ARP_REQUEST) ? "ARP请求" : "ARP应答");
 
         if (ntohs(arpheader->htype) == 1 && ntohs(arpheader->ptype) == 0x800) {
             printf("发送端 MAC 地址: ");
@@ -65,4 +68,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
