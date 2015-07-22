@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdarg.h>
 #include <netinet/if_ether.h>
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
@@ -13,13 +14,60 @@
 
 #include "sniffer.h"
 
+struct capture_state {
+    char ip;
+        char icmp;
+        char tcp;
+            char http;
+        char udp;
+            char dns;
+    char arp;
+};
+
+static struct capture_state config;
+
+struct buffer {
+    char buf[1024 * 16];
+    long len;
+    char *p;
+};
+
+struct buffer print_buffer;
+
+void update_buf()
+{
+    print_buffer.p = print_buffer.buf + print_buffer.len;
+}
+
+void clear_buf()
+{
+    print_buffer.len = 0;
+    update_buf();
+}
+
+void print_buf()
+{
+    puts(print_buffer.buf);
+    clear_buf();
+}
+
+void pf(const char* fmt, ...)
+{
+    va_list p;
+
+    va_start(p, fmt);
+    print_buffer.len += vsnprintf(print_buffer.p, sizeof(print_buffer.buf), fmt, p);
+    update_buf();
+    va_end(p);
+}
+
 void print_mem(void *mem, size_t len)
 {
     u_char *ch = (u_char *)mem;
     for (size_t i = 0; i < len; i++) {
-        printf("%02x ", ch[i]);
+        pf("%02x ", ch[i]);
         if (((i + 1) % 16 == 0 && i != 0) || i == len - 1) {
-            printf("\n");
+            pf("\n");
         }
     }
 }
@@ -33,7 +81,7 @@ size_t get_domain_name(const void *head, void *qname, char *dst)
         cn = (struct compression_name *)(p + i);
         if (cn->mark == 3) {  // 11
             short offset = ((cn->off << 8) + cn->set);
-            // printf("压缩: %x %x %x %d\n", cn->mark, cn->off, cn->set,
+            // pf("压缩: %x %x %x %d\n", cn->mark, cn->off, cn->set,
             // offset);
             l = get_domain_name(head, (char *)head + offset, dst + j);
             j += strlen(dst + j);
@@ -42,10 +90,10 @@ size_t get_domain_name(const void *head, void *qname, char *dst)
             break;
         } else if (p[i] == 0) {
             i += 1;
-            // printf("结束: [%d]\n", i);
+            // pf("结束: [%d]\n", i);
             break;
         } else {
-            // printf("正常: %x\n", p[i]);
+            // pf("正常: %x\n", p[i]);
             for (int k = 1; k <= p[i]; k++) dst[j++] = p[k + i];
             dst[j++] = '.';
             l = p[i];
@@ -60,40 +108,40 @@ struct dns_question *process_dns_hdr(const struct dns_header *dns, void *tail)
 {
     static char qname[64];
     int qlen = get_domain_name(dns, tail, qname);
-    // printf("[qlen=%d]\n", qlen);
+    // pf("[qlen=%d]\n", qlen);
     struct dns_question *dq = (struct dns_question *)((char *)tail + qlen);
-    printf("域名: %s\n", qname);
+    pf("域名: %s\n", qname);
     // print_mem(dq, 20);
     short qtype = ntohs(dq->qtype);
-    printf("类型: (%d) ", dq->qtype = qtype);
+    pf("类型: (%d) ", dq->qtype = qtype);
     switch (qtype) {
     case QTYPE_A:
-        printf("A IP地址");
+        pf("A IP地址");
         break;
     case QTYPE_NS:
-        printf("NS 名字服务器");
+        pf("NS 名字服务器");
         break;
     case QTYPE_CNAME:
-        printf("CNAME 规范名称");
+        pf("CNAME 规范名称");
         break;
     case QTYPE_PTR:
-        printf("PTR 指针记录");
+        pf("PTR 指针记录");
         break;
     case QTYPE_HINFO:
-        printf("HINFO 主机信息");
+        pf("HINFO 主机信息");
         break;
     case QTYPE_MX:
-        printf("MX 邮件交换记录");
+        pf("MX 邮件交换记录");
         break;
     case QTYPE_AXFR:
-        printf("AXFR 对区域转换的请求");
+        pf("AXFR 对区域转换的请求");
         break;
     case QTYPE_ANY:
-        printf("ANY 对所有记录的请求");
+        pf("ANY 对所有记录的请求");
         break;
     }
     short qclass = ntohs(dq->qclass);
-    printf("\n类: (%d) %s\n", dq->qclass = qclass,
+    pf("\n类: (%d) %s\n", dq->qclass = qclass,
            qclass == 1 ? "IPv4" : "其他");
     return dq;
 }
@@ -103,15 +151,15 @@ void *process_answer(const struct dns_header *dns, void *tail)
     struct dns_question *dq = process_dns_hdr(dns, tail);
     tail = dq + 1;
     struct dns_resource_record *rr = (struct dns_resource_record *)tail;
-    printf("生存时间: %d s\n", ntohl(rr->rr_ttl));
+    pf("生存时间: %d s\n", ntohl(rr->rr_ttl));
     unsigned short rlen = ntohs(rr->rr_rdlength);
-    printf("数据长度: %d\n", rlen);
+    pf("数据长度: %d\n", rlen);
     if (dq->qtype == QTYPE_A) {
-        printf("资源地址: %s\n", inet_ntoa(*(struct in_addr *)rr->rr_data));
+        pf("资源地址: %s\n", inet_ntoa(*(struct in_addr *)rr->rr_data));
     } else if (dq->qtype == QTYPE_CNAME) {
         static char qname[64];
         get_domain_name(dns, rr->rr_data, qname);
-        printf("规范名称: %s\n", qname);
+        pf("规范名称: %s\n", qname);
     }
     tail = rr->rr_data + rlen;
     return tail;
@@ -119,81 +167,84 @@ void *process_answer(const struct dns_header *dns, void *tail)
 
 struct tcphdr *process_tcp(const void *hdr)
 {
-    printf("--- %s ---\n", "TCP");
+    pf("--- %s ---\n", "TCP");
     struct tcphdr *tcp = (struct tcphdr *)hdr;
-    printf("源端口号: %d\n", ntohs(tcp->th_sport));
-    printf("目的端口号: %d\n", ntohs(tcp->th_dport));
-    printf("序号: %u\n", ntohl(tcp->th_seq));
-    printf("确认序号: %u\n", ntohl(tcp->th_ack));
-    printf("首部长度: %d\n", tcp->th_off);
-    printf("标志:");
-    if (tcp->th_flags & TH_FIN) printf(" [FIN] 完成");
-    if (tcp->th_flags & TH_SYN) printf(" [SYN] 同步");
-    if (tcp->th_flags & TH_RST) printf(" [RST] 重连");
-    if (tcp->th_flags & TH_PUSH) printf(" [PSH] 接收方尽快转交");
-    if (tcp->th_flags & TH_ACK) printf(" [ACK] 确认");
-    if (tcp->th_flags & TH_URG) printf(" [URG] 紧急指针");
-    if (tcp->th_flags & TH_ECE) printf(" [ECE] ");
-    if (tcp->th_flags & TH_CWR) printf(" [CWR] ");
-    printf("\n窗口大小: %d\n", ntohs(tcp->th_win));
-    printf("校验和: 0x%x\n", ntohs(tcp->th_sum));
-    printf("紧急指针: %d\n", ntohs(tcp->th_urp));
+    pf("源端口号: %d\n", ntohs(tcp->th_sport));
+    pf("目的端口号: %d\n", ntohs(tcp->th_dport));
+    pf("序号: %u\n", ntohl(tcp->th_seq));
+    pf("确认序号: %u\n", ntohl(tcp->th_ack));
+    pf("首部长度: %d\n", tcp->th_off);
+    pf("标志:");
+    if (tcp->th_flags & TH_FIN) pf(" [FIN] 完成");
+    if (tcp->th_flags & TH_SYN) pf(" [SYN] 同步");
+    if (tcp->th_flags & TH_RST) pf(" [RST] 重连");
+    if (tcp->th_flags & TH_PUSH) pf(" [PSH] 接收方尽快转交");
+    if (tcp->th_flags & TH_ACK) pf(" [ACK] 确认");
+    if (tcp->th_flags & TH_URG) pf(" [URG] 紧急指针");
+    if (tcp->th_flags & TH_ECE) pf(" [ECE] ");
+    if (tcp->th_flags & TH_CWR) pf(" [CWR] ");
+    pf("\n窗口大小: %d\n", ntohs(tcp->th_win));
+    pf("校验和: 0x%x\n", ntohs(tcp->th_sum));
+    pf("紧急指针: %d\n", ntohs(tcp->th_urp));
+    if (config.tcp && !config.ip) print_buf();
     return tcp;
 }
 
 void *process_dns(const struct udphdr *udp)
 {
     int i;
-    printf("+++ %s +++\n", "DNS");
+    pf("+++ %s +++\n", "DNS");
     struct dns_header *dns = (struct dns_header *)(udp + 1);
-    printf("标识: 0x%04x\n", ntohs(dns->id));
-    printf("报文类型: (%d) %s\n", dns->qr, dns->qr ? "响应" : "查询");
+    pf("标识: 0x%04x\n", ntohs(dns->id));
+    pf("报文类型: (%d) %s\n", dns->qr, dns->qr ? "响应" : "查询");
     static char *opstring[] = {"标准查询", "反向查询", "服务器状态请求"};
     unsigned short opcode = dns->opcode;
-    printf("查询类型: (%d) %s\n", opcode,
+    pf("查询类型: (%d) %s\n", opcode,
            opcode > 2 ? "其他" : opstring[opcode]);
-    printf("授权回答: (%d) %s\n", dns->aa, dns->aa ? "是" : "否");
-    printf("可截断的: (%d) %s\n", dns->tc, dns->tc ? "是" : "否");
-    printf("期望递归: (%d) %s\n", dns->rd, dns->rd ? "是" : "否");
-    printf("可用递归: (%d) %s\n", dns->ra, dns->ra ? "是" : "否");
-    printf("返回码: %d\n", dns->rcode);
+    pf("授权回答: (%d) %s\n", dns->aa, dns->aa ? "是" : "否");
+    pf("可截断的: (%d) %s\n", dns->tc, dns->tc ? "是" : "否");
+    pf("期望递归: (%d) %s\n", dns->rd, dns->rd ? "是" : "否");
+    pf("可用递归: (%d) %s\n", dns->ra, dns->ra ? "是" : "否");
+    pf("返回码: %d\n", dns->rcode);
     unsigned short qdcount = ntohs(dns->qdcount);
     unsigned short ancount = ntohs(dns->ancount);
     unsigned short nscount = ntohs(dns->nscount);
     unsigned short arcount = ntohs(dns->arcount);
-    printf("问题数: %d\n", qdcount);
-    printf("资源记录数: %d\n", ancount);
-    printf("授权资源记录数: %d\n", nscount);
-    printf("额外资源记录数: %d\n", arcount);
+    pf("问题数: %d\n", qdcount);
+    pf("资源记录数: %d\n", ancount);
+    pf("授权资源记录数: %d\n", nscount);
+    pf("额外资源记录数: %d\n", arcount);
     void *tail = dns + 1;
     for (i = 0; i < qdcount; i++) {
-        printf("[问题%2d]\n", i + 1);
+        pf("[问题%2d]\n", i + 1);
         tail = process_dns_hdr(dns, tail) + 1;
     }
     for (i = 0; i < ancount; i++) {
-        printf("[资源%2d]\n", i + 1);
+        pf("[资源%2d]\n", i + 1);
         tail = process_answer(dns, tail);
     }
     for (i = 0; i < nscount; i++) {
-        printf("[授权资源%2d]\n", i + 1);
+        pf("[授权资源%2d]\n", i + 1);
         tail = process_answer(dns, tail);
     }
     for (i = 0; i < arcount; i++) {
-        printf("[额外资源%2d]\n", i + 1);
+        pf("[额外资源%2d]\n", i + 1);
         tail = process_answer(dns, tail);
     }
+    if (config.dns && !config.udp) print_buf();
     return tail;
 }
 
 struct udphdr *process_udp(const void *hdr)
 {
-    printf("--- %s ---\n", "UDP");
+    pf("--- %s ---\n", "UDP");
     struct udphdr *udp = (struct udphdr *)hdr;
     unsigned short sport, dport;
-    printf("源端口号: %d\n", sport = ntohs(udp->uh_sport));
-    printf("目的端口号: %d\n", dport = ntohs(udp->uh_dport));
-    printf("长度: %d\n", ntohs(udp->uh_ulen));
-    printf("校验和: 0x%x\n", ntohs(udp->uh_sum));
+    pf("源端口号: %d\n", sport = ntohs(udp->uh_sport));
+    pf("目的端口号: %d\n", dport = ntohs(udp->uh_dport));
+    pf("长度: %d\n", ntohs(udp->uh_ulen));
+    pf("校验和: 0x%x\n", ntohs(udp->uh_sum));
+    if (config.udp && !config.ip) print_buf();
     if (sport == 53 || dport == 53) {
         process_dns(udp);
     }
@@ -203,95 +254,98 @@ struct udphdr *process_udp(const void *hdr)
 struct arphdr *process_arp(const u_char *packet)
 {
     int i;
-    printf("=== %s ===\n", "ARP");
+    pf("=== %s ===\n", "ARP");
     struct arphdr *arp =
         (struct arphdr *)(packet + sizeof(struct ether_header));
-    printf("硬件类型: %04x ", ntohs(arp->ar_hrd));
+    pf("硬件类型: %04x ", ntohs(arp->ar_hrd));
     switch (ntohs(arp->ar_hrd)) {
     case ARPHRD_ETHER:
-        printf("以太网");
+        pf("以太网");
         break;
     case ARPHRD_IEEE802:
-        printf("ioken-ring hardware format");
+        pf("ioken-ring hardware format");
         break;
     case ARPHRD_FRELAY:
-        printf("frame relay hardware format");
+        pf("frame relay hardware format");
         break;
     case ARPHRD_IEEE1394:
-        printf("IEEE1394 hardware address");
+        pf("IEEE1394 hardware address");
         break;
     }
-    printf("\n协议类型: %04x\n", ntohs(arp->ar_pro));
-    printf("硬件地址长度: %d\n", arp->ar_hln);
-    printf("协议地址长度: %d\n", arp->ar_pln);
-    printf("操作: %04x ", ntohs(arp->ar_op));
+    pf("\n协议类型: %04x\n", ntohs(arp->ar_pro));
+    pf("硬件地址长度: %d\n", arp->ar_hln);
+    pf("协议地址长度: %d\n", arp->ar_pln);
+    pf("操作: %04x ", ntohs(arp->ar_op));
     switch (ntohs(arp->ar_op)) {
     case ARPOP_REQUEST:
-        printf("ARP请求");
+        pf("ARP请求");
         break;
     case ARPOP_REPLY:
-        printf("ARP应答");
+        pf("ARP应答");
         break;
     case ARPOP_REVREQUEST:
-        printf("RARP请求");
+        pf("RARP请求");
         break;
     case ARPOP_REVREPLY:
-        printf("RARP应答");
+        pf("RARP应答");
         break;
     case ARPOP_INVREQUEST:
-        printf("identify peer请求");
+        pf("identify peer请求");
         break;
     case ARPOP_INVREPLY:
-        printf("identify peer应答");
+        pf("identify peer应答");
         break;
     }
     u_char *add = (u_char *)&arp->ar_op + sizeof(arp->ar_op);
-    printf("\n发送端 MAC 地址: ");
-    for (i = 0; i < arp->ar_hln; i++) printf("%02X:", add[i]);
+    pf("\n发送端 MAC 地址: ");
+    for (i = 0; i < arp->ar_hln; i++) pf("%02X:", add[i]);
     add += arp->ar_hln;
-    printf("\n发送端 IP 地址: ");
-    for (i = 0; i < arp->ar_pln; i++) printf("%0d.", add[i]);
+    pf("\n发送端 IP 地址: ");
+    for (i = 0; i < arp->ar_pln; i++) pf("%0d.", add[i]);
     add += arp->ar_pln;
-    printf("\n目的端 MAC 地址: ");
-    for (i = 0; i < arp->ar_hln; i++) printf("%02X:", add[i]);
+    pf("\n目的端 MAC 地址: ");
+    for (i = 0; i < arp->ar_hln; i++) pf("%02X:", add[i]);
     add += arp->ar_hln;
-    printf("\n目的端 IP 地址: ");
-    for (i = 0; i < arp->ar_pln; i++) printf("%0d.", add[i]);
+    pf("\n目的端 IP 地址: ");
+    for (i = 0; i < arp->ar_pln; i++) pf("%0d.", add[i]);
     add += arp->ar_pln;
-    printf("\n");
+    pf("\n");
+    if (config.arp) print_buf();
     return arp;
 }
 
 void process_icmp(const void *hdr)
 {
-    printf("--- %s ---\n", "ICMP");
+    pf("--- %s ---\n", "ICMP");
     struct icmp *ic = (struct icmp *)hdr;
-    printf("类型: %d\n", ic->icmp_type);
-    printf("代码: %d\n", ic->icmp_code);
-    printf("校验和: 0x%x\n", ic->icmp_cksum);
+    pf("类型: %d\n", ic->icmp_type);
+    pf("代码: %d\n", ic->icmp_code);
+    pf("校验和: 0x%x\n", ic->icmp_cksum);
+    if (config.icmp && !config.ip) print_buf();
 }
 
 void process_ip(const u_char *packet)
 {
-    printf("=== %s ===\n", "IPv4");
+    pf("=== %s ===\n", "IPv4");
     struct ip *ip = (struct ip *)(packet + sizeof(struct ether_header));
-    printf("版本: %d\n", ip->ip_v);
-    printf("首部长度: %d\n", ip->ip_hl);
-    printf("服务类型(TOS): 0x%02x", ip->ip_tos);
-    if (ip->ip_tos & IPTOS_LOWDELAY) printf(" 最小时延");
-    if (ip->ip_tos & IPTOS_THROUGHPUT) printf(" 最大吞吐量");
-    if (ip->ip_tos & IPTOS_RELIABILITY) printf(" 最高可靠性");
-    if (ip->ip_tos & IPTOS_MINCOST) printf(" 最小费用");
-    printf("\n");
-    printf("总长度: %d\n", ntohs(ip->ip_len) * 4);
-    printf("标识: %d\n", ntohs(ip->ip_id));
-    printf("偏移: %d\n", ntohs(ip->ip_off) & IP_OFFMASK);
-    printf("生存时间(TTL): %d\n", ip->ip_ttl);
-    printf("协议: %d\n", ip->ip_p);
-    printf("标识: %d\n", ntohs(ip->ip_id));
-    printf("校验和: %x\n", ip->ip_sum);
-    printf("来源IP地址: %s\n", inet_ntoa(ip->ip_src));
-    printf("目的IP地址: %s\n", inet_ntoa(ip->ip_dst));
+    pf("版本: %d\n", ip->ip_v);
+    pf("首部长度: %d\n", ip->ip_hl);
+    pf("服务类型(TOS): 0x%02x", ip->ip_tos);
+    if (ip->ip_tos & IPTOS_LOWDELAY) pf(" 最小时延");
+    if (ip->ip_tos & IPTOS_THROUGHPUT) pf(" 最大吞吐量");
+    if (ip->ip_tos & IPTOS_RELIABILITY) pf(" 最高可靠性");
+    if (ip->ip_tos & IPTOS_MINCOST) pf(" 最小费用");
+    pf("\n");
+    pf("总长度: %d\n", ntohs(ip->ip_len) * 4);
+    pf("标识: %d\n", ntohs(ip->ip_id));
+    pf("偏移: %d\n", ntohs(ip->ip_off) & IP_OFFMASK);
+    pf("生存时间(TTL): %d\n", ip->ip_ttl);
+    pf("协议: %d\n", ip->ip_p);
+    pf("标识: %d\n", ntohs(ip->ip_id));
+    pf("校验和: %x\n", ip->ip_sum);
+    pf("来源IP地址: %s\n", inet_ntoa(ip->ip_src));
+    pf("目的IP地址: %s\n", inet_ntoa(ip->ip_dst));
+    if (config.ip) print_buf();
 
     int proto = ip->ip_p;
     u_char *hdr = (u_char *)ip + sizeof(struct ip);
@@ -306,29 +360,32 @@ void process_ip(const u_char *packet)
 
 void process_packet(const struct pcap_pkthdr *pkthdr, const u_char *packet)
 {
+    clear_buf();
     int i;
     if (packet == NULL) {
         return;
     }
-    printf("\n大小: %d\n", pkthdr->len);
+    pf("\n大小: %d\n", pkthdr->len);
 
     struct ether_header *ethheader = (struct ether_header *)packet;
-    printf("目的地址: ");
-    for (i = 0; i < 6; i++) printf("%02X:", ethheader->ether_dhost[i]);
-    printf("\n来源地址: ");
-    for (i = 0; i < 6; i++) printf("%02X:", ethheader->ether_shost[i]);
+    pf("目的地址: ");
+    for (i = 0; i < 6; i++) pf("%02X:", ethheader->ether_dhost[i]);
+    pf("\n来源地址: ");
+    for (i = 0; i < 6; i++) pf("%02X:", ethheader->ether_shost[i]);
 
     u_short type = ntohs(ethheader->ether_type);
-    printf("\n类型: %04x\n", type);
+    pf("\n类型: %04x\n", type);
 
     if (type == ETHERTYPE_IP) {
         process_ip(packet);
     } else if (type == ETHERTYPE_ARP) {
         process_arp(packet);
     } else if (type == ETHERTYPE_REVARP) {
-        printf("=== %s ===\n", "RARP");
+        pf("=== %s ===\n", "RARP");
+        print_buf();
     } else {
-        printf("=== %s ===\n", "未知");
+        pf("=== %s ===\n", "未知");
+        print_buf();
     }
 
     return;
@@ -344,17 +401,29 @@ int main(int argc, char *argv[])
     memset(errbuf, 0, PCAP_ERRBUF_SIZE);
 
     if (argc < 2) {
-        printf("用法: %s <接口> [过滤器]\n", argv[0]);
+        pf("用法: %s <接口> [过滤器]\n", argv[0]);
         exit(1);
     }
 
     descr = pcap_open_live(argv[1], MAXBYTE2CAPTURE, 0, 512, errbuf);
     pcap_lookupnet(argv[1], &netaddr, &mask, errbuf);
 
-    if (argc > 2) {
-        struct bpf_program filter;
-        pcap_compile(descr, &filter, argv[2], 1, mask);
-        pcap_setfilter(descr, &filter);
+    memset(&config, 0, sizeof(config));
+    for (int i = 2; i < argc; i++) {
+        if (strcmp(argv[i], "ip") == 0)
+            config.ip = 1;
+        else if (strcmp(argv[i], "icmp") == 0)
+            config.icmp = 1;
+        else if (strcmp(argv[i], "tcp") == 0)
+            config.tcp = 1;
+        else if (strcmp(argv[i], "http") == 0)
+            config.http = 1;
+        else if (strcmp(argv[i], "udp") == 0)
+            config.udp = 1;
+        else if (strcmp(argv[i], "dns") == 0)
+            config.dns = 1;
+        else if (strcmp(argv[i], "arp") == 0)
+            config.arp = 1;
     }
 
     for (;;) {
