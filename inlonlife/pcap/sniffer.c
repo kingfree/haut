@@ -27,7 +27,8 @@ struct capture_state {
 static struct capture_state config;
 
 struct buffer {
-    char buf[2048];
+#define BUFF_SIZE 4096
+    char buf[BUFF_SIZE];
     long len;
     char *p;
 };
@@ -56,8 +57,9 @@ void pf(const char* fmt, ...)
     va_list p;
 
     va_start(p, fmt);
-    print_buffer.len += vsnprintf(print_buffer.p, sizeof(print_buffer.buf), fmt, p);
-    update_buf();
+    long len = vsnprintf(print_buffer.p, BUFF_SIZE - print_buffer.len, fmt, p);
+    if ((print_buffer.len = len + print_buffer.len) < BUFF_SIZE)
+        update_buf();
     va_end(p);
 }
 
@@ -65,9 +67,9 @@ void print_mem(void *mem, size_t len)
 {
     u_char *ch = (u_char *)mem;
     for (size_t i = 0; i < len; i++) {
-        pf("%02x ", ch[i]);
+        fprintf(stderr, "%02x ", ch[i]);
         if (((i + 1) % 16 == 0 && i != 0) || i == len - 1) {
-            pf("\n");
+            fprintf(stderr, "\n");
         }
     }
 }
@@ -219,49 +221,89 @@ int is_http(void *data)
 
 void process_http(void *data, size_t len)
 {
+    if (!config.http) return;
+    else print_buf();
     long i;
-    pf("+++ %s +++\n", "HTTP");
-    pf("[len=%ld]\n", len);
+    printf("+++ %s +++\n", "HTTP");
     char *http = (char *)data;
     long length = 0, tmp;
     int text = 0, gzip = 0, chunked = 0;
     static char tmpt[64];
+    http[len] = '\0';
     while (strncmp(http, "\r\n\r\n", 4)) {
         char *eol = strchr(http, '\r');
-        if (eol && eol[1] == '\n') {
+        if (!eol) break;
+        if (eol[1] == '\n') {
             *eol = '\0';
-            pf("%s\n", http);
-            for (i = 0; http[i] != ':'; i++)
+            printf("%s\n", http);
+            for (i = 0; http[i] != ':' && http[i]; i++)
                 http[i] = tolower(http[i]);
             if (sscanf(http, "content-length: %ld", &tmp) == 1) {
                 length = tmp;
-            }
-            if (sscanf(http, "content-type: %s", tmpt) == 1) {
+            } else if (sscanf(http, "content-type: %s", tmpt) == 1) {
                 if (strncmp(tmpt, "text/", 5) == 0)
                     text = 1;
-            }
-            if (sscanf(http, "content-encoding: %s", tmpt) == 1) {
+            } else if (sscanf(http, "content-encoding: %s", tmpt) == 1) {
                 if (strncmp(tmpt, "gzip", 4) == 0)
                     gzip = 1;
-            }
-            if (sscanf(http, "transfer-encoding: %s", tmpt) == 1) {
+            } else if (sscanf(http, "transfer-encoding: %s", tmpt) == 1) {
                 if (strncmp(tmpt, "chunked", 7) == 0)
                     chunked = 1;
             }
             http = eol + 2;
-            if (http[0] == '\r' && http[1] == '\n')
+            if (http[0] == '\r' && http[1] == '\n') {
+                http += 2;
                 break;
+            }
         }
     }
     if (text && !gzip) {
-        if (length == 0) length = len - (http - (char *)data);
-        pf("正文长度: %ld\n", length);
-        for (i = 0; i < length; i++)
-            if (isprint(http[i])) pf("%c", http[i]);
+        printf("\n");
+        if (chunked) {
+            unsigned long block = 0;
+            do {
+                if (sscanf(http, "%lx\r\n", &block) == 1) {
+                    /* switch (strlen(tmpt)) {
+                    case 1:
+                        block = *(u_int8_t *)tmpt + 1;
+                        break;
+                    case 2:
+                        block = ntohs(*(u_int16_t *)tmpt + 1);
+                        break;
+                    case 3:
+                        tmpt[0] = 0;
+                        block = ntohl(*(u_int32_t *)tmpt);
+                        break;
+                    case 4:
+                        block = ntohl(*(u_int32_t *)tmpt + 1);
+                        break;
+                    default:
+                        block = 0;
+                    } */
+                    char *eol = strchr(http, '\r');
+                    if (!eol) break;
+                    http = eol + 2;
+                    unsigned long now = len - (http - (char *)data);
+                    for (unsigned long i = 0; i < block && i < now; i++)
+                        if (isprint(http[i])) printf("%c", http[i]);
+                    if (block > now) {
+                        printf("\n截断在%ld处, 期望到%ld\n", now, block);
+                        break;
+                    }
+                    length += block;
+                    http += block + 2;
+                }
+            } while (block);
+            printf("\n正文长度: %ld\n", length);
+        } else {
+            if (length == 0) length = len - (http - (char *)data);
+            printf("\n正文长度: %ld\n", length);
+            for (i = 0; i < length; i++)
+                if (isprint(http[i])) printf("%c", http[i]);
+        }
     } else if (length) {
-        pf("不可打印的数据 [%ld]", length);
+        printf("\n不可打印的数据 [%ld]\n", length);
     }
-    if (config.http) print_buf();
 }
 
 void *process_dns(const struct udphdr *udp)
