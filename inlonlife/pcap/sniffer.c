@@ -11,6 +11,7 @@
 #include <netinet/udp.h>
 #include <net/if_arp.h>
 #include <arpa/inet.h>
+#include <zlib.h>
 
 #include "sniffer.h"
 
@@ -241,7 +242,7 @@ void process_http(void *data, size_t len)
             if (sscanf(http, "content-length: %ld", &tmp) == 1) {
                 length = tmp;
             } else if (sscanf(http, "content-type: %s", tmpt) == 1) {
-                if (strncmp(tmpt, "text/", 5) == 0)
+                if (strncmp(tmpt, "text/", 5) == 0 || strncmp(tmpt, "application/j", 13) == 0)
                     text = 1;
             } else if (sscanf(http, "content-encoding: %s", tmpt) == 1) {
                 if (strncmp(tmpt, "gzip", 4) == 0)
@@ -257,7 +258,7 @@ void process_http(void *data, size_t len)
             }
         }
     }
-    if (text && !gzip) {
+    if (text) {
         printf("\n");
         if (chunked) {
             unsigned long block = 0;
@@ -284,10 +285,20 @@ void process_http(void *data, size_t len)
                     if (!eol) break;
                     http = eol + 2;
                     unsigned long now = len - (http - (char *)data);
+                    static unsigned char co[BUFF_SIZE];
+                    static unsigned char de[BUFF_SIZE];
+                    unsigned long l = block > now ? now : block;
+                    memcpy(co, http, l);
+                    unsigned char *po = co;
+                    if (gzip) {
+                        uncompress(de, &block, co, l);
+                        po = de;
+                    }
                     for (unsigned long i = 0; i < block && i < now; i++)
-                        if (isprint(http[i])) printf("%c", http[i]);
+                        if (isprint(http[i])) printf("%c", po[i]);
                     if (block > now) {
                         printf("\n截断在%ld处, 期望到%ld\n", now, block);
+                        length += now;
                         break;
                     }
                     length += block;
