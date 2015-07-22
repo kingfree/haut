@@ -165,9 +165,10 @@ void *process_answer(const struct dns_header *dns, void *tail)
     return tail;
 }
 
-struct tcphdr *process_tcp(const void *hdr)
+struct tcphdr *process_tcp(const void *hdr, size_t len)
 {
     pf("--- %s ---\n", "TCP");
+    pf("[len=%ld]\n", len);
     struct tcphdr *tcp = (struct tcphdr *)hdr;
     pf("源端口号: %d\n", ntohs(tcp->th_sport));
     pf("目的端口号: %d\n", ntohs(tcp->th_dport));
@@ -186,10 +187,10 @@ struct tcphdr *process_tcp(const void *hdr)
     pf("\n窗口大小: %d\n", ntohs(tcp->th_win));
     pf("校验和: 0x%x\n", ntohs(tcp->th_sum));
     pf("紧急指针: %d\n", ntohs(tcp->th_urp));
-    if (config.tcp && !config.ip) print_buf();
+    if (config.tcp) print_buf();
     void *tail = tcp + 1;
     if (is_http(tail)) {
-        process_http(tail);
+        process_http(tail, len - sizeof(struct tcphdr));
     }
     return tcp;
 }
@@ -216,13 +217,14 @@ int is_http(void *data)
     return 0;
 }
 
-void process_http(void *data)
+void process_http(void *data, size_t len)
 {
     long i;
     pf("+++ %s +++\n", "HTTP");
+    pf("[len=%ld]\n", len);
     char *http = (char *)data;
     long length = 0, tmp;
-    int text = 0, gzip = 0;
+    int text = 0, gzip = 0, chunked = 0;
     static char tmpt[64];
     while (strncmp(http, "\r\n\r\n", 4)) {
         char *eol = strchr(http, '\r');
@@ -242,12 +244,23 @@ void process_http(void *data)
                 if (strncmp(tmpt, "gzip", 4) == 0)
                     gzip = 1;
             }
+            if (sscanf(http, "transfer-encoding: %s", tmpt) == 1) {
+                if (strncmp(tmpt, "chunked", 7) == 0)
+                    chunked = 1;
+            }
             http = eol + 2;
             if (http[0] == '\r' && http[1] == '\n')
                 break;
         }
     }
-    if (text && !gzip) for (i = 0; i < length; i++) pf("%c", http[i]);
+    if (text && !gzip) {
+        if (length == 0) length = len - (http - (char *)data);
+        pf("正文长度: %ld\n", length);
+        for (i = 0; i < length; i++)
+            if (isprint(http[i])) pf("%c", http[i]);
+    } else if (length) {
+        pf("不可打印的数据 [%ld]", length);
+    }
     if (config.http) print_buf();
 }
 
@@ -292,7 +305,7 @@ void *process_dns(const struct udphdr *udp)
         pf("[额外资源%2d]\n", i + 1);
         tail = process_answer(dns, tail);
     }
-    if (config.dns && !config.udp) print_buf();
+    if (config.dns) print_buf();
     return tail;
 }
 
@@ -305,7 +318,7 @@ struct udphdr *process_udp(const void *hdr)
     pf("目的端口号: %d\n", dport = ntohs(udp->uh_dport));
     pf("长度: %d\n", ntohs(udp->uh_ulen));
     pf("校验和: 0x%x\n", ntohs(udp->uh_sum));
-    if (config.udp && !config.ip) print_buf();
+    if (config.udp) print_buf();
     if (sport == 53 || dport == 53) {
         process_dns(udp);
     }
@@ -382,22 +395,23 @@ void process_icmp(const void *hdr)
     pf("类型: %d\n", ic->icmp_type);
     pf("代码: %d\n", ic->icmp_code);
     pf("校验和: 0x%x\n", ic->icmp_cksum);
-    if (config.icmp && !config.ip) print_buf();
+    if (config.icmp) print_buf();
 }
 
-void process_ip(const u_char *packet)
+void process_ip(const void *tail, size_t len)
 {
     pf("=== %s ===\n", "IPv4");
-    struct ip *ip = (struct ip *)(packet + sizeof(struct ether_header));
+    pf("[len=%ld]\n", len);
+    struct ip *ip = (struct ip *)(tail);
     pf("版本: %d\n", ip->ip_v);
-    pf("首部长度: %d\n", ip->ip_hl);
+    pf("首部长度: %d\n", ip->ip_hl * 4);
     pf("服务类型(TOS): 0x%02x", ip->ip_tos);
     if (ip->ip_tos & IPTOS_LOWDELAY) pf(" 最小时延");
     if (ip->ip_tos & IPTOS_THROUGHPUT) pf(" 最大吞吐量");
     if (ip->ip_tos & IPTOS_RELIABILITY) pf(" 最高可靠性");
     if (ip->ip_tos & IPTOS_MINCOST) pf(" 最小费用");
     pf("\n");
-    pf("总长度: %d\n", ntohs(ip->ip_len) * 4);
+    pf("总长度: %d\n", len = ntohs(ip->ip_len));
     pf("标识: %d\n", ntohs(ip->ip_id));
     pf("偏移: %d\n", ntohs(ip->ip_off) & IP_OFFMASK);
     pf("生存时间(TTL): %d\n", ip->ip_ttl);
@@ -413,7 +427,7 @@ void process_ip(const u_char *packet)
     if (proto == IPPROTO_ICMP) {
         process_icmp(hdr);
     } else if (proto == IPPROTO_TCP) {
-        process_tcp(hdr);
+        process_tcp(hdr, len - sizeof(struct ip));
     } else if (proto == IPPROTO_UDP) {
         process_udp(hdr);
     }
@@ -438,7 +452,8 @@ void process_packet(const struct pcap_pkthdr *pkthdr, const u_char *packet)
     pf("\n类型: %04x\n", type);
 
     if (type == ETHERTYPE_IP) {
-        process_ip(packet);
+        long len = sizeof(struct ether_header);
+        process_ip(packet + len, pkthdr->len - len);
     } else if (type == ETHERTYPE_ARP) {
         process_arp(packet);
     } else if (type == ETHERTYPE_REVARP) {
