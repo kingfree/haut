@@ -85,6 +85,9 @@ struct dns_question *process_dns_hdr(const struct dns_header *dns, void *tail);
 void *process_answer(const struct dns_header *dns, void *tail);
 size_t get_domain_name(const void *head, void *qname, char *dst);
 
+int is_http(void *data);
+void process_http(void *data);
+
 void print_mem(void *mem, size_t len);
 
 #endif

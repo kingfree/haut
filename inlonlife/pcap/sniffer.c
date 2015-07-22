@@ -27,7 +27,7 @@ struct capture_state {
 static struct capture_state config;
 
 struct buffer {
-    char buf[1024 * 16];
+    char buf[2048];
     long len;
     char *p;
 };
@@ -187,7 +187,68 @@ struct tcphdr *process_tcp(const void *hdr)
     pf("校验和: 0x%x\n", ntohs(tcp->th_sum));
     pf("紧急指针: %d\n", ntohs(tcp->th_urp));
     if (config.tcp && !config.ip) print_buf();
+    void *tail = tcp + 1;
+    if (is_http(tail)) {
+        process_http(tail);
+    }
     return tcp;
+}
+
+int is_http(void *data)
+{
+    char *http = (char *)data;
+    if (strncmp(http, "HTTP", 4) == 0)
+        return 1;
+    if (strncmp(http, "GET", 3) == 0)
+        return 2;
+    if (strncmp(http, "HEAD", 4) == 0)
+        return 3;
+    if (strncmp(http, "POST", 4) == 0)
+        return 4;
+    if (strncmp(http, "PUT", 3) == 0)
+        return 5;
+    if (strncmp(http, "DELETE", 6) == 0)
+        return 6;
+    if (strncmp(http, "TRACE", 5) == 0)
+        return 7;
+    if (strncmp(http, "CONNECT", 7) == 0)
+        return 8;
+    return 0;
+}
+
+void process_http(void *data)
+{
+    long i;
+    pf("+++ %s +++\n", "HTTP");
+    char *http = (char *)data;
+    long length = 0, tmp;
+    int text = 0, gzip = 0;
+    static char tmpt[64];
+    while (strncmp(http, "\r\n\r\n", 4)) {
+        char *eol = strchr(http, '\r');
+        if (eol && eol[1] == '\n') {
+            *eol = '\0';
+            pf("%s\n", http);
+            for (i = 0; http[i] != ':'; i++)
+                http[i] = tolower(http[i]);
+            if (sscanf(http, "content-length: %ld", &tmp) == 1) {
+                length = tmp;
+            }
+            if (sscanf(http, "content-type: %s", tmpt) == 1) {
+                if (strncmp(tmpt, "text/", 5) == 0)
+                    text = 1;
+            }
+            if (sscanf(http, "content-encoding: %s", tmpt) == 1) {
+                if (strncmp(tmpt, "gzip", 4) == 0)
+                    gzip = 1;
+            }
+            http = eol + 2;
+            if (http[0] == '\r' && http[1] == '\n')
+                break;
+        }
+    }
+    if (text && !gzip) for (i = 0; i < length; i++) pf("%c", http[i]);
+    if (config.http) print_buf();
 }
 
 void *process_dns(const struct udphdr *udp)
@@ -408,7 +469,16 @@ int main(int argc, char *argv[])
     descr = pcap_open_live(argv[1], MAXBYTE2CAPTURE, 0, 512, errbuf);
     pcap_lookupnet(argv[1], &netaddr, &mask, errbuf);
 
-    memset(&config, 0, sizeof(config));
+    if (argc == 2) {
+        config.ip = 1;
+        config.icmp = 1;
+        config.tcp = 1;
+        config.http = 1;
+        config.udp = 1;
+        config.dns = 1;
+        config.arp = 1;
+    }
+
     for (int i = 2; i < argc; i++) {
         if (strcmp(argv[i], "ip") == 0)
             config.ip = 1;
