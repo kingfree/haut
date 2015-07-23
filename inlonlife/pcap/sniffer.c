@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 #include <stdarg.h>
 #include <netinet/if_ether.h>
@@ -240,48 +241,46 @@ struct tcphdr *process_tcp(const void *hdr, size_t len)
     while (now != tail) {
         switch (*now) {
         case 0:
-            printf("结束\n");
+            pf("结束\n");
             now++;
             break;
         case 1:
-            printf("无操作\n");
+            pf("无操作\n");
             now++;
             break;
         case 2:
             now += 2;
-            printf("最大报文段长度: %d\n", ntohs(*now));
+            pf("最大报文段长度: %d\n", ntohs(*now));
             now += 2;
             break;
         case 3:
             now += 2;
-            printf("位移值: %d\n", *now);
+            pf("窗口缩放因子位移值: %d\n", *now);
             now += 1;
             break;
         case 8:
             now += 2;
-            printf("时间戳值: %u\n", ntohl(*now));
+            pf("时间戳值: %u\n", ntohl(*now));
             now += 4;
-            printf("时间戳回显应答: %u\n", ntohl(*now));
+            pf("时间戳回显应答: %u\n", ntohl(*now));
             now += 4;
             break;
         default:
             l = *(now + 1);
-            printf("未知选项: %d, 长度 %d\n", *now, l);
+            pf("未知选项: %d, 长度 %d\n", *now, l);
             now += l;
         }
     }
     if (config.tcp) print_buf();
     len -= tcplen;
-    save_tcp_payload(seq, tail, len);
-    if (is_http(tail)) {
-        process_http(tail, len);
-    } else {
-        print_mem(tail, len);
+    if (len > 0) {
+        save_tcp_payload(seq, tail, len);
+        process_http(tcp, tail, len);
     }
     return tcp;
 }
 
-int is_http(void *data)
+int is_http_head(void *data)
 {
     char *http = (char *)data;
     if (strncmp(http, "HTTP", 4) == 0) return 1;
@@ -292,32 +291,65 @@ int is_http(void *data)
     if (strncmp(http, "DELETE", 6) == 0) return 6;
     if (strncmp(http, "TRACE", 5) == 0) return 7;
     if (strncmp(http, "CONNECT", 7) == 0) return 8;
+    // char *res = strnstr(http, "\r\n", len);
+    // if (res) return res - http;
     return 0;
 }
 
-int strncasecmp(const char *s1, const char *s2, size_t n)
+struct http_data {
+    char *data;
+    char has;
+    size_t len;
+    size_t hope_len;
+    unsigned long next_seq;
+};
+
+struct http_data httpd;
+
+size_t process_http_header(char *http, size_t len)
 {
-    for (size_t i = 0; i < n; i++) {
-        int v = tolower(s1[i]) - tolower(s2[i]);
-        if (v != 0)
-            return v;
+    return 0;
+}
+
+size_t process_http_body(char *http, size_t len)
+{
+    return 0;
+}
+
+void process_http(struct tcphdr *tcp, void *data, size_t len)
+{
+    char *http = (char *)data;
+    http[len] = '\0';
+    unsigned long seq = ntohl(tcp->th_seq);
+    if (is_http_head(data)) {
+        if (httpd.has) return;
+        httpd.has = 1;
+        httpd.data = realloc(httpd.data, httpd.len + len);
+        memcpy(httpd.data + httpd.len, http, len);
+        httpd.next_seq = seq + len;
+        size_t hope = process_http_header(http, len);
+        if (hope < len) {
+            process_http_body(http + hope, len - hope);
+        } else if (hope == len) {
+            httpd.has = 0;
+        }
+    } else if (httpd.has) {
+        while (httpd.next_seq != seq) {
+            struct tcp_payload *tp;
+            tp = find_tcp_by_seq(seq);
+            process_http_body(tp->data, tp->len);
+        }
     }
-    return 0;
-}
 
-void process_http(void *data, size_t len)
-{
     if (!config.http)
         return;
     else
         print_buf();
     long i;
     printf("+++ %s +++\n", "HTTP");
-    char *http = (char *)data;
     long length = 0, tmp;
     int text = 0, gzip = 0, chunked = 0;
     static char tmpt[64];
-    http[len] = '\0';
     while (strncmp(http, "\r\n\r\n", 4)) {
         char *eol = strchr(http, '\r');
         if (!eol) break;

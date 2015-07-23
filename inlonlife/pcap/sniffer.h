@@ -87,14 +87,14 @@ struct dns_question *process_dns_hdr(const struct dns_header *dns, void *tail);
 void *process_answer(const struct dns_header *dns, void *tail);
 size_t get_domain_name(const void *head, void *qname, char *dst);
 
-int is_http(void *data);
-void process_http(void *data, size_t len);
+int is_http(void *data, size_t len);
+void process_http(struct tcphdr *tcp,void *data, size_t len);
 
 void print_mem(const void *mem, size_t len);
 
 struct tcp_payload {
     unsigned long seq;
-    u_char *data;
+    char *data;
     size_t len;
     SLIST_ENTRY(tcp_payload) entries;
 };
