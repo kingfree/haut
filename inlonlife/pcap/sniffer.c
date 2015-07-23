@@ -11,17 +11,18 @@
 #include <netinet/udp.h>
 #include <net/if_arp.h>
 #include <arpa/inet.h>
+#include <sys/queue.h>
 #include <zlib.h>
 
 #include "sniffer.h"
 
 struct capture_state {
     char ip;
-        char icmp;
-        char tcp;
-            char http;
-        char udp;
-            char dns;
+    char icmp;
+    char tcp;
+    char http;
+    char udp;
+    char dns;
     char arp;
 };
 
@@ -36,14 +37,12 @@ struct buffer {
 
 struct buffer print_buffer;
 
-void update_buf()
-{
-    print_buffer.p = print_buffer.buf + print_buffer.len;
-}
+void update_buf() { print_buffer.p = print_buffer.buf + print_buffer.len; }
 
 void clear_buf()
 {
     print_buffer.len = 0;
+    print_buffer.buf[0] = 0;
     update_buf();
 }
 
@@ -53,23 +52,39 @@ void print_buf()
     clear_buf();
 }
 
-void pf(const char* fmt, ...)
+void pf(const char *fmt, ...)
 {
     va_list p;
 
     va_start(p, fmt);
     long len = vsnprintf(print_buffer.p, BUFF_SIZE - print_buffer.len, fmt, p);
-    if ((print_buffer.len = len + print_buffer.len) < BUFF_SIZE)
-        update_buf();
+    if ((print_buffer.len = len + print_buffer.len) < BUFF_SIZE) update_buf();
     va_end(p);
 }
 
-void print_mem(void *mem, size_t len)
+void print_mem(const void *mem, size_t len)
 {
-    u_char *ch = (u_char *)mem;
-    for (size_t i = 0; i < len; i++) {
-        fprintf(stderr, "%02x ", ch[i]);
-        if (((i + 1) % 16 == 0 && i != 0) || i == len - 1) {
+    fprintf(stderr, "[数据长度: %ld]\n", len);
+    u_char *data = (u_char *)mem;
+    size_t i, j;
+    for (i = 0; i < len; i++) {
+        if (i != 0 && i % 16 == 0) {
+            fprintf(stderr, "         ");
+            for (j = i - 16; j < i; j++)
+                fprintf(stderr, "%c", isprint(data[j]) ? data[j] : '.');
+            fprintf(stderr, "\n");
+        }
+
+        if (i % 16 == 0) fprintf(stderr, "   ");
+        fprintf(stderr, " %02X", data[i]);
+
+        if (i == len - 1) {
+            for (j = 0; j < 15 - i % 16; j++)
+                fprintf(stderr, "   ");
+
+            fprintf(stderr, "         ");
+            for (j = i - i % 16; j <= i; j++)
+                fprintf(stderr, "%c", isprint(data[j]) ? data[j] : '.');
             fprintf(stderr, "\n");
         }
     }
@@ -144,8 +159,7 @@ struct dns_question *process_dns_hdr(const struct dns_header *dns, void *tail)
         break;
     }
     short qclass = ntohs(dq->qclass);
-    pf("\n类: (%d) %s\n", dq->qclass = qclass,
-           qclass == 1 ? "IPv4" : "其他");
+    pf("\n类: (%d) %s\n", dq->qclass = qclass, qclass == 1 ? "IPv4" : "其他");
     return dq;
 }
 
@@ -167,17 +181,48 @@ void *process_answer(const struct dns_header *dns, void *tail)
     tail = rr->rr_data + rlen;
     return tail;
 }
+void save_tcp_payload(unsigned long seq, const void *payload, size_t len)
+{
+    struct tcp_payload *t = malloc(sizeof(struct tcp_payload));
+    u_char *data = malloc(len);
+    memcpy(data, payload, len);
+    t->seq = seq;
+    t->data = data;
+    t->len = len;
+    SLIST_INSERT_HEAD(&head, t, entries);
+}
+
+struct tcp_payload *find_tcp_by_seq(unsigned long seq)
+{
+    struct tcp_payload *i;
+    SLIST_FOREACH(i, &head, entries) {
+        if (i->seq == seq)
+            return i;
+    }
+    return NULL;
+}
+
+void free_tcp_payload(struct tcp_payload *np)
+{
+    if (!np) return;
+    if (np->data) free(np->data);
+    SLIST_REMOVE(&head, np, tcp_payload, entries);
+    free(np);
+}
 
 struct tcphdr *process_tcp(const void *hdr, size_t len)
 {
     pf("--- %s ---\n", "TCP");
     pf("[len=%ld]\n", len);
     struct tcphdr *tcp = (struct tcphdr *)hdr;
+    size_t tcplen = 0;
+    unsigned long seq = 0;
     pf("源端口号: %d\n", ntohs(tcp->th_sport));
     pf("目的端口号: %d\n", ntohs(tcp->th_dport));
-    pf("序号: %u\n", ntohl(tcp->th_seq));
+    pf("序号: %u\n", seq = ntohl(tcp->th_seq));
     pf("确认序号: %u\n", ntohl(tcp->th_ack));
-    pf("首部长度: %d\n", tcp->th_off);
+    pf("首部长度: %d\n", tcplen = tcp->th_off * 4);
+    char *tail = (char *)tcp + tcplen;
     pf("标志:");
     if (tcp->th_flags & TH_FIN) pf(" [FIN] 完成");
     if (tcp->th_flags & TH_SYN) pf(" [SYN] 同步");
@@ -190,10 +235,48 @@ struct tcphdr *process_tcp(const void *hdr, size_t len)
     pf("\n窗口大小: %d\n", ntohs(tcp->th_win));
     pf("校验和: 0x%x\n", ntohs(tcp->th_sum));
     pf("紧急指针: %d\n", ntohs(tcp->th_urp));
+    char *now = (char *)(tcp + 1);
+    char l;
+    while (now != tail) {
+        switch (*now) {
+        case 0:
+            printf("结束\n");
+            now++;
+            break;
+        case 1:
+            printf("无操作\n");
+            now++;
+            break;
+        case 2:
+            now += 2;
+            printf("最大报文段长度: %d\n", ntohs(*now));
+            now += 2;
+            break;
+        case 3:
+            now += 2;
+            printf("位移值: %d\n", *now);
+            now += 1;
+            break;
+        case 8:
+            now += 2;
+            printf("时间戳值: %u\n", ntohl(*now));
+            now += 4;
+            printf("时间戳回显应答: %u\n", ntohl(*now));
+            now += 4;
+            break;
+        default:
+            l = *(now + 1);
+            printf("未知选项: %d, 长度 %d\n", *now, l);
+            now += l;
+        }
+    }
     if (config.tcp) print_buf();
-    void *tail = tcp + 1;
+    len -= tcplen;
+    save_tcp_payload(seq, tail, len);
     if (is_http(tail)) {
-        process_http(tail, len - sizeof(struct tcphdr));
+        process_http(tail, len);
+    } else {
+        print_mem(tail, len);
     }
     return tcp;
 }
@@ -201,29 +284,33 @@ struct tcphdr *process_tcp(const void *hdr, size_t len)
 int is_http(void *data)
 {
     char *http = (char *)data;
-    if (strncmp(http, "HTTP", 4) == 0)
-        return 1;
-    if (strncmp(http, "GET", 3) == 0)
-        return 2;
-    if (strncmp(http, "HEAD", 4) == 0)
-        return 3;
-    if (strncmp(http, "POST", 4) == 0)
-        return 4;
-    if (strncmp(http, "PUT", 3) == 0)
-        return 5;
-    if (strncmp(http, "DELETE", 6) == 0)
-        return 6;
-    if (strncmp(http, "TRACE", 5) == 0)
-        return 7;
-    if (strncmp(http, "CONNECT", 7) == 0)
-        return 8;
+    if (strncmp(http, "HTTP", 4) == 0) return 1;
+    if (strncmp(http, "GET", 3) == 0) return 2;
+    if (strncmp(http, "HEAD", 4) == 0) return 3;
+    if (strncmp(http, "POST", 4) == 0) return 4;
+    if (strncmp(http, "PUT", 3) == 0) return 5;
+    if (strncmp(http, "DELETE", 6) == 0) return 6;
+    if (strncmp(http, "TRACE", 5) == 0) return 7;
+    if (strncmp(http, "CONNECT", 7) == 0) return 8;
+    return 0;
+}
+
+int strncasecmp(const char *s1, const char *s2, size_t n)
+{
+    for (size_t i = 0; i < n; i++) {
+        int v = tolower(s1[i]) - tolower(s2[i]);
+        if (v != 0)
+            return v;
+    }
     return 0;
 }
 
 void process_http(void *data, size_t len)
 {
-    if (!config.http) return;
-    else print_buf();
+    if (!config.http)
+        return;
+    else
+        print_buf();
     long i;
     printf("+++ %s +++\n", "HTTP");
     char *http = (char *)data;
@@ -237,19 +324,16 @@ void process_http(void *data, size_t len)
         if (eol[1] == '\n') {
             *eol = '\0';
             printf("%s\n", http);
-            for (i = 0; http[i] != ':' && http[i]; i++)
-                http[i] = tolower(http[i]);
-            if (sscanf(http, "content-length: %ld", &tmp) == 1) {
+            if (sscanf(http, "Content-Length: %ld", &tmp) == 1) {
                 length = tmp;
-            } else if (sscanf(http, "content-type: %s", tmpt) == 1) {
-                if (strncmp(tmpt, "text/", 5) == 0 || strncmp(tmpt, "application/j", 13) == 0)
+            } else if (sscanf(http, "Content-Type: %s", tmpt) == 1) {
+                if (strncmp(tmpt, "text/", 5) == 0 ||
+                    strncmp(tmpt, "application/j", 13) == 0)
                     text = 1;
-            } else if (sscanf(http, "content-encoding: %s", tmpt) == 1) {
-                if (strncmp(tmpt, "gzip", 4) == 0)
-                    gzip = 1;
-            } else if (sscanf(http, "transfer-encoding: %s", tmpt) == 1) {
-                if (strncmp(tmpt, "chunked", 7) == 0)
-                    chunked = 1;
+            } else if (sscanf(http, "Content-Encoding: %s", tmpt) == 1) {
+                if (strncmp(tmpt, "gzip", 4) == 0) gzip = 1;
+            } else if (sscanf(http, "Transfer-Encoding: %s", tmpt) == 1) {
+                if (strncmp(tmpt, "chunked", 7) == 0) chunked = 1;
             }
             http = eol + 2;
             if (http[0] == '\r' && http[1] == '\n') {
@@ -258,8 +342,13 @@ void process_http(void *data, size_t len)
             }
         }
     }
+    char *body = http;
+    size_t headlen = body - (char *)data;
+    print_mem(data, headlen);
+    fprintf(stderr, "\n");
+    print_mem(body, len - headlen);
+    printf("\n");
     if (text) {
-        printf("\n");
         if (chunked) {
             unsigned long block = 0;
             do {
@@ -294,7 +383,7 @@ void process_http(void *data, size_t len)
                         uncompress(de, &block, co, l);
                         po = de;
                     }
-                    for (unsigned long i = 0; i < block && i < now; i++)
+                    for (unsigned long i = 0; i < block; i++)
                         if (isprint(http[i])) printf("%c", po[i]);
                     if (block > now) {
                         printf("\n截断在%ld处, 期望到%ld\n", now, block);
@@ -305,15 +394,14 @@ void process_http(void *data, size_t len)
                     http += block + 2;
                 }
             } while (block);
-            printf("\n正文长度: %ld\n", length);
         } else {
             if (length == 0) length = len - (http - (char *)data);
-            printf("\n正文长度: %ld\n", length);
             for (i = 0; i < length; i++)
                 if (isprint(http[i])) printf("%c", http[i]);
         }
+        printf("\n正文长度: %ld\n", length);
     } else if (length) {
-        printf("\n不可打印的数据 [%ld]\n", length);
+        printf("不可打印的数据 [%ld]\n", length);
     }
 }
 
@@ -326,8 +414,7 @@ void *process_dns(const struct udphdr *udp)
     pf("报文类型: (%d) %s\n", dns->qr, dns->qr ? "响应" : "查询");
     static char *opstring[] = {"标准查询", "反向查询", "服务器状态请求"};
     unsigned short opcode = dns->opcode;
-    pf("查询类型: (%d) %s\n", opcode,
-           opcode > 2 ? "其他" : opstring[opcode]);
+    pf("查询类型: (%d) %s\n", opcode, opcode > 2 ? "其他" : opstring[opcode]);
     pf("授权回答: (%d) %s\n", dns->aa, dns->aa ? "是" : "否");
     pf("可截断的: (%d) %s\n", dns->tc, dns->tc ? "是" : "否");
     pf("期望递归: (%d) %s\n", dns->rd, dns->rd ? "是" : "否");
@@ -466,6 +553,9 @@ void process_ip(const void *tail, size_t len)
     pf("\n");
     pf("总长度: %d\n", len = ntohs(ip->ip_len));
     pf("标识: %d\n", ntohs(ip->ip_id));
+    pf("保留位: %d\n", ntohs(ip->ip_off) & IP_RF);
+    pf("不分片: %s\n", ntohs(ip->ip_off) & IP_DF ? "是" : "否");
+    pf("更多分片: %s\n", ntohs(ip->ip_off) & IP_MF ? "是" : "否");
     pf("偏移: %d\n", ntohs(ip->ip_off) & IP_OFFMASK);
     pf("生存时间(TTL): %d\n", ip->ip_ttl);
     pf("协议: %d\n", ip->ip_p);
@@ -563,6 +653,8 @@ int main(int argc, char *argv[])
         else if (strcmp(argv[i], "arp") == 0)
             config.arp = 1;
     }
+
+    SLIST_INIT(&head);
 
     for (;;) {
         packet = pcap_next(descr, &pkthdr);

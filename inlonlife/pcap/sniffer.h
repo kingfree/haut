@@ -1,8 +1,10 @@
 #ifndef _SNIFFER_H_
 #define _SNIFFER_H_
 
+#include <stdlib.h>
 #include <ctype.h>
 #include <netinet/ip.h>
+#include <sys/queue.h>
 
 struct dns_header {
     unsigned id : 16;
@@ -88,6 +90,20 @@ size_t get_domain_name(const void *head, void *qname, char *dst);
 int is_http(void *data);
 void process_http(void *data, size_t len);
 
-void print_mem(void *mem, size_t len);
+void print_mem(const void *mem, size_t len);
+
+struct tcp_payload {
+    unsigned long seq;
+    u_char *data;
+    size_t len;
+    SLIST_ENTRY(tcp_payload) entries;
+};
+SLIST_HEAD(tcp_packs, tcp_payload) head = SLIST_HEAD_INITIALIZER(head);
+struct tcp_packs *tcps_head;
+
+void save_tcp_payload(unsigned long seq, const void *payload, size_t len);
+struct tcp_payload *find_tcp_by_seq(unsigned long seq);
+void free_tcp_payload(struct tcp_payload *np);
 
 #endif
+
