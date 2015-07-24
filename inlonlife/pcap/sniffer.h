@@ -98,8 +98,8 @@ struct tcp_payload {
     size_t len;
     SLIST_ENTRY(tcp_payload) entries;
 };
-SLIST_HEAD(tcp_packs, tcp_payload) head = SLIST_HEAD_INITIALIZER(head);
-struct tcp_packs *tcps_head;
+SLIST_HEAD(tcp_packs, tcp_payload);
+struct tcp_packs tcps_head = SLIST_HEAD_INITIALIZER(&tcps_head);
 
 void save_tcp_payload(unsigned long seq, const void *payload, size_t len);
 struct tcp_payload *find_tcp_by_seq(unsigned long seq);
