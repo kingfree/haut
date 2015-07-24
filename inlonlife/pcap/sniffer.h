@@ -88,7 +88,7 @@ void *process_answer(const struct dns_header *dns, void *tail);
 size_t get_domain_name(const void *head, void *qname, char *dst);
 
 int is_http(void *data, size_t len);
-void process_http(struct tcphdr *tcp,void *data, size_t len);
+void process_http(struct tcphdr *tcp, void *data, size_t len);
 
 void print_mem(const void *mem, size_t len);
 
@@ -105,5 +105,17 @@ void save_tcp_payload(unsigned long seq, const void *payload, size_t len);
 struct tcp_payload *find_tcp_by_seq(unsigned long seq);
 void free_tcp_payload(struct tcp_payload *np);
 
-#endif
+struct http_data {
+    char has;
+    http_parser *parser;
+    http_parser_settings settings;
+    string head;
+    string body;
+    uint64_t hope_len;
+    unsigned long next_seq;
+    SLIST_ENTRY(http_data) entries;
+};
+SLIST_HEAD(http_packs, http_data);
+struct tcp_packs httpd = SLIST_HEAD_INITIALIZER(&httpd);
 
+#endif

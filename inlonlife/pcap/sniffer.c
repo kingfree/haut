@@ -15,11 +15,11 @@
 #include <sys/queue.h>
 #include <zlib.h>
 
+#include "string.h"
 #include "sniffer.h"
 #include "http_parser.h"
 
-#define koko \
-    printf("line %d: ここまで\n", __LINE__)
+#define koko fprintf(stderr, "ライン %d: %s() ここまで\n", __LINE__, __func__)
 
 struct capture_state {
     char ip;
@@ -84,8 +84,7 @@ void print_mem(const void *mem, size_t len)
         fprintf(stderr, " %02X", data[i]);
 
         if (i == len - 1) {
-            for (j = 0; j < 15 - i % 16; j++)
-                fprintf(stderr, "   ");
+            for (j = 0; j < 15 - i % 16; j++) fprintf(stderr, "   ");
 
             fprintf(stderr, "         ");
             for (j = i - i % 16; j <= i; j++)
@@ -201,9 +200,9 @@ void save_tcp_payload(unsigned long seq, const void *payload, size_t len)
 struct tcp_payload *find_tcp_by_seq(unsigned long seq)
 {
     struct tcp_payload *i, *tmp;
-    SLIST_FOREACH_SAFE(i, &tcps_head, entries, tmp) {
-        if (i->seq == seq)
-            return i;
+    SLIST_FOREACH_SAFE(i, &tcps_head, entries, tmp)
+    {
+        if (i->seq == seq) return i;
     }
     return NULL;
 }
@@ -219,7 +218,6 @@ void free_tcp_payload(struct tcp_payload *np)
 struct tcphdr *process_tcp(const void *hdr, size_t len)
 {
     pf("--- %s ---\n", "TCP");
-    pf("[len=%ld]\n", len);
     struct tcphdr *tcp = (struct tcphdr *)hdr;
     size_t tcplen = 0;
     unsigned long seq = 0;
@@ -246,38 +244,39 @@ struct tcphdr *process_tcp(const void *hdr, size_t len)
     while (now != tail) {
         switch (*now) {
         case 0:
-            pf("结束\n");
+            pf(" 结束\n");
             now++;
             break;
         case 1:
-            pf("无操作\n");
+            pf(" 无操作\n");
             now++;
             break;
         case 2:
             now += 2;
-            pf("最大报文段长度: %d\n", ntohs(*now));
+            pf(" 最大报文段长度: %d\n", ntohs(*now));
             now += 2;
             break;
         case 3:
             now += 2;
-            pf("窗口缩放因子位移值: %d\n", *now);
+            pf(" 窗口缩放因子位移值: %d\n", *now);
             now += 1;
             break;
         case 8:
             now += 2;
-            pf("时间戳值: %u\n", ntohl(*now));
+            pf(" 时间戳值: %u, ", ntohl(*now));
             now += 4;
-            pf("时间戳回显应答: %u\n", ntohl(*now));
+            pf(" 时间戳回显应答: %u\n", ntohl(*now));
             now += 4;
             break;
         default:
             l = *(now + 1);
-            pf("未知选项: %d, 长度 %d\n", *now, l);
+            pf(" 未知选项: %d, 长度 %d\n", *now, l);
             now += l;
         }
     }
-    if (config.tcp) print_buf();
     len -= tcplen;
+    pf("[下个序号: %u = %u + %u]\n", seq + len, seq, len);
+    if (config.tcp) print_buf();
     if (len > 0) {
         save_tcp_payload(seq, tail, len);
         // struct tcp_payload *tp = SLIST_FIRST(tcps_head);
@@ -303,66 +302,11 @@ int is_http_head(void *data)
     return 0;
 }
 
-typedef struct string {
-    char *data;
-    size_t len;
-    size_t size;
-} string;
-
-struct http_data {
-    char has;
-    http_parser *parser;
-    http_parser_settings settings;
-    string head;
-    string body;
-    uint64_t hope_len;
-    unsigned long next_seq;
-};
-
-string *stringncat(string *s1, const char *s2, size_t n)
-{
-koko;
-    if (s1->len + n + 1 >= s1->size) {
-        s1->size += n + 1 > 128 ? n + 1 : 128;
-    koko;
-        if (s1->data == NULL) {
-    koko;
-            s1->data = malloc(s1->size);
-    koko;
-        } else {
-    koko;
-            s1->data = realloc(s1->data, s1->size);
-    koko;
-        }
-    koko;
-        if (s1->data == NULL) return NULL;
-    }
-    koko;
-    char *res = strncat(s1->data + s1->len, s2, n);
-    printf("%ld %ld %s %ld\n", s1->len, s1->size, s1->data, n);
-    s1->data[s1->len] = '\0'; // strncat() 会自动加 '\0'
-    koko;
-    return res == s1->data ? s1 : NULL;
-}
-
-void stringfree(string *s)
-{
-    if (s->data)
-        free(s->data);
-    s->data = NULL;
-    s->len = s->size = 0;
-}
-
-struct http_data httpd;
-
 int http_on_header_field(http_parser *p, const char *buf, size_t len)
 {
     if (p != httpd.parser) return 0;
-    koko;
     stringncat(&httpd.head, buf, len);
-    koko;
     stringncat(&httpd.head, ": ", 2);
-    koko;
     return 0;
 }
 
@@ -406,10 +350,7 @@ void clear_httpd()
 
 void process_http(struct tcphdr *tcp, void *data, size_t len)
 {
-    if (!config.http)
-        return;
-    else
-        print_buf();
+    if (!config.http) return;
     char *http = (char *)data;
     http[len] = '\0';
     unsigned long seq = ntohl(tcp->th_seq);
@@ -419,16 +360,32 @@ void process_http(struct tcphdr *tcp, void *data, size_t len)
         httpd.next_seq = seq + len;
         // httpd.data = realloc(httpd.data, httpd.len + len);
         // memcpy(httpd.data + httpd.len, http, len);
-        http_parser_init(httpd.parser, HTTP_BOTH);
+        http_parser_init(httpd.parser,
+                         http[0] == 'H' ? HTTP_RESPONSE : HTTP_RESPONSE);
 
-        http_parser_execute(httpd.parser, &httpd.settings, http, len);
+        size_t res =
+            http_parser_execute(httpd.parser, &httpd.settings, http, len);
+        // fprintf(stderr, "%ld %ld [%d]\n", res, len, httpd.parser->type);
+        if (res != len) {
+            // print_mem(http, len);
+            return;
+        }
+        print_buf();
         if (!httpd.hope_len) {
             printf("+++ %s +++\n", "HTTP");
-koko;
+            http_parser *p = httpd.parser;
+            if (httpd.parser->type == HTTP_REQUEST) {
+                printf("%s %d %s/%d.%d\n", http_method_str(p->method),
+                       p->status_code, "HTTP", p->http_major, p->http_major);
+            } else if (httpd.parser->type == HTTP_RESPONSE) {
+                printf("%s/%d.%d %d\n", "HTTP", p->http_major, p->http_major,
+                       p->status_code);
+            } else {
+                printf("未知的类型\n");
+            }
             puts(httpd.head.data);
-koko;
+            koko;
             clear_httpd();
-koko;
         }
         /* size_t hope = process_http_header(http, len);
         if (hope < len) {
@@ -444,12 +401,18 @@ koko;
                 clear_httpd();
                 break;
             }
-            http_parser_execute(httpd.parser, &httpd.settings, tp->data, tp->len);
+            size_t res = http_parser_execute(httpd.parser, &httpd.settings,
+                                             tp->data, tp->len);
+            if (res != tp->len) {
+                return;
+            }
             seq = tp->seq + tp->len;
         }
         httpd.next_seq = seq + len;
+        print_buf();
         if (!httpd.hope_len) {
             puts(httpd.body.data);
+            koko;
             clear_httpd();
         }
     }
@@ -802,6 +765,7 @@ int main(int argc, char *argv[])
     httpd.settings.on_headers_complete = http_on_headers_complete;
     httpd.settings.on_message_complete = http_on_message_complete;
     httpd.settings.on_body = http_on_body;
+
     httpd.parser = malloc(sizeof(http_parser));
 
     for (;;) {
