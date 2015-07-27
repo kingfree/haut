@@ -341,11 +341,53 @@ int http_on_body(http_parser *p, const char *buf, size_t len)
 
 void clear_httpd()
 {
-    httpd.has = 0;
     httpd.hope_len = 0;
     httpd.next_seq = 0;
     stringfree(&httpd.head);
     stringfree(&httpd.body);
+}
+
+struct http_data *new_http_data(unsigned long seq, size_t len)
+{
+    struct http_data *new = malloc(sizeof(struct http_data));
+    new->parser = malloc(sizeof(http_parser));
+    new->parser->data = new;
+    new->next_seq = seq + len;
+    SLIST_INSERT_HEAD(&httpd, new, entries);
+}
+
+int is_http_response(char *hdr)
+{
+    if (strncmp(hdr, "HTTP", 4)) return 0;
+    if (!strstr(hdr, "\r\n\r\n")) return 0;
+    return 1;
+}
+
+int is_http_request(char *hdr)
+{
+    if (strncmp(hdr, "GET ", 3) && strncmp(hdr, "HEAD ", 4) &&
+        strncmp(hdr, "POST ", 4))
+        return 0;
+    if (!strstr(hdr, "\r\n\r\n")) return 0;
+    return 1;
+}
+
+int is_http_chunk(char *hdr)
+{
+    if (((hdr[0] >= '0' && hdr[0] <= '9') || (hdr[0] >= 'a' && hdr[0] <= 'f') ||
+                (hdr[0] >= 'A' && hdr[0] <= 'F')) &&
+            strstr(hdr, "\r\n"))
+        return 1;
+    return 0;
+}
+
+char *http_header_end(char *hdr)
+{
+    if (!is_http_chunk(hdr)) {
+        return (strstr(hdr, "\r\n\r\n") + 4);
+    } else {
+        return (strstr(hdr, "\r\n") + 2);
+    }
 }
 
 void process_http(struct tcphdr *tcp, void *data, size_t len)
@@ -355,12 +397,8 @@ void process_http(struct tcphdr *tcp, void *data, size_t len)
     http[len] = '\0';
     unsigned long seq = ntohl(tcp->th_seq);
     if (is_http_head(data)) {
-        if (httpd.has) return;
-        httpd.has = 1;
-        httpd.next_seq = seq + len;
-        // httpd.data = realloc(httpd.data, httpd.len + len);
-        // memcpy(httpd.data + httpd.len, http, len);
-        http_parser_init(httpd.parser,
+        struct http_data *hp = new_http_data(seq, len);
+        http_parser_init(hp->parser,
                          http[0] == 'H' ? HTTP_RESPONSE : HTTP_RESPONSE);
 
         size_t res =
@@ -388,12 +426,13 @@ void process_http(struct tcphdr *tcp, void *data, size_t len)
             clear_httpd();
         }
         /* size_t hope = process_http_header(http, len);
-        if (hope < len) {
+           if (hope < len) {
             process_http_body(http + hope, len - hope);
         } else if (hope == len) {
             httpd.has = 0;
         } */
     } else if (httpd.has) {
+        http_data *hp = find_http_by_next_seq(seq);
         while (seq < httpd.next_seq) {
             struct tcp_payload *tp;
             tp = find_tcp_by_seq(seq);
@@ -760,13 +799,11 @@ int main(int argc, char *argv[])
 
     SLIST_INIT(&tcps_head);
 
-    httpd.settings.on_header_field = http_on_header_field;
-    httpd.settings.on_header_value = http_on_header_value;
-    httpd.settings.on_headers_complete = http_on_headers_complete;
-    httpd.settings.on_message_complete = http_on_message_complete;
-    httpd.settings.on_body = http_on_body;
-
-    httpd.parser = malloc(sizeof(http_parser));
+    settings.on_header_field = http_on_header_field;
+    settings.on_header_value = http_on_header_value;
+    settings.on_headers_complete = http_on_headers_complete;
+    settings.on_message_complete = http_on_message_complete;
+    settings.on_body = http_on_body;
 
     for (;;) {
         packet = pcap_next(descr, &pkthdr);

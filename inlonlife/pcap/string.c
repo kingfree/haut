@@ -24,4 +24,3 @@ void stringfree(string *s)
     s->data = NULL;
     s->len = s->size = 0;
 }
-

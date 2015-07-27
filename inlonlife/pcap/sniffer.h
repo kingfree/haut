@@ -5,6 +5,8 @@
 #include <ctype.h>
 #include <netinet/ip.h>
 #include <sys/queue.h>
+#include "string.h"
+#include "http_parser.h"
 
 struct dns_header {
     unsigned id : 16;
@@ -108,7 +110,6 @@ void free_tcp_payload(struct tcp_payload *np);
 struct http_data {
     char has;
     http_parser *parser;
-    http_parser_settings settings;
     string head;
     string body;
     uint64_t hope_len;
@@ -116,6 +117,7 @@ struct http_data {
     SLIST_ENTRY(http_data) entries;
 };
 SLIST_HEAD(http_packs, http_data);
-struct tcp_packs httpd = SLIST_HEAD_INITIALIZER(&httpd);
+struct http_packs httpd = SLIST_HEAD_INITIALIZER(&httpd);
+http_parser_settings settings;
 
 #endif
