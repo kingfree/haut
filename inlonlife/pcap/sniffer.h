@@ -108,12 +108,13 @@ struct tcp_payload *find_tcp_by_seq(unsigned long seq);
 void free_tcp_payload(struct tcp_payload *np);
 
 struct http_data {
-    char has;
     http_parser *parser;
     string head;
     string body;
     uint64_t hope_len;
     unsigned long next_seq;
+    unsigned long seq;
+    char gzip;
     SLIST_ENTRY(http_data) entries;
 };
 SLIST_HEAD(http_packs, http_data);

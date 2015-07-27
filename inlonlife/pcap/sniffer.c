@@ -304,47 +304,40 @@ int is_http_head(void *data)
 
 int http_on_header_field(http_parser *p, const char *buf, size_t len)
 {
-    if (p != httpd.parser) return 0;
-    stringncat(&httpd.head, buf, len);
-    stringncat(&httpd.head, ": ", 2);
+    struct http_data *hp = (struct http_data *)p->data;
+    stringncat(&hp->head, buf, len);
+    stringncat(&hp->head, ": ", 2);
+    if (strncmp(buf, "Content-Encoding: gzip", 22) == 0) hp->gzip = 1;
     return 0;
 }
 
 int http_on_header_value(http_parser *p, const char *buf, size_t len)
 {
-    if (p != httpd.parser) return 0;
-    stringncat(&httpd.head, buf, len);
-    stringncat(&httpd.head, "\n", 1);
+    struct http_data *hp = (struct http_data *)p->data;
+    stringncat(&hp->head, buf, len);
+    stringncat(&hp->head, "\n", 1);
     return 0;
 }
 
 int http_on_headers_complete(http_parser *p)
 {
-    if (p != httpd.parser) return 0;
-    httpd.hope_len = p->content_length;
+    struct http_data *hp = (struct http_data *)p->data;
+    hp->hope_len = p->content_length;
     return 0;
 }
 
 int http_on_message_complete(http_parser *p)
 {
-    if (p != httpd.parser) return 0;
-    httpd.hope_len = 0;
+    struct http_data *hp = (struct http_data *)p->data;
+    hp->hope_len = 0;
     return 0;
 }
 
 int http_on_body(http_parser *p, const char *buf, size_t len)
 {
-    if (p != httpd.parser) return 0;
-    stringncat(&httpd.body, buf, len);
+    struct http_data *hp = (struct http_data *)p->data;
+    stringncat(&hp->body, buf, len);
     return 0;
-}
-
-void clear_httpd()
-{
-    httpd.hope_len = 0;
-    httpd.next_seq = 0;
-    stringfree(&httpd.head);
-    stringfree(&httpd.body);
 }
 
 struct http_data *new_http_data(unsigned long seq, size_t len)
@@ -352,8 +345,32 @@ struct http_data *new_http_data(unsigned long seq, size_t len)
     struct http_data *new = malloc(sizeof(struct http_data));
     new->parser = malloc(sizeof(http_parser));
     new->parser->data = new;
+    new->seq = seq;
     new->next_seq = seq + len;
+    new->gzip = 0;
     SLIST_INSERT_HEAD(&httpd, new, entries);
+    return new;
+}
+
+void free_http_data(struct http_data *hp)
+{
+    stringfree(&hp->head);
+    stringfree(&hp->body);
+    free(hp->parser);
+    hp->parser = NULL;
+    SLIST_REMOVE(&httpd, hp, http_data, entries);
+    free(hp);
+    hp = NULL;
+}
+
+struct http_data *find_http_data(unsigned long seq)
+{
+    struct http_data *i, *tmp;
+    SLIST_FOREACH_SAFE(i, &httpd, entries, tmp)
+    {
+        if (i->next_seq == seq) return i;
+    }
+    return NULL;
 }
 
 int is_http_response(char *hdr)
@@ -375,20 +392,20 @@ int is_http_request(char *hdr)
 int is_http_chunk(char *hdr)
 {
     if (((hdr[0] >= '0' && hdr[0] <= '9') || (hdr[0] >= 'a' && hdr[0] <= 'f') ||
-                (hdr[0] >= 'A' && hdr[0] <= 'F')) &&
-            strstr(hdr, "\r\n"))
+         (hdr[0] >= 'A' && hdr[0] <= 'F')) &&
+        strstr(hdr, "\r\n"))
         return 1;
     return 0;
 }
 
 char *http_header_end(char *hdr)
 {
-    if (!is_http_chunk(hdr)) {
-        return (strstr(hdr, "\r\n\r\n") + 4);
-    } else {
-        return (strstr(hdr, "\r\n") + 2);
-    }
+    if (!is_http_chunk(hdr)) return strstr(hdr, "\r\n\r\n") + 4;
+    return strstr(hdr, "\r\n") + 2;
 }
+
+#define DECOMMPSIZE 0x7fffff
+static char de[DECOMMPSIZE];
 
 void process_http(struct tcphdr *tcp, void *data, size_t len)
 {
@@ -396,64 +413,75 @@ void process_http(struct tcphdr *tcp, void *data, size_t len)
     char *http = (char *)data;
     http[len] = '\0';
     unsigned long seq = ntohl(tcp->th_seq);
-    if (is_http_head(data)) {
-        struct http_data *hp = new_http_data(seq, len);
-        http_parser_init(hp->parser,
-                         http[0] == 'H' ? HTTP_RESPONSE : HTTP_RESPONSE);
+    struct http_data *hp = NULL;
 
-        size_t res =
-            http_parser_execute(httpd.parser, &httpd.settings, http, len);
-        // fprintf(stderr, "%ld %ld [%d]\n", res, len, httpd.parser->type);
+    if (is_http_request(http) || is_http_response(http)) {
+        hp = new_http_data(seq, len);
+        http_parser_init(hp->parser,
+                         is_http_response(http) ? HTTP_RESPONSE : HTTP_REQUEST);
+        size_t res = http_parser_execute(hp->parser, &settings, http, len);
+        // fprintf(stderr, "%ld %ld [%d]\n", res, len, hp->parser->type);
+        pf("*** %s ***\n", "HTTP首部");
         if (res != len) {
-            // print_mem(http, len);
+            pf("解析失败\n");
+            print_buf();
             return;
         }
         print_buf();
-        if (!httpd.hope_len) {
-            printf("+++ %s +++\n", "HTTP");
-            http_parser *p = httpd.parser;
-            if (httpd.parser->type == HTTP_REQUEST) {
-                printf("%s %d %s/%d.%d\n", http_method_str(p->method),
-                       p->status_code, "HTTP", p->http_major, p->http_major);
-            } else if (httpd.parser->type == HTTP_RESPONSE) {
-                printf("%s/%d.%d %d\n", "HTTP", p->http_major, p->http_major,
-                       p->status_code);
-            } else {
-                printf("未知的类型\n");
-            }
-            puts(httpd.head.data);
-            koko;
-            clear_httpd();
+
+    } else if ((hp = find_http_data(seq)) != NULL) {
+        size_t res = http_parser_execute(hp->parser, &settings, http, len);
+        pf("*** %s ***\n", "HTTP正文");
+        if (res != len) {
+            pf("解析失败\n");
+            print_buf();
+            return;
         }
-        /* size_t hope = process_http_header(http, len);
-           if (hope < len) {
-            process_http_body(http + hope, len - hope);
-        } else if (hope == len) {
-            httpd.has = 0;
-        } */
-    } else if (httpd.has) {
-        http_data *hp = find_http_by_next_seq(seq);
-        while (seq < httpd.next_seq) {
-            struct tcp_payload *tp;
-            tp = find_tcp_by_seq(seq);
-            if (!tp) {
-                clear_httpd();
-                break;
-            }
-            size_t res = http_parser_execute(httpd.parser, &httpd.settings,
-                                             tp->data, tp->len);
-            if (res != tp->len) {
-                return;
-            }
-            seq = tp->seq + tp->len;
-        }
-        httpd.next_seq = seq + len;
+        hp->next_seq = seq + len;
         print_buf();
-        if (!httpd.hope_len) {
-            puts(httpd.body.data);
-            koko;
-            clear_httpd();
+    } else {
+        pf("*** %s ***\n", "非HTTP数据");
+        return;
+    }
+
+    if (hp && hp->hope_len <= 0) {
+        printf("*** %s ***\n", "HTTP");
+        http_parser *p = hp->parser;
+        if (hp->parser->type == HTTP_REQUEST) {
+            printf("%s %d %s/%d.%d\n", http_method_str(p->method),
+                   p->status_code, "HTTP", p->http_major, p->http_major);
+        } else if (hp->parser->type == HTTP_RESPONSE) {
+            printf("%s/%d.%d %d\n", "HTTP", p->http_major, p->http_major,
+                   p->status_code);
+        } else {
+            printf("未知的类型\n");
         }
+        printf("[HTTP首部]\n");
+        puts(hp->head.data);
+        size_t l = hp->body.len;
+        // printf("len=%zu, C-Len=%llu\n", l, p->content_length);
+        if (l) {
+            printf("[HTTP正文]\n");
+            if (hp->gzip) {
+                size_t t = DECOMMPSIZE;
+                int res =
+                    uncompress((u_char *)de, &t, (u_char *)hp->body.data, l);
+                if (res == Z_OK) {
+                    puts(de);
+                } else {
+                    printf("解压失败\n");
+                    printf("%d [%d] len=%zu(%zu)\n", res, DECOMMPSIZE, t, l);
+                    print_mem(hp->body.data, hp->body.len);
+                    print_mem(de, hp->body.len);
+                }
+            } else {
+                puts(hp->body.data);
+            }
+        }
+        free_http_data(hp);
+    } else {
+        print_buf();
+        print_mem(http, len);
     }
 
     /* long i;

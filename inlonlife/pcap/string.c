@@ -11,11 +11,14 @@ string *stringncat(string *s1, const char *s2, size_t n)
         }
         if (s1->data == NULL) return NULL;
     }
-    char *res = strncat(s1->data + s1->len, s2, n);
+    // char *res = strncat(s1->data + s1->len, s2, n);
+    char *p = s1->data + s1->len;
+    for (size_t i = 0; i < n; i++) *p++ = s2[i];
     // printf("%ld %ld %s %ld\n", s1->len, s1->size, s1->data, n);
     s1->len += n;
     s1->data[s1->len] = '\0';  // strncat() 会自动加 '\0'
-    return res == s1->data ? s1 : NULL;
+    return s1;
+    // return res == s1->data ? s1 : NULL;
 }
 
 void stringfree(string *s)
