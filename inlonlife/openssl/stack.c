@@ -30,10 +30,11 @@ void stack_push(stack *s, const void *ele)
     s->len++;
 }
 
-void *stack_pop(stack *s)
+void *stack_pop(stack *s, void *ele)
 {
-    void *ele;
+    const void *src;
     s->len--;
-    ele = (char *)s->elems + s->len * s->size;
+    src = (char *)s->elems + s->len * s->size;
+    memcpy(ele, src, s->size);
     return ele;
 }

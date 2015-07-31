@@ -12,6 +12,6 @@ stack *stack_new(int size);
 void stack_free(stack *s);
 int stack_empty(const stack *s);
 void stack_push(stack *s, const void *ele);
-void *stack_pop(stack *s);
+void *stack_pop(stack *s, void *ele);
 
 #endif

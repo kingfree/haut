@@ -8,6 +8,7 @@
 #include <sys/queue.h>
 #include <ftw.h>
 #include "stack.h"
+#include "string.h"
 
 #if defined(__APPLE__)
 #define COMMON_DIGEST_FOR_OPENSSL
@@ -106,33 +107,30 @@ void do_stack(const char *dirpath)
     DIR *dir;
     char path[BUFFSIZE];
     stack *dirs;
-    char *dirname;
+    string dirname;
 
-    dirs = stack_new(sizeof(char *));
+    dirs = stack_new(sizeof(string));
 
-    stack_push(dirs, strdup(dirpath));
+    stack_push(dirs, string_str(dirpath));
 
     while (!stack_empty(dirs)) {
-        printf("栈大小=%d\n", dirs->len);
-        dirname = stack_pop(dirs);
-        printf("栈大小=%d[%s]\n", dirs->len, dirname);
+        stack_pop(dirs, &dirname);
+        if (!dirname.data) continue;
 
-        if ((dir = opendir(dirname)) == NULL) {
-            snprintf(path, BUFFSIZE, "目录打开失败 '%s'", dirname);
+        if ((dir = opendir(dirname.data)) == NULL) {
+            snprintf(path, BUFFSIZE, "目录打开失败 '%s'", dirname.data);
             perror(path);
             continue;
         }
 
         while ((ent = readdir(dir)) != NULL) {
-            snprintf(path, BUFFSIZE, "%s/%s", dirname, ent->d_name);
+            snprintf(path, BUFFSIZE, "%s/%s", dirname.data, ent->d_name);
             if (ent->d_type & DT_REG) {
                 calc_hash(path);
             } else if (ent->d_type & DT_DIR) {
                 if (strcmp(ent->d_name, ".") != 0 &&
                     strcmp(ent->d_name, "..") != 0) {
-                    dirname = strdup(path);
-                    printf("{%s}\n", dirname);
-                    stack_push(dirs, dirname);
+                    stack_push(dirs, string_str(path));
                 }
             }
         }
