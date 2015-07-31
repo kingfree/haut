@@ -3,7 +3,9 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <dirent.h>
 #include <unistd.h>
+#include <sys/queue.h>
 #include <ftw.h>
 
 #if defined(__APPLE__)
@@ -22,6 +24,7 @@ void calc_hash(const char *filename)
     unsigned char data[BUFFSIZE];
     FILE *file = fopen(filename, "rb");
     if (file == NULL) {
+        fprintf(stderr, "'%s' ", filename);
         perror("文件打开失败");
         return;
     }
@@ -62,36 +65,104 @@ void calc_hash(const char *filename)
 #define USE_FDS 15
 #endif
 
-int print_entry(const char *filepath, const struct stat *info,
-        const int typeflag, struct FTW *pathinfo)
+int print_entry(const char *file, const struct stat *st,
+                const int type, struct FTW *path)
 {
-    if (typeflag == FTW_F) {
-        calc_hash(filepath);
+    if (type == FTW_F) {
+        calc_hash(file);
     }
 
     return 0;
 }
 
-int print_directory_tree(const char *const dirpath)
+void do_nftw(const char *const dirpath)
 {
-    int result;
+    nftw(dirpath, print_entry, USE_FDS, FTW_PHYS);
+}
 
-    if (dirpath == NULL || *dirpath == '\0') return errno = EINVAL;
+void do_recuerse(const char *const dirpath)
+{
+    struct dirent *ent = NULL;
+    DIR *dir;
+    char path[BUFFSIZE];
 
-    result = nftw(dirpath, print_entry, USE_FDS, FTW_PHYS);
-    if (result >= 0) errno = result;
+    if ((dir = opendir(dirpath)) == NULL) return;
 
-    return errno;
+    while ((ent = readdir(dir)) != NULL) {
+        snprintf(path, BUFFSIZE, "%s/%s", dirpath, ent->d_name);
+        if (ent->d_type & DT_REG) {
+            calc_hash(path);
+        } else if (ent->d_type & DT_DIR) {
+            if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
+                do_recuerse(path);
+            }
+        }
+    }
+    closedir(dir);
+}
+
+void do_stack(const char *const dirpath)
+{
+    struct dirent *ent = NULL;
+    DIR *dir;
+    char path[BUFFSIZE];
+
+    SLIST_HEAD(slisthead, entry) head = SLIST_HEAD_INITIALIZER(head);
+    struct entry {
+        SLIST_ENTRY(entry) entries;
+        char *dirname;
+    } *p;
+
+    SLIST_INIT(&head);
+
+    p = malloc(sizeof(struct entry));
+    p->dirname = strdup(dirpath);
+    SLIST_INSERT_HEAD(&head, p, entries);
+
+    while (!SLIST_EMPTY(&head)) {
+        p = SLIST_FIRST(&head);
+        fprintf(stderr, "{%s}\n", p->dirname);
+
+        if ((dir = opendir(p->dirname)) == NULL) {
+            perror("目录打开失败");
+            goto end;
+        }
+
+        while ((ent = readdir(dir)) != NULL) {
+            snprintf(path, BUFFSIZE, "%s/%s", p->dirname, ent->d_name);
+            fprintf(stderr, "[%s]\n", path);
+            if (ent->d_type & DT_REG) {
+                calc_hash(path);
+            } else if (ent->d_type & DT_DIR) {
+                if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
+                    p = malloc(sizeof(struct entry));
+                    p->dirname = strdup(path);
+                    SLIST_INSERT_HEAD(&head, p, entries);
+                }
+            }
+        }
+        closedir(dir);
+
+end:
+        free(p->dirname);
+        SLIST_REMOVE(&head, p, entry, entries);
+        free(p);
+    }
 }
 
 int main(int argc, char *argv[])
 {
     if (argc < 2) argv[argc++] = ".";
-    for (int i = 1; i < argc; i++) {
-        if (print_directory_tree(argv[i])) {
-            perror("目录打开失败");
-            exit(1);
-        }
+
+    if (argc > 2 && strcmp(argv[2], "-r") == 0) {
+        printf("递归处理:  %s\n", argv[1]);
+        do_recuerse(argv[1]);
+    } else if (argc > 2 && strcmp(argv[2], "-s") == 0) {
+        printf("非递归处理: %s\n", argv[1]);
+        do_stack(argv[1]);
+    } else {
+        printf("调用函数: %s\n", argv[1]);
+        do_nftw(argv[1]);
     }
 
     return 0;
