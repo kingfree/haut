@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wno-deprecated-declarations
+CFLAGS = -Wall
 
 md5:
 	$(CC) $(CFLAGS) -lssl -lcrypto md5.c -o md5
