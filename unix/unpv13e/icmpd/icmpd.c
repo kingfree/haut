@@ -6,8 +6,7 @@ int main(int argc, char** argv)
     int i, sockfd;
     struct sockaddr_un sun;
 
-    if (argc != 1)
-        err_quit("usage: icmpd");
+    if (argc != 1) err_quit("usage: icmpd");
 
     maxi = -1; /* index into client[] array */
     for (i = 0; i < FD_SETSIZE; i++)
@@ -40,22 +39,18 @@ int main(int argc, char** argv)
         nready = Select(maxfd + 1, &rset, NULL, NULL, NULL);
 
         if (FD_ISSET(listenfd, &rset))
-            if (readable_listen() <= 0)
-                continue;
+            if (readable_listen() <= 0) continue;
 
         if (FD_ISSET(fd4, &rset))
-            if (readable_v4() <= 0)
-                continue;
+            if (readable_v4() <= 0) continue;
 
 #ifdef IPV6
         if (FD_ISSET(fd6, &rset))
-            if (readable_v6() <= 0)
-                continue;
+            if (readable_v6() <= 0) continue;
 #endif
 
         for (i = 0; i <= maxi; i++) { /* check all clients for data */
-            if ((sockfd = client[i].connfd) < 0)
-                continue;
+            if ((sockfd = client[i].connfd) < 0) continue;
             if (FD_ISSET(sockfd, &rset))
                 if (readable_conn(i) <= 0)
                     break; /* no more readable descriptors */

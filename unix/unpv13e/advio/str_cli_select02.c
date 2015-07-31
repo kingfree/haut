@@ -8,8 +8,7 @@ void str_cli(FILE* fp, int sockfd)
 
     FD_ZERO(&rset);
     for (;;) {
-        if (stdineof == 0)
-            FD_SET(fileno(fp), &rset);
+        if (stdineof == 0) FD_SET(fileno(fp), &rset);
         FD_SET(sockfd, &rset);
         maxfdp1 = max(fileno(fp), sockfd) + 1;
         Select(maxfdp1, &rset, NULL, NULL, NULL);

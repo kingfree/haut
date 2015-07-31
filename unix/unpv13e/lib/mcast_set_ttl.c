@@ -7,8 +7,8 @@ int mcast_set_ttl(int sockfd, int val)
         u_char ttl;
 
         ttl = val;
-        return (setsockopt(sockfd, IPPROTO_IP, IP_MULTICAST_TTL,
-            &ttl, sizeof(ttl)));
+        return (setsockopt(sockfd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl,
+                           sizeof(ttl)));
     }
 
 #ifdef IPV6
@@ -16,8 +16,8 @@ int mcast_set_ttl(int sockfd, int val)
         int hop;
 
         hop = val;
-        return (setsockopt(sockfd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS,
-            &hop, sizeof(hop)));
+        return (setsockopt(sockfd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &hop,
+                           sizeof(hop)));
     }
 #endif
 
@@ -29,6 +29,5 @@ int mcast_set_ttl(int sockfd, int val)
 
 void Mcast_set_ttl(int sockfd, int val)
 {
-    if (mcast_set_ttl(sockfd, val) < 0)
-        err_sys("mcast_set_ttl error");
+    if (mcast_set_ttl(sockfd, val) < 0) err_sys("mcast_set_ttl error");
 }

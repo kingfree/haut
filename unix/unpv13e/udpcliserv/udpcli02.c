@@ -5,8 +5,7 @@ int main(int argc, char** argv)
     int sockfd;
     struct sockaddr_in servaddr;
 
-    if (argc != 2)
-        err_quit("usage: udpcli <IPaddress>");
+    if (argc != 2) err_quit("usage: udpcli <IPaddress>");
 
     bzero(&servaddr, sizeof(servaddr));
 #ifdef HAVE_SOCKADDR_SA_LEN

@@ -12,13 +12,11 @@ int connect_nonb(int sockfd, const SA* saptr, socklen_t salen, int nsec)
 
     error = 0;
     if ((n = connect(sockfd, saptr, salen)) < 0)
-        if (errno != EINPROGRESS)
-            return (-1);
+        if (errno != EINPROGRESS) return (-1);
 
     /* Do whatever we want while the connect is taking place. */
 
-    if (n == 0)
-        goto done; /* connect completed immediately */
+    if (n == 0) goto done; /* connect completed immediately */
 
     FD_ZERO(&rset);
     FD_SET(sockfd, &rset);
@@ -26,8 +24,8 @@ int connect_nonb(int sockfd, const SA* saptr, socklen_t salen, int nsec)
     tval.tv_sec = nsec;
     tval.tv_usec = 0;
 
-    if ((n = Select(sockfd + 1, &rset, &wset, NULL,
-             nsec ? &tval : NULL)) == 0) {
+    if ((n = Select(sockfd + 1, &rset, &wset, NULL, nsec ? &tval : NULL)) ==
+        0) {
         close(sockfd); /* timeout */
         errno = ETIMEDOUT;
         return (-1);
@@ -37,8 +35,7 @@ int connect_nonb(int sockfd, const SA* saptr, socklen_t salen, int nsec)
         len = sizeof(error);
         if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &error, &len) < 0)
             return (-1); /* Solaris pending error */
-    }
-    else
+    } else
         err_quit("select error: sockfd not set");
 
 done:

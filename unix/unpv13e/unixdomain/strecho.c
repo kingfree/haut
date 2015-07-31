@@ -13,8 +13,7 @@ again:
     while ((n = read_cred(sockfd, buf, MAXLINE, &cred)) > 0) {
         if (cred.cmcred_ngroups == 0) {
             printf("(no credentials returned)\n");
-        }
-        else {
+        } else {
             printf("PID of sender = %d\n", cred.cmcred_pid);
             printf("real user ID = %d\n", cred.cmcred_uid);
             printf("real group ID = %d\n", cred.cmcred_gid);

@@ -14,7 +14,6 @@ void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen)
     Signal(SIGALRM, recvfrom_alarm);
 
     while (Fgets(sendline, MAXLINE, fp) != NULL) {
-
         Sendto(sockfd, sendline, strlen(sendline), 0, pservaddr, servlen);
 
         alarm(5);
@@ -26,18 +25,16 @@ void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen)
                     break; /* waited long enough for replies */
                 else
                     err_sys("recvfrom error");
-            }
-            else {
+            } else {
                 recvline[n] = 0; /* null terminate */
-                printf("from %s: %s",
-                    Sock_ntop_host(preply_addr, servlen), recvline);
+                printf("from %s: %s", Sock_ntop_host(preply_addr, servlen),
+                       recvline);
             }
         }
     }
 }
 
-static void
-recvfrom_alarm(int signo)
+static void recvfrom_alarm(int signo)
 {
     return; /* just interrupt the recvfrom() */
 }

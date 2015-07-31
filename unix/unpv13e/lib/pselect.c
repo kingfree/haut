@@ -10,7 +10,7 @@
 #include "unp.h"
 
 int pselect(int nfds, fd_set* rset, fd_set* wset, fd_set* xset,
-    const struct timespec* ts, const sigset_t* sigmask)
+            const struct timespec* ts, const sigset_t* sigmask)
 {
     int n;
     struct timeval tv;

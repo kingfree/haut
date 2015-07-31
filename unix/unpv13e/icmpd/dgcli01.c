@@ -20,8 +20,8 @@ void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen)
     Write_fd(icmpfd, "1", 1, sockfd);
     n = Read(icmpfd, recvline, 1);
     if (n != 1 || recvline[0] != '1')
-        err_quit("error creating icmp socket, n = %d, char = %c",
-            n, recvline[0]);
+        err_quit("error creating icmp socket, n = %d, char = %c", n,
+                 recvline[0]);
 
     FD_ZERO(&rset);
     maxfdp1 = max(sockfd, icmpfd) + 1;
@@ -52,9 +52,9 @@ void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen)
             else if (n != sizeof(icmpd_err))
                 err_quit("n = %d, expected %d", n, sizeof(icmpd_err));
             printf("ICMP error: dest = %s, %s, type = %d, code = %d\n",
-                Sock_ntop(&icmpd_err.icmpd_dest, icmpd_err.icmpd_len),
-                strerror(icmpd_err.icmpd_errno),
-                icmpd_err.icmpd_type, icmpd_err.icmpd_code);
+                   Sock_ntop(&icmpd_err.icmpd_dest, icmpd_err.icmpd_len),
+                   strerror(icmpd_err.icmpd_errno), icmpd_err.icmpd_type,
+                   icmpd_err.icmpd_code);
         }
     }
 }

@@ -32,8 +32,7 @@ void sadb_dump(int type)
         msglen = Read(s, &buf, sizeof(buf));
         msgp = (struct sadb_msg*)&buf;
         print_sadb_msg(msgp, msglen);
-        if (msgp->sadb_msg_seq == 0)
-            goteof = 1;
+        if (msgp->sadb_msg_seq == 0) goteof = 1;
     }
     close(s);
 }

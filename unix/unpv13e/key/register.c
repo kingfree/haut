@@ -33,7 +33,8 @@ void sadb_register(int type)
 
         msglen = Read(s, &buf, sizeof(buf));
         msgp = (struct sadb_msg*)&buf;
-        if (msgp->sadb_msg_pid == mypid && msgp->sadb_msg_type == SADB_REGISTER) {
+        if (msgp->sadb_msg_pid == mypid &&
+            msgp->sadb_msg_type == SADB_REGISTER) {
             print_sadb_msg(msgp, msglen);
             break;
         }

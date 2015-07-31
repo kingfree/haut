@@ -16,11 +16,9 @@ void str_cli(FILE* fp_arg, int sockfd_arg)
 
     Pthread_create(&tid, NULL, copyto, NULL);
 
-    while (Readline(sockfd, recvline, MAXLINE) > 0)
-        Fputs(recvline, stdout);
+    while (Readline(sockfd, recvline, MAXLINE) > 0) Fputs(recvline, stdout);
 
-    if (done == 0)
-        err_quit("server terminated prematurely");
+    if (done == 0) err_quit("server terminated prematurely");
 }
 
 void* copyto(void* arg)

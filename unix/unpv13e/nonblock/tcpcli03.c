@@ -6,8 +6,7 @@ int main(int argc, char** argv)
     struct linger ling;
     struct sockaddr_in servaddr;
 
-    if (argc != 2)
-        err_quit("usage: tcpcli <IPaddress>");
+    if (argc != 2) err_quit("usage: tcpcli <IPaddress>");
 
     sockfd = Socket(AF_INET, SOCK_STREAM, 0);
 

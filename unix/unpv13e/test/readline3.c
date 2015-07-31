@@ -2,8 +2,7 @@
 #include "unp.h"
 #include "readline.h"
 
-static ssize_t
-my_read(Rline* rptr, char* ptr)
+static ssize_t my_read(Rline* rptr, char* ptr)
 {
     if (rptr->rl_cnt <= 0) {
     again:
@@ -13,8 +12,7 @@ my_read(Rline* rptr, char* ptr)
                 goto again;
             else
                 return (-1);
-        }
-        else if (rptr->rl_cnt == 0)
+        } else if (rptr->rl_cnt == 0)
             return (0);
         rptr->rl_bufptr = rptr->rl_buf;
     }
@@ -34,8 +32,7 @@ void readline_rinit(int fd, void* ptr, size_t maxlen, Rline* rptr)
     rptr->rl_bufptr = rptr->rl_buf;
 }
 
-ssize_t
-readline_r(Rline* rptr)
+ssize_t readline_r(Rline* rptr)
 {
     int n, rc;
     char c, *ptr;
@@ -44,14 +41,11 @@ readline_r(Rline* rptr)
     for (n = 1; n < rptr->read_maxlen; n++) {
         if ((rc = my_read(rptr, &c)) == 1) {
             *ptr++ = c;
-            if (c == '\n')
-                break;
-        }
-        else if (rc == 0) {
+            if (c == '\n') break;
+        } else if (rc == 0) {
             *ptr = 0;
             return (n - 1); /* EOF, n - 1 bytes were read */
-        }
-        else
+        } else
             return (-1); /* error */
     }
 
@@ -60,12 +54,10 @@ readline_r(Rline* rptr)
 }
 /* end readline */
 
-ssize_t
-Readline(int fd, void* ptr, size_t maxlen)
+ssize_t Readline(int fd, void* ptr, size_t maxlen)
 {
     ssize_t n;
 
-    if ((n = readline(fd, ptr, maxlen)) == -1)
-        err_sys("readline error");
+    if ((n = readline(fd, ptr, maxlen)) == -1) err_sys("readline error");
     return (n);
 }

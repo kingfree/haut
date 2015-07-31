@@ -9,7 +9,6 @@ int main(int argc, char** argv)
     Rline rline;
 
     readline_rinit(STDIN_FILENO, recvline, MAXLINE, &rline);
-    while ((n = readline_r(&rline)) > 0)
-        count++;
+    while ((n = readline_r(&rline)) > 0) count++;
     printf("%d lines\n", count);
 }

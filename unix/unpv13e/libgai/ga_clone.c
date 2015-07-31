@@ -5,13 +5,11 @@
  */
 
 /* include ga_clone */
-struct addrinfo*
-ga_clone(struct addrinfo* ai)
+struct addrinfo* ga_clone(struct addrinfo* ai)
 {
     struct addrinfo* new;
 
-    if ((new = calloc(1, sizeof(struct addrinfo))) == NULL)
-        return (NULL);
+    if ((new = calloc(1, sizeof(struct addrinfo))) == NULL) return (NULL);
 
     new->ai_next = ai->ai_next;
     ai->ai_next = new;
@@ -22,8 +20,7 @@ ga_clone(struct addrinfo* ai)
     new->ai_protocol = ai->ai_protocol;
     new->ai_canonname = NULL;
     new->ai_addrlen = ai->ai_addrlen;
-    if ((new->ai_addr = malloc(ai->ai_addrlen)) == NULL)
-        return (NULL);
+    if ((new->ai_addr = malloc(ai->ai_addrlen)) == NULL) return (NULL);
     memcpy(new->ai_addr, ai->ai_addr, ai->ai_addrlen);
 
     return (new);

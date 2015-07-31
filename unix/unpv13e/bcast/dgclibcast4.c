@@ -37,22 +37,19 @@ void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen)
                     break;
                 else
                     err_sys("pselect error");
-            }
-            else if (n != 1)
+            } else if (n != 1)
                 err_sys("pselect error: returned %d", n);
 
             len = servlen;
             n = Recvfrom(sockfd, recvline, MAXLINE, 0, preply_addr, &len);
             recvline[n] = 0; /* null terminate */
-            printf("from %s: %s",
-                Sock_ntop_host(preply_addr, len), recvline);
+            printf("from %s: %s", Sock_ntop_host(preply_addr, len), recvline);
         }
     }
     free(preply_addr);
 }
 
-static void
-recvfrom_alarm(int signo)
+static void recvfrom_alarm(int signo)
 {
     return; /* just interrupt the recvfrom() */
 }

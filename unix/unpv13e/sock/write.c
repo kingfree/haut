@@ -14,8 +14,7 @@
 #define UIO_MAXIOV 16 /* we assume this; may not be true? */
 #endif
 
-ssize_t
-dowrite(int fd, const void* vptr, size_t nbytes)
+ssize_t dowrite(int fd, const void* vptr, size_t nbytes)
 {
     struct iovec iov[UIO_MAXIOV];
     const char* ptr;
@@ -25,9 +24,9 @@ dowrite(int fd, const void* vptr, size_t nbytes)
         return (write(fd, vptr, nbytes)); /* common case */
 
     /*
-	 * Figure out what sized chunks to write.
-	 * Try to use UIO_MAXIOV chunks.
-	 */
+     * Figure out what sized chunks to write.
+     * Try to use UIO_MAXIOV chunks.
+     */
 
     chunksize = nbytes / UIO_MAXIOV;
     if (chunksize <= 0)
@@ -43,13 +42,11 @@ dowrite(int fd, const void* vptr, size_t nbytes)
         iov[i].iov_len = n;
         if (verbose)
             fprintf(stderr, "iov[%2d].iov_base = %x, iov[%2d].iov_len = %d\n",
-                i, iov[i].iov_base, i, iov[i].iov_len);
+                    i, iov[i].iov_base, i, iov[i].iov_len);
         ptr += n;
-        if ((nleft -= n) == 0)
-            break;
+        if ((nleft -= n) == 0) break;
     }
-    if (i == UIO_MAXIOV)
-        err_quit("i == UIO_MAXIOV");
+    if (i == UIO_MAXIOV) err_quit("i == UIO_MAXIOV");
 
     if (usewritev)
         return (writev(fd, iov, i + 1));
@@ -57,8 +54,7 @@ dowrite(int fd, const void* vptr, size_t nbytes)
         ntotal = 0;
         for (n = 0; n <= i; n++) {
             nwritten = write(fd, iov[n].iov_base, iov[n].iov_len);
-            if (nwritten != iov[n].iov_len)
-                return (-1);
+            if (nwritten != iov[n].iov_len) return (-1);
             ntotal += nwritten;
         }
         return (ntotal);

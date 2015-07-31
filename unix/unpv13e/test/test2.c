@@ -7,8 +7,7 @@ int main(int argc, char** argv)
     struct addrinfo* res;
     struct sockaddr *cli, *serv;
 
-    if (argc != 2)
-        err_quit("usage: test2 <IPaddress>");
+    if (argc != 2) err_quit("usage: test2 <IPaddress>");
 
 #ifdef notdef
     res = Host_serv(argv[1], "daytime", AF_UNSPEC, SOCK_DGRAM);
@@ -23,7 +22,8 @@ int main(int argc, char** argv)
     exit(0);
 }
 #ifdef notdef
-int udp_client(const char* host, const char* serv, void** saptr, socklen_t* lenp)
+int udp_client(const char* host, const char* serv, void** saptr,
+               socklen_t* lenp)
 {
     int sockfd, n;
     struct addrinfo hints, *res, *ressave;
@@ -33,14 +33,13 @@ int udp_client(const char* host, const char* serv, void** saptr, socklen_t* lenp
     hints.ai_socktype = SOCK_DGRAM;
 
     if ((n = getaddrinfo(host, serv, &hints, &res)) != 0)
-        err_quit("udp_client error for %s, %s: %s",
-            host, serv, gai_strerror(n));
+        err_quit("udp_client error for %s, %s: %s", host, serv,
+                 gai_strerror(n));
     ressave = res;
 
     do {
         sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-        if (sockfd >= 0)
-            break; /* success */
+        if (sockfd >= 0) break; /* success */
     } while ((res = res->ai_next) != NULL);
 
     if (res == NULL) /* errno set from final socket() */
@@ -55,7 +54,8 @@ int udp_client(const char* host, const char* serv, void** saptr, socklen_t* lenp
     return (sockfd);
 }
 
-int Udp_client(const char* host, const char* serv, void** saptr, socklen_t* lenptr)
+int Udp_client(const char* host, const char* serv, void** saptr,
+               socklen_t* lenptr)
 {
     return (udp_client(host, serv, saptr, lenptr));
 }

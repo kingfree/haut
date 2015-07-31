@@ -32,7 +32,7 @@ char* sock_ntop_host(const struct sockaddr* sa, socklen_t salen)
         struct sockaddr_un* unp = (struct sockaddr_un*)sa;
 
         /* OK to have no pathname bound to the socket: happens on
-			   every connect() unless client calls bind() first. */
+               every connect() unless client calls bind() first. */
         if (unp->sun_path[0] == 0)
             strcpy(str, "(no pathname bound)");
         else
@@ -46,8 +46,7 @@ char* sock_ntop_host(const struct sockaddr* sa, socklen_t salen)
         struct sockaddr_dl* sdl = (struct sockaddr_dl*)sa;
 
         if (sdl->sdl_nlen > 0)
-            snprintf(str, sizeof(str), "%*s",
-                sdl->sdl_nlen, &sdl->sdl_data[0]);
+            snprintf(str, sizeof(str), "%*s", sdl->sdl_nlen, &sdl->sdl_data[0]);
         else
             snprintf(str, sizeof(str), "AF_LINK, index=%d", sdl->sdl_index);
         return (str);
@@ -55,7 +54,7 @@ char* sock_ntop_host(const struct sockaddr* sa, socklen_t salen)
 #endif
     default:
         snprintf(str, sizeof(str), "sock_ntop_host: unknown AF_xxx: %d, len %d",
-            sa->sa_family, salen);
+                 sa->sa_family, salen);
         return (str);
     }
     return (NULL);

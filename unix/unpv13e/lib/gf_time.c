@@ -8,8 +8,7 @@ char* gf_time(void)
     static char str[30];
     char* ptr;
 
-    if (gettimeofday(&tv, NULL) < 0)
-        err_sys("gettimeofday error");
+    if (gettimeofday(&tv, NULL) < 0) err_sys("gettimeofday error");
 
     t = tv.tv_sec; /* POSIX says tv.tv_sec is time_t; some BSDs don't agree. */
     ptr = ctime(&t);

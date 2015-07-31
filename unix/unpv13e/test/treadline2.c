@@ -6,7 +6,6 @@ int main(int argc, char** argv)
     ssize_t n;
     char recvline[MAXLINE];
 
-    while ((n = readline(STDIN_FILENO, recvline, MAXLINE)) > 0)
-        count++;
+    while ((n = readline(STDIN_FILENO, recvline, MAXLINE)) > 0) count++;
     printf("%d lines\n", count);
 }

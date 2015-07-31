@@ -7,8 +7,7 @@ int main(int argc, char** argv)
     socklen_t len;
     struct sockaddr_in servaddr;
 
-    if (argc != 2)
-        err_quit("usage: rcvbuf <IPaddress>");
+    if (argc != 2) err_quit("usage: rcvbuf <IPaddress>");
 
     sockfd = Socket(AF_INET, SOCK_STREAM, 0);
 

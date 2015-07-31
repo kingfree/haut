@@ -6,14 +6,9 @@
  * if_XXX() functions in the libroute/ directory will replace these.
  */
 
-unsigned int
-if_nametoindex(const char* name)
-{
-    return (0);
-}
+unsigned int if_nametoindex(const char* name) { return (0); }
 
-unsigned int
-If_nametoindex(const char* name)
+unsigned int If_nametoindex(const char* name)
 {
     int index;
 

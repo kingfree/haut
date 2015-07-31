@@ -20,8 +20,7 @@ void str_cli(FILE* fp, int sockfd)
         }
 
         if (FD_ISSET(fileno(fp), &rset)) { /* input is readable */
-            if (Fgets(sendline, MAXLINE, fp) == NULL)
-                return; /* all done */
+            if (Fgets(sendline, MAXLINE, fp) == NULL) return; /* all done */
             Writen(sockfd, sendline, strlen(sendline));
         }
     }

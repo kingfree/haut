@@ -22,14 +22,12 @@ int ga_unix(const char* path, struct addrinfo* hintsp, struct addrinfo** result)
         hintsp->ai_socktype = SOCK_DGRAM;
     }
 
-    if ((rc = ga_aistruct(&aipnext, hintsp, path, AF_LOCAL)) != 0)
-        return (rc);
+    if ((rc = ga_aistruct(&aipnext, hintsp, path, AF_LOCAL)) != 0) return (rc);
 
     if (hintsp->ai_flags & AI_CANONNAME) {
         struct utsname myname;
 
-        if (uname(&myname) < 0)
-            return (EAI_SYSTEM);
+        if (uname(&myname) < 0) return (EAI_SYSTEM);
         if ((aihead->ai_canonname = strdup(myname.nodename)) == NULL)
             return (EAI_MEMORY);
     }

@@ -13,7 +13,7 @@
  * and everything from "sockfd" to stdout. */
 
 void tty_atexit(void); /* in library */
-void sig_catch(int); /* my function */
+void sig_catch(int);   /* my function */
 
 void loop(int sockfd)
 {
@@ -25,9 +25,9 @@ void loop(int sockfd)
     struct iovec iov[1];
     struct msghdr msg;
 
-#ifdef IP_RECVDSTADDR /* 4.3BSD Reno and later */
+#ifdef IP_RECVDSTADDR                    /* 4.3BSD Reno and later */
     static struct cmsghdr* cmptr = NULL; /* malloc'ed */
-    struct in_addr dstinaddr; /* for UDP server */
+    struct in_addr dstinaddr;            /* for UDP server */
 #define CONTROLLEN (sizeof(struct cmsghdr) + sizeof(struct in_addr))
 #endif /* IP_RECVDSTADDR */
 
@@ -35,39 +35,32 @@ void loop(int sockfd)
 
 #ifdef notdef /* following doesn't appear to work */
     /*
-	 * This is an attempt to set stdin to cbreak, so that input characters
-	 * are delivered one at a time, to see Nagle algorithm in effect
-	 * (or disabled).
-	 */
+     * This is an attempt to set stdin to cbreak, so that input characters
+     * are delivered one at a time, to see Nagle algorithm in effect
+     * (or disabled).
+     */
     if (cbreak && isatty(STDIN_FILENO)) {
-        if (tty_cbreak(STDIN_FILENO) < 0)
-            err_sys("tty_cbreak error");
-        if (atexit(tty_atexit) < 0)
-            err_sys("tty_atexit error");
+        if (tty_cbreak(STDIN_FILENO) < 0) err_sys("tty_cbreak error");
+        if (atexit(tty_atexit) < 0) err_sys("tty_atexit error");
 
-        if (signal(SIGINT, sig_catch) == SIG_ERR)
-            err_sys("signal error");
-        if (signal(SIGQUIT, sig_catch) == SIG_ERR)
-            err_sys("signal error");
-        if (signal(SIGTERM, sig_catch) == SIG_ERR)
-            err_sys("signal error");
+        if (signal(SIGINT, sig_catch) == SIG_ERR) err_sys("signal error");
+        if (signal(SIGQUIT, sig_catch) == SIG_ERR) err_sys("signal error");
+        if (signal(SIGTERM, sig_catch) == SIG_ERR) err_sys("signal error");
     }
 #endif
 
-    if (pauseinit)
-        sleep(pauseinit); /* intended for server */
+    if (pauseinit) sleep(pauseinit); /* intended for server */
 
     stdineof = 0;
     FD_ZERO(&rset);
     maxfdp1 = sockfd + 1; /* check descriptors [0..sockfd] */
 
     /* UDP client issues connect(), so read() and write() are used.
-		   Server is harder since cannot issue connect().  We use recvfrom()
-		   or recvmsg(), depending on OS. */
+           Server is harder since cannot issue connect().  We use recvfrom()
+           or recvmsg(), depending on OS. */
 
     for (;;) {
-        if (stdineof == 0)
-            FD_SET(STDIN_FILENO, &rset);
+        if (stdineof == 0) FD_SET(STDIN_FILENO, &rset);
         FD_SET(sockfd, &rset);
 
         if (select(maxfdp1, &rset, NULL, NULL, NULL) < 0)
@@ -78,12 +71,11 @@ void loop(int sockfd)
                 err_sys("read error from stdin");
             else if (nread == 0) { /* EOF on stdin */
                 if (halfclose) {
-                    if (shutdown(sockfd, 1) < 0)
-                        err_sys("shutdown() error");
+                    if (shutdown(sockfd, 1) < 0) err_sys("shutdown() error");
 
                     FD_CLR(STDIN_FILENO, &rset);
                     stdineof = 1; /* don't read stdin anymore */
-                    continue; /* back to select() */
+                    continue;     /* back to select() */
                 }
                 break; /* default: stdin EOF -> done */
             }
@@ -92,10 +84,8 @@ void loop(int sockfd)
                 ntowrite = crlf_add(wbuf, writelen, rbuf, nread);
                 if (write(sockfd, wbuf, ntowrite) != ntowrite)
                     err_sys("write error");
-            }
-            else {
-                if (write(sockfd, rbuf, nread) != nread)
-                    err_sys("write error");
+            } else {
+                if (write(sockfd, rbuf, nread) != nread) err_sys("write error");
             }
         }
 
@@ -104,10 +94,11 @@ void loop(int sockfd)
                 clilen = sizeof(cliaddr);
 #ifndef MSG_TRUNC /* vanilla BSD sockets */
                 nread = recvfrom(sockfd, rbuf, readlen, 0,
-                    (struct sockaddr*)&cliaddr, &clilen);
+                                 (struct sockaddr*)&cliaddr, &clilen);
 
 #else /* 4.3BSD Reno and later; use recvmsg() to get at MSG_TRUNC flag */
-                /* Also lets us get at control information (destination address) */
+                /* Also lets us get at control information (destination address)
+                 */
 
                 iov[0].iov_base = rbuf;
                 iov[0].iov_len = readlen;
@@ -130,8 +121,7 @@ void loop(int sockfd)
 
                 nread = recvmsg(sockfd, &msg, 0);
 #endif /* MSG_TRUNC */
-                if (nread < 0)
-                    err_sys("datagram receive error");
+                if (nread < 0) err_sys("datagram receive error");
 
                 if (verbose) {
                     printf("from %s", INET_NTOA(cliaddr.sin_addr));
@@ -144,9 +134,9 @@ void loop(int sockfd)
                             err_quit("control type != IP_RECVDSTADDR");
                         if (cmptr->cmsg_len != CONTROLLEN)
                             err_quit("control length (%d) != %d",
-                                cmptr->cmsg_len, CONTROLLEN);
+                                     cmptr->cmsg_len, CONTROLLEN);
                         memcpy((char*)&dstinaddr, (char*)CMSG_DATA(cmptr),
-                            sizeof(struct in_addr));
+                               sizeof(struct in_addr));
 
                         printf(", to %s", INET_NTOA(dstinaddr));
                     }
@@ -157,16 +147,13 @@ void loop(int sockfd)
                 }
 
 #ifdef MSG_TRUNC
-                if (msg.msg_flags & MSG_TRUNC)
-                    printf("(datagram truncated)\n");
+                if (msg.msg_flags & MSG_TRUNC) printf("(datagram truncated)\n");
 #endif
-            }
-            else {
+            } else {
                 if ((nread = read(sockfd, rbuf, readlen)) < 0)
                     err_sys("read error");
                 else if (nread == 0) {
-                    if (verbose)
-                        fprintf(stderr, "connection closed by peer\n");
+                    if (verbose) fprintf(stderr, "connection closed by peer\n");
                     break; /* EOF, terminate */
                 }
             }
@@ -175,8 +162,7 @@ void loop(int sockfd)
                 ntowrite = crlf_strip(wbuf, writelen, rbuf, nread);
                 if (writen(STDOUT_FILENO, wbuf, ntowrite) != ntowrite)
                     err_sys("writen error to stdout");
-            }
-            else {
+            } else {
                 if (writen(STDOUT_FILENO, rbuf, nread) != nread)
                     err_sys("writen error to stdout");
             }
@@ -184,8 +170,7 @@ void loop(int sockfd)
     }
 
     if (pauseclose) {
-        if (verbose)
-            fprintf(stderr, "pausing before close\n");
+        if (verbose) fprintf(stderr, "pausing before close\n");
         sleep(pauseclose);
     }
 
@@ -193,7 +178,4 @@ void loop(int sockfd)
         err_sys("close error"); /* since SO_LINGER may be set */
 }
 
-void sig_catch(int signo)
-{
-    exit(0); /* exit handler will reset tty state */
-}
+void sig_catch(int signo) { exit(0); /* exit handler will reset tty state */ }

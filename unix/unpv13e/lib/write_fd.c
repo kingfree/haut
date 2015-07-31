@@ -1,8 +1,7 @@
 /* include write_fd */
 #include "unp.h"
 
-ssize_t
-write_fd(int fd, void* ptr, size_t nbytes, int sendfd)
+ssize_t write_fd(int fd, void* ptr, size_t nbytes, int sendfd)
 {
     struct msghdr msg;
     struct iovec iov[1];
@@ -39,13 +38,11 @@ write_fd(int fd, void* ptr, size_t nbytes, int sendfd)
 }
 /* end write_fd */
 
-ssize_t
-Write_fd(int fd, void* ptr, size_t nbytes, int sendfd)
+ssize_t Write_fd(int fd, void* ptr, size_t nbytes, int sendfd)
 {
     ssize_t n;
 
-    if ((n = write_fd(fd, ptr, nbytes, sendfd)) < 0)
-        err_sys("write_fd error");
+    if ((n = write_fd(fd, ptr, nbytes, sendfd)) < 0) err_sys("write_fd error");
 
     return (n);
 }

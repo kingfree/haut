@@ -9,8 +9,7 @@ int main(int argc, char** argv)
     time_t ticks;
     struct sockaddr_storage cliaddr;
 
-    if (argc != 2)
-        err_quit("usage: daytimetcpsrv1 <service or port#>");
+    if (argc != 2) err_quit("usage: daytimetcpsrv1 <service or port#>");
 
     listenfd = Tcp_listen(NULL, argv[1], NULL);
 

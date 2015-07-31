@@ -51,19 +51,16 @@ int main(int argc, char** argv)
             connfd = Accept(listenfd, cliaddr, &clilen);
 
             for (i = 0; i < nchildren; i++)
-                if (cptr[i].child_status == 0)
-                    break; /* available */
+                if (cptr[i].child_status == 0) break; /* available */
 
-            if (i == nchildren)
-                err_quit("no available children");
+            if (i == nchildren) err_quit("no available children");
             cptr[i].child_status = 1; /* mark child as busy */
             cptr[i].child_count++;
             navail--;
 
             n = Write_fd(cptr[i].child_pipefd, "", 1, connfd);
             Close(connfd);
-            if (--nsel == 0)
-                continue; /* all done with select() results */
+            if (--nsel == 0) continue; /* all done with select() results */
         }
 
         /* 4find any newly-available children */
@@ -73,8 +70,7 @@ int main(int argc, char** argv)
                     err_quit("child %d terminated unexpectedly", i);
                 cptr[i].child_status = 0;
                 navail++;
-                if (--nsel == 0)
-                    break; /* all done with select() results */
+                if (--nsel == 0) break; /* all done with select() results */
             }
         }
     }
@@ -87,12 +83,10 @@ void sig_int(int signo)
     void pr_cpu_time(void);
 
     /* 4terminate all children */
-    for (i = 0; i < nchildren; i++)
-        kill(cptr[i].child_pid, SIGTERM);
+    for (i = 0; i < nchildren; i++) kill(cptr[i].child_pid, SIGTERM);
     while (wait(NULL) > 0) /* wait for all children */
         ;
-    if (errno != ECHILD)
-        err_sys("wait error");
+    if (errno != ECHILD) err_sys("wait error");
 
     pr_cpu_time();
 

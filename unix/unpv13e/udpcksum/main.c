@@ -6,10 +6,10 @@ struct sockaddr *dest, *local;
 struct sockaddr_in locallookup;
 socklen_t destlen, locallen;
 
-int datalink; /* from pcap_datalink(), in <net/bpf.h> */
-char* device; /* pcap device */
-pcap_t* pd; /* packet capture struct pointer */
-int rawfd; /* raw socket to write on */
+int datalink;      /* from pcap_datalink(), in <net/bpf.h> */
+char* device;      /* pcap device */
+pcap_t* pd;        /* packet capture struct pointer */
+int rawfd;         /* raw socket to write on */
 int snaplen = 200; /* amount of data to capture */
 int verbose;
 int zerosum; /* send UDP query with no checksum */
@@ -27,7 +27,6 @@ int main(int argc, char* argv[])
     opterr = 0; /* don't want getopt() writing to stderr */
     while ((c = getopt(argc, argv, "0i:l:v")) != -1) {
         switch (c) {
-
         case '0':
             zerosum = 1;
             break;
@@ -40,7 +39,7 @@ int main(int argc, char* argv[])
             if ((ptr = strrchr(optarg, '.')) == NULL)
                 usage("invalid -l option");
 
-            *ptr++ = 0; /* null replaces final period */
+            *ptr++ = 0;      /* null replaces final period */
             localport = ptr; /* service name or port number */
             strncpy(localname, optarg, sizeof(localname));
             lopt = 1;
@@ -56,8 +55,7 @@ int main(int argc, char* argv[])
     }
     /* end main2 */
     /* include main3 */
-    if (optind != argc - 2)
-        usage("missing <host> and/or <serv>");
+    if (optind != argc - 2) usage("missing <host> and/or <serv>");
 
     /* 4convert destination name and service */
     aip = Host_serv(argv[optind], argv[optind + 1], AF_INET, SOCK_DGRAM);
@@ -65,20 +63,19 @@ int main(int argc, char* argv[])
     destlen = aip->ai_addrlen;
 
     /*
-	 * Need local IP address for source IP address for UDP datagrams.
-	 * Can't specify 0 and let IP choose, as we need to know it for
-	 * the pseudoheader to calculate the UDP checksum.
-	 * If -l option supplied, then use those values; otherwise,
-	 * connect a UDP socket to the destination to determine the right
-	 * source address.
-	 */
+     * Need local IP address for source IP address for UDP datagrams.
+     * Can't specify 0 and let IP choose, as we need to know it for
+     * the pseudoheader to calculate the UDP checksum.
+     * If -l option supplied, then use those values; otherwise,
+     * connect a UDP socket to the destination to determine the right
+     * source address.
+     */
     if (lopt) {
         /* 4convert local name and service */
         aip = Host_serv(localname, localport, AF_INET, SOCK_DGRAM);
         local = aip->ai_addr; /* don't freeaddrinfo() */
         locallen = aip->ai_addrlen;
-    }
-    else {
+    } else {
         int s;
         s = Socket(AF_INET, SOCK_DGRAM, 0);
         Connect(s, dest, destlen);
@@ -107,8 +104,7 @@ int main(int argc, char* argv[])
 }
 /* end main3 */
 
-static void
-usage(const char* msg)
+static void usage(const char* msg)
 {
     err_msg(
         "usage: udpcksum [ options ] <host> <serv>\n"
@@ -117,7 +113,6 @@ usage(const char* msg)
         "         -l a.b.c.d.p  local IP=a.b.c.d, local port=p\n"
         "         -v    verbose output");
 
-    if (msg[0] != 0)
-        err_quit("%s", msg);
+    if (msg[0] != 0) err_quit("%s", msg);
     exit(1);
 }

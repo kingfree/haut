@@ -13,14 +13,13 @@ int tcp_listen(const char* host, const char* serv, socklen_t* addrlenp)
     hints.ai_socktype = SOCK_STREAM;
 
     if ((n = getaddrinfo(host, serv, &hints, &res)) != 0)
-        err_quit("tcp_listen error for %s, %s: %s",
-            host, serv, gai_strerror(n));
+        err_quit("tcp_listen error for %s, %s: %s", host, serv,
+                 gai_strerror(n));
     ressave = res;
 
     do {
         listenfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-        if (listenfd < 0)
-            continue; /* error, try next one */
+        if (listenfd < 0) continue; /* error, try next one */
 
         Setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
         if (bind(listenfd, res->ai_addr, res->ai_addrlen) == 0)

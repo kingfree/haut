@@ -26,8 +26,7 @@ int main(int argc, char** argv)
 
     Signal(SIGINT, sig_int);
 
-    for (;;)
-        pause(); /* everything done by children */
+    for (;;) pause(); /* everything done by children */
 }
 
 void sig_int(int signo)
@@ -36,12 +35,10 @@ void sig_int(int signo)
     void pr_cpu_time(void);
 
     /* terminate all children */
-    for (i = 0; i < nchildren; i++)
-        kill(pids[i], SIGTERM);
+    for (i = 0; i < nchildren; i++) kill(pids[i], SIGTERM);
     while (wait(NULL) > 0) /* wait for all children */
         ;
-    if (errno != ECHILD)
-        err_sys("wait error");
+    if (errno != ECHILD) err_sys("wait error");
 
     pr_cpu_time();
 

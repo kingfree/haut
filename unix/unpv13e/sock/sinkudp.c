@@ -13,8 +13,7 @@ void sink_udp(int sockfd) /* TODO: use recvfrom ?? */
 {
     int n, flags;
 
-    if (pauseinit)
-        sleep_us(pauseinit * 1000);
+    if (pauseinit) sleep_us(pauseinit * 1000);
 
     for (;;) { /* read until peer closes connection; -n opt ignored */
         /* msgpeek = 0 or MSG_PEEK */
@@ -22,15 +21,12 @@ void sink_udp(int sockfd) /* TODO: use recvfrom ?? */
     oncemore:
         if ((n = recv(sockfd, rbuf, readlen, flags)) < 0) {
             err_sys("recv error");
-        }
-        else if (n == 0) {
-            if (verbose)
-                fprintf(stderr, "connection closed by peer\n");
+        } else if (n == 0) {
+            if (verbose) fprintf(stderr, "connection closed by peer\n");
             break;
 
 #ifdef notdef /* following not possible with TCP */
-        }
-        else if (n != readlen)
+        } else if (n != readlen)
             err_quit("read returned %d, expected %d", n, readlen);
 #else
         }
@@ -38,7 +34,7 @@ void sink_udp(int sockfd) /* TODO: use recvfrom ?? */
 
         if (verbose) {
             fprintf(stderr, "received %d bytes%s\n", n,
-                (flags == MSG_PEEK) ? " (MSG_PEEK)" : "");
+                    (flags == MSG_PEEK) ? " (MSG_PEEK)" : "");
             if (verbose > 1) {
                 fprintf(stderr, "printing %d bytes\n", n);
                 rbuf[n] = 0; /* make certain it's null terminated */
@@ -48,21 +44,18 @@ void sink_udp(int sockfd) /* TODO: use recvfrom ?? */
             }
         }
 
-        if (pauserw)
-            sleep_us(pauserw * 1000);
+        if (pauserw) sleep_us(pauserw * 1000);
 
         if (flags != 0) {
-            flags = 0; /* avoid infinite loop */
+            flags = 0;     /* avoid infinite loop */
             goto oncemore; /* read the message again */
         }
     }
 
     if (pauseclose) {
-        if (verbose)
-            fprintf(stderr, "pausing before close\n");
+        if (verbose) fprintf(stderr, "pausing before close\n");
         sleep_us(pauseclose * 1000);
     }
 
-    if (close(sockfd) < 0)
-        err_sys("close error");
+    if (close(sockfd) < 0) err_sys("close error");
 }

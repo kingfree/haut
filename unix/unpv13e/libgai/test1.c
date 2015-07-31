@@ -10,8 +10,7 @@ int main(int argc, char** argv)
 {
     struct hostent* hptr;
 
-    if (argc != 2)
-        err_quit("usage: test2 <IPaddress>");
+    if (argc != 2) err_quit("usage: test2 <IPaddress>");
 
     printf("gethostbyname2(%s, AF_INET): ", argv[1]);
     hptr = gethostbyname2(argv[1], AF_INET);

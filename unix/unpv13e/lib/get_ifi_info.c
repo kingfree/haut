@@ -1,8 +1,7 @@
 /* include get_ifi_info1 */
 #include "unpifi.h"
 
-struct ifi_info*
-get_ifi_info(int family, int doaliases)
+struct ifi_info* get_ifi_info(int family, int doaliases)
 {
     struct ifi_info *ifi, *ifihead, **ifipnext;
     int sockfd, len, lastlen, flags, myflags, idx = 0, hlen = 0;
@@ -21,10 +20,8 @@ get_ifi_info(int family, int doaliases)
         ifc.ifc_len = len;
         ifc.ifc_buf = buf;
         if (ioctl(sockfd, SIOCGIFCONF, &ifc) < 0) {
-            if (errno != EINVAL || lastlen != 0)
-                err_sys("ioctl error");
-        }
-        else {
+            if (errno != EINVAL || lastlen != 0) err_sys("ioctl error");
+        } else {
             if (ifc.ifc_len == lastlen)
                 break; /* success, len has not changed */
             lastlen = ifc.ifc_len;
@@ -56,7 +53,7 @@ get_ifi_info(int family, int doaliases)
             len = sizeof(struct sockaddr);
             break;
         }
-#endif /* HAVE_SOCKADDR_SA_LEN */
+#endif                                      /* HAVE_SOCKADDR_SA_LEN */
         ptr += sizeof(ifr->ifr_name) + len; /* for next one in buffer */
 
 #ifdef HAVE_SOCKADDR_DL_STRUCT
@@ -77,8 +74,7 @@ get_ifi_info(int family, int doaliases)
         if ((cptr = strchr(ifr->ifr_name, ':')) != NULL)
             *cptr = 0; /* replace colon with null */
         if (strncmp(lastname, ifr->ifr_name, IFNAMSIZ) == 0) {
-            if (doaliases == 0)
-                continue; /* already processed this interface */
+            if (doaliases == 0) continue; /* already processed this interface */
             myflags = IFI_ALIAS;
         }
         memcpy(lastname, ifr->ifr_name, IFNAMSIZ);
@@ -86,16 +82,15 @@ get_ifi_info(int family, int doaliases)
         ifrcopy = *ifr;
         Ioctl(sockfd, SIOCGIFFLAGS, &ifrcopy);
         flags = ifrcopy.ifr_flags;
-        if ((flags & IFF_UP) == 0)
-            continue; /* ignore if interface not up */
+        if ((flags & IFF_UP) == 0) continue; /* ignore if interface not up */
         /* end get_ifi_info2 */
 
         /* include get_ifi_info3 */
         ifi = Calloc(1, sizeof(struct ifi_info));
-        *ifipnext = ifi; /* prev points to this new one */
+        *ifipnext = ifi;           /* prev points to this new one */
         ifipnext = &ifi->ifi_next; /* pointer to next one goes here */
 
-        ifi->ifi_flags = flags; /* IFF_xxx values */
+        ifi->ifi_flags = flags;     /* IFF_xxx values */
         ifi->ifi_myflags = myflags; /* IFI_xxx values */
 #if defined(SIOCGIFMTU) && defined(HAVE_STRUCT_IFREQ_IFR_MTU)
         Ioctl(sockfd, SIOCGIFMTU, &ifrcopy);
@@ -110,10 +105,8 @@ get_ifi_info(int family, int doaliases)
             idx = hlen = 0;
         ifi->ifi_index = idx;
         ifi->ifi_hlen = hlen;
-        if (ifi->ifi_hlen > IFI_HADDR)
-            ifi->ifi_hlen = IFI_HADDR;
-        if (hlen)
-            memcpy(ifi->ifi_haddr, haddr, ifi->ifi_hlen);
+        if (ifi->ifi_hlen > IFI_HADDR) ifi->ifi_hlen = IFI_HADDR;
+        if (hlen) memcpy(ifi->ifi_haddr, haddr, ifi->ifi_hlen);
         /* end get_ifi_info3 */
         /* include get_ifi_info4 */
         switch (ifr->ifr_addr.sa_family) {
@@ -171,20 +164,16 @@ void free_ifi_info(struct ifi_info* ifihead)
     struct ifi_info *ifi, *ifinext;
 
     for (ifi = ifihead; ifi != NULL; ifi = ifinext) {
-        if (ifi->ifi_addr != NULL)
-            free(ifi->ifi_addr);
-        if (ifi->ifi_brdaddr != NULL)
-            free(ifi->ifi_brdaddr);
-        if (ifi->ifi_dstaddr != NULL)
-            free(ifi->ifi_dstaddr);
+        if (ifi->ifi_addr != NULL) free(ifi->ifi_addr);
+        if (ifi->ifi_brdaddr != NULL) free(ifi->ifi_brdaddr);
+        if (ifi->ifi_dstaddr != NULL) free(ifi->ifi_dstaddr);
         ifinext = ifi->ifi_next; /* can't fetch ifi_next after free() */
-        free(ifi); /* the ifi_info{} itself */
+        free(ifi);               /* the ifi_info{} itself */
     }
 }
 /* end free_ifi_info */
 
-struct ifi_info*
-Get_ifi_info(int family, int doaliases)
+struct ifi_info* Get_ifi_info(int family, int doaliases)
 {
     struct ifi_info* ifi;
 

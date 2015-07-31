@@ -13,13 +13,11 @@ int main(int argc, char** argv)
     struct sctp_initmsg initm;
 
     /* include modified_sctpserv02 */
-    if (argc == 2)
-        stream_increment = atoi(argv[1]);
+    if (argc == 2) stream_increment = atoi(argv[1]);
     sock_fd = Socket(AF_INET, SOCK_SEQPACKET, IPPROTO_SCTP);
     bzero(&initm, sizeof(initm));
     initm.sinit_num_ostreams = SERV_MORE_STRMS_SCTP;
-    Setsockopt(sock_fd, IPPROTO_SCTP, SCTP_INITMSG,
-        &initm, sizeof(initm));
+    Setsockopt(sock_fd, IPPROTO_SCTP, SCTP_INITMSG, &initm, sizeof(initm));
     /* end modified_sctpserv02 */
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
@@ -30,25 +28,20 @@ int main(int argc, char** argv)
 
     bzero(&evnts, sizeof(evnts));
     evnts.sctp_data_io_event = 1;
-    Setsockopt(sock_fd, IPPROTO_SCTP, SCTP_EVENTS,
-        &evnts, sizeof(evnts));
+    Setsockopt(sock_fd, IPPROTO_SCTP, SCTP_EVENTS, &evnts, sizeof(evnts));
 
     Listen(sock_fd, LISTENQ);
     for (;;) {
         len = sizeof(struct sockaddr_in);
-        rd_sz = Sctp_recvmsg(sock_fd, readbuf, sizeof(readbuf),
-            (SA*)&cliaddr, &len,
-            &sri, &msg_flags);
+        rd_sz = Sctp_recvmsg(sock_fd, readbuf, sizeof(readbuf), (SA*)&cliaddr,
+                             &len, &sri, &msg_flags);
         if (stream_increment) {
             sri.sinfo_stream++;
-            if (sri.sinfo_stream >= sctp_get_no_strms(sock_fd, (SA*)&cliaddr, len))
+            if (sri.sinfo_stream >=
+                sctp_get_no_strms(sock_fd, (SA*)&cliaddr, len))
                 sri.sinfo_stream = 0;
         }
-        Sctp_sendmsg(sock_fd, readbuf, rd_sz,
-            (SA*)&cliaddr, len,
-            sri.sinfo_ppid,
-            sri.sinfo_flags,
-            sri.sinfo_stream,
-            0, 0);
+        Sctp_sendmsg(sock_fd, readbuf, rd_sz, (SA*)&cliaddr, len,
+                     sri.sinfo_ppid, sri.sinfo_flags, sri.sinfo_stream, 0, 0);
     }
 }

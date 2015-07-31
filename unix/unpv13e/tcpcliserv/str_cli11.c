@@ -5,7 +5,6 @@ void str_cli(FILE* fp, int sockfd)
     char sendline[MAXLINE], recvline[MAXLINE];
 
     while (Fgets(sendline, MAXLINE, fp) != NULL) {
-
         Writen(sockfd, sendline, 1);
         sleep(1);
         Writen(sockfd, sendline + 1, strlen(sendline) - 1);

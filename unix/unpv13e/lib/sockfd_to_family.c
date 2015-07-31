@@ -7,8 +7,7 @@ int sockfd_to_family(int sockfd)
     socklen_t len;
 
     len = sizeof(ss);
-    if (getsockname(sockfd, (SA*)&ss, &len) < 0)
-        return (-1);
+    if (getsockname(sockfd, (SA*)&ss, &len) < 0) return (-1);
     return (ss.ss_family);
 }
 /* end sockfd_to_family */
@@ -17,8 +16,7 @@ int Sockfd_to_family(int sockfd)
 {
     int rc;
 
-    if ((rc = sockfd_to_family(sockfd)) < 0)
-        err_sys("sockfd_to_family 错误");
+    if ((rc = sockfd_to_family(sockfd)) < 0) err_sys("sockfd_to_family 错误");
 
     return (rc);
 }

@@ -3,7 +3,7 @@
 struct client {
     int connfd; /* Unix domain stream socket to client */
     int family; /* AF_INET or AF_INET6 */
-    int lport; /* local port bound to client's UDP socket */
+    int lport;  /* local port bound to client's UDP socket */
     /* network byte ordered */
 } client[FD_SETSIZE];
 

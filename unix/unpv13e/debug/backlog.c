@@ -18,8 +18,7 @@ void do_child(void);
 
 int main(int argc, char** argv)
 {
-    if (argc != 1)
-        err_quit("usage: backlog");
+    if (argc != 1) err_quit("usage: backlog");
 
     Socketpair(AF_UNIX, SOCK_STREAM, 0, pipefd);
 
@@ -36,10 +35,7 @@ int main(int argc, char** argv)
     exit(0);
 }
 
-void parent_alrm(int signo)
-{
-    return; /* just interrupt blocked connect() */
-}
+void parent_alrm(int signo) { return; /* just interrupt blocked connect() */ }
 
 void do_parent(void)
 {
@@ -51,23 +47,20 @@ void do_parent(void)
     for (backlog = 0; backlog <= 14; backlog++) {
         printf("backlog = %d: ", backlog);
         Write(pfd, &backlog, sizeof(int)); /* tell child value */
-        Read(pfd, &junk, sizeof(int)); /* wait for child */
+        Read(pfd, &junk, sizeof(int));     /* wait for child */
 
         for (j = 1; j <= MAXBACKLOG; j++) {
             fd[j] = Socket(AF_INET, SOCK_STREAM, 0);
             alarm(2);
             if (connect(fd[j], (SA*)&serv, sizeof(serv)) < 0) {
-                if (errno != EINTR)
-                    err_sys("connect error, j = %d", j);
+                if (errno != EINTR) err_sys("connect error, j = %d", j);
                 printf("timeout, %d connections completed\n", j - 1);
-                for (k = 1; k <= j; k++)
-                    Close(fd[k]);
+                for (k = 1; k <= j; k++) Close(fd[k]);
                 break; /* next value of backlog */
             }
             alarm(0);
         }
-        if (j > MAXBACKLOG)
-            printf("%d connections?\n", MAXBACKLOG);
+        if (j > MAXBACKLOG) printf("%d connections?\n", MAXBACKLOG);
     }
     backlog = -1; /* tell child we're all done */
     Write(pfd, &backlog, sizeof(int));

@@ -26,8 +26,7 @@ int main(int argc, char** argv)
     }
 }
 
-static void*
-doit(void* arg)
+static void* doit(void* arg)
 {
     int connfd;
 
@@ -36,6 +35,6 @@ doit(void* arg)
 
     Pthread_detach(pthread_self());
     str_echo(connfd); /* same function as before */
-    Close(connfd); /* done with connected socket */
+    Close(connfd);    /* done with connected socket */
     return (NULL);
 }

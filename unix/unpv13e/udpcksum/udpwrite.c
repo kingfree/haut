@@ -7,10 +7,10 @@ void open_output(void)
 {
     int on = 1;
     /*
-	 * Need a raw socket to write our own IP datagrams to.
-	 * Process must have superuser privileges to create this socket.
-	 * Also must set IP_HDRINCL so we can write our own IP headers.
-	 */
+     * Need a raw socket to write our own IP datagrams to.
+     * Process must have superuser privileges to create this socket.
+     * Also must set IP_HDRINCL so we can write our own IP headers.
+     */
 
     rawfd = Socket(dest->sa_family, SOCK_RAW, 0);
 
@@ -63,7 +63,7 @@ void udp_write(char* buf, int userlen)
 #else
     ip->ip_len = userlen; /* host byte order */
 #endif
-    ip->ip_id = 0; /* let IP set this */
+    ip->ip_id = 0;  /* let IP set this */
     ip->ip_off = 0; /* frag offset, MF and DF flags */
     ip->ip_ttl = TTL_OUT;
 

@@ -6,16 +6,14 @@
 
 void Fclose(FILE* fp)
 {
-    if (fclose(fp) != 0)
-        err_sys("fclose error");
+    if (fclose(fp) != 0) err_sys("fclose error");
 }
 
 FILE* Fdopen(int fd, const char* type)
 {
     FILE* fp;
 
-    if ((fp = fdopen(fd, type)) == NULL)
-        err_sys("fdopen error");
+    if ((fp = fdopen(fd, type)) == NULL) err_sys("fdopen error");
 
     return (fp);
 }
@@ -34,14 +32,12 @@ FILE* Fopen(const char* filename, const char* mode)
 {
     FILE* fp;
 
-    if ((fp = fopen(filename, mode)) == NULL)
-        err_sys("fopen error");
+    if ((fp = fopen(filename, mode)) == NULL) err_sys("fopen error");
 
     return (fp);
 }
 
 void Fputs(const char* ptr, FILE* stream)
 {
-    if (fputs(ptr, stream) == EOF)
-        err_sys("fputs error");
+    if (fputs(ptr, stream) == EOF) err_sys("fputs error");
 }

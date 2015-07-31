@@ -6,8 +6,7 @@ int main(int argc, char** argv)
     socklen_t len;
     struct sockaddr_un addr1, addr2;
 
-    if (argc != 2)
-        err_quit("usage: unixbind <pathname>");
+    if (argc != 2) err_quit("usage: unixbind <pathname>");
 
     sockfd = Socket(AF_LOCAL, SOCK_STREAM, 0);
 

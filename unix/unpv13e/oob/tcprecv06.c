@@ -18,8 +18,7 @@ int main(int argc, char** argv)
     sleep(5);
 
     for (;;) {
-        if (Sockatmark(connfd))
-            printf("at OOB mark\n");
+        if (Sockatmark(connfd)) printf("at OOB mark\n");
 
         if ((n = Read(connfd, buff, sizeof(buff) - 1)) == 0) {
             printf("received EOF\n");

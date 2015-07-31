@@ -31,8 +31,7 @@ void tpi_bind(int fd, const void* addr, size_t addrlen)
     Getmsg(fd, &ctlbuf, NULL, &flags);
 
     /* *INDENT-OFF* */
-    if (ctlbuf.len < (int)sizeof(long))
-        err_quit("bad length from getmsg");
+    if (ctlbuf.len < (int)sizeof(long)) err_quit("bad length from getmsg");
     /* *INDENT-ON* */
 
     switch (bind_ack.msg_hdr.PRIM_type) {
@@ -44,8 +43,8 @@ void tpi_bind(int fd, const void* addr, size_t addrlen)
         if (ctlbuf.len < (int)sizeof(struct T_error_ack))
             err_quit("bad length for T_ERROR_ACK");
         error_ack = (struct T_error_ack*)&bind_ack.msg_hdr;
-        err_quit("T_ERROR_ACK from bind (%d, %d)",
-            error_ack->TLI_error, error_ack->UNIX_error);
+        err_quit("T_ERROR_ACK from bind (%d, %d)", error_ack->TLI_error,
+                 error_ack->UNIX_error);
     /* *INDENT-ON* */
 
     default:

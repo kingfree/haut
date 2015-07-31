@@ -46,8 +46,7 @@ main()
 
 #define CONTROL_LEN (sizeof(struct cmsghdr) + sizeof(struct fcred))
 
-ssize_t
-recv_cred(int fd, void* ptr, size_t nbytes, struct fcred* fcredptr)
+ssize_t recv_cred(int fd, void* ptr, size_t nbytes, struct fcred* fcredptr)
 {
     struct msghdr msg;
     struct iovec iov[1];
@@ -64,8 +63,7 @@ recv_cred(int fd, void* ptr, size_t nbytes, struct fcred* fcredptr)
     msg.msg_controllen = sizeof(control);
     msg.msg_flags = 0;
 
-    if ((n = recvmsg(fd, &msg, 0)) < 0)
-        return (n);
+    if ((n = recvmsg(fd, &msg, 0)) < 0) return (n);
 
     fcredptr->fc_ngroups = 0; /* indicates no credentials returned */
     if (fcredptr && msg.msg_controllen > 0) {

@@ -31,8 +31,8 @@ struct proto {
     void (*finit)(void);
     struct sockaddr* sasend; /* sockaddr{} for send, from getaddrinfo */
     struct sockaddr* sarecv; /* sockaddr{} for receiving */
-    socklen_t salen; /* length of sockaddr{}s */
-    int icmpproto; /* IPPROTO_xxx value for ICMP */
+    socklen_t salen;         /* length of sockaddr{}s */
+    int icmpproto;           /* IPPROTO_xxx value for ICMP */
 } * pr;
 
 #ifdef IPV6

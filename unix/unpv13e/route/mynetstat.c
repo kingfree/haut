@@ -7,10 +7,8 @@ int main(int argc, char** argv)
 {
     int family;
 
-    if (argc != 2)
-        err_quit("usage: mynetstat <inet4|inet6|all>");
-    if (strcmp(argv[1], "inet4") == 0)
-        family = AF_INET;
+    if (argc != 2) err_quit("usage: mynetstat <inet4|inet6|all>");
+    if (strcmp(argv[1], "inet4") == 0) family = AF_INET;
 #ifdef AF_INET6
     else if (strcmp(argv[1], "inet6") == 0)
         family = AF_INET6;
@@ -71,29 +69,23 @@ void pr_iflist(int family)
             sa = (struct sockaddr*)(ifm + 1);
             get_rtaddrs(ifm->ifm_addrs, sa, rti_info);
             if ((sa = rti_info[RTAX_IFP]) != NULL) {
-                if (((flags = ifm->ifm_flags) & IFF_UP) == 0)
-                    continue;
+                if (((flags = ifm->ifm_flags) & IFF_UP) == 0) continue;
                 printf("interface: %s: <", Sock_ntop(sa, sa->sa_len));
-                if (flags & IFF_UP)
-                    printf("UP ");
-                if (flags & IFF_BROADCAST)
-                    printf("BCAST ");
-                if (flags & IFF_MULTICAST)
-                    printf("MCAST ");
-                if (flags & IFF_LOOPBACK)
-                    printf("LOOP ");
-                if (flags & IFF_POINTOPOINT)
-                    printf("P2P ");
+                if (flags & IFF_UP) printf("UP ");
+                if (flags & IFF_BROADCAST) printf("BCAST ");
+                if (flags & IFF_MULTICAST) printf("MCAST ");
+                if (flags & IFF_LOOPBACK) printf("LOOP ");
+                if (flags & IFF_POINTOPOINT) printf("P2P ");
                 printf(">\n");
 
-                if (sa->sa_family == AF_LINK && (sdl = (struct sockaddr_dl*)sa) && (sdl->sdl_alen > 0)) {
+                if (sa->sa_family == AF_LINK &&
+                    (sdl = (struct sockaddr_dl*)sa) && (sdl->sdl_alen > 0)) {
                     ptr = (u_char*)&sdl->sdl_data[sdl->sdl_nlen];
                     printf("  %x:%x:%x:%x:%x:%x\n", *ptr, *(ptr + 1),
-                        *(ptr + 2), *(ptr + 3), *(ptr + 4), *(ptr + 5));
+                           *(ptr + 2), *(ptr + 3), *(ptr + 4), *(ptr + 5));
                 }
             }
-        }
-        else if (ifm->ifm_type == RTM_NEWADDR) {
+        } else if (ifm->ifm_type == RTM_NEWADDR) {
             ifam = (struct ifa_msghdr*)next;
             sa = (struct sockaddr*)(ifam + 1);
             get_rtaddrs(ifam->ifam_addrs, sa, rti_info);
@@ -101,8 +93,7 @@ void pr_iflist(int family)
                 printf("  IP addr: %s\n", Sock_ntop(sa, sa->sa_len));
             if ((flags & IFF_BROADCAST) && (sa = rti_info[RTAX_BRD]))
                 printf("  bcast addr: %s\n", Sock_ntop(sa, sa->sa_len));
-        }
-        else
+        } else
             err_quit("unexpected message type %d", ifm->ifm_type);
     }
 }

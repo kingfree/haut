@@ -8,8 +8,7 @@ struct udpiphdr* udp_check(char*, int);
  */
 
 /* include udp_read */
-struct udpiphdr*
-udp_read(void)
+struct udpiphdr* udp_read(void)
 {
     int len;
     char* ptr;
@@ -49,8 +48,7 @@ udp_read(void)
  */
 
 /* include udp_check */
-struct udpiphdr*
-udp_check(char* ptr, int len)
+struct udpiphdr* udp_check(char* ptr, int len)
 {
     int hlen;
     struct ip* ip;
@@ -63,12 +61,10 @@ udp_check(char* ptr, int len)
 
     /* 4minimal verification of IP header */
     ip = (struct ip*)ptr;
-    if (ip->ip_v != IPVERSION)
-        err_quit("ip_v = %d", ip->ip_v);
+    if (ip->ip_v != IPVERSION) err_quit("ip_v = %d", ip->ip_v);
     hlen = ip->ip_hl << 2;
     /* *INDENT-OFF* */
-    if (hlen < sizeof(struct ip))
-        err_quit("ip_hl = %d", ip->ip_hl);
+    if (hlen < sizeof(struct ip)) err_quit("ip_hl = %d", ip->ip_hl);
     if (len < hlen + sizeof(struct udphdr))
         err_quit("len = %d, hlen = %d", len, hlen);
     /* *INDENT-ON* */
@@ -79,8 +75,7 @@ udp_check(char* ptr, int len)
     if (ip->ip_p == IPPROTO_UDP) {
         ui = (struct udpiphdr*)ip;
         return (ui);
-    }
-    else
+    } else
         err_quit("not a UDP packet");
 }
 /* end udp_check */

@@ -14,8 +14,7 @@ int main(int argc, char** argv)
     struct ifreq* ifr;
     struct sockaddr_in* sinptr;
 
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-        err_sys("socket error");
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) err_sys("socket error");
 
     ifc.ifc_len = sizeof(buf);
     ifc.ifc_req = (struct ifreq*)buf;
@@ -35,7 +34,8 @@ int main(int argc, char** argv)
         case AF_INET:
             sinptr = (struct sockaddr_in*)&ifr->ifr_addr;
             printf("%s\t%s\n", ifr->ifr_name,
-                Inet_ntop(AF_INET, &sinptr->sin_addr, addrstr, sizeof(addrstr)));
+                   Inet_ntop(AF_INET, &sinptr->sin_addr, addrstr,
+                             sizeof(addrstr)));
             break;
 
 #ifdef AF_INET6
@@ -45,7 +45,8 @@ int main(int argc, char** argv)
 
             sin6ptr = (struct sockaddr_in6*)&ifr->ifr_addr;
             printf("%s\t%s\n", ifr->ifr_name,
-                Inet_ntop(AF_INET6, &sin6ptr->sin6_addr, addr6str, sizeof(addr6str)));
+                   Inet_ntop(AF_INET6, &sin6ptr->sin6_addr, addr6str,
+                             sizeof(addr6str)));
             break;
         }
 #endif
@@ -58,8 +59,7 @@ int main(int argc, char** argv)
 
             sdlptr = (struct sockaddr_dl*)&ifr->ifr_addr;
             printf("%s", ifr->ifr_name);
-            if (sdlptr->sdl_index)
-                printf("\t<link %d>", sdlptr->sdl_index);
+            if (sdlptr->sdl_index) printf("\t<link %d>", sdlptr->sdl_index);
             if (sdlptr->sdl_type == IFT_ETHER && sdlptr->sdl_alen)
                 printf("\t%s", etherprint((u_char*)LLADDR(sdlptr), str));
             putchar('\n');
@@ -78,8 +78,8 @@ int main(int argc, char** argv)
 #ifdef HAVE_SOCKADDR_DL_STRUCT
 char* etherprint(const u_char eaddr[6], char string[18])
 {
-    snprintf(string, 18, "%02x:%02x:%02x:%02x:%02x:%02x",
-        eaddr[0], eaddr[1], eaddr[2], eaddr[3], eaddr[4], eaddr[5]);
+    snprintf(string, 18, "%02x:%02x:%02x:%02x:%02x:%02x", eaddr[0], eaddr[1],
+             eaddr[2], eaddr[3], eaddr[4], eaddr[5]);
     string[17] = '\0';
     return (string);
 }

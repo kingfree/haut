@@ -10,8 +10,7 @@ int main(int argc, char** argv)
     struct sockaddr *mcastsa, *wild, *from;
     struct timeval now;
 
-    if (argc != 2)
-        err_quit("usage: ssntp <IPaddress>");
+    if (argc != 2) err_quit("usage: ssntp <IPaddress>");
 
     sockfd = Udp_client(argv[1], "ntp", (void**)&mcastsa, &salen);
 
@@ -26,8 +25,8 @@ int main(int argc, char** argv)
          ifi = ifi->ifi_next) {
         if (ifi->ifi_flags & IFF_MULTICAST) {
             Mcast_join(sockfd, mcastsa, salen, ifi->ifi_name, 0);
-            printf("joined %s on %s\n",
-                Sock_ntop(mcastsa, salen), ifi->ifi_name);
+            printf("joined %s on %s\n", Sock_ntop(mcastsa, salen),
+                   ifi->ifi_name);
         }
     }
 #endif

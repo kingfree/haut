@@ -17,8 +17,7 @@ void loop_tcp(int sockfd)
     int maxfdp1, nread, ntowrite, stdineof, flags;
     fd_set rset;
 
-    if (pauseinit)
-        sleep_us(pauseinit * 1000); /* intended for server */
+    if (pauseinit) sleep_us(pauseinit * 1000); /* intended for server */
 
     flags = 0;
     stdineof = 0;
@@ -26,8 +25,7 @@ void loop_tcp(int sockfd)
     maxfdp1 = sockfd + 1; /* check descriptors [0..sockfd] */
 
     for (;;) {
-        if (stdineof == 0)
-            FD_SET(STDIN_FILENO, &rset);
+        if (stdineof == 0) FD_SET(STDIN_FILENO, &rset);
         FD_SET(sockfd, &rset);
 
         if (select(maxfdp1, &rset, NULL, NULL, NULL) < 0)
@@ -43,7 +41,7 @@ void loop_tcp(int sockfd)
 
                     FD_CLR(STDIN_FILENO, &rset);
                     stdineof = 1; /* don't read stdin anymore */
-                    continue; /* back to select() */
+                    continue;     /* back to select() */
                 }
                 break; /* default: stdin EOF -> done */
             }
@@ -52,8 +50,7 @@ void loop_tcp(int sockfd)
                 ntowrite = crlf_add(wbuf, writelen, rbuf, nread);
                 if (dowrite(sockfd, wbuf, ntowrite) != ntowrite)
                     err_sys("write error");
-            }
-            else {
+            } else {
                 if (dowrite(sockfd, rbuf, nread) != nread)
                     err_sys("write error");
             }
@@ -66,8 +63,7 @@ void loop_tcp(int sockfd)
             if ((nread = recv(sockfd, rbuf, readlen, flags)) < 0)
                 err_sys("recv error");
             else if (nread == 0) {
-                if (verbose)
-                    fprintf(stderr, "connection closed by peer\n");
+                if (verbose) fprintf(stderr, "connection closed by peer\n");
                 break; /* EOF, terminate */
             }
 
@@ -75,22 +71,20 @@ void loop_tcp(int sockfd)
                 ntowrite = crlf_strip(wbuf, writelen, rbuf, nread);
                 if (writen(STDOUT_FILENO, wbuf, ntowrite) != ntowrite)
                     err_sys("writen error to stdout");
-            }
-            else {
+            } else {
                 if (writen(STDOUT_FILENO, rbuf, nread) != nread)
                     err_sys("writen error to stdout");
             }
 
             if (flags != 0) {
-                flags = 0; /* no infinite loop */
+                flags = 0;     /* no infinite loop */
                 goto oncemore; /* read the message again */
             }
         }
     }
 
     if (pauseclose) {
-        if (verbose)
-            fprintf(stderr, "pausing before close\n");
+        if (verbose) fprintf(stderr, "pausing before close\n");
         sleep_us(pauseclose * 1000);
     }
 

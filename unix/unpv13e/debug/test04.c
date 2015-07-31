@@ -1,8 +1,6 @@
 #include "unp.h"
 
-void sig_alrm(int signo)
-{
-}
+void sig_alrm(int signo) {}
 
 int main(int argc, char** argv)
 {
@@ -11,11 +9,9 @@ int main(int argc, char** argv)
     struct itimerval val;
     fd_set rset, wset;
 
-    if (argc != 2)
-        err_quit("usage: a.out <IPaddress>");
+    if (argc != 2) err_quit("usage: a.out <IPaddress>");
 
-    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-        err_sys("socket error");
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) err_sys("socket error");
 
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
@@ -28,8 +24,7 @@ int main(int argc, char** argv)
     val.it_interval.tv_usec = 0;
     val.it_value.tv_sec = 0;
     val.it_value.tv_usec = 50000; /* 50 ms */
-    if (setitimer(ITIMER_REAL, &val, NULL) == -1)
-        err_sys("setitimer error");
+    if (setitimer(ITIMER_REAL, &val, NULL) == -1) err_sys("setitimer error");
 
 again:
     if (connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) < 0) {
@@ -41,8 +36,7 @@ again:
             printf("interrupted system call\n");
             exit(0);
 #endif
-        }
-        else
+        } else
             err_sys("connect error");
     }
 
@@ -52,10 +46,8 @@ again:
     sleep(4);
     n = Select(sockfd + 1, &rset, &wset, NULL, NULL);
     printf("select returned %d\n", n);
-    if (FD_ISSET(sockfd, &rset))
-        printf("socket is readable\n");
-    if (FD_ISSET(sockfd, &wset))
-        printf("socket is writable\n");
+    if (FD_ISSET(sockfd, &rset)) printf("socket is readable\n");
+    if (FD_ISSET(sockfd, &wset)) printf("socket is writable\n");
 
     str_cli(stdin, sockfd); /* do it all */
 

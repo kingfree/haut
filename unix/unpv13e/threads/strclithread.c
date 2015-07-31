@@ -15,8 +15,7 @@ void str_cli(FILE* fp_arg, int sockfd_arg)
 
     Pthread_create(&tid, NULL, copyto, NULL);
 
-    while (Readline(sockfd, recvline, MAXLINE) > 0)
-        Fputs(recvline, stdout);
+    while (Readline(sockfd, recvline, MAXLINE) > 0) Fputs(recvline, stdout);
 }
 
 void* copyto(void* arg)

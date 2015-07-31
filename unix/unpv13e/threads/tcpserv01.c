@@ -25,11 +25,10 @@ int main(int argc, char** argv)
     }
 }
 
-static void*
-doit(void* arg)
+static void* doit(void* arg)
 {
     Pthread_detach(pthread_self());
     str_echo((int)arg); /* same function as before */
-    Close((int)arg); /* done with connected socket */
+    Close((int)arg);    /* done with connected socket */
     return (NULL);
 }

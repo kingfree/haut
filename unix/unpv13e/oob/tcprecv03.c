@@ -19,8 +19,7 @@ int main(int argc, char** argv)
     FD_ZERO(&xset);
     for (;;) {
         FD_SET(connfd, &rset);
-        if (justreadoob == 0)
-            FD_SET(connfd, &xset);
+        if (justreadoob == 0) FD_SET(connfd, &xset);
 
         Select(connfd + 1, &rset, NULL, &xset, NULL);
 

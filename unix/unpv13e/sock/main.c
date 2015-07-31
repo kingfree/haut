@@ -15,55 +15,55 @@ char* port;
 /* DefinE global variables */
 int bindport; /* 0 or TCP or UDP port number to bind */
 /* set by -b or -l options */
-int broadcast; /* SO_BROADCAST */
-int cbreak; /* set terminal to cbreak mode */
-int chunkwrite; /* write in small chunks; not all-at-once */
-int client = 1; /* acting as client is the default */
-int connectudp = 1; /* connect UDP client */
-int crlf; /* convert newline to CR/LF & vice versa */
-int debug; /* SO_DEBUG */
-int dofork; /* concurrent server, do a fork() */
-int dontroute; /* SO_DONTROUTE */
-char foreignip[32]; /* foreign IP address, dotted-decimal string */
-int foreignport; /* foreign port number */
-int halfclose; /* TCP half close option */
-int ignorewerr; /* true if write() errors should be ignored */
-int iptos = -1; /* IP_TOS opton */
-int ipttl = -1; /* IP_TTL opton */
-char joinip[32]; /* multicast IP address, dotted-decimal string */
-int keepalive; /* SO_KEEPALIVE */
-long linger = -1; /* 0 or positive turns on option */
-int listenq = 5; /* listen queue for TCP Server */
-char localip[32]; /* local IP address, dotted-decimal string */
-int maxseg; /* TCP_MAXSEG */
-int mcastttl; /* multicast TTL */
-int msgpeek; /* MSG_PEEK */
-int nodelay; /* TCP_NODELAY (Nagle algorithm) */
-int nbuf = 1024; /* number of buffers to write (sink mode) */
-int onesbcast; /* set IP_ONESBCAST for 255.255.255.255 bcasts */
-int pauseclose; /* #ms to sleep after recv FIN, before close */
-int pauseinit; /* #ms to sleep before first read */
-int pauselisten; /* #ms to sleep after listen() */
-int pauserw; /* #ms to sleep before each read or write */
-int reuseaddr; /* SO_REUSEADDR */
-int reuseport; /* SO_REUSEPORT */
-int readlen = 1024; /* default read length for socket */
+int broadcast;       /* SO_BROADCAST */
+int cbreak;          /* set terminal to cbreak mode */
+int chunkwrite;      /* write in small chunks; not all-at-once */
+int client = 1;      /* acting as client is the default */
+int connectudp = 1;  /* connect UDP client */
+int crlf;            /* convert newline to CR/LF & vice versa */
+int debug;           /* SO_DEBUG */
+int dofork;          /* concurrent server, do a fork() */
+int dontroute;       /* SO_DONTROUTE */
+char foreignip[32];  /* foreign IP address, dotted-decimal string */
+int foreignport;     /* foreign port number */
+int halfclose;       /* TCP half close option */
+int ignorewerr;      /* true if write() errors should be ignored */
+int iptos = -1;      /* IP_TOS opton */
+int ipttl = -1;      /* IP_TTL opton */
+char joinip[32];     /* multicast IP address, dotted-decimal string */
+int keepalive;       /* SO_KEEPALIVE */
+long linger = -1;    /* 0 or positive turns on option */
+int listenq = 5;     /* listen queue for TCP Server */
+char localip[32];    /* local IP address, dotted-decimal string */
+int maxseg;          /* TCP_MAXSEG */
+int mcastttl;        /* multicast TTL */
+int msgpeek;         /* MSG_PEEK */
+int nodelay;         /* TCP_NODELAY (Nagle algorithm) */
+int nbuf = 1024;     /* number of buffers to write (sink mode) */
+int onesbcast;       /* set IP_ONESBCAST for 255.255.255.255 bcasts */
+int pauseclose;      /* #ms to sleep after recv FIN, before close */
+int pauseinit;       /* #ms to sleep before first read */
+int pauselisten;     /* #ms to sleep after listen() */
+int pauserw;         /* #ms to sleep before each read or write */
+int reuseaddr;       /* SO_REUSEADDR */
+int reuseport;       /* SO_REUSEPORT */
+int readlen = 1024;  /* default read length for socket */
 int writelen = 1024; /* default write length for socket */
-int recvdstaddr; /* IP_RECVDSTADDR option */
-int rcvbuflen; /* size for SO_RCVBUF */
-int sndbuflen; /* size for SO_SNDBUF */
-long rcvtimeo; /* SO_RCVTIMEO */
-long sndtimeo; /* SO_SNDTIMEO */
-int sroute_cnt; /* count of #IP addresses in route */
-char* rbuf; /* pointer that is malloc'ed */
-char* wbuf; /* pointer that is malloc'ed */
-int server; /* to act as server requires -s option */
-int sigio; /* send SIGIO */
-int sourcesink; /* source/sink mode */
-int udp; /* use UDP instead of TCP */
-int urgwrite; /* write urgent byte after this write */
-int verbose; /* each -v increments this by 1 */
-int usewritev; /* use writev() instead of write() */
+int recvdstaddr;     /* IP_RECVDSTADDR option */
+int rcvbuflen;       /* size for SO_RCVBUF */
+int sndbuflen;       /* size for SO_SNDBUF */
+long rcvtimeo;       /* SO_RCVTIMEO */
+long sndtimeo;       /* SO_SNDTIMEO */
+int sroute_cnt;      /* count of #IP addresses in route */
+char* rbuf;          /* pointer that is malloc'ed */
+char* wbuf;          /* pointer that is malloc'ed */
+int server;          /* to act as server requires -s option */
+int sigio;           /* send SIGIO */
+int sourcesink;      /* source/sink mode */
+int udp;             /* use UDP instead of TCP */
+int urgwrite;        /* write urgent byte after this write */
+int verbose;         /* each -v increments this by 1 */
+int usewritev;       /* use writev() instead of write() */
 
 struct sockaddr_in cliaddr, servaddr;
 
@@ -74,11 +74,12 @@ int main(int argc, char* argv[])
     int c, fd;
     char* ptr;
 
-    if (argc < 2)
-        usage("");
+    if (argc < 2) usage("");
 
     opterr = 0; /* don't want getopt() writing to stderr */
-    while ((c = getopt(argc, argv, "2b:cf:g:hij:kl:n:op:q:r:st:uvw:x:y:ABCDEFG:H:IJ:KL:NO:P:Q:R:S:TU:VWX:YZ")) != -1) {
+    while ((c = getopt(argc, argv,
+                       "2b:cf:g:hij:kl:n:op:q:r:st:uvw:x:y:ABCDEFG:H:IJ:KL:NO:"
+                       "P:Q:R:S:TU:VWX:YZ")) != -1) {
         switch (c) {
 #ifdef IP_ONESBCAST
         case '2': /* use 255.255.255.255 as broadcast address */
@@ -98,8 +99,8 @@ int main(int argc, char* argv[])
             if ((ptr = strrchr(optarg, '.')) == NULL)
                 usage("invalid -f option");
 
-            *ptr++ = 0; /* null replaces final period */
-            foreignport = atoi(ptr); /* port number */
+            *ptr++ = 0;                /* null replaces final period */
+            foreignport = atoi(ptr);   /* port number */
             strcpy(foreignip, optarg); /* save dotted-decimal IP */
             break;
 
@@ -116,7 +117,7 @@ int main(int argc, char* argv[])
             break;
 
 #ifdef IP_ADD_MEMBERSHIP
-        case 'j': /* join multicast group a.b.c.d */
+        case 'j':                   /* join multicast group a.b.c.d */
             strcpy(joinip, optarg); /* save dotted-decimal IP */
             break;
 #endif
@@ -129,8 +130,8 @@ int main(int argc, char* argv[])
             if ((ptr = strrchr(optarg, '.')) == NULL)
                 usage("invalid -l option");
 
-            *ptr++ = 0; /* null replaces final period */
-            bindport = atoi(ptr); /* port number */
+            *ptr++ = 0;              /* null replaces final period */
+            bindport = atoi(ptr);    /* port number */
             strcpy(localip, optarg); /* save dotted-decimal IP */
             break;
 
@@ -298,39 +299,29 @@ int main(int argc, char* argv[])
     }
 
     /* check for options that don't make sense */
-    if (udp && halfclose)
-        usage("can't specify -h and -u");
-    if (udp && debug)
-        usage("can't specify -D and -u");
-    if (udp && linger >= 0)
-        usage("can't specify -L and -u");
-    if (udp && nodelay)
-        usage("can't specify -N and -u");
+    if (udp && halfclose) usage("can't specify -h and -u");
+    if (udp && debug) usage("can't specify -D and -u");
+    if (udp && linger >= 0) usage("can't specify -L and -u");
+    if (udp && nodelay) usage("can't specify -N and -u");
 #ifdef notdef
-    if (udp == 0 && broadcast)
-        usage("can't specify -B with TCP");
+    if (udp == 0 && broadcast) usage("can't specify -B with TCP");
 #endif
-    if (udp == 0 && foreignip[0] != 0)
-        usage("can't specify -f with TCP");
+    if (udp == 0 && foreignip[0] != 0) usage("can't specify -f with TCP");
 
     if (client) {
-        if (optind != argc - 2)
-            usage("missing <hostname> and/or <port>");
+        if (optind != argc - 2) usage("missing <hostname> and/or <port>");
         host = argv[optind];
         port = argv[optind + 1];
-    }
-    else {
+    } else {
         /* If server specifies host and port, then local address is
-			   bound to the "host" argument, instead of being wildcarded. */
+               bound to the "host" argument, instead of being wildcarded. */
         if (optind == argc - 2) {
             host = argv[optind];
             port = argv[optind + 1];
-        }
-        else if (optind == argc - 1) {
+        } else if (optind == argc - 1) {
             host = NULL;
             port = argv[optind];
-        }
-        else
+        } else
             usage("missing <port>");
     }
 
@@ -345,15 +336,13 @@ int main(int argc, char* argv[])
                 source_udp(fd);
             else
                 source_tcp(fd);
-        }
-        else {
+        } else {
             if (udp)
                 sink_udp(fd);
             else
                 sink_tcp(fd);
         }
-    }
-    else { /* copy stdin/stdout to/from socket */
+    } else { /* copy stdin/stdout to/from socket */
         if (udp)
             loop_udp(fd);
         else
@@ -363,26 +352,32 @@ int main(int argc, char* argv[])
     exit(0);
 }
 
-static void
-usage(const char* msg)
+static void usage(const char* msg)
 {
     err_msg(
-        "usage: sock [ options ] <host> <port>              (for client; default)\n"
+        "usage: sock [ options ] <host> <port>              (for client; "
+        "default)\n"
         "       sock [ options ] -s [ <IPaddr> ] <port>     (for server)\n"
-        "       sock [ options ] -i <host> <port>           (for \"source\" client)\n"
-        "       sock [ options ] -i -s [ <IPaddr> ] <port>  (for \"sink\" server)\n"
+        "       sock [ options ] -i <host> <port>           (for \"source\" "
+        "client)\n"
+        "       sock [ options ] -i -s [ <IPaddr> ] <port>  (for \"sink\" "
+        "server)\n"
         "options: -b n  bind n as client's local port number\n"
         "         -c    convert newline to CR/LF & vice versa\n"
-        "         -f a.b.c.d.p  foreign IP address = a.b.c.d, foreign port # = p\n"
+        "         -f a.b.c.d.p  foreign IP address = a.b.c.d, foreign port # = "
+        "p\n"
         "         -g a.b.c.d  loose source route\n"
         "         -h    issue TCP half close on standard input EOF\n"
-        "         -i    \"source\" data to socket, \"sink\" data from socket (w/-s)\n"
+        "         -i    \"source\" data to socket, \"sink\" data from socket "
+        "(w/-s)\n"
 #ifdef IP_ADD_MEMBERSHIP
         "         -j a.b.c.d  join multicast group\n"
 #endif
         "         -k    write or writev in chunks\n"
-        "         -l a.b.c.d.p  client's local IP address = a.b.c.d, local port # = p\n"
-        "         -n n  # buffers to write for \"source\" client (default 1024)\n"
+        "         -l a.b.c.d.p  client's local IP address = a.b.c.d, local "
+        "port # = p\n"
+        "         -n n  # buffers to write for \"source\" client (default "
+        "1024)\n"
         "         -o    do NOT connect UDP client\n"
         "         -p n  # ms to pause before each read or write (source/sink)\n"
         "         -q n  size of listen queue for TCP server (default 5)\n"
@@ -393,7 +388,8 @@ usage(const char* msg)
 #endif
         "         -u    use UDP instead of TCP\n"
         "         -v    verbose\n"
-        "         -w n  # bytes per write() for \"source\" client (default 1024)\n"
+        "         -w n  # bytes per write() for \"source\" client (default "
+        "1024)\n"
         "         -x n  # ms for SO_RCVTIMEO (receive timeout)\n"
         "         -y n  # ms for SO_SNDTIMEO (send timeout)\n"
         "         -A    SO_REUSEADDR option\n"
@@ -401,10 +397,12 @@ usage(const char* msg)
         "         -C    set terminal to cbreak mode\n"
         "         -D    SO_DEBUG option\n"
         "         -E    IP_RECVDSTADDR option\n"
-        "         -F    fork after connection accepted (TCP concurrent server)\n"
+        "         -F    fork after connection accepted (TCP concurrent "
+        "server)\n"
         "         -G a.b.c.d  strict source route\n"
 #ifdef IP_TOS
-        "         -H n  IP_TOS option (16=min del, 8=max thru, 4=max rel, 2=min$)\n"
+        "         -H n  IP_TOS option (16=min del, 8=max thru, 4=max rel, "
+        "2=min$)\n"
 #endif
         "         -I    SIGIO signal\n"
 #ifdef IP_TTL
@@ -414,7 +412,8 @@ usage(const char* msg)
         "         -L n  SO_LINGER option, n = linger time\n"
         "         -N    TCP_NODELAY option\n"
         "         -O n  # ms to pause after listen, but before first accept\n"
-        "         -P n  # ms to pause before first read or write (source/sink)\n"
+        "         -P n  # ms to pause before first read or write "
+        "(source/sink)\n"
         "         -Q n  # ms to pause after receiving FIN, but before close\n"
         "         -R n  SO_RCVBUF option\n"
         "         -S n  SO_SNDBUF option\n"
@@ -432,7 +431,6 @@ usage(const char* msg)
 #endif
         );
 
-    if (msg[0] != 0)
-        err_quit("%s", msg);
+    if (msg[0] != 0) err_quit("%s", msg);
     exit(1);
 }

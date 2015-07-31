@@ -15,16 +15,14 @@ int readable_listen(void)
             break;
         }
     if (i == FD_SETSIZE) {
-        close(connfd); /* can't handle new client, */
+        close(connfd);     /* can't handle new client, */
         return (--nready); /* rudely close the new connection */
     }
     printf("new connection, i = %d, connfd = %d\n", i, connfd);
 
-    FD_SET(connfd, &allset); /* add new descriptor to set */
-    if (connfd > maxfd)
-        maxfd = connfd; /* for select() */
-    if (i > maxi)
-        maxi = i; /* max index in client[] array */
+    FD_SET(connfd, &allset);            /* add new descriptor to set */
+    if (connfd > maxfd) maxfd = connfd; /* for select() */
+    if (i > maxi) maxi = i;             /* max index in client[] array */
 
     return (--nready);
 }

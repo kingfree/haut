@@ -1,8 +1,7 @@
 /* include signal */
 #include "unp.h"
 
-Sigfunc*
-signal(int signo, Sigfunc* func)
+Sigfunc* signal(int signo, Sigfunc* func)
 {
     struct sigaction act, oact;
 
@@ -13,24 +12,20 @@ signal(int signo, Sigfunc* func)
 #ifdef SA_INTERRUPT
         act.sa_flags |= SA_INTERRUPT; /* SunOS 4.x */
 #endif
-    }
-    else {
+    } else {
 #ifdef SA_RESTART
         act.sa_flags |= SA_RESTART; /* SVR4, 44BSD */
 #endif
     }
-    if (sigaction(signo, &act, &oact) < 0)
-        return (SIG_ERR);
+    if (sigaction(signo, &act, &oact) < 0) return (SIG_ERR);
     return (oact.sa_handler);
 }
 /* end signal */
 
-Sigfunc*
-Signal(int signo, Sigfunc* func) /* 包装我们的 signal() 函数 */
+Sigfunc* Signal(int signo, Sigfunc* func) /* 包装我们的 signal() 函数 */
 {
     Sigfunc* sigfunc;
 
-    if ((sigfunc = signal(signo, func)) == SIG_ERR)
-        err_sys("signal 错误");
+    if ((sigfunc = signal(signo, func)) == SIG_ERR) err_sys("signal 错误");
     return (sigfunc);
 }

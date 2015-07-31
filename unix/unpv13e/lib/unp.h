@@ -5,16 +5,16 @@
 #define __unp_h
 
 #include "../config.h" /* 当前操作系统的配置选项 */
-/* "../config.h" 用 configure 生成 */
+                       /* "../config.h" 用 configure 生成 */
 
 /* 如果改动了以下 #includes 列表，必须同时改动
    acsite.m4 以通过 configure 的测试。 */
 
-#include <sys/types.h> /* 基本系统数据类型 */
+#include <sys/types.h>  /* 基本系统数据类型 */
 #include <sys/socket.h> /* 基本套接字定义 */
 #if TIME_WITH_SYS_TIME
 #include <sys/time.h> /* timeval{} 用于 select() */
-#include <time.h> /* timespec{} 用于 pselect() */
+#include <time.h>     /* timespec{} 用于 pselect() */
 #else
 #if HAVE_SYS_TIME_H
 #include <sys/time.h> /* 不安全地包含 <time.h> */
@@ -23,7 +23,7 @@
 #endif
 #endif
 #include <netinet/in.h> /* sockaddr_in{} 和其他因特网定义 */
-#include <arpa/inet.h> /* inet(3) 函数 */
+#include <arpa/inet.h>  /* inet(3) 函数 */
 #include <errno.h>
 #include <fcntl.h> /* 用于非阻塞 */
 #include <netdb.h>
@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h> /* 用于 S_xxx 文件模式常量 */
-#include <sys/uio.h> /* 用于 iovec{} 和 readv/writev */
+#include <sys/uio.h>  /* 用于 iovec{} 和 readv/writev */
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/un.h> /* 用于 Unix 域套接字 */
@@ -98,9 +98,9 @@
 #define INADDR_NONE 0xffffffff /* should have been in <netinet/in.h> */
 #endif
 
-#ifndef SHUT_RD /* these three POSIX names are new */
-#define SHUT_RD 0 /* shutdown for reading */
-#define SHUT_WR 1 /* shutdown for writing */
+#ifndef SHUT_RD     /* these three POSIX names are new */
+#define SHUT_RD 0   /* shutdown for reading */
+#define SHUT_WR 1   /* shutdown for writing */
 #define SHUT_RDWR 2 /* shutdown for reading and writing */
 /* $$.Ic SHUT_RD$$ */
 /* $$.Ic SHUT_WR$$ */
@@ -110,18 +110,20 @@
 /* *INDENT-OFF* */
 #ifndef INET_ADDRSTRLEN
 /* $$.Ic INET_ADDRSTRLEN$$ */
-#define INET_ADDRSTRLEN 16 /* "ddd.ddd.ddd.ddd\0" \
-                                                       1234567890123456 */
+#define INET_ADDRSTRLEN       \
+    16 /* "ddd.ddd.ddd.ddd\0" \
+                                   1234567890123456 */
 #endif
 
 /* Define following even if IPv6 not supported, so we can always allocate
    an adequately sized buffer without #ifdefs in the code. */
 #ifndef INET6_ADDRSTRLEN
 /* $$.Ic INET6_ADDRSTRLEN$$ */
-#define INET6_ADDRSTRLEN 46 /* max size of IPv6 address string:          \
-                       "xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx" or      \
-                       "xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:ddd.ddd.ddd.ddd\0" \
-                        1234567890123456789012345678901234567890123456 */
+#define INET6_ADDRSTRLEN                            \
+    46 /* max size of IPv6 address string:          \
+  "xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx" or      \
+  "xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:ddd.ddd.ddd.ddd\0" \
+   1234567890123456789012345678901234567890123456 */
 #endif
 /* *INDENT-ON* */
 
@@ -140,7 +142,7 @@
 /* The structure returned by recvfrom_flags() */
 struct unp_in_pktinfo {
     struct in_addr ipi_addr; /* dst IPv4 address */
-    int ipi_ifindex; /* received interface index */
+    int ipi_ifindex;         /* received interface index */
 };
 /* $$.It unp_in_pktinfo$$ */
 /* $$.Ib ipi_addr$$ */
@@ -193,14 +195,14 @@ struct unp_in_pktinfo {
 #define LISTENQ 1024 /* 2nd argument to listen() */
 
 /* Miscellaneous constants */
-#define MAXLINE 4096 /* max text line length */
+#define MAXLINE 4096  /* max text line length */
 #define BUFFSIZE 8192 /* buffer size for reads and writes */
 
 /* Define some port number that can be used for our examples */
-#define SERV_PORT 9877 /* TCP and UDP */
-#define SERV_PORT_STR "9877" /* TCP and UDP */
+#define SERV_PORT 9877               /* TCP and UDP */
+#define SERV_PORT_STR "9877"         /* TCP and UDP */
 #define UNIXSTR_PATH "/tmp/unix.str" /* Unix domain stream */
-#define UNIXDG_PATH "/tmp/unix.dg" /* Unix domain datagram */
+#define UNIXDG_PATH "/tmp/unix.dg"   /* Unix domain datagram */
 /* $$.ix [LISTENQ]~constant,~definition~of$$ */
 /* $$.ix [MAXLINE]~constant,~definition~of$$ */
 /* $$.ix [BUFFSIZE]~constant,~definition~of$$ */
@@ -252,7 +254,7 @@ typedef void Sigfunc(int); /* 用于信号处理 */
 #ifndef HAVE_IF_NAMEINDEX_STRUCT
 struct if_nameindex {
     unsigned int if_index; /* 1, 2, ... */
-    char* if_name; /* null-terminated name: "le0", ... */
+    char* if_name;         /* null-terminated name: "le0", ... */
 };
 /* $$.It if_nameindex$$ */
 /* $$.Ib if_index$$ */
@@ -262,7 +264,7 @@ struct if_nameindex {
 #ifndef HAVE_TIMESPEC_STRUCT
 struct timespec {
     time_t tv_sec; /* 秒 */
-    long tv_nsec; /* 纳秒 */
+    long tv_nsec;  /* 纳秒 */
 };
 /* $$.It timespec$$ */
 /* $$.Ib tv_sec$$ */
@@ -292,7 +294,7 @@ ssize_t readline(int, void*, size_t);
 ssize_t readn(int, void*, size_t);
 ssize_t read_fd(int, void*, size_t, int*);
 ssize_t recvfrom_flags(int, void*, size_t, int*, SA*, socklen_t*,
-    struct unp_in_pktinfo*);
+                       struct unp_in_pktinfo*);
 Sigfunc* signal_intr(int, Sigfunc*);
 int sock_bind_wild(int, int);
 int sock_cmp_addr(const SA*, const SA*, socklen_t);
@@ -320,14 +322,14 @@ ssize_t write_fd(int, void*, size_t, int);
 int mcast_leave(int, const SA*, socklen_t);
 int mcast_join(int, const SA*, socklen_t, const char*, u_int);
 int mcast_leave_source_group(int sockfd, const SA* src, socklen_t srclen,
-    const SA* grp, socklen_t grplen);
+                             const SA* grp, socklen_t grplen);
 int mcast_join_source_group(int sockfd, const SA* src, socklen_t srclen,
-    const SA* grp, socklen_t grplen,
-    const char* ifname, u_int ifindex);
+                            const SA* grp, socklen_t grplen, const char* ifname,
+                            u_int ifindex);
 int mcast_block_source(int sockfd, const SA* src, socklen_t srclen,
-    const SA* grp, socklen_t grplen);
+                       const SA* grp, socklen_t grplen);
 int mcast_unblock_source(int sockfd, const SA* src, socklen_t srclen,
-    const SA* grp, socklen_t grplen);
+                         const SA* grp, socklen_t grplen);
 int mcast_get_if(int);
 int mcast_get_loop(int);
 int mcast_get_ttl(int);
@@ -338,14 +340,14 @@ int mcast_set_ttl(int, int);
 void Mcast_leave(int, const SA*, socklen_t);
 void Mcast_join(int, const SA*, socklen_t, const char*, u_int);
 void Mcast_leave_source_group(int sockfd, const SA* src, socklen_t srclen,
-    const SA* grp, socklen_t grplen);
+                              const SA* grp, socklen_t grplen);
 void Mcast_join_source_group(int sockfd, const SA* src, socklen_t srclen,
-    const SA* grp, socklen_t grplen,
-    const char* ifname, u_int ifindex);
+                             const SA* grp, socklen_t grplen,
+                             const char* ifname, u_int ifindex);
 void Mcast_block_source(int sockfd, const SA* src, socklen_t srclen,
-    const SA* grp, socklen_t grplen);
+                        const SA* grp, socklen_t grplen);
 void Mcast_unblock_source(int sockfd, const SA* src, socklen_t srclen,
-    const SA* grp, socklen_t grplen);
+                          const SA* grp, socklen_t grplen);
 int Mcast_get_if(int);
 int Mcast_get_loop(int);
 int Mcast_get_ttl(int);
@@ -358,7 +360,7 @@ uint16_t in_cksum(uint16_t*, int);
 
 #ifndef HAVE_GETADDRINFO_PROTO
 int getaddrinfo(const char*, const char*, const struct addrinfo*,
-    struct addrinfo**);
+                struct addrinfo**);
 void freeaddrinfo(struct addrinfo*);
 char* gai_strerror(int);
 #endif
@@ -392,8 +394,8 @@ int inet_aton(const char*, struct in_addr*);
 #endif
 
 #ifndef HAVE_PSELECT_PROTO
-int pselect(int, fd_set*, fd_set*, fd_set*,
-    const struct timespec*, const sigset_t*);
+int pselect(int, fd_set*, fd_set*, fd_set*, const struct timespec*,
+            const sigset_t*);
 #endif
 
 #ifndef HAVE_SOCKATMARK_PROTO
@@ -417,7 +419,7 @@ char** My_addrs(int*);
 ssize_t Read_fd(int, void*, size_t, int*);
 int Readable_timeo(int, int);
 ssize_t Recvfrom_flags(int, void*, size_t, int*, SA*, socklen_t*,
-    struct unp_in_pktinfo*);
+                       struct unp_in_pktinfo*);
 Sigfunc* Signal(int, Sigfunc*);
 Sigfunc* Signal_intr(int, Sigfunc*);
 int Sock_bind_wild(int, int);
@@ -485,8 +487,8 @@ struct in6_addr* Inet6_rth_getaddr(const void*, int);
 #endif
 #ifdef HAVE_KQUEUE
 int Kqueue(void);
-int Kevent(int, const struct kevent*, int,
-    struct kevent*, int, const struct timespec*);
+int Kevent(int, const struct kevent*, int, struct kevent*, int,
+           const struct timespec*);
 #endif
 void Listen(int, int);
 #ifdef HAVE_POLL

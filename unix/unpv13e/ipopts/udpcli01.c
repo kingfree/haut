@@ -7,8 +7,7 @@ int main(int argc, char** argv)
     void* rth;
     struct addrinfo* ai;
 
-    if (argc < 2)
-        err_quit("usage: udpcli01 [ <hostname> ... ] <hostname>");
+    if (argc < 2) err_quit("usage: udpcli01 [ <hostname> ... ] <hostname>");
 
     if (argc > 2) {
         int i;

@@ -25,9 +25,9 @@ void* doit(void* vptr)
     int i, val;
 
     /*
-	 * Each thread fetches, prints, and increments the counter NLOOP times.
-	 * The value of the counter should increase monotonically.
-	 */
+     * Each thread fetches, prints, and increments the counter NLOOP times.
+     * The value of the counter should increase monotonically.
+     */
 
     for (i = 0; i < NLOOP; i++) {
         val = counter;

@@ -4,10 +4,10 @@
 #define __ourhdr_h
 
 #include <sys/types.h> /* required for some of our prototypes */
-#include <stdio.h> /* for convenience */
-#include <stdlib.h> /* for convenience */
-#include <string.h> /* for convenience */
-#include <unistd.h> /* for convenience */
+#include <stdio.h>     /* for convenience */
+#include <stdlib.h>    /* for convenience */
+#include <string.h>    /* for convenience */
+#include <unistd.h>    /* for convenience */
 
 #ifdef notdef /* delete for systems that don't define this (SunOS 4.x) */
 typedef int ssize_t;
@@ -40,43 +40,43 @@ typedef void Sigfunc(int); /* for signal handlers */
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
 /* prototypes for our own functions */
-char* path_alloc(int*); /* {Prog pathalloc} */
-int open_max(void); /* {Prog openmax} */
-void clr_fl(int, int); /* {Prog setfl} */
-void set_fl(int, int); /* {Prog setfl} */
-void pr_exit(int); /* {Prog prexit} */
-void pr_mask(const char*); /* {Prog prmask} */
+char* path_alloc(int*);              /* {Prog pathalloc} */
+int open_max(void);                  /* {Prog openmax} */
+void clr_fl(int, int);               /* {Prog setfl} */
+void set_fl(int, int);               /* {Prog setfl} */
+void pr_exit(int);                   /* {Prog prexit} */
+void pr_mask(const char*);           /* {Prog prmask} */
 Sigfunc* signal_intr(int, Sigfunc*); /* {Prog signal_intr_function} */
 
-int tty_cbreak(int); /* {Prog raw} */
-int tty_raw(int); /* {Prog raw} */
-int tty_reset(int); /* {Prog raw} */
-void tty_atexit(void); /* {Prog raw} */
-#ifdef ECHO /* only if <termios.h> has been included */
+int tty_cbreak(int);               /* {Prog raw} */
+int tty_raw(int);                  /* {Prog raw} */
+int tty_reset(int);                /* {Prog raw} */
+void tty_atexit(void);             /* {Prog raw} */
+#ifdef ECHO                        /* only if <termios.h> has been included */
 struct termios* tty_termios(void); /* {Prog raw} */
 #endif
 
-void sleep_us(unsigned int); /* {Ex sleepus} */
-ssize_t readn(int, void*, size_t); /* {Prog readn} */
+void sleep_us(unsigned int);              /* {Ex sleepus} */
+ssize_t readn(int, void*, size_t);        /* {Prog readn} */
 ssize_t writen(int, const void*, size_t); /* {Prog writen} */
-int daemon_init(void); /* {Prog daemoninit} */
+int daemon_init(void);                    /* {Prog daemoninit} */
 
 int s_pipe(int*); /* {Progs svr4_spipe bsd_spipe} */
 int recv_fd(int, ssize_t (*func)(int, const void*, size_t));
 /* {Progs recvfd_svr4 recvfd_43bsd} */
-int send_fd(int, int); /* {Progs sendfd_svr4 sendfd_43bsd} */
+int send_fd(int, int);               /* {Progs sendfd_svr4 sendfd_43bsd} */
 int send_err(int, int, const char*); /* {Prog senderr} */
 int serv_listen(const char*); /* {Progs servlisten_svr4 servlisten_44bsd} */
 int serv_accept(int, uid_t*); /* {Progs servaccept_svr4 servaccept_44bsd} */
-int cli_conn(const char*); /* {Progs cliconn_svr4 cliconn_44bsd} */
+int cli_conn(const char*);    /* {Progs cliconn_svr4 cliconn_44bsd} */
 int buf_args(char*, int (*func)(int, char**));
 /* {Prog bufargs} */
 
-int ptym_open(char*); /* {Progs ptyopen_svr4 ptyopen_44bsd} */
+int ptym_open(char*);      /* {Progs ptyopen_svr4 ptyopen_44bsd} */
 int ptys_open(int, char*); /* {Progs ptyopen_svr4 ptyopen_44bsd} */
 #ifdef TIOCGWINSZ
 pid_t pty_fork(int*, char*, const struct termios*,
-    const struct winsize*); /* {Prog ptyfork} */
+               const struct winsize*); /* {Prog ptyfork} */
 #endif
 
 int lock_reg(int, int, int, off_t, int, off_t);

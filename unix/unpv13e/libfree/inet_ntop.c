@@ -17,7 +17,8 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$Id: inet_ntop.c,v 1.1.1.1 2002/11/14 03:33:35 fenner Exp $";
+static char rcsid[] =
+    "$Id: inet_ntop.c,v 1.1.1.1 2002/11/14 03:33:35 fenner Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/param.h>
@@ -52,8 +53,7 @@ static const char* inet_ntop6(const u_char* src, char* dst, size_t size);
  * author:
  *	Paul Vixie, 1996.
  */
-const char*
-    inet_ntop(af, src, dst, size) int af;
+const char* inet_ntop(af, src, dst, size) int af;
 const void* src;
 char* dst;
 size_t size;
@@ -81,9 +81,7 @@ size_t size;
  * author:
  *	Paul Vixie, 1996.
  */
-static const char*
-    inet_ntop4(src, dst, size)
-        const u_char* src;
+static const char* inet_ntop4(src, dst, size) const u_char* src;
 char* dst;
 size_t size;
 {
@@ -105,19 +103,17 @@ size_t size;
  * author:
  *	Paul Vixie, 1996.
  */
-static const char*
-    inet_ntop6(src, dst, size)
-        const u_char* src;
+static const char* inet_ntop6(src, dst, size) const u_char* src;
 char* dst;
 size_t size;
 {
     /*
-	 * Note that int32_t and int16_t need only be "at least" large enough
-	 * to contain a value of the specified size.  On some systems, like
-	 * Crays, there is no such thing as an integer variable with 16 bits.
-	 * Keep this in mind if you think this function should have been coded
-	 * to use pointer overlays.  All the world's not a VAX.
-	 */
+     * Note that int32_t and int16_t need only be "at least" large enough
+     * to contain a value of the specified size.  On some systems, like
+     * Crays, there is no such thing as an integer variable with 16 bits.
+     * Keep this in mind if you think this function should have been coded
+     * to use pointer overlays.  All the world's not a VAX.
+     */
     char tmp[sizeof "ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255"], *tp;
     struct {
         int base, len;
@@ -126,10 +122,10 @@ size_t size;
     int i;
 
     /*
-	 * Preprocess:
-	 *	Copy the input (bytewise) array into a wordwise array.
-	 *	Find the longest run of 0x00's in src[] for :: shorthanding.
-	 */
+     * Preprocess:
+     *	Copy the input (bytewise) array into a wordwise array.
+     *	Find the longest run of 0x00's in src[] for :: shorthanding.
+     */
     memset(words, 0, sizeof words);
     for (i = 0; i < IN6ADDRSZ; i++)
         words[i / 2] |= (src[i] << ((1 - (i % 2)) << 3));
@@ -141,38 +137,33 @@ size_t size;
                 cur.base = i, cur.len = 1;
             else
                 cur.len++;
-        }
-        else {
+        } else {
             if (cur.base != -1) {
-                if (best.base == -1 || cur.len > best.len)
-                    best = cur;
+                if (best.base == -1 || cur.len > best.len) best = cur;
                 cur.base = -1;
             }
         }
     }
     if (cur.base != -1) {
-        if (best.base == -1 || cur.len > best.len)
-            best = cur;
+        if (best.base == -1 || cur.len > best.len) best = cur;
     }
-    if (best.base != -1 && best.len < 2)
-        best.base = -1;
+    if (best.base != -1 && best.len < 2) best.base = -1;
 
     /*
-	 * Format the result.
-	 */
+     * Format the result.
+     */
     tp = tmp;
     for (i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
         /* Are we inside the best run of 0x00's? */
         if (best.base != -1 && i >= best.base && i < (best.base + best.len)) {
-            if (i == best.base)
-                *tp++ = ':';
+            if (i == best.base) *tp++ = ':';
             continue;
         }
         /* Are we following an initial run of 0x00s or any real hex? */
-        if (i != 0)
-            *tp++ = ':';
+        if (i != 0) *tp++ = ':';
         /* Is this address an encapsulated IPv4? */
-        if (i == 6 && best.base == 0 && (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
+        if (i == 6 && best.base == 0 &&
+            (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
             if (!inet_ntop4(src + 12, tp, sizeof tmp - (tp - tmp)))
                 return (NULL);
             tp += strlen(tp);
@@ -187,8 +178,8 @@ size_t size;
     *tp++ = '\0';
 
     /*
-	 * Check for overflow, copy, and we're done.
-	 */
+     * Check for overflow, copy, and we're done.
+     */
     if ((tp - tmp) > size) {
         errno = ENOSPC;
         return (NULL);

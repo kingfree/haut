@@ -7,8 +7,7 @@ static int canjump;
 
 void sig_alrm(int signo)
 {
-    if (canjump == 0)
-        return;
+    if (canjump == 0) return;
     siglongjmp(jmpbuf, 1);
 }
 /* end sig_alrm */
@@ -22,8 +21,7 @@ void test_udp(void)
     Signal(SIGALRM, sig_alrm);
 
     if (sigsetjmp(jmpbuf, 1)) {
-        if (nsent >= 3)
-            err_quit("no response");
+        if (nsent >= 3) err_quit("no response");
         printf("timeout\n");
         timeout *= 2; /* exponential backoff: 3, 6, 12 */
     }
@@ -41,7 +39,6 @@ void test_udp(void)
         printf("UDP checksums off\n");
     else
         printf("UDP checksums on\n");
-    if (verbose)
-        printf("received UDP checksum = %x\n", ntohs(ui->ui_sum));
+    if (verbose) printf("received UDP checksum = %x\n", ntohs(ui->ui_sum));
 }
 /* end test_udp */

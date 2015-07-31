@@ -21,7 +21,7 @@ int main(int argc, char** argv)
     printf("thread ID of main: %d\n", pthread_self());
 
     /* Let's verify that the value pointed to the thread's argument is
-	   modifiable */
+       modifiable */
     val = 123;
     if ((n = pthread_create(&tid, NULL, myfunc, &val)) != 0)
         errno = n, err_sys("pthread_create error");

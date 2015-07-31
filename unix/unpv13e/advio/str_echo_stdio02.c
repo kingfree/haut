@@ -8,6 +8,5 @@ void str_echo(int sockfd)
     fpin = Fdopen(sockfd, "r");
     fpout = Fdopen(sockfd, "w");
 
-    while (Fgets(line, MAXLINE, fpin) != NULL)
-        Fputs(line, fpout);
+    while (Fgets(line, MAXLINE, fpin) != NULL) Fputs(line, fpout);
 }

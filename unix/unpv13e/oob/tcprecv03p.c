@@ -18,8 +18,7 @@ int main(int argc, char** argv)
     pollfd[0].fd = connfd;
     pollfd[0].events = POLLRDNORM;
     for (;;) {
-        if (justreadoob == 0)
-            pollfd[0].events |= POLLRDBAND;
+        if (justreadoob == 0) pollfd[0].events |= POLLRDBAND;
 
         Poll(pollfd, 1, INFTIM);
 

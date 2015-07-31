@@ -8,8 +8,7 @@ int main(int argc, char** argv)
     int sockfd, nbytes;
     ssize_t n;
 
-    if (argc != 3)
-        err_quit("usage: tshutdown <hostname> <service>");
+    if (argc != 3) err_quit("usage: tshutdown <hostname> <service>");
 
     sockfd = Tcp_connect(argv[1], argv[2]);
     fprintf(stderr, "connected\n");

@@ -5,8 +5,8 @@
  */
 
 /* include ga_echeck */
-int ga_echeck(const char* hostname, const char* servname,
-    int flags, int family, int socktype, int protocol)
+int ga_echeck(const char* hostname, const char* servname, int flags, int family,
+              int socktype, int protocol)
 {
     if (flags & ~(AI_PASSIVE | AI_CANONNAME))
         return (EAI_BADFLAGS); /* unknown flag bits */
@@ -21,19 +21,22 @@ int ga_echeck(const char* hostname, const char* servname,
         break;
 #ifdef IPv4
     case AF_INET:
-        if (socktype != 0 && (socktype != SOCK_STREAM && socktype != SOCK_DGRAM && socktype != SOCK_RAW))
+        if (socktype != 0 && (socktype != SOCK_STREAM &&
+                              socktype != SOCK_DGRAM && socktype != SOCK_RAW))
             return (EAI_SOCKTYPE); /* invalid socket type */
         break;
 #endif
 #ifdef IPv6
     case AF_INET6:
-        if (socktype != 0 && (socktype != SOCK_STREAM && socktype != SOCK_DGRAM && socktype != SOCK_RAW))
+        if (socktype != 0 && (socktype != SOCK_STREAM &&
+                              socktype != SOCK_DGRAM && socktype != SOCK_RAW))
             return (EAI_SOCKTYPE); /* invalid socket type */
         break;
 #endif
 #ifdef UNIXdomain
     case AF_LOCAL:
-        if (socktype != 0 && (socktype != SOCK_STREAM && socktype != SOCK_DGRAM))
+        if (socktype != 0 &&
+            (socktype != SOCK_STREAM && socktype != SOCK_DGRAM))
             return (EAI_SOCKTYPE); /* invalid socket type */
         break;
 #endif

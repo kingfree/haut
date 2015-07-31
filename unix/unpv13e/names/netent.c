@@ -8,8 +8,8 @@ int main(int argc, char** argv)
     while (--argc > 0) {
         ptr = *++argv;
         if ((nptr = getnetbyname(ptr)) == NULL) {
-            err_msg("getnetbyname error for net: %s: %s",
-                ptr, hstrerror(h_errno));
+            err_msg("getnetbyname error for net: %s: %s", ptr,
+                    hstrerror(h_errno));
             continue;
         }
         printf("official netname: %s\n", nptr->n_name);

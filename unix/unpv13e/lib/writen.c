@@ -27,6 +27,5 @@ ssize_t /* 向描述符中写出 "n" 个字节。 */
 
 void Writen(int fd, void* ptr, size_t nbytes)
 {
-    if (writen(fd, ptr, nbytes) != nbytes)
-        err_sys("writen 错误");
+    if (writen(fd, ptr, nbytes) != (ssize_t)nbytes) err_sys("writen 错误");
 }

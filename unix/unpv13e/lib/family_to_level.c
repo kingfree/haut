@@ -18,8 +18,7 @@ int Family_to_level(int family)
 {
     int rc;
 
-    if ((rc = family_to_level(family)) < 0)
-        err_sys("family_to_level error");
+    if ((rc = family_to_level(family)) < 0) err_sys("family_to_level error");
 
     return (rc);
 }

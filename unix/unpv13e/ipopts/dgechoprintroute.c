@@ -27,7 +27,8 @@ void dg_echo(int sockfd, SA* pcliaddr, socklen_t clilen)
 
         for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL;
              cmsg = CMSG_NXTHDR(&msg, cmsg)) {
-            if (cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_RTHDR) {
+            if (cmsg->cmsg_level == IPPROTO_IPV6 &&
+                cmsg->cmsg_type == IPV6_RTHDR) {
                 inet6_srcrt_print(CMSG_DATA(cmsg));
                 Inet6_rth_reverse(CMSG_DATA(cmsg), CMSG_DATA(cmsg));
             }

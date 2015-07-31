@@ -6,8 +6,7 @@ int main(int argc, char** argv)
     char recvline[MAXLINE + 1];
     struct sockaddr_in myaddr, servaddr;
 
-    if (argc != 2)
-        err_quit("usage: tpi_daytime <IPaddress>");
+    if (argc != 2) err_quit("usage: tpi_daytime <IPaddress>");
 
     fd = Open(XTI_TCP, O_RDWR, 0);
 

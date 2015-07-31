@@ -18,7 +18,6 @@ int main(int argc, char** argv)
     char buf[1024];
 
     n = snprintf(buf, 4, "%d", 9999);
-    if (n > 3)
-        printf("error: snprintf overflowed buffer, n = %d\n", n);
+    if (n > 3) printf("error: snprintf overflowed buffer, n = %d\n", n);
     exit(0);
 }

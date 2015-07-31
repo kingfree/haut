@@ -33,8 +33,7 @@ int main(int argc, char** argv)
     int i, nthreads;
     pthread_t tid;
 
-    if (argc != 3)
-        err_quit("usage: test04 <input-file> <#threads>");
+    if (argc != 3) err_quit("usage: test04 <input-file> <#threads>");
     infile = argv[1];
     nthreads = atoi(argv[2]);
 

@@ -10,8 +10,9 @@ int main(int argc, char** argv)
     char request[MAXLINE], reply[MAXN];
 
     if (argc != 6)
-        err_quit("usage: client <hostname or IPaddr> <port> <#children> "
-                 "<#loops/child> <#bytes/request>");
+        err_quit(
+            "usage: client <hostname or IPaddr> <port> <#children> "
+            "<#loops/child> <#bytes/request>");
 
     nchildren = atoi(argv[3]);
     nloops = atoi(argv[4]);
@@ -38,8 +39,7 @@ int main(int argc, char** argv)
 
     while (wait(NULL) > 0) /* now parent waits for all children */
         ;
-    if (errno != ECHILD)
-        err_sys("wait error");
+    if (errno != ECHILD) err_sys("wait error");
 
     exit(0);
 }

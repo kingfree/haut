@@ -20,54 +20,43 @@ void sink(int sockfd)
     if (client) {
         pattern(wbuf, writelen); /* fill send buffer with a pattern */
 
-        if (pauseinit)
-            sleep(pauseinit);
+        if (pauseinit) sleep(pauseinit);
 
         for (i = 1; i <= nbuf; i++) {
             if (urgwrite == i) {
                 oob = urgwrite;
                 if ((n = send(sockfd, &oob, 1, MSG_OOB)) != 1)
-                    err_sys("send of MSG_OOB returned %d, expected %d",
-                        n, writelen);
+                    err_sys("send of MSG_OOB returned %d, expected %d", n,
+                            writelen);
                 if (verbose)
                     fprintf(stderr, "wrote %d byte of urgent data\n", n);
             }
 
             if ((n = write(sockfd, wbuf, writelen)) != writelen)
                 err_sys("write returned %d, expected %d", n, writelen);
-            if (verbose)
-                fprintf(stderr, "wrote %d bytes\n", n);
+            if (verbose) fprintf(stderr, "wrote %d bytes\n", n);
 
-            if (pauserw)
-                sleep(pauserw);
+            if (pauserw) sleep(pauserw);
         }
-    }
-    else {
-
-        if (pauseinit)
-            sleep(pauseinit);
+    } else {
+        if (pauseinit) sleep(pauseinit);
 
         for (;;) {
             if ((n = read(sockfd, rbuf, readlen)) < 0) {
                 err_sys("read error");
-            }
-            else if (n == 0) {
+            } else if (n == 0) {
                 break; /* connection closed by peer */
-            }
-            else if (n != readlen)
+            } else if (n != readlen)
                 err_quit("read returned %d, expected %d", n, readlen);
 
-            if (verbose)
-                fprintf(stderr, "received %d bytes\n", n);
+            if (verbose) fprintf(stderr, "received %d bytes\n", n);
 
-            if (pauserw)
-                sleep(pauserw);
+            if (pauserw) sleep(pauserw);
         }
     }
 
     if (pauseclose) {
-        if (verbose)
-            fprintf(stderr, "pausing before close\n");
+        if (verbose) fprintf(stderr, "pausing before close\n");
         sleep(pauseclose);
     }
 

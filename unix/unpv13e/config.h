@@ -2,7 +2,7 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
 /* 处理器平台和操作系统 */
-#define CPU_VENDOR_OS "i386-apple-darwin14.3.0"
+#define CPU_VENDOR_OS "i386-apple-darwin14.4.0"
 
 /* Define to 1 if <netdb.h> defines struct addrinfo */
 #define HAVE_ADDRINFO_STRUCT 1

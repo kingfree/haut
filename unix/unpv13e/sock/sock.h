@@ -14,7 +14,7 @@
 #include <machine/endian.h> /* required before tcp.h, for BYTE_ORDER */
 #endif
 #include <netinet/tcp.h> /* TCP_NODELAY */
-#include <netdb.h> /* getservbyname(), gethostbyname() */
+#include <netdb.h>       /* getservbyname(), gethostbyname() */
 
 /* declare global variables */
 extern int bindport;

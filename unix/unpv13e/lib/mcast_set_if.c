@@ -14,21 +14,17 @@ int mcast_set_if(int sockfd, const char* ifname, u_int ifindex)
                 return (-1);
             }
             goto doioctl;
-        }
-        else if (ifname != NULL) {
+        } else if (ifname != NULL) {
             strncpy(ifreq.ifr_name, ifname, IFNAMSIZ);
         doioctl:
-            if (ioctl(sockfd, SIOCGIFADDR, &ifreq) < 0)
-                return (-1);
-            memcpy(&inaddr,
-                &((struct sockaddr_in*)&ifreq.ifr_addr)->sin_addr,
-                sizeof(struct in_addr));
-        }
-        else
+            if (ioctl(sockfd, SIOCGIFADDR, &ifreq) < 0) return (-1);
+            memcpy(&inaddr, &((struct sockaddr_in*)&ifreq.ifr_addr)->sin_addr,
+                   sizeof(struct in_addr));
+        } else
             inaddr.s_addr = htonl(INADDR_ANY); /* remove prev. set default */
 
-        return (setsockopt(sockfd, IPPROTO_IP, IP_MULTICAST_IF,
-            &inaddr, sizeof(struct in_addr)));
+        return (setsockopt(sockfd, IPPROTO_IP, IP_MULTICAST_IF, &inaddr,
+                           sizeof(struct in_addr)));
     }
 
 #ifdef IPV6
@@ -45,8 +41,8 @@ int mcast_set_if(int sockfd, const char* ifname, u_int ifindex)
                 return (-1);
             }
         }
-        return (setsockopt(sockfd, IPPROTO_IPV6, IPV6_MULTICAST_IF,
-            &idx, sizeof(idx)));
+        return (setsockopt(sockfd, IPPROTO_IPV6, IPV6_MULTICAST_IF, &idx,
+                           sizeof(idx)));
     }
 #endif
 

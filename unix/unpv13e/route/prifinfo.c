@@ -7,10 +7,8 @@ int main(int argc, char** argv)
     u_char* ptr;
     int i, family, doaliases;
 
-    if (argc != 3)
-        err_quit("usage: prifinfo <inet4|inet6> <doaliases>");
-    if (strcmp(argv[1], "inet4") == 0)
-        family = AF_INET;
+    if (argc != 3) err_quit("usage: prifinfo <inet4|inet6> <doaliases>");
+    if (strcmp(argv[1], "inet4") == 0) family = AF_INET;
 #ifdef AF_INET6
     else if (strcmp(argv[1], "inet6") == 0)
         family = AF_INET6;
@@ -19,19 +17,14 @@ int main(int argc, char** argv)
         err_quit("invalid <address-family>");
     doaliases = atoi(argv[2]);
 
-    for (ifihead = ifi = Get_ifi_info(family, doaliases);
-         ifi != NULL; ifi = ifi->ifi_next) {
+    for (ifihead = ifi = Get_ifi_info(family, doaliases); ifi != NULL;
+         ifi = ifi->ifi_next) {
         printf("%s: <", ifi->ifi_name);
-        if (ifi->ifi_flags & IFF_UP)
-            printf("UP ");
-        if (ifi->ifi_flags & IFF_BROADCAST)
-            printf("BCAST ");
-        if (ifi->ifi_flags & IFF_MULTICAST)
-            printf("MCAST ");
-        if (ifi->ifi_flags & IFF_LOOPBACK)
-            printf("LOOP ");
-        if (ifi->ifi_flags & IFF_POINTOPOINT)
-            printf("P2P ");
+        if (ifi->ifi_flags & IFF_UP) printf("UP ");
+        if (ifi->ifi_flags & IFF_BROADCAST) printf("BCAST ");
+        if (ifi->ifi_flags & IFF_MULTICAST) printf("MCAST ");
+        if (ifi->ifi_flags & IFF_LOOPBACK) printf("LOOP ");
+        if (ifi->ifi_flags & IFF_POINTOPOINT) printf("P2P ");
         printf(">\n");
 
         if ((i = ifi->ifi_hlen) > 0) {

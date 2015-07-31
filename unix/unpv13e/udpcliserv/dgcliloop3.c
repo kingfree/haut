@@ -3,7 +3,7 @@
 /* Try and get ENOBUFS from sendto() by sending huge datagrams.
    But I still cannot get the error. */
 
-#define NDG 2000 /* datagrams to send */
+#define NDG 2000    /* datagrams to send */
 #define DGLEN 65507 /* length of each datagram */
 
 void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen)

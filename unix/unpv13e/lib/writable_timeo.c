@@ -21,7 +21,6 @@ int Writable_timeo(int fd, int sec)
 {
     int n;
 
-    if ((n = writable_timeo(fd, sec)) < 0)
-        err_sys("writable_timeo error");
+    if ((n = writable_timeo(fd, sec)) < 0) err_sys("writable_timeo error");
     return (n);
 }

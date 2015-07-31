@@ -1,9 +1,6 @@
 #include "unpthread.h"
 
-void* myfunc(void* ptr)
-{
-    pause();
-}
+void* myfunc(void* ptr) { pause(); }
 
 int main(int argc, char** argv)
 {

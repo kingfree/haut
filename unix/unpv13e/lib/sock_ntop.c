@@ -29,7 +29,8 @@ char* sock_ntop(const struct sockaddr* sa, socklen_t salen)
         struct sockaddr_in6* sin6 = (struct sockaddr_in6*)sa;
 
         str[0] = '[';
-        if (inet_ntop(AF_INET6, &sin6->sin6_addr, str + 1, sizeof(str) - 1) == NULL)
+        if (inet_ntop(AF_INET6, &sin6->sin6_addr, str + 1, sizeof(str) - 1) ==
+            NULL)
             return (NULL);
         if (ntohs(sin6->sin6_port) != 0) {
             snprintf(portstr, sizeof(portstr), "]:%d", ntohs(sin6->sin6_port));
@@ -45,7 +46,7 @@ char* sock_ntop(const struct sockaddr* sa, socklen_t salen)
         struct sockaddr_un* unp = (struct sockaddr_un*)sa;
 
         /* OK to have no pathname bound to the socket: happens on
-			   every connect() unless client calls bind() first. */
+               every connect() unless client calls bind() first. */
         if (unp->sun_path[0] == 0)
             strcpy(str, "(no pathname bound)");
         else
@@ -59,8 +60,8 @@ char* sock_ntop(const struct sockaddr* sa, socklen_t salen)
         struct sockaddr_dl* sdl = (struct sockaddr_dl*)sa;
 
         if (sdl->sdl_nlen > 0)
-            snprintf(str, sizeof(str), "%*s (index %d)",
-                sdl->sdl_nlen, &sdl->sdl_data[0], sdl->sdl_index);
+            snprintf(str, sizeof(str), "%*s (index %d)", sdl->sdl_nlen,
+                     &sdl->sdl_data[0], sdl->sdl_index);
         else
             snprintf(str, sizeof(str), "AF_LINK, index=%d", sdl->sdl_index);
         return (str);
@@ -68,7 +69,7 @@ char* sock_ntop(const struct sockaddr* sa, socklen_t salen)
 #endif
     default:
         snprintf(str, sizeof(str), "sock_ntop: 未知的 AF_xxx: %d, 长度 %d",
-            sa->sa_family, salen);
+                 sa->sa_family, salen);
         return (str);
     }
     return (NULL);

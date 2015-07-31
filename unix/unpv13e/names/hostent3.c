@@ -10,8 +10,8 @@ int main(int argc, char** argv)
     while (--argc > 0) {
         ptr = *++argv;
         if ((hptr = gethostbyname(ptr)) == NULL) {
-            err_msg("gethostbyname error for host: %s: %s",
-                ptr, hstrerror(h_errno));
+            err_msg("gethostbyname error for host: %s: %s", ptr,
+                    hstrerror(h_errno));
             continue;
         }
         printf("official host name: %s\n", hptr->h_name);
@@ -50,8 +50,8 @@ void pr_ipv4(char** listptr)
         printf("	IPv4 address: %s", Inet_ntoa(inaddr));
 
         if ((hptr = gethostbyaddr_r((char*)&inaddr, sizeof(struct in_addr),
-                 AF_INET, &hent,
-                 buf, sizeof(buf), &h_errno)) == NULL)
+                                    AF_INET, &hent, buf, sizeof(buf),
+                                    &h_errno)) == NULL)
             printf("    (gethostbyaddr failed: %s)\n", hstrerror(h_errno));
         else if (hptr->h_name != NULL)
             printf("    name = %s\n", hptr->h_name);

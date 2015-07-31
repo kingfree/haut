@@ -10,8 +10,9 @@ int main(int argc, char** argv)
     char request[MAXLINE], reply[MAXN];
 
     if (argc != 6)
-        err_quit("usage: client <hostname or IPaddr> <port> <#children> "
-                 "<#loops/child> <#bytes/request>");
+        err_quit(
+            "usage: client <hostname or IPaddr> <port> <#children> "
+            "<#loops/child> <#bytes/request>");
 
     nchildren = atoi(argv[3]);
     nloops = atoi(argv[4]);
@@ -24,16 +25,16 @@ int main(int argc, char** argv)
                 fd = Tcp_connect(argv[1], argv[2]);
 
                 /*
-				 * We want to see what happens to the server when it has
-				 * connections outstanding and an RST arrives for one of
-				 * them, before the connection is accepted.
-				 * With the XTI server, this should generate some
-				 * T_DISCONNECT events from t_accept(), which must be
-				 * handled correctly.
-				 *
-				 * We do this for every third connection from the third
-				 * client child.  (Could add more command-line args ...)
-				 */
+                 * We want to see what happens to the server when it has
+                 * connections outstanding and an RST arrives for one of
+                 * them, before the connection is accepted.
+                 * With the XTI server, this should generate some
+                 * T_DISCONNECT events from t_accept(), which must be
+                 * handled correctly.
+                 *
+                 * We do this for every third connection from the third
+                 * client child.  (Could add more command-line args ...)
+                 */
 
                 if (i == 2 && (j % 3) == 0) {
                     struct linger ling;
@@ -62,8 +63,7 @@ int main(int argc, char** argv)
 
     while (wait(NULL) > 0) /* now parent waits for all children */
         ;
-    if (errno != ECHILD)
-        err_sys("wait error");
+    if (errno != ECHILD) err_sys("wait error");
 
     exit(0);
 }

@@ -16,8 +16,7 @@ int main(int argc, char** argv)
             printf("little-endian\n");
         else
             printf("unknown\n");
-    }
-    else
+    } else
         printf("sizeof(short) = %lu\n", sizeof(short));
 
     exit(0);

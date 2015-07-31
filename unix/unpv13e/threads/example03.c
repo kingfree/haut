@@ -38,7 +38,7 @@
 
 struct buf_t {
     int b_buf[BUFFSIZE]; /* the buffer which contains integer items */
-    int b_nitems; /* #items currently in buffer */
+    int b_nitems;        /* #items currently in buffer */
     int b_nextget;
     int b_nextput;
     pthread_mutex_t b_mutex;
@@ -54,8 +54,8 @@ int main(int argc, char** argv)
     int n;
     pthread_t tidA, tidB;
 
-    printf("main, addr(stack) = %x, addr(global) = %x, addr(func) = %x\n",
-        &n, &buf_t, &produce_loop);
+    printf("main, addr(stack) = %x, addr(global) = %x, addr(func) = %x\n", &n,
+           &buf_t, &produce_loop);
     if ((n = pthread_create(&tidA, NULL, &produce_loop, NULL)) != 0)
         errno = n, err_sys("pthread_create error for A");
     if ((n = pthread_create(&tidB, NULL, &consume_loop, NULL)) != 0)
@@ -80,8 +80,7 @@ void produce(struct buf_t* bptr, int val)
     /* There is room, store the new value */
     printf("produce %d\n", val);
     bptr->b_buf[bptr->b_nextput] = val;
-    if (++bptr->b_nextput >= BUFFSIZE)
-        bptr->b_nextput = 0;
+    if (++bptr->b_nextput >= BUFFSIZE) bptr->b_nextput = 0;
     bptr->b_nitems++;
 
     /* Signal consumer */
@@ -101,8 +100,7 @@ int consume(struct buf_t* bptr)
     /* There is data, fetch the value */
     val = bptr->b_buf[bptr->b_nextget];
     printf("consume %d\n", val);
-    if (++bptr->b_nextget >= BUFFSIZE)
-        bptr->b_nextget = 0;
+    if (++bptr->b_nextget >= BUFFSIZE) bptr->b_nextget = 0;
     bptr->b_nitems--;
 
     /* Signal producer; it might be waiting for space to store */

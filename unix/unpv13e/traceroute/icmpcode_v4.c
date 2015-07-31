@@ -1,7 +1,6 @@
 #include "trace.h"
 
-const char*
-icmpcode_v4(int code)
+const char* icmpcode_v4(int code)
 {
     static char errbuf[100];
     switch (code) {

@@ -6,9 +6,9 @@
 
 #define BUFSIZE 1500
 
-struct rec { /* format of outgoing UDP data */
-    u_short rec_seq; /* sequence number */
-    u_short rec_ttl; /* TTL packet left with */
+struct rec {               /* format of outgoing UDP data */
+    u_short rec_seq;       /* sequence number */
+    u_short rec_ttl;       /* TTL packet left with */
     struct timeval rec_tv; /* time packet left */
 };
 
@@ -42,10 +42,10 @@ struct proto {
     struct sockaddr* sarecv; /* sockaddr{} for receiving */
     struct sockaddr* salast; /* last sockaddr{} for receiving */
     struct sockaddr* sabind; /* sockaddr{} for binding source port */
-    socklen_t salen; /* length of sockaddr{}s */
-    int icmpproto; /* IPPROTO_xxx value for ICMP */
-    int ttllevel; /* setsockopt() level to set TTL */
-    int ttloptname; /* setsockopt() name to set TTL */
+    socklen_t salen;         /* length of sockaddr{}s */
+    int icmpproto;           /* IPPROTO_xxx value for ICMP */
+    int ttllevel;            /* setsockopt() level to set TTL */
+    int ttloptname;          /* setsockopt() name to set TTL */
 } * pr;
 
 #ifdef IPV6

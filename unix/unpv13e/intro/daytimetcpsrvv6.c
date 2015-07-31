@@ -23,8 +23,7 @@ int main(int argc, char** argv)
     for (;;) {
         len = sizeof(cliaddr);
         connfd = Accept(listenfd, (SA*)&cliaddr, &len);
-        printf("来自 %s 的连接\n",
-            Sock_ntop((SA*)&cliaddr, len));
+        printf("来自 %s 的连接\n", Sock_ntop((SA*)&cliaddr, len));
 
         ticks = time(NULL);
         snprintf(buff, sizeof(buff), "%.24s\r\n", ctime(&ticks));

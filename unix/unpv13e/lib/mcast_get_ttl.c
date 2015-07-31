@@ -8,8 +8,7 @@ int mcast_get_ttl(int sockfd)
         socklen_t len;
 
         len = sizeof(ttl);
-        if (getsockopt(sockfd, IPPROTO_IP, IP_MULTICAST_TTL,
-                &ttl, &len) < 0)
+        if (getsockopt(sockfd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, &len) < 0)
             return (-1);
         return (ttl);
     }
@@ -20,8 +19,8 @@ int mcast_get_ttl(int sockfd)
         socklen_t len;
 
         len = sizeof(hop);
-        if (getsockopt(sockfd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS,
-                &hop, &len) < 0)
+        if (getsockopt(sockfd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &hop, &len) <
+            0)
             return (-1);
         return (hop);
     }
@@ -37,7 +36,6 @@ int Mcast_get_ttl(int sockfd)
 {
     int rc;
 
-    if ((rc = mcast_get_ttl(sockfd)) < 0)
-        err_sys("mcast_get_ttl error");
+    if ((rc = mcast_get_ttl(sockfd)) < 0) err_sys("mcast_get_ttl error");
     return (rc);
 }

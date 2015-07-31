@@ -16,8 +16,7 @@ ssize_t /* 从描述符中读入 "n" 个字节。 */
                 nread = 0; /* 然后再次调用 read() */
             else
                 return (-1);
-        }
-        else if (nread == 0)
+        } else if (nread == 0)
             break; /* EOF */
 
         nleft -= nread;
@@ -27,12 +26,10 @@ ssize_t /* 从描述符中读入 "n" 个字节。 */
 }
 /* end readn */
 
-ssize_t
-Readn(int fd, void* ptr, size_t nbytes)
+ssize_t Readn(int fd, void* ptr, size_t nbytes)
 {
     ssize_t n;
 
-    if ((n = readn(fd, ptr, nbytes)) < 0)
-        err_sys("readn 错误");
+    if ((n = readn(fd, ptr, nbytes)) < 0) err_sys("readn 错误");
     return (n);
 }

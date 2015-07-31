@@ -13,7 +13,7 @@ int my_open(const char* pathname, int mode)
         snprintf(argsockfd, sizeof(argsockfd), "%d", sockfd[1]);
         snprintf(argmode, sizeof(argmode), "%d", mode);
         execl("./openfile", "openfile", argsockfd, pathname, argmode,
-            (char*)NULL);
+              (char*)NULL);
         err_sys("execl error");
     }
 
@@ -21,8 +21,7 @@ int my_open(const char* pathname, int mode)
     Close(sockfd[1]); /* close the end we don't use */
 
     Waitpid(childpid, &status, 0);
-    if (WIFEXITED(status) == 0)
-        err_quit("child did not terminate");
+    if (WIFEXITED(status) == 0) err_quit("child did not terminate");
     if ((status = WEXITSTATUS(status)) == 0)
         Read_fd(sockfd[0], &c, 1, &fd);
     else {

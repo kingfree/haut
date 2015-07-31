@@ -7,16 +7,16 @@
 #define SERV "80" /* port number or service name */
 
 struct file {
-    char* f_name; /* filename */
-    char* f_host; /* hostname or IP address */
-    int f_fd; /* descriptor */
-    int f_flags; /* F_xxx below */
+    char* f_name;    /* filename */
+    char* f_host;    /* hostname or IP address */
+    int f_fd;        /* descriptor */
+    int f_flags;     /* F_xxx below */
     pthread_t f_tid; /* thread ID */
 } file[MAXFILES];
 #define F_CONNECTING 1 /* connect() in progress */
-#define F_READING 2 /* connect() complete; now reading */
-#define F_DONE 4 /* all done */
-#define F_JOINED 8 /* main has pthread_join'ed */
+#define F_READING 2    /* connect() complete; now reading */
+#define F_DONE 4       /* all done */
+#define F_JOINED 8     /* main has pthread_join'ed */
 
 int nconn, nfiles, nlefttoconn, nlefttoread;
 char get[] = "GET / HTTP/1.0\r\n\r\n"; /* for home page */
@@ -34,8 +34,7 @@ int main(int argc, char** argv)
     pthread_t tid;
     struct file* fptr;
 
-    if (argc < 5)
-        err_quit("usage: web <#conns> <IPaddr> <homepage> file1 ...");
+    if (argc < 5) err_quit("usage: web <#conns> <IPaddr> <homepage> file1 ...");
     maxnconn = atoi(argv[1]);
 
     nfiles = min(argc - 4, MAXFILES);
@@ -55,8 +54,7 @@ int main(int argc, char** argv)
         while (nconn < maxnconn && nlefttoconn > 0) {
             /* find a file to read */
             for (i = 0; i < nfiles; i++)
-                if (file[i].f_flags == 0)
-                    break;
+                if (file[i].f_flags == 0) break;
             if (i == nfiles)
                 err_quit("nlefttoconn = %d but nothing found", nlefttoconn);
 
@@ -79,14 +77,13 @@ int main(int argc, char** argv)
                     if ((n = pthread_join(file[i].f_tid, (void**)&fptr)) != 0)
                         errno = n, err_sys("pthread_join error");
 
-                    if (&file[i] != fptr)
-                        err_quit("file[i] != fptr");
+                    if (&file[i] != fptr) err_quit("file[i] != fptr");
                     fptr->f_flags = F_JOINED; /* clears F_DONE */
                     ndone--;
                     nconn--;
                     nlefttoread--;
-                    printf("thread id %d for %s done\n",
-                        file[i].f_tid, fptr->f_name);
+                    printf("thread id %d for %s done\n", file[i].f_tid,
+                           fptr->f_name);
                 }
             }
         }
@@ -107,8 +104,8 @@ void* do_get_read(void* vptr)
 
     fd = Tcp_connect(fptr->f_host, SERV);
     fptr->f_fd = fd;
-    printf("do_get_read for %s, fd %d, thread %d\n",
-        fptr->f_name, fd, fptr->f_tid);
+    printf("do_get_read for %s, fd %d, thread %d\n", fptr->f_name, fd,
+           fptr->f_tid);
 
     write_get_cmd(fptr); /* write() the GET command */
 
@@ -144,8 +141,7 @@ void write_get_cmd(struct file* fptr)
     strcat(line, fptr->f_name);
     strcat(line, " HTTP/1.0\r\n\r\n");
     n = strlen(line);
-    if (writen(fptr->f_fd, line, n) != n)
-        err_sys("writen error");
+    if (writen(fptr->f_fd, line, n) != n) err_sys("writen error");
     printf("wrote %d bytes for %s\n", n, fptr->f_name);
 
     fptr->f_flags = F_READING; /* clears F_CONNECTING */
@@ -162,8 +158,7 @@ void home_page(const char* host, const char* fname)
     strcat(line, fname);
     strcat(line, " HTTP/1.0\r\n\r\n");
     n = strlen(line);
-    if (writen(fd, line, n) != n)
-        err_sys("writen error");
+    if (writen(fd, line, n) != n) err_sys("writen error");
 
     for (;;) {
         if ((n = read(fd, line, MAXLINE)) <= 0) {

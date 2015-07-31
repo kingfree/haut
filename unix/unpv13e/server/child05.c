@@ -21,7 +21,7 @@ pid_t child_make(int i, int listenfd, int addrlen)
     Dup2(sockfd[1], STDERR_FILENO); /* child's stream pipe to parent */
     Close(sockfd[0]);
     Close(sockfd[1]);
-    Close(listenfd); /* child does not need this open */
+    Close(listenfd);                  /* child does not need this open */
     child_main(i, listenfd, addrlen); /* never returns */
 }
 /* end child_make */
@@ -38,8 +38,7 @@ void child_main(int i, int listenfd, int addrlen)
     for (;;) {
         if ((n = Read_fd(STDERR_FILENO, &c, 1, &connfd)) == 0)
             err_quit("read_fd returned 0");
-        if (connfd < 0)
-            err_quit("no descriptor from read_fd");
+        if (connfd < 0) err_quit("no descriptor from read_fd");
 
         web_child(connfd); /* process request */
         Close(connfd);

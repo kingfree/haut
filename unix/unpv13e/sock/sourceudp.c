@@ -16,8 +16,7 @@ void source_udp(int sockfd) /* TODO: use sendto ?? */
 
     pattern(wbuf, writelen); /* fill send buffer with a pattern */
 
-    if (pauseinit)
-        sleep_us(pauseinit * 1000);
+    if (pauseinit) sleep_us(pauseinit * 1000);
 
     for (i = 1; i <= nbuf; i++) {
         if (connectudp) {
@@ -26,41 +25,35 @@ void source_udp(int sockfd) /* TODO: use sendto ?? */
                     err_ret("write returned %d, expected %d", n, writelen);
                     /* also call getsockopt() to clear so_error */
                     optlen = sizeof(option);
-                    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR,
-                            &option, &optlen) < 0)
+                    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &option,
+                                   &optlen) < 0)
                         err_sys("SO_ERROR getsockopt error");
-                }
-                else
+                } else
                     err_sys("write returned %d, expected %d", n, writelen);
             }
-        }
-        else {
+        } else {
             if ((n = sendto(sockfd, wbuf, writelen, 0,
-                     (struct sockaddr*)&servaddr,
-                     sizeof(servaddr))) != writelen) {
+                            (struct sockaddr*)&servaddr, sizeof(servaddr))) !=
+                writelen) {
                 if (ignorewerr) {
                     err_ret("sendto returned %d, expected %d", n, writelen);
                     /* also call getsockopt() to clear so_error */
                     optlen = sizeof(option);
-                    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR,
-                            &option, &optlen) < 0)
+                    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &option,
+                                   &optlen) < 0)
                         err_sys("SO_ERROR getsockopt error");
-                }
-                else
+                } else
                     err_sys("sendto returned %d, expected %d", n, writelen);
             }
         }
 
-        if (verbose)
-            fprintf(stderr, "wrote %d bytes\n", n);
+        if (verbose) fprintf(stderr, "wrote %d bytes\n", n);
 
-        if (pauserw)
-            sleep_us(pauserw * 1000);
+        if (pauserw) sleep_us(pauserw * 1000);
     }
 
     if (pauseclose) {
-        if (verbose)
-            fprintf(stderr, "pausing before close\n");
+        if (verbose) fprintf(stderr, "pausing before close\n");
         sleep_us(pauseclose * 1000);
     }
 

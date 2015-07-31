@@ -9,8 +9,7 @@ void dg_echo(int sockfd, SA* pcliaddr, socklen_t clilen)
     const int on = 1;
     socklen_t len;
     ssize_t n;
-    char mesg[MAXLINE], str[INET6_ADDRSTRLEN],
-        ifname[IFNAMSIZ];
+    char mesg[MAXLINE], str[INET6_ADDRSTRLEN], ifname[IFNAMSIZ];
     struct in_addr in_zero;
     struct unp_in_pktinfo pktinfo;
 
@@ -27,30 +26,26 @@ void dg_echo(int sockfd, SA* pcliaddr, socklen_t clilen)
     for (;;) {
         len = clilen;
         flags = 0;
-        n = Recvfrom_flags(sockfd, mesg, MAXLINE, &flags,
-            pcliaddr, &len, &pktinfo);
+        n = Recvfrom_flags(sockfd, mesg, MAXLINE, &flags, pcliaddr, &len,
+                           &pktinfo);
         printf("%d-byte datagram from %s", n, Sock_ntop(pcliaddr, len));
         if (memcmp(&pktinfo.ipi_addr, &in_zero, sizeof(in_zero)) != 0)
-            printf(", to %s", Inet_ntop(AF_INET, &pktinfo.ipi_addr,
-                                  str, sizeof(str)));
+            printf(", to %s",
+                   Inet_ntop(AF_INET, &pktinfo.ipi_addr, str, sizeof(str)));
         if (pktinfo.ipi_ifindex > 0)
             printf(", recv i/f = %s",
-                If_indextoname(pktinfo.ipi_ifindex, ifname));
+                   If_indextoname(pktinfo.ipi_ifindex, ifname));
 #ifdef MSG_TRUNC
-        if (flags & MSG_TRUNC)
-            printf(" (datagram truncated)");
+        if (flags & MSG_TRUNC) printf(" (datagram truncated)");
 #endif
 #ifdef MSG_CTRUNC
-        if (flags & MSG_CTRUNC)
-            printf(" (control info truncated)");
+        if (flags & MSG_CTRUNC) printf(" (control info truncated)");
 #endif
 #ifdef MSG_BCAST
-        if (flags & MSG_BCAST)
-            printf(" (broadcast)");
+        if (flags & MSG_BCAST) printf(" (broadcast)");
 #endif
 #ifdef MSG_MCAST
-        if (flags & MSG_MCAST)
-            printf(" (multicast)");
+        if (flags & MSG_MCAST) printf(" (multicast)");
 #endif
         printf("\n");
 

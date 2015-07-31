@@ -6,8 +6,7 @@ int main(int argc, char** argv)
     socklen_t salen;
     struct sockaddr* sa;
 
-    if (argc != 3)
-        err_quit("usage: udpcli01 <hostname> <service>");
+    if (argc != 3) err_quit("usage: udpcli01 <hostname> <service>");
 
     sockfd = Udp_client(argv[1], argv[2], &sa, &salen);
 

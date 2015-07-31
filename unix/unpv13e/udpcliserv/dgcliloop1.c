@@ -1,6 +1,6 @@
 #include "unp.h"
 
-#define NDG 2000 /* datagrams to send */
+#define NDG 2000   /* datagrams to send */
 #define DGLEN 1400 /* length of each datagram */
 
 void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen)

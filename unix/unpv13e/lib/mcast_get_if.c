@@ -14,8 +14,7 @@ int mcast_get_if(int sockfd)
         socklen_t len;
 
         len = sizeof(idx);
-        if (getsockopt(sockfd, IPPROTO_IPV6, IPV6_MULTICAST_IF,
-                &idx, &len) < 0)
+        if (getsockopt(sockfd, IPPROTO_IPV6, IPV6_MULTICAST_IF, &idx, &len) < 0)
             return (-1);
         return (idx);
     }
@@ -31,7 +30,6 @@ int Mcast_get_if(int sockfd)
 {
     int rc;
 
-    if ((rc = mcast_get_if(sockfd)) < 0)
-        err_sys("mcast_get_if error");
+    if ((rc = mcast_get_if(sockfd)) < 0) err_sys("mcast_get_if error");
     return (rc);
 }

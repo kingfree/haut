@@ -9,11 +9,10 @@ void freeaddrinfo(struct addrinfo* aihead)
         if (ai->ai_addr != NULL)
             free(ai->ai_addr); /* socket address structure */
 
-        if (ai->ai_canonname != NULL)
-            free(ai->ai_canonname);
+        if (ai->ai_canonname != NULL) free(ai->ai_canonname);
 
         ainext = ai->ai_next; /* can't fetch ai_next after free() */
-        free(ai); /* the addrinfo{} itself */
+        free(ai);             /* the addrinfo{} itself */
     }
 }
 /* end freeaddrinfo */

@@ -6,7 +6,7 @@
 # The "../" in the pathnames actually refer to this directory, since
 # "make" is executed in all the subdirectories of this directory.
 #
-# System = i386-apple-darwin14.3.0
+# System = i386-apple-darwin14.4.0
 
 CC = gcc
 CFLAGS = -I../lib -g -O2 -D_REENTRANT -Wall

@@ -7,8 +7,7 @@ char* strerror(int error)
 {
     static char mesg[30];
 
-    if (error >= 0 && error <= sys_nerr)
-        return (sys_errlist[error]);
+    if (error >= 0 && error <= sys_nerr) return (sys_errlist[error]);
 
     snprintf(mesg, sizeof(mesg), "Unknown error (%d)", error);
     return (mesg);

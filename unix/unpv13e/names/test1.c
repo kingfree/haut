@@ -12,8 +12,8 @@ int main(int argc, char** argv)
     while (--argc > 0) {
         ptr = *++argv;
         if ((hptr = gethostbyname(ptr)) == NULL) {
-            err_msg("gethostbyname error for host: %s: %s",
-                ptr, hstrerror(h_errno));
+            err_msg("gethostbyname error for host: %s: %s", ptr,
+                    hstrerror(h_errno));
             continue;
         }
         printf("official host name: %s\n", hptr->h_name);
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
 
         for (listptr = list; *listptr != NULL; listptr++) {
             printf("\taddress: %s\n",
-                Inet_ntop(addrtype, *listptr, buf, sizeof(buf)));
+                   Inet_ntop(addrtype, *listptr, buf, sizeof(buf)));
 
             if ((hptr = gethostbyaddr(*listptr, addrlen, addrtype)) == NULL)
                 printf("\t\t(gethostbyaddr failed)\n");

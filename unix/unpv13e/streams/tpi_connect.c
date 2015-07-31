@@ -48,7 +48,7 @@ void tpi_connect(int fd, const void* addr, size_t addrlen)
             err_quit("tpi_connect: bad length for T_ERROR_ACK");
         error_ack = (struct T_error_ack*)&rcvbuf;
         err_quit("tpi_connect: T_ERROR_ACK from conn (%d, %d)",
-            error_ack->TLI_error, error_ack->UNIX_error);
+                 error_ack->TLI_error, error_ack->UNIX_error);
     /* *INDENT-ON* */
 
     default:
@@ -76,11 +76,11 @@ void tpi_connect(int fd, const void* addr, size_t addrlen)
             err_quit("tpi_connect2: bad length for T_DISCON_IND");
         discon_ind = (struct T_discon_ind*)&conn_con.msg_hdr;
         err_quit("tpi_connect2: T_DISCON_IND from conn (%d)",
-            discon_ind->DISCON_reason);
+                 discon_ind->DISCON_reason);
     /* *INDENT-ON* */
 
     default:
         err_quit("tpi_connect2: unexpected message type: %d",
-            conn_con.msg_hdr.PRIM_type);
+                 conn_con.msg_hdr.PRIM_type);
     }
 }

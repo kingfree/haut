@@ -6,19 +6,17 @@
 
 /* include ga_aistruct1 */
 int ga_aistruct(struct addrinfo*** paipnext, const struct addrinfo* hintsp,
-    const void* addr, int family)
+                const void* addr, int family)
 {
     struct addrinfo* ai;
 
-    if ((ai = calloc(1, sizeof(struct addrinfo))) == NULL)
-        return (EAI_MEMORY);
+    if ((ai = calloc(1, sizeof(struct addrinfo))) == NULL) return (EAI_MEMORY);
     ai->ai_next = NULL;
     ai->ai_canonname = NULL;
     **paipnext = ai;
     *paipnext = &ai->ai_next;
 
-    if ((ai->ai_socktype = hintsp->ai_socktype) == 0)
-        ai->ai_flags |= AI_CLONE;
+    if ((ai->ai_socktype = hintsp->ai_socktype) == 0) ai->ai_flags |= AI_CLONE;
 
     ai->ai_protocol = hintsp->ai_protocol;
     /* end ga_aistruct1 */
@@ -65,8 +63,7 @@ int ga_aistruct(struct addrinfo*** paipnext, const struct addrinfo* hintsp,
 
         /* 4allocate sockaddr_un{} and fill in */
         /* *INDENT-OFF* */
-        if (strlen(addr) >= sizeof(unp->sun_path))
-            return (EAI_SERVICE);
+        if (strlen(addr) >= sizeof(unp->sun_path)) return (EAI_SERVICE);
         if ((unp = calloc(1, sizeof(struct sockaddr_un))) == NULL)
             return (EAI_MEMORY);
         /* *INDENT-ON* */

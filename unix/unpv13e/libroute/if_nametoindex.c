@@ -2,8 +2,7 @@
 #include "unpifi.h"
 #include "unproute.h"
 
-unsigned int
-if_nametoindex(const char* name)
+unsigned int if_nametoindex(const char* name)
 {
     unsigned int idx, namelen;
     char *buf, *next, *lim;
@@ -12,8 +11,7 @@ if_nametoindex(const char* name)
     struct sockaddr *sa, *rti_info[RTAX_MAX];
     struct sockaddr_dl* sdl;
 
-    if ((buf = net_rt_iflist(0, 0, &len)) == NULL)
-        return (0);
+    if ((buf = net_rt_iflist(0, 0, &len)) == NULL) return (0);
 
     namelen = strlen(name);
     lim = buf + len;
@@ -25,7 +23,8 @@ if_nametoindex(const char* name)
             if ((sa = rti_info[RTAX_IFP]) != NULL) {
                 if (sa->sa_family == AF_LINK) {
                     sdl = (struct sockaddr_dl*)sa;
-                    if (sdl->sdl_nlen == namelen && strncmp(&sdl->sdl_data[0], name, sdl->sdl_nlen) == 0) {
+                    if (sdl->sdl_nlen == namelen &&
+                        strncmp(&sdl->sdl_data[0], name, sdl->sdl_nlen) == 0) {
                         idx = sdl->sdl_index; /* save before free() */
                         free(buf);
                         return (idx);
@@ -39,8 +38,7 @@ if_nametoindex(const char* name)
 }
 /* end if_nametoindex */
 
-unsigned int
-If_nametoindex(const char* name)
+unsigned int If_nametoindex(const char* name)
 {
     int idx;
 

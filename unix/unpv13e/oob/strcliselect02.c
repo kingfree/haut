@@ -10,8 +10,7 @@ void str_cli(FILE* fp, int sockfd)
 
     FD_ZERO(&rset);
     for (;;) {
-        if (stdineof == 0)
-            FD_SET(fileno(fp), &rset);
+        if (stdineof == 0) FD_SET(fileno(fp), &rset);
         FD_SET(sockfd, &rset);
         maxfdp1 = max(fileno(fp), sockfd) + 1;
         if (select(maxfdp1, &rset, NULL, NULL, NULL) < 0) {
@@ -35,7 +34,7 @@ void str_cli(FILE* fp, int sockfd)
         if (FD_ISSET(fileno(fp), &rset)) { /* input is readable */
             if (Fgets(sendline, MAXLINE, fp) == NULL) {
                 stdineof = 1;
-                alarm(0); /* turn off heartbeat */
+                alarm(0);                  /* turn off heartbeat */
                 Shutdown(sockfd, SHUT_WR); /* send FIN */
                 FD_CLR(fileno(fp), &rset);
                 continue;

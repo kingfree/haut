@@ -9,8 +9,7 @@ int rtt_d_flag = 0; /* debug flag; can be set by caller */
  */
 #define RTT_RTOCALC(ptr) ((ptr)->rtt_srtt + (4.0 * (ptr)->rtt_rttvar))
 
-static float
-rtt_minmax(float rto)
+static float rtt_minmax(float rto)
 {
     if (rto < RTT_RXTMIN)
         rto = RTT_RXTMIN;
@@ -41,8 +40,7 @@ void rtt_init(struct rtt_info* ptr)
  */
 
 /* include rtt_ts */
-uint32_t
-rtt_ts(struct rtt_info* ptr)
+uint32_t rtt_ts(struct rtt_info* ptr)
 {
     uint32_t ts;
     struct timeval tv;
@@ -52,10 +50,7 @@ rtt_ts(struct rtt_info* ptr)
     return (ts);
 }
 
-void rtt_newpack(struct rtt_info* ptr)
-{
-    ptr->rtt_nrexmt = 0;
-}
+void rtt_newpack(struct rtt_info* ptr) { ptr->rtt_nrexmt = 0; }
 
 int rtt_start(struct rtt_info* ptr)
 {
@@ -81,16 +76,15 @@ void rtt_stop(struct rtt_info* ptr, uint32_t ms)
     ptr->rtt_rtt = ms / 1000.0; /* measured RTT in seconds */
 
     /*
-	 * Update our estimators of RTT and mean deviation of RTT.
-	 * See Jacobson's SIGCOMM '88 paper, Appendix A, for the details.
-	 * We use floating point here for simplicity.
-	 */
+     * Update our estimators of RTT and mean deviation of RTT.
+     * See Jacobson's SIGCOMM '88 paper, Appendix A, for the details.
+     * We use floating point here for simplicity.
+     */
 
     delta = ptr->rtt_rtt - ptr->rtt_srtt;
     ptr->rtt_srtt += delta / 8; /* g = 1/8 */
 
-    if (delta < 0.0)
-        delta = -delta; /* |delta| */
+    if (delta < 0.0) delta = -delta; /* |delta| */
 
     ptr->rtt_rttvar += (delta - ptr->rtt_rttvar) / 4; /* h = 1/4 */
 
@@ -120,10 +114,9 @@ int rtt_timeout(struct rtt_info* ptr)
 
 void rtt_debug(struct rtt_info* ptr)
 {
-    if (rtt_d_flag == 0)
-        return;
+    if (rtt_d_flag == 0) return;
 
     fprintf(stderr, "rtt = %.3f, srtt = %.3f, rttvar = %.3f, rto = %.3f\n",
-        ptr->rtt_rtt, ptr->rtt_srtt, ptr->rtt_rttvar, ptr->rtt_rto);
+            ptr->rtt_rtt, ptr->rtt_srtt, ptr->rtt_rttvar, ptr->rtt_rto);
     fflush(stderr);
 }

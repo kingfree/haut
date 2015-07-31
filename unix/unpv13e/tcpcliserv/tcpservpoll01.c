@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     client[0].events = POLLRDNORM;
     for (i = 1; i < OPEN_MAX; i++)
         client[i].fd = -1; /* -1 indicates available entry */
-    maxi = 0; /* max index into client[] array */
+    maxi = 0;              /* max index into client[] array */
     /* end fig01 */
 
     /* include fig02 */
@@ -46,20 +46,16 @@ int main(int argc, char** argv)
                     client[i].fd = connfd; /* save descriptor */
                     break;
                 }
-            if (i == OPEN_MAX)
-                err_quit("too many clients");
+            if (i == OPEN_MAX) err_quit("too many clients");
 
             client[i].events = POLLRDNORM;
-            if (i > maxi)
-                maxi = i; /* max index in client[] array */
+            if (i > maxi) maxi = i; /* max index in client[] array */
 
-            if (--nready <= 0)
-                continue; /* no more readable descriptors */
+            if (--nready <= 0) continue; /* no more readable descriptors */
         }
 
         for (i = 1; i <= maxi; i++) { /* check all clients for data */
-            if ((sockfd = client[i].fd) < 0)
-                continue;
+            if ((sockfd = client[i].fd) < 0) continue;
             if (client[i].revents & (POLLRDNORM | POLLERR)) {
                 if ((n = read(sockfd, buf, MAXLINE)) < 0) {
                     if (errno == ECONNRESET) {
@@ -69,23 +65,19 @@ int main(int argc, char** argv)
 #endif
                         Close(sockfd);
                         client[i].fd = -1;
-                    }
-                    else
+                    } else
                         err_sys("read error");
-                }
-                else if (n == 0) {
+                } else if (n == 0) {
 /*4connection closed by client */
 #ifdef NOTDEF
                     printf("client[%d] closed connection\n", i);
 #endif
                     Close(sockfd);
                     client[i].fd = -1;
-                }
-                else
+                } else
                     Writen(sockfd, buf, n);
 
-                if (--nready <= 0)
-                    break; /* no more readable descriptors */
+                if (--nready <= 0) break; /* no more readable descriptors */
             }
         }
     }

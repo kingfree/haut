@@ -15,8 +15,7 @@ int main(int argc, char** argv)
     struct sockaddr *sa, *rti_info[RTAX_MAX];
     struct sockaddr_in* sin;
 
-    if (argc != 2)
-        err_quit("usage: getrt <IPaddress>");
+    if (argc != 2) err_quit("usage: getrt <IPaddress>");
 
     sockfd = Socket(AF_ROUTE, SOCK_RAW, 0); /* need superuser privileges */
 
@@ -39,7 +38,8 @@ int main(int argc, char** argv)
 
     do {
         n = Read(sockfd, rtm, BUFLEN);
-    } while (rtm->rtm_type != RTM_GET || rtm->rtm_seq != SEQ || rtm->rtm_pid != pid);
+    } while (rtm->rtm_type != RTM_GET || rtm->rtm_seq != SEQ ||
+             rtm->rtm_pid != pid);
     /* end getrt1 */
 
     /* include getrt2 */

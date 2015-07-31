@@ -6,9 +6,7 @@ int main(int argc, char** argv)
     struct sockaddr_in servaddr;
     struct sctp_event_subscribe evnts;
 
-    if (argc != 2)
-        err_quit("Missing host argument - use '%s host'\n",
-            argv[0]);
+    if (argc != 2) err_quit("Missing host argument - use '%s host'\n", argv[0]);
     sock_fd = Socket(AF_INET, SOCK_SEQPACKET, IPPROTO_SCTP);
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
@@ -19,8 +17,7 @@ int main(int argc, char** argv)
     bzero(&evnts, sizeof(evnts));
     evnts.sctp_data_io_event = 1;
     evnts.sctp_association_event = 1;
-    Setsockopt(sock_fd, IPPROTO_SCTP, SCTP_EVENTS,
-        &evnts, sizeof(evnts));
+    Setsockopt(sock_fd, IPPROTO_SCTP, SCTP_EVENTS, &evnts, sizeof(evnts));
 
     sctpstr_cli(stdin, sock_fd, (SA*)&servaddr, sizeof(servaddr));
     /* end mod_client04 */

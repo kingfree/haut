@@ -22,8 +22,7 @@ void dg_echo(int sockfd, SA* pcliaddr, socklen_t clilen)
     }
 }
 
-static void
-recvfrom_int(int signo)
+static void recvfrom_int(int signo)
 {
     printf("\nreceived %d datagrams\n", count);
     exit(0);

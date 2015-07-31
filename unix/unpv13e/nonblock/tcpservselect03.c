@@ -22,7 +22,7 @@ int main(int argc, char** argv)
     Listen(listenfd, LISTENQ);
 
     maxfd = listenfd; /* initialize */
-    maxi = -1; /* index into client[] array */
+    maxi = -1;        /* index into client[] array */
     for (i = 0; i < FD_SETSIZE; i++)
         client[i] = -1; /* -1 indicates available entry */
     FD_ZERO(&allset);
@@ -39,8 +39,8 @@ int main(int argc, char** argv)
             connfd = Accept(listenfd, (SA*)&cliaddr, &clilen);
 #ifdef NOTDEF
             printf("new client: %s, port %d\n",
-                Inet_ntop(AF_INET, &cliaddr.sin_addr, 4, NULL),
-                ntohs(cliaddr.sin_port));
+                   Inet_ntop(AF_INET, &cliaddr.sin_addr, 4, NULL),
+                   ntohs(cliaddr.sin_port));
 #endif
 
             for (i = 0; i < FD_SETSIZE; i++)
@@ -48,22 +48,17 @@ int main(int argc, char** argv)
                     client[i] = connfd; /* save descriptor */
                     break;
                 }
-            if (i == FD_SETSIZE)
-                err_quit("too many clients");
+            if (i == FD_SETSIZE) err_quit("too many clients");
 
-            FD_SET(connfd, &allset); /* add new descriptor to set */
-            if (connfd > maxfd)
-                maxfd = connfd; /* for select */
-            if (i > maxi)
-                maxi = i; /* max index in client[] array */
+            FD_SET(connfd, &allset);            /* add new descriptor to set */
+            if (connfd > maxfd) maxfd = connfd; /* for select */
+            if (i > maxi) maxi = i; /* max index in client[] array */
 
-            if (--nready <= 0)
-                continue; /* no more readable descriptors */
+            if (--nready <= 0) continue; /* no more readable descriptors */
         }
 
         for (i = 0; i <= maxi; i++) { /* check all clients for data */
-            if ((sockfd = client[i]) < 0)
-                continue;
+            if ((sockfd = client[i]) < 0) continue;
             if (FD_ISSET(sockfd, &rset)) {
                 if ((n = Readline(sockfd, line, MAXLINE)) == 0) {
                     /* connection closed by client */
@@ -73,8 +68,7 @@ int main(int argc, char** argv)
                 }
                 Writen(sockfd, line, n);
 
-                if (--nready <= 0)
-                    break; /* no more readable descriptors */
+                if (--nready <= 0) break; /* no more readable descriptors */
             }
         }
     }

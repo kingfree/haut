@@ -17,19 +17,14 @@ void sctpstr_cli(FILE* fp, int sock_fd, struct sockaddr* to, socklen_t tolen)
         }
         sri.sinfo_stream = strtol(&sendline[1], NULL, 0);
         out_sz = strlen(sendline);
-        Sctp_sendmsg(sock_fd, sendline, out_sz,
-            to, tolen,
-            0, 0,
-            sri.sinfo_stream,
-            0, 0);
+        Sctp_sendmsg(sock_fd, sendline, out_sz, to, tolen, 0, 0,
+                     sri.sinfo_stream, 0, 0);
 
         len = sizeof(peeraddr);
         rd_sz = Sctp_recvmsg(sock_fd, recvline, sizeof(recvline),
-            (SA*)&peeraddr, &len,
-            &sri, &msg_flags);
-        printf("From str:%d seq:%d (assoc:0x%x):",
-            sri.sinfo_stream, sri.sinfo_ssn,
-            (u_int)sri.sinfo_assoc_id);
+                             (SA*)&peeraddr, &len, &sri, &msg_flags);
+        printf("From str:%d seq:%d (assoc:0x%x):", sri.sinfo_stream,
+               sri.sinfo_ssn, (u_int)sri.sinfo_assoc_id);
         printf("%.*s", rd_sz, recvline);
     }
 }

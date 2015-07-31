@@ -12,14 +12,13 @@ int udp_server(const char* host, const char* serv, socklen_t* addrlenp)
     hints.ai_socktype = SOCK_DGRAM;
 
     if ((n = getaddrinfo(host, serv, &hints, &res)) != 0)
-        err_quit("udp_server error for %s, %s: %s",
-            host, serv, gai_strerror(n));
+        err_quit("udp_server error for %s, %s: %s", host, serv,
+                 gai_strerror(n));
     ressave = res;
 
     do {
         sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-        if (sockfd < 0)
-            continue; /* error - try next one */
+        if (sockfd < 0) continue; /* error - try next one */
 
         if (bind(sockfd, res->ai_addr, res->ai_addrlen) == 0)
             break; /* success */

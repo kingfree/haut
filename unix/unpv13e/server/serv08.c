@@ -37,10 +37,8 @@ int main(int argc, char** argv)
 
         Pthread_mutex_lock(&clifd_mutex);
         clifd[iput] = connfd;
-        if (++iput == MAXNCLI)
-            iput = 0;
-        if (iput == iget)
-            err_quit("iput = iget = %d", iput);
+        if (++iput == MAXNCLI) iput = 0;
+        if (iput == iget) err_quit("iput = iget = %d", iput);
         Pthread_cond_signal(&clifd_cond);
         Pthread_mutex_unlock(&clifd_mutex);
     }

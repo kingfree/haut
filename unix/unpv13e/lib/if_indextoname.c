@@ -6,10 +6,7 @@
  * if_XXX() functions in the libroute/ directory will replace these.
  */
 
-char* if_indextoname(unsigned int index, char* name)
-{
-    return (NULL);
-}
+char* if_indextoname(unsigned int index, char* name) { return (NULL); }
 
 char* If_indextoname(unsigned int index, char* name)
 {

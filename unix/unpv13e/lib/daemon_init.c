@@ -33,8 +33,7 @@ int daemon_init(const char* pname, int facility)
     chdir("/"); /* change working directory */
 
     /* close off file descriptors */
-    for (i = 0; i < MAXFD; i++)
-        close(i);
+    for (i = 0; i < MAXFD; i++) close(i);
 
     /* redirect stdin, stdout, and stderr to /dev/null */
     open("/dev/null", O_RDONLY);

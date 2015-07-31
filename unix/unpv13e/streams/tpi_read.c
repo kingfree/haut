@@ -1,7 +1,6 @@
 #include "tpi_daytime.h"
 
-ssize_t
-tpi_read(int fd, void* buf, size_t len)
+ssize_t tpi_read(int fd, void* buf, size_t len)
 {
     struct strbuf ctlbuf;
     struct strbuf datbuf;
@@ -25,8 +24,7 @@ tpi_read(int fd, void* buf, size_t len)
             return (0);
         else
             err_quit("tpi_read: unexpected type %d", rcvbuf.type);
-    }
-    else if (ctlbuf.len == -1)
+    } else if (ctlbuf.len == -1)
         return (datbuf.len);
     else
         err_quit("tpi_read: bad length from getmsg");

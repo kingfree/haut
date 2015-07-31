@@ -6,8 +6,7 @@ int main(int argc, char** argv)
     struct sockaddr_in servaddr;
     char recvline[MAXLINE + 1];
 
-    if ((sockfd = socket(PF_INET, SOCK_STREAM, 0)) < 0)
-        err_sys("socket error");
+    if ((sockfd = socket(PF_INET, SOCK_STREAM, 0)) < 0) err_sys("socket error");
 
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = AF_INET;

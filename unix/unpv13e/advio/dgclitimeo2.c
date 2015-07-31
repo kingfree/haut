@@ -11,7 +11,6 @@ void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen)
     Setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 
     while (Fgets(sendline, MAXLINE, fp) != NULL) {
-
         Sendto(sockfd, sendline, strlen(sendline), 0, pservaddr, servlen);
 
         n = recvfrom(sockfd, recvline, MAXLINE, 0, NULL, NULL);
@@ -19,8 +18,7 @@ void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen)
             if (errno == EWOULDBLOCK) {
                 fprintf(stderr, "socket timeout\n");
                 continue;
-            }
-            else
+            } else
                 err_sys("recvfrom error");
         }
 

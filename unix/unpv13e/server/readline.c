@@ -1,8 +1,7 @@
 /* include readline */
 #include "unp.h"
 
-ssize_t
-readline(int fd, void* vptr, size_t maxlen)
+ssize_t readline(int fd, void* vptr, size_t maxlen)
 {
     ssize_t n, rc;
     char c, *ptr;
@@ -11,16 +10,13 @@ readline(int fd, void* vptr, size_t maxlen)
     for (n = 1; n < maxlen; n++) {
         if ((rc = read(fd, &c, 1)) == 1) {
             *ptr++ = c;
-            if (c == '\n')
-                break;
-        }
-        else if (rc == 0) {
+            if (c == '\n') break;
+        } else if (rc == 0) {
             if (n == 1)
                 return (0); /* EOF, no data read */
             else
                 break; /* EOF, some data was read */
-        }
-        else
+        } else
             return (-1); /* error */
     }
 
@@ -29,12 +25,10 @@ readline(int fd, void* vptr, size_t maxlen)
 }
 /* end readline */
 
-ssize_t
-Readline(int fd, void* ptr, size_t maxlen)
+ssize_t Readline(int fd, void* ptr, size_t maxlen)
 {
     ssize_t n;
 
-    if ((n = readline(fd, ptr, maxlen)) == -1)
-        err_sys("readline error");
+    if ((n = readline(fd, ptr, maxlen)) == -1) err_sys("readline error");
     return (n);
 }

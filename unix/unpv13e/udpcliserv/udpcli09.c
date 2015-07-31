@@ -6,8 +6,7 @@ int main(int argc, char** argv)
     socklen_t len;
     struct sockaddr_in cliaddr, servaddr;
 
-    if (argc != 2)
-        err_quit("usage: udpcli <IPaddress>");
+    if (argc != 2) err_quit("usage: udpcli <IPaddress>");
 
     sockfd = Socket(AF_INET, SOCK_DGRAM, 0);
 

@@ -1,8 +1,7 @@
 /* include read_fd */
 #include "unp.h"
 
-ssize_t
-read_fd(int fd, void* ptr, size_t nbytes, int* recvfd)
+ssize_t read_fd(int fd, void* ptr, size_t nbytes, int* recvfd)
 {
     struct msghdr msg;
     struct iovec iov[1];
@@ -32,18 +31,17 @@ read_fd(int fd, void* ptr, size_t nbytes, int* recvfd)
     msg.msg_iov = iov;
     msg.msg_iovlen = 1;
 
-    if ((n = recvmsg(fd, &msg, 0)) <= 0)
-        return (n);
+    if ((n = recvmsg(fd, &msg, 0)) <= 0) return (n);
 
 #ifdef HAVE_MSGHDR_MSG_CONTROL
-    if ((cmptr = CMSG_FIRSTHDR(&msg)) != NULL && cmptr->cmsg_len == CMSG_LEN(sizeof(int))) {
+    if ((cmptr = CMSG_FIRSTHDR(&msg)) != NULL &&
+        cmptr->cmsg_len == CMSG_LEN(sizeof(int))) {
         if (cmptr->cmsg_level != SOL_SOCKET)
             err_quit("control level != SOL_SOCKET");
         if (cmptr->cmsg_type != SCM_RIGHTS)
             err_quit("control type != SCM_RIGHTS");
         *recvfd = *((int*)CMSG_DATA(cmptr));
-    }
-    else
+    } else
         *recvfd = -1; /* descriptor was not passed */
 #else
     /* *INDENT-OFF* */
@@ -51,20 +49,18 @@ read_fd(int fd, void* ptr, size_t nbytes, int* recvfd)
         *recvfd = newfd;
     else
         *recvfd = -1; /* descriptor was not passed */
-/* *INDENT-ON* */
+                      /* *INDENT-ON* */
 #endif
 
     return (n);
 }
 /* end read_fd */
 
-ssize_t
-Read_fd(int fd, void* ptr, size_t nbytes, int* recvfd)
+ssize_t Read_fd(int fd, void* ptr, size_t nbytes, int* recvfd)
 {
     ssize_t n;
 
-    if ((n = read_fd(fd, ptr, nbytes, recvfd)) < 0)
-        err_sys("read_fd error");
+    if ((n = read_fd(fd, ptr, nbytes, recvfd)) < 0) err_sys("read_fd error");
 
     return (n);
 }

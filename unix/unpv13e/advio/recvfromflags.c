@@ -2,9 +2,8 @@
 #include "unp.h"
 #include <sys/param.h> /* ALIGN macro for CMSG_NXTHDR() macro */
 
-ssize_t
-recvfrom_flags(int fd, void* ptr, size_t nbytes, int* flagsp,
-    SA* sa, socklen_t* salenptr, struct unp_in_pktinfo* pktp)
+ssize_t recvfrom_flags(int fd, void* ptr, size_t nbytes, int* flagsp, SA* sa,
+                       socklen_t* salenptr, struct unp_in_pktinfo* pktp)
 {
     struct msghdr msg;
     struct iovec iov[1];
@@ -14,7 +13,8 @@ recvfrom_flags(int fd, void* ptr, size_t nbytes, int* flagsp,
     struct cmsghdr* cmptr;
     union {
         struct cmsghdr cm;
-        char control[CMSG_SPACE(sizeof(struct in_addr)) + CMSG_SPACE(sizeof(struct unp_in_pktinfo))];
+        char control[CMSG_SPACE(sizeof(struct in_addr)) +
+                     CMSG_SPACE(sizeof(struct unp_in_pktinfo))];
     } control_un;
 
     msg.msg_control = control_un.control;
@@ -31,12 +31,10 @@ recvfrom_flags(int fd, void* ptr, size_t nbytes, int* flagsp,
     msg.msg_iov = iov;
     msg.msg_iovlen = 1;
 
-    if ((n = recvmsg(fd, &msg, *flagsp)) < 0)
-        return (n);
+    if ((n = recvmsg(fd, &msg, *flagsp)) < 0) return (n);
 
     *salenptr = msg.msg_namelen; /* pass back results */
-    if (pktp)
-        bzero(pktp, sizeof(struct unp_in_pktinfo)); /* 0.0.0.0, i/f = 0 */
+    if (pktp) bzero(pktp, sizeof(struct unp_in_pktinfo)); /* 0.0.0.0, i/f = 0 */
 /* end recvfrom_flags1 */
 
 /* include recvfrom_flags2 */
@@ -46,17 +44,17 @@ recvfrom_flags(int fd, void* ptr, size_t nbytes, int* flagsp,
 #else
 
     *flagsp = msg.msg_flags; /* pass back results */
-    if (msg.msg_controllen < sizeof(struct cmsghdr) || (msg.msg_flags & MSG_CTRUNC) || pktp == NULL)
+    if (msg.msg_controllen < sizeof(struct cmsghdr) ||
+        (msg.msg_flags & MSG_CTRUNC) || pktp == NULL)
         return (n);
 
     for (cmptr = CMSG_FIRSTHDR(&msg); cmptr != NULL;
          cmptr = CMSG_NXTHDR(&msg, cmptr)) {
 
 #ifdef IP_RECVDSTADDR
-        if (cmptr->cmsg_level == IPPROTO_IP && cmptr->cmsg_type == IP_RECVDSTADDR) {
-
-            memcpy(&pktp->ipi_addr, CMSG_DATA(cmptr),
-                sizeof(struct in_addr));
+        if (cmptr->cmsg_level == IPPROTO_IP &&
+            cmptr->cmsg_type == IP_RECVDSTADDR) {
+            memcpy(&pktp->ipi_addr, CMSG_DATA(cmptr), sizeof(struct in_addr));
             continue;
         }
 #endif
@@ -71,22 +69,20 @@ recvfrom_flags(int fd, void* ptr, size_t nbytes, int* flagsp,
         }
 #endif
         err_quit("unknown ancillary data, len = %d, level = %d, type = %d",
-            cmptr->cmsg_len, cmptr->cmsg_level, cmptr->cmsg_type);
+                 cmptr->cmsg_len, cmptr->cmsg_level, cmptr->cmsg_type);
     }
     return (n);
 #endif /* HAVE_MSGHDR_MSG_CONTROL */
 }
 /* end recvfrom_flags2 */
 
-ssize_t
-Recvfrom_flags(int fd, void* ptr, size_t nbytes, int* flagsp,
-    SA* sa, socklen_t* salenptr, struct unp_in_pktinfo* pktp)
+ssize_t Recvfrom_flags(int fd, void* ptr, size_t nbytes, int* flagsp, SA* sa,
+                       socklen_t* salenptr, struct unp_in_pktinfo* pktp)
 {
     ssize_t n;
 
     n = recvfrom_flags(fd, ptr, nbytes, flagsp, sa, salenptr, pktp);
-    if (n < 0)
-        err_quit("recvfrom_flags error");
+    if (n < 0) err_quit("recvfrom_flags error");
 
     return (n);
 }

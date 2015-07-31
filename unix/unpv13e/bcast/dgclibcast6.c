@@ -41,8 +41,8 @@ void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen)
                 len = servlen;
                 n = Recvfrom(sockfd, recvline, MAXLINE, 0, preply_addr, &len);
                 recvline[n] = 0; /* null terminate */
-                printf("from %s: %s",
-                    Sock_ntop_host(preply_addr, len), recvline);
+                printf("from %s: %s", Sock_ntop_host(preply_addr, len),
+                       recvline);
             }
 
             if (FD_ISSET(pipefd[0], &rset)) {
@@ -54,8 +54,7 @@ void dg_cli(FILE* fp, int sockfd, const SA* pservaddr, socklen_t servlen)
     free(preply_addr);
 }
 
-static void
-recvfrom_alarm(int signo)
+static void recvfrom_alarm(int signo)
 {
     Write(pipefd[1], "", 1); /* write one null byte to pipe */
     return;

@@ -23,8 +23,8 @@ int servopen(char* host, char* port)
     servaddr.sin_family = AF_INET;
 
     /* Caller normally wildcards the local Internet address, meaning
-		   a connection will be accepted on any connected interface.
-		   We only allow an IP address for the "host", not a name. */
+           a connection will be accepted on any connected interface.
+           We only allow an IP address for the "host", not a name. */
     if (host == NULL)
         servaddr.sin_addr.s_addr = htonl(INADDR_ANY); /* wildcard */
     else {
@@ -39,8 +39,7 @@ int servopen(char* host, char* port)
             err_ret("getservbyname() error for: %s/%s", port, protocol);
 
         servaddr.sin_port = sp->s_port;
-    }
-    else
+    } else
         servaddr.sin_port = htons(i);
 
     if ((fd = socket(AF_INET, udp ? SOCK_DGRAM : SOCK_STREAM, 0)) < 0)
@@ -76,10 +75,9 @@ int servopen(char* host, char* port)
             cliaddr.sin_family = AF_INET;
             cliaddr.sin_port = htons(foreignport);
             /* connect() for datagram socket doesn't appear to allow
-				   wildcarding of either IP address or port number */
+                   wildcarding of either IP address or port number */
 
-            if (connect(fd, (struct sockaddr*)&cliaddr, sizeof(cliaddr))
-                < 0)
+            if (connect(fd, (struct sockaddr*)&cliaddr, sizeof(cliaddr)) < 0)
                 err_sys("connect() error");
         }
 
@@ -88,8 +86,8 @@ int servopen(char* host, char* port)
         return (fd); /* nothing else to do */
     }
 
-    buffers(fd); /* may set receive buffer size; must do here to get
-						   correct window advertised on SYN */
+    buffers(fd);     /* may set receive buffer size; must do here to get
+                               correct window advertised on SYN */
     sockopts(fd, 0); /* only set some socket options for fd */
 
     listen(fd, listenq);
@@ -97,8 +95,7 @@ int servopen(char* host, char* port)
     if (pauselisten)
         sleep_us(pauselisten * 1000); /* lets connection queue build up */
 
-    if (dofork)
-        TELL_WAIT(); /* initialize synchronization primitives */
+    if (dofork) TELL_WAIT(); /* initialize synchronization primitives */
 
     for (;;) {
         i = sizeof(cliaddr);
@@ -106,15 +103,13 @@ int servopen(char* host, char* port)
             err_sys("accept() error");
 
         if (dofork) {
-            if ((pid = fork()) < 0)
-                err_sys("fork error");
+            if ((pid = fork()) < 0) err_sys("fork error");
 
             if (pid > 0) {
                 close(newfd); /* parent closes connected socket */
                 WAIT_CHILD(); /* wait for child to output to terminal */
-                continue; /* and back to for(;;) for another accept() */
-            }
-            else {
+                continue;     /* and back to for(;;) for another accept() */
+            } else {
                 close(fd); /* child closes listening socket */
             }
         }
@@ -122,21 +117,21 @@ int servopen(char* host, char* port)
         /* child (or iterative server) continues here */
         if (verbose) {
             /* Call getsockname() to find local address bound to socket:
-				   local internet address is now determined (if multihomed). */
+                   local internet address is now determined (if multihomed). */
             i = sizeof(servaddr);
             if (getsockname(newfd, (struct sockaddr*)&servaddr, &i) < 0)
                 err_sys("getsockname() error");
 
             /* Can't do one fprintf() since inet_ntoa() stores
-						   the result in a static location. */
+                           the result in a static location. */
             fprintf(stderr, "connection on %s.%d ",
-                INET_NTOA(servaddr.sin_addr), ntohs(servaddr.sin_port));
-            fprintf(stderr, "from %s.%d\n",
-                INET_NTOA(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+                    INET_NTOA(servaddr.sin_addr), ntohs(servaddr.sin_port));
+            fprintf(stderr, "from %s.%d\n", INET_NTOA(cliaddr.sin_addr),
+                    ntohs(cliaddr.sin_port));
         }
 
-        buffers(newfd); /* setsockopt() again, in case it didn't propagate
-							   from listening socket to connected socket */
+        buffers(newfd);     /* setsockopt() again, in case it didn't propagate
+                                   from listening socket to connected socket */
         sockopts(newfd, 1); /* can set all socket options for this socket */
 
         if (dofork)

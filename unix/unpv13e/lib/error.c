@@ -76,8 +76,7 @@ void err_quit(const char* fmt, ...)
 /* 打印信息并返回调用者
  * 调用者指定 "errnoflag" 和 "level" */
 
-static void
-err_doit(int errnoflag, int level, const char* fmt, va_list ap)
+static void err_doit(int errnoflag, int level, const char* fmt, va_list ap)
 {
     int errno_save, n;
     char buf[MAXLINE + 1];
@@ -89,14 +88,12 @@ err_doit(int errnoflag, int level, const char* fmt, va_list ap)
     vsprintf(buf, fmt, ap); /* 不安全 */
 #endif
     n = strlen(buf);
-    if (errnoflag)
-        snprintf(buf + n, MAXLINE - n, ": %s", strerror(errno_save));
+    if (errnoflag) snprintf(buf + n, MAXLINE - n, ": %s", strerror(errno_save));
     strcat(buf, "\n");
 
     if (daemon_proc) {
         syslog(level, buf);
-    }
-    else {
+    } else {
         fflush(stdout); /* 当标准输出和标准错误一样时 */
         fputs(buf, stderr);
         fflush(stderr);

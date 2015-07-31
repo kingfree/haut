@@ -10,8 +10,7 @@ char* if_indextoname(unsigned int idx, char* name)
     struct sockaddr *sa, *rti_info[RTAX_MAX];
     struct sockaddr_dl* sdl;
 
-    if ((buf = net_rt_iflist(0, idx, &len)) == NULL)
-        return (NULL);
+    if ((buf = net_rt_iflist(0, idx, &len)) == NULL) return (NULL);
 
     lim = buf + len;
     for (next = buf; next < lim; next += ifm->ifm_msglen) {

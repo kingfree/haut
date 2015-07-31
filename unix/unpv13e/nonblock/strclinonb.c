@@ -27,9 +27,8 @@ void str_cli(FILE* fp, int sockfd)
         FD_ZERO(&rset);
         FD_ZERO(&wset);
         if (stdineof == 0 && toiptr < &to[MAXLINE])
-            FD_SET(STDIN_FILENO, &rset); /* read from stdin */
-        if (friptr < &fr[MAXLINE])
-            FD_SET(sockfd, &rset); /* read from socket */
+            FD_SET(STDIN_FILENO, &rset);                  /* read from stdin */
+        if (friptr < &fr[MAXLINE]) FD_SET(sockfd, &rset); /* read from socket */
         if (tooptr != toiptr)
             FD_SET(sockfd, &wset); /* data to write to socket */
         if (froptr != friptr)
@@ -40,32 +39,26 @@ void str_cli(FILE* fp, int sockfd)
         /* include nonb2 */
         if (FD_ISSET(STDIN_FILENO, &rset)) {
             if ((n = read(STDIN_FILENO, toiptr, &to[MAXLINE] - toiptr)) < 0) {
-                if (errno != EWOULDBLOCK)
-                    err_sys("read error on stdin");
-            }
-            else if (n == 0) {
+                if (errno != EWOULDBLOCK) err_sys("read error on stdin");
+            } else if (n == 0) {
 #ifdef VOL2
                 fprintf(stderr, "%s: EOF on stdin\n", gf_time());
 #endif
                 stdineof = 1; /* all done with stdin */
-                if (tooptr == toiptr)
-                    Shutdown(sockfd, SHUT_WR); /* send FIN */
-            }
-            else {
+                if (tooptr == toiptr) Shutdown(sockfd, SHUT_WR); /* send FIN */
+            } else {
 #ifdef VOL2
                 fprintf(stderr, "%s: read %d bytes from stdin\n", gf_time(), n);
 #endif
-                toiptr += n; /* # just read */
+                toiptr += n;           /* # just read */
                 FD_SET(sockfd, &wset); /* try and write to socket below */
             }
         }
 
         if (FD_ISSET(sockfd, &rset)) {
             if ((n = read(sockfd, friptr, &fr[MAXLINE] - friptr)) < 0) {
-                if (errno != EWOULDBLOCK)
-                    err_sys("read error on socket");
-            }
-            else if (n == 0) {
+                if (errno != EWOULDBLOCK) err_sys("read error on socket");
+            } else if (n == 0) {
 #ifdef VOL2
                 fprintf(stderr, "%s: EOF on socket\n", gf_time());
 #endif
@@ -73,13 +66,12 @@ void str_cli(FILE* fp, int sockfd)
                     return; /* normal termination */
                 else
                     err_quit("str_cli: server terminated prematurely");
-            }
-            else {
+            } else {
 #ifdef VOL2
-                fprintf(stderr, "%s: read %d bytes from socket\n",
-                    gf_time(), n);
+                fprintf(stderr, "%s: read %d bytes from socket\n", gf_time(),
+                        n);
 #endif
-                friptr += n; /* # just read */
+                friptr += n;                  /* # just read */
                 FD_SET(STDOUT_FILENO, &wset); /* try and write below */
             }
         }
@@ -87,13 +79,11 @@ void str_cli(FILE* fp, int sockfd)
         /* include nonb3 */
         if (FD_ISSET(STDOUT_FILENO, &wset) && ((n = friptr - froptr) > 0)) {
             if ((nwritten = write(STDOUT_FILENO, froptr, n)) < 0) {
-                if (errno != EWOULDBLOCK)
-                    err_sys("write error to stdout");
-            }
-            else {
+                if (errno != EWOULDBLOCK) err_sys("write error to stdout");
+            } else {
 #ifdef VOL2
-                fprintf(stderr, "%s: wrote %d bytes to stdout\n",
-                    gf_time(), nwritten);
+                fprintf(stderr, "%s: wrote %d bytes to stdout\n", gf_time(),
+                        nwritten);
 #endif
                 froptr += nwritten; /* # just written */
                 if (froptr == friptr)
@@ -103,19 +93,16 @@ void str_cli(FILE* fp, int sockfd)
 
         if (FD_ISSET(sockfd, &wset) && ((n = toiptr - tooptr) > 0)) {
             if ((nwritten = write(sockfd, tooptr, n)) < 0) {
-                if (errno != EWOULDBLOCK)
-                    err_sys("write error to socket");
-            }
-            else {
+                if (errno != EWOULDBLOCK) err_sys("write error to socket");
+            } else {
 #ifdef VOL2
-                fprintf(stderr, "%s: wrote %d bytes to socket\n",
-                    gf_time(), nwritten);
+                fprintf(stderr, "%s: wrote %d bytes to socket\n", gf_time(),
+                        nwritten);
 #endif
                 tooptr += nwritten; /* # just written */
                 if (tooptr == toiptr) {
                     toiptr = tooptr = to; /* back to beginning of buffer */
-                    if (stdineof)
-                        Shutdown(sockfd, SHUT_WR); /* send FIN */
+                    if (stdineof) Shutdown(sockfd, SHUT_WR); /* send FIN */
                 }
             }
         }

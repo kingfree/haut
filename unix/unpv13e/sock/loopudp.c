@@ -14,26 +14,24 @@
 
 void loop_udp(int sockfd)
 {
-    int maxfdp1, nread, ntowrite, stdineof,
-        clilen, servlen, flags;
+    int maxfdp1, nread, ntowrite, stdineof, clilen, servlen, flags;
     fd_set rset;
-    struct sockaddr_in cliaddr; /* for UDP server */
+    struct sockaddr_in cliaddr;  /* for UDP server */
     struct sockaddr_in servaddr; /* for UDP client */
 
 #ifdef HAVE_MSGHDR_MSG_CONTROL
     struct iovec iov[1];
     struct msghdr msg;
 
-#ifdef IP_RECVDSTADDR /* 4.3BSD Reno and later */
+#ifdef IP_RECVDSTADDR                    /* 4.3BSD Reno and later */
     static struct cmsghdr* cmptr = NULL; /* malloc'ed */
-    struct in_addr dstinaddr; /* for UDP server */
+    struct in_addr dstinaddr;            /* for UDP server */
 #define CONTROLLEN (sizeof(struct cmsghdr) + sizeof(struct in_addr))
 #endif /* IP_RECVDSTADDR */
 
 #endif /* HAVE_MSGHDR_MSG_CONTROL */
 
-    if (pauseinit)
-        sleep_us(pauseinit * 1000); /* intended for server */
+    if (pauseinit) sleep_us(pauseinit * 1000); /* intended for server */
 
     flags = 0;
     stdineof = 0;
@@ -41,12 +39,11 @@ void loop_udp(int sockfd)
     maxfdp1 = sockfd + 1; /* check descriptors [0..sockfd] */
 
     /* If UDP client issues connect(), recv() and write() are used.
-		   Server is harder since cannot issue connect().  We use recvfrom()
-		   or recvmsg(), depending on OS. */
+           Server is harder since cannot issue connect().  We use recvfrom()
+           or recvmsg(), depending on OS. */
 
     for (;;) {
-        if (stdineof == 0)
-            FD_SET(STDIN_FILENO, &rset);
+        if (stdineof == 0) FD_SET(STDIN_FILENO, &rset);
         FD_SET(sockfd, &rset);
 
         if (select(maxfdp1, &rset, NULL, NULL, NULL) < 0)
@@ -62,7 +59,7 @@ void loop_udp(int sockfd)
 
                     FD_CLR(STDIN_FILENO, &rset);
                     stdineof = 1; /* don't read stdin anymore */
-                    continue; /* back to select() */
+                    continue;     /* back to select() */
                 }
                 break; /* default: stdin EOF -> done */
             }
@@ -72,23 +69,20 @@ void loop_udp(int sockfd)
                 if (connectudp) {
                     if (write(sockfd, wbuf, ntowrite) != ntowrite)
                         err_sys("write error");
-                }
-                else {
+                } else {
                     if (sendto(sockfd, wbuf, ntowrite, 0,
-                            (struct sockaddr*)&servaddr, sizeof(servaddr))
-                        != ntowrite)
+                               (struct sockaddr*)&servaddr,
+                               sizeof(servaddr)) != ntowrite)
                         err_sys("sendto error");
                 }
-            }
-            else {
+            } else {
                 if (connectudp) {
                     if (write(sockfd, rbuf, nread) != nread)
                         err_sys("write error");
-                }
-                else {
+                } else {
                     if (sendto(sockfd, rbuf, nread, 0,
-                            (struct sockaddr*)&servaddr, sizeof(servaddr))
-                        != nread)
+                               (struct sockaddr*)&servaddr,
+                               sizeof(servaddr)) != nread)
                         err_sys("sendto error");
                 }
             }
@@ -99,10 +93,11 @@ void loop_udp(int sockfd)
                 clilen = sizeof(cliaddr);
 #ifndef HAVE_MSGHDR_MSG_CONTROL /* vanilla BSD sockets */
                 nread = recvfrom(sockfd, rbuf, readlen, 0,
-                    (struct sockaddr*)&cliaddr, &clilen);
+                                 (struct sockaddr*)&cliaddr, &clilen);
 
 #else /* 4.3BSD Reno and later; use recvmsg() to get at MSG_TRUNC flag */
-                /* Also lets us get at control information (destination address) */
+                /* Also lets us get at control information (destination address)
+                 */
 
                 iov[0].iov_base = rbuf;
                 iov[0].iov_len = readlen;
@@ -125,8 +120,7 @@ void loop_udp(int sockfd)
 
                 nread = recvmsg(sockfd, &msg, 0);
 #endif /* HAVE_MSGHDR_MSG_CONTROL */
-                if (nread < 0)
-                    err_sys("datagram receive error");
+                if (nread < 0) err_sys("datagram receive error");
 
                 if (verbose) {
                     printf("from %s", INET_NTOA(cliaddr.sin_addr));
@@ -135,13 +129,13 @@ void loop_udp(int sockfd)
                     if (recvdstaddr) {
                         if (cmptr->cmsg_len != CONTROLLEN)
                             err_quit("control length (%d) != %d",
-                                cmptr->cmsg_len, CONTROLLEN);
+                                     cmptr->cmsg_len, CONTROLLEN);
                         if (cmptr->cmsg_level != IPPROTO_IP)
                             err_quit("control level != IPPROTO_IP");
                         if (cmptr->cmsg_type != IP_RECVDSTADDR)
                             err_quit("control type != IP_RECVDSTADDR");
                         memcpy(&dstinaddr, CMSG_DATA(cmptr),
-                            sizeof(struct in_addr));
+                               sizeof(struct in_addr));
                         bzero(cmptr, CONTROLLEN);
 
                         printf(", to %s", INET_NTOA(dstinaddr));
@@ -153,29 +147,24 @@ void loop_udp(int sockfd)
                 }
 
 #ifdef MSG_TRUNC
-                if (msg.msg_flags & MSG_TRUNC)
-                    printf("(datagram truncated)\n");
+                if (msg.msg_flags & MSG_TRUNC) printf("(datagram truncated)\n");
 #endif
-            }
-            else if (connectudp) {
+            } else if (connectudp) {
                 /* msgpeek = 0 or MSG_PEEK */
                 flags = msgpeek;
             oncemore:
                 if ((nread = recv(sockfd, rbuf, readlen, flags)) < 0)
                     err_sys("recv error");
                 else if (nread == 0) {
-                    if (verbose)
-                        fprintf(stderr, "connection closed by peer\n");
+                    if (verbose) fprintf(stderr, "connection closed by peer\n");
                     break; /* EOF, terminate */
                 }
-            }
-            else {
+            } else {
                 /* Must use recvfrom() for unconnected UDP client */
                 servlen = sizeof(servaddr);
                 nread = recvfrom(sockfd, rbuf, readlen, 0,
-                    (struct sockaddr*)&servaddr, &servlen);
-                if (nread < 0)
-                    err_sys("datagram recvfrom() error");
+                                 (struct sockaddr*)&servaddr, &servlen);
+                if (nread < 0) err_sys("datagram recvfrom() error");
 
                 if (verbose) {
                     printf("from %s", INET_NTOA(servaddr.sin_addr));
@@ -188,22 +177,20 @@ void loop_udp(int sockfd)
                 ntowrite = crlf_strip(wbuf, writelen, rbuf, nread);
                 if (writen(STDOUT_FILENO, wbuf, ntowrite) != ntowrite)
                     err_sys("writen error to stdout");
-            }
-            else {
+            } else {
                 if (writen(STDOUT_FILENO, rbuf, nread) != nread)
                     err_sys("writen error to stdout");
             }
 
             if (flags != 0) {
-                flags = 0; /* no infinite loop */
+                flags = 0;     /* no infinite loop */
                 goto oncemore; /* read the message again */
             }
         }
     }
 
     if (pauseclose) {
-        if (verbose)
-            fprintf(stderr, "pausing before close\n");
+        if (verbose) fprintf(stderr, "pausing before close\n");
         sleep_us(pauseclose * 1000);
     }
 

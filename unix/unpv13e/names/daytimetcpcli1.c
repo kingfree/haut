@@ -11,20 +11,17 @@ int main(int argc, char** argv)
     struct hostent* hp;
     struct servent* sp;
 
-    if (argc != 3)
-        err_quit("usage: daytimetcpcli1 <hostname> <service>");
+    if (argc != 3) err_quit("usage: daytimetcpcli1 <hostname> <service>");
 
     if ((hp = gethostbyname(argv[1])) == NULL) {
         if (inet_aton(argv[1], &inetaddr) == 0) {
             err_quit("hostname error for %s: %s", argv[1], hstrerror(h_errno));
-        }
-        else {
+        } else {
             inetaddrp[0] = &inetaddr;
             inetaddrp[1] = NULL;
             pptr = inetaddrp;
         }
-    }
-    else {
+    } else {
         pptr = (struct in_addr**)hp->h_addr_list;
     }
 
@@ -38,16 +35,14 @@ int main(int argc, char** argv)
         servaddr.sin_family = AF_INET;
         servaddr.sin_port = sp->s_port;
         memcpy(&servaddr.sin_addr, *pptr, sizeof(struct in_addr));
-        printf("trying %s\n",
-            Sock_ntop((SA*)&servaddr, sizeof(servaddr)));
+        printf("trying %s\n", Sock_ntop((SA*)&servaddr, sizeof(servaddr)));
 
         if (connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) == 0)
             break; /* success */
         err_ret("connect error");
         close(sockfd);
     }
-    if (*pptr == NULL)
-        err_quit("unable to connect");
+    if (*pptr == NULL) err_quit("unable to connect");
 
     while ((n = Read(sockfd, recvline, MAXLINE)) > 0) {
         recvline[n] = 0; /* null terminate */

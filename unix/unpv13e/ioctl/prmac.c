@@ -22,8 +22,8 @@ int main(int argc, char** argv)
         }
 
         ptr = &arpreq.arp_ha.sa_data[0];
-        printf("%x:%x:%x:%x:%x:%x\n", *ptr, *(ptr + 1),
-            *(ptr + 2), *(ptr + 3), *(ptr + 4), *(ptr + 5));
+        printf("%x:%x:%x:%x:%x:%x\n", *ptr, *(ptr + 1), *(ptr + 2), *(ptr + 3),
+               *(ptr + 4), *(ptr + 5));
     }
     exit(0);
 }

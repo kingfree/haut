@@ -12,8 +12,7 @@ int main(int argc, char** argv)
     struct hostent* hp;
     struct servent* sp;
 
-    if (argc != 3)
-        err_quit("usage: daytimetcpcli3 <hostname> <service>");
+    if (argc != 3) err_quit("usage: daytimetcpcli3 <hostname> <service>");
 
     if ((hp = gethostbyname(argv[1])) == NULL)
         err_quit("hostname error for %s: %s", argv[1], hstrerror(h_errno));
@@ -28,12 +27,10 @@ int main(int argc, char** argv)
         if (hp->h_addrtype == AF_INET) {
             sa = (SA*)&servaddr;
             salen = sizeof(servaddr);
-        }
-        else if (hp->h_addrtype == AF_INET6) {
+        } else if (hp->h_addrtype == AF_INET6) {
             sa = (SA*)&servaddr6;
             salen = sizeof(servaddr6);
-        }
-        else
+        } else
             err_quit("unknown addrtype %d", hp->h_addrtype);
 
         bzero(sa, salen);
@@ -43,13 +40,11 @@ int main(int argc, char** argv)
 
         printf("trying %s\n", Sock_ntop(sa, salen));
 
-        if (connect(sockfd, sa, salen) == 0)
-            break; /* success */
+        if (connect(sockfd, sa, salen) == 0) break; /* success */
         err_ret("connect error");
         close(sockfd);
     }
-    if (*pptr == NULL)
-        err_quit("unable to connect");
+    if (*pptr == NULL) err_quit("unable to connect");
 
     while ((n = Read(sockfd, recvline, MAXLINE)) > 0) {
         recvline[n] = 0; /* null terminate */

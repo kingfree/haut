@@ -20,7 +20,6 @@ int snprintf(char* buf, size_t size, const char* fmt, ...)
     vsprintf(buf, fmt, ap); /* Sigh, some vsprintf's return ptr, not length */
     n = strlen(buf);
     va_end(ap);
-    if (n >= size)
-        err_quit("snprintf: '%s' overflowed array", fmt);
+    if (n >= size) err_quit("snprintf: '%s' overflowed array", fmt);
     return (n);
 }

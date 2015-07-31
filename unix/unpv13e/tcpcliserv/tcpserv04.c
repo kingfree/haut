@@ -31,8 +31,8 @@ int main(int argc, char** argv)
         }
 
         if ((childpid = Fork()) == 0) { /* 子进程 */
-            Close(listenfd); /* 关闭监听的套接字 */
-            str_echo(connfd); /* 处理请求 */
+            Close(listenfd);            /* 关闭监听的套接字 */
+            str_echo(connfd);           /* 处理请求 */
             exit(0);
         }
         Close(connfd); /* 父进程关闭已连接的套接字 */

@@ -1,7 +1,6 @@
 #include "trace.h"
 
-const char*
-icmpcode_v6(int code)
+const char* icmpcode_v6(int code)
 {
 #ifdef IPV6
     static char errbuf[100];

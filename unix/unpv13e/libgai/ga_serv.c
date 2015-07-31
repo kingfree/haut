@@ -6,7 +6,7 @@
 
 /* include ga_serv */
 int ga_serv(struct addrinfo* aihead, const struct addrinfo* hintsp,
-    const char* serv)
+            const char* serv)
 {
     int port, rc, nfound;
     struct servent* sptr;
@@ -19,8 +19,7 @@ int ga_serv(struct addrinfo* aihead, const struct addrinfo* hintsp,
             if ((rc = ga_port(aihead, port, hintsp->ai_socktype)) < 0)
                 return (EAI_MEMORY);
             nfound += rc;
-        }
-        else {
+        } else {
             /* 4caller does not specify socket type */
             if ((rc = ga_port(aihead, port, SOCK_STREAM)) < 0)
                 return (EAI_MEMORY);
@@ -29,8 +28,7 @@ int ga_serv(struct addrinfo* aihead, const struct addrinfo* hintsp,
                 return (EAI_MEMORY);
             nfound += rc;
         }
-    }
-    else {
+    } else {
         /* 4try service name, TCP then UDP */
         if (hintsp->ai_socktype == 0 || hintsp->ai_socktype == SOCK_STREAM) {
             if ((sptr = getservbyname(serv, "tcp")) != NULL) {

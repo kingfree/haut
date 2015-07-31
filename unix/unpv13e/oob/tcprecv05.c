@@ -23,8 +23,7 @@ int main(int argc, char** argv)
     Signal(SIGURG, sig_urg);
     Fcntl(connfd, F_SETOWN, getpid());
 
-    for (;;)
-        pause();
+    for (;;) pause();
 }
 
 void sig_urg(int signo)

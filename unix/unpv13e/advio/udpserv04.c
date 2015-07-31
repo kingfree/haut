@@ -21,9 +21,8 @@ int main(int argc, char** argv)
     port = sock_get_port(sa, salen);
     Close(sockfd); /* we just want family, port, salen */
 
-    for (ifihead = ifi = Get_ifi_info(family, 1);
-         ifi != NULL; ifi = ifi->ifi_next) {
-
+    for (ifihead = ifi = Get_ifi_info(family, 1); ifi != NULL;
+         ifi = ifi->ifi_next) {
         /*4bind unicast address */
         sockfd = Socket(family, SOCK_DGRAM, 0);
         Setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
@@ -46,13 +45,12 @@ int main(int argc, char** argv)
             if (bind(sockfd, ifi->ifi_brdaddr, salen) < 0) {
                 if (errno == EADDRINUSE) {
                     printf("EADDRINUSE: %s\n",
-                        Sock_ntop(ifi->ifi_brdaddr, salen));
+                           Sock_ntop(ifi->ifi_brdaddr, salen));
                     Close(sockfd);
                     continue;
-                }
-                else
+                } else
                     err_sys("bind error for %s",
-                        Sock_ntop(ifi->ifi_brdaddr, salen));
+                            Sock_ntop(ifi->ifi_brdaddr, salen));
             }
             printf("bound %s\n", Sock_ntop(ifi->ifi_brdaddr, salen));
 
@@ -93,8 +91,7 @@ void mydg_echo(int sockfd, SA* myaddr, socklen_t salen)
     for (;;) {
         len = salen;
         n = Recvfrom(sockfd, mesg, MAXLINE, 0, cli, &len);
-        printf("child %d, datagram from %s",
-            getpid(), Sock_ntop(cli, len));
+        printf("child %d, datagram from %s", getpid(), Sock_ntop(cli, len));
         printf(", to %s\n", Sock_ntop(myaddr, salen));
 
         Sendto(sockfd, mesg, n, 0, cli, len);

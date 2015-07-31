@@ -2,8 +2,7 @@
 #include "unpifi.h"
 #include "unproute.h"
 
-struct if_nameindex*
-if_nameindex(void)
+struct if_nameindex* if_nameindex(void)
 {
     char *buf, *next, *lim;
     size_t len;
@@ -13,8 +12,7 @@ if_nameindex(void)
     struct if_nameindex *result, *ifptr;
     char* namptr;
 
-    if ((buf = net_rt_iflist(0, 0, &len)) == NULL)
-        return (NULL);
+    if ((buf = net_rt_iflist(0, 0, &len)) == NULL) return (NULL);
 
     if ((result = malloc(len)) == NULL) /* overestimate */
         return (NULL);
@@ -48,18 +46,13 @@ if_nameindex(void)
 /* end if_nameindex */
 
 /* include if_freenameindex */
-void if_freenameindex(struct if_nameindex* ptr)
-{
-    free(ptr);
-}
+void if_freenameindex(struct if_nameindex* ptr) { free(ptr); }
 /* end if_freenameindex */
 
-struct if_nameindex*
-If_nameindex(void)
+struct if_nameindex* If_nameindex(void)
 {
     struct if_nameindex* ifptr;
 
-    if ((ifptr = if_nameindex()) == NULL)
-        err_quit("if_nameindex error");
+    if ((ifptr = if_nameindex()) == NULL) err_quit("if_nameindex error");
     return (ifptr);
 }

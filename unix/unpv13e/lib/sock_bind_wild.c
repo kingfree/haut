@@ -13,11 +13,9 @@ int sock_bind_wild(int sockfd, int family)
         sin.sin_addr.s_addr = htonl(INADDR_ANY);
         sin.sin_port = htons(0); /* bind ephemeral port */
 
-        if (bind(sockfd, (SA*)&sin, sizeof(sin)) < 0)
-            return (-1);
+        if (bind(sockfd, (SA*)&sin, sizeof(sin)) < 0) return (-1);
         len = sizeof(sin);
-        if (getsockname(sockfd, (SA*)&sin, &len) < 0)
-            return (-1);
+        if (getsockname(sockfd, (SA*)&sin, &len) < 0) return (-1);
         return (sin.sin_port);
     }
 
@@ -30,11 +28,9 @@ int sock_bind_wild(int sockfd, int family)
         sin6.sin6_addr = in6addr_any;
         sin6.sin6_port = htons(0); /* bind ephemeral port */
 
-        if (bind(sockfd, (SA*)&sin6, sizeof(sin6)) < 0)
-            return (-1);
+        if (bind(sockfd, (SA*)&sin6, sizeof(sin6)) < 0) return (-1);
         len = sizeof(sin6);
-        if (getsockname(sockfd, (SA*)&sin6, &len) < 0)
-            return (-1);
+        if (getsockname(sockfd, (SA*)&sin6, &len) < 0) return (-1);
         return (sin6.sin6_port);
     }
 #endif

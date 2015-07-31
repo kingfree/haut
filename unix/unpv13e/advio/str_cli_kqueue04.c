@@ -8,7 +8,8 @@ void str_cli(FILE* fp, int sockfd)
     struct timespec ts;
     struct stat st;
 
-    isfile = ((fstat(fileno(fp), &st) == 0) && (st.st_mode & S_IFMT) == S_IFREG);
+    isfile =
+        ((fstat(fileno(fp), &st) == 0) && (st.st_mode & S_IFMT) == S_IFREG);
 
     EV_SET(&kev[0], fileno(fp), EVFILT_READ, EV_ADD, 0, 0, NULL);
     EV_SET(&kev[1], sockfd, EVFILT_READ, EV_ADD, 0, 0, NULL);
@@ -34,8 +35,7 @@ void str_cli(FILE* fp, int sockfd)
 
             if (kev[i].ident == fileno(fp)) { /* input is readable */
                 n = Read(fileno(fp), buf, MAXLINE);
-                if (n > 0)
-                    Writen(sockfd, buf, n);
+                if (n > 0) Writen(sockfd, buf, n);
 
                 if (n == 0 || (isfile && n == kev[i].data)) {
                     stdineof = 1;

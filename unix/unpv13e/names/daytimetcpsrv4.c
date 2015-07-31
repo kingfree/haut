@@ -22,7 +22,7 @@ int main(int argc, char** argv)
         len = addrlen;
         connfd = Accept(listenfd, cliaddr, &len);
         if (getnameinfo(cliaddr, len, host, NI_MAXHOST, serv, NI_MAXSERV,
-                NI_NUMERICHOST | NI_NUMERICSERV) == 0)
+                        NI_NUMERICHOST | NI_NUMERICSERV) == 0)
             printf("connection from %s.%s\n", host, serv);
 
         ticks = time(NULL);

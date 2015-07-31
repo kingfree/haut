@@ -7,7 +7,7 @@
 
 /* include ga_nsearch1 */
 int ga_nsearch(const char* hostname, const struct addrinfo* hintsp,
-    struct search* search)
+               struct search* search)
 {
     int nsearch = 0;
 
@@ -44,8 +44,7 @@ int ga_nsearch(const char* hostname, const struct addrinfo* hintsp,
             }
             /* end ga_nsearch1 */
             /* include ga_nsearch2 */
-        }
-        else {
+        } else {
             /* 4no host and not AI_PASSIVE: connect to local host */
             switch (hintsp->ai_family) {
 #ifdef IPv4
@@ -78,8 +77,7 @@ int ga_nsearch(const char* hostname, const struct addrinfo* hintsp,
         }
         /* end ga_nsearch2 */
         /* include ga_nsearch3 */
-    }
-    else { /* host is specified */
+    } else { /* host is specified */
         switch (hintsp->ai_family) {
 #ifdef IPv4
         case AF_INET:
@@ -109,8 +107,7 @@ int ga_nsearch(const char* hostname, const struct addrinfo* hintsp,
             break;
         }
     }
-    if (nsearch < 1 || nsearch > 2)
-        err_quit("nsearch = %d", nsearch);
+    if (nsearch < 1 || nsearch > 2) err_quit("nsearch = %d", nsearch);
     return (nsearch);
 }
 /* end ga_nsearch3 */

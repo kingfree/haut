@@ -16,8 +16,7 @@ void traceloop(void)
         ICMP6_FILTER_SETBLOCKALL(&myfilt);
         ICMP6_FILTER_SETPASS(ICMP6_TIME_EXCEEDED, &myfilt);
         ICMP6_FILTER_SETPASS(ICMP6_DST_UNREACH, &myfilt);
-        setsockopt(recvfd, IPPROTO_IPV6, ICMP6_FILTER,
-            &myfilt, sizeof(myfilt));
+        setsockopt(recvfd, IPPROTO_IPV6, ICMP6_FILTER, &myfilt, sizeof(myfilt));
     }
 #endif
 
@@ -55,12 +54,11 @@ void traceloop(void)
 
                 if (sock_cmp_addr(pr->sarecv, pr->salast, pr->salen) != 0) {
                     if (getnameinfo(pr->sarecv, pr->salen, str, sizeof(str),
-                            NULL, 0, 0) == 0)
+                                    NULL, 0, 0) == 0)
                         printf(" %s (%s)", str,
-                            Sock_ntop_host(pr->sarecv, pr->salen));
+                               Sock_ntop_host(pr->sarecv, pr->salen));
                     else
-                        printf(" %s",
-                            Sock_ntop_host(pr->sarecv, pr->salen));
+                        printf(" %s", Sock_ntop_host(pr->sarecv, pr->salen));
                     memcpy(pr->salast, pr->sarecv, pr->salen);
                 }
                 tv_sub(&tvrecv, &rec->rec_tv);

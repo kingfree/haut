@@ -5,8 +5,7 @@ int main(int argc, char** argv)
     int sockfd, size;
     char buff[16384];
 
-    if (argc != 3)
-        err_quit("usage: tcpsend05 <host> <port#>");
+    if (argc != 3) err_quit("usage: tcpsend05 <host> <port#>");
 
     sockfd = Tcp_connect(argv[1], argv[2]);
 

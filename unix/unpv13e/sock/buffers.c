@@ -27,11 +27,11 @@ void buffers(int sockfd)
     }
 
     /* Set the socket send and receive buffer sizes (if specified).
-		   The receive buffer size is tied to TCP's advertised window. */
+           The receive buffer size is tied to TCP's advertised window. */
 
     if (rcvbuflen) {
         if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &rcvbuflen,
-                sizeof(rcvbuflen)) < 0)
+                       sizeof(rcvbuflen)) < 0)
             err_sys("SO_RCVBUF setsockopt error");
 
         optlen = sizeof(n);
@@ -39,13 +39,12 @@ void buffers(int sockfd)
             err_sys("SO_RCVBUF getsockopt error");
         if (n != rcvbuflen)
             err_quit("rcvbuflen = %d, SO_RCVBUF = %d", rcvbuflen, n);
-        if (verbose)
-            fprintf(stderr, "SO_RCVBUF = %d\n", n);
+        if (verbose) fprintf(stderr, "SO_RCVBUF = %d\n", n);
     }
 
     if (sndbuflen) {
         if (setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &sndbuflen,
-                sizeof(sndbuflen)) < 0)
+                       sizeof(sndbuflen)) < 0)
             err_sys("SO_SNDBUF setsockopt error");
 
         optlen = sizeof(n);
@@ -53,7 +52,6 @@ void buffers(int sockfd)
             err_sys("SO_SNDBUF getsockopt error");
         if (n != sndbuflen)
             err_quit("sndbuflen = %d, SO_SNDBUF = %d", sndbuflen, n);
-        if (verbose)
-            fprintf(stderr, "SO_SNDBUF = %d\n", n);
+        if (verbose) fprintf(stderr, "SO_SNDBUF = %d\n", n);
     }
 }

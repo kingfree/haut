@@ -44,8 +44,7 @@ void str_cli(FILE* fp, int sockfd)
                 }
 
                 Write(fileno(stdout), buf, n);
-            }
-            else {
+            } else {
                 /* input is readable */
                 if ((n = Read(fileno(fp), buf, MAXLINE)) == 0) {
                     stdineof = 1;

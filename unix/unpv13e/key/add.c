@@ -35,7 +35,7 @@ int prefix_all(struct sockaddr* sa)
 
 /* include sadb_add */
 void sadb_add(struct sockaddr* src, struct sockaddr* dst, int type, int alg,
-    int spi, int keybits, unsigned char* keydata)
+              int spi, int keybits, unsigned char* keydata)
 {
     int s;
     char buf[4096], *p; /* XXX */
@@ -152,15 +152,15 @@ int main(int argc, char** argv)
         err_quit("Invalid number of bits %s\n", argv[4]);
     }
     p = argv[5];
-    if (p[0] == '0' && (p[1] == 'x' || p[1] == 'X'))
-        p += 2;
+    if (p[0] == '0' && (p[1] == 'x' || p[1] == 'X')) p += 2;
     len = strlen(p);
     kp = keydata = malloc(keybits / 8);
     for (i = 0; i < keybits; i += 8) {
         int c;
 
         if (len < 2) {
-            err_quit("%s: not enough bytes (expected %d)\n", argv[5], keybits / 8);
+            err_quit("%s: not enough bytes (expected %d)\n", argv[5],
+                     keybits / 8);
         }
         if (sscanf(p, "%2x", &c) != 1) {
             err_quit("%s contains invalid hex digit\n", argv[5]);

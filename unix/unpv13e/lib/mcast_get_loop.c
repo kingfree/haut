@@ -8,8 +8,7 @@ int mcast_get_loop(int sockfd)
         socklen_t len;
 
         len = sizeof(flag);
-        if (getsockopt(sockfd, IPPROTO_IP, IP_MULTICAST_LOOP,
-                &flag, &len) < 0)
+        if (getsockopt(sockfd, IPPROTO_IP, IP_MULTICAST_LOOP, &flag, &len) < 0)
             return (-1);
         return (flag);
     }
@@ -20,8 +19,8 @@ int mcast_get_loop(int sockfd)
         socklen_t len;
 
         len = sizeof(flag);
-        if (getsockopt(sockfd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP,
-                &flag, &len) < 0)
+        if (getsockopt(sockfd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &flag, &len) <
+            0)
             return (-1);
         return (flag);
     }
@@ -37,7 +36,6 @@ int Mcast_get_loop(int sockfd)
 {
     int rc;
 
-    if ((rc = mcast_get_loop(sockfd)) < 0)
-        err_sys("mcast_get_loop error");
+    if ((rc = mcast_get_loop(sockfd)) < 0) err_sys("mcast_get_loop error");
     return (rc);
 }

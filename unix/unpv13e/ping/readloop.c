@@ -12,8 +12,7 @@ void readloop(void)
 
     sockfd = Socket(pr->sasend->sa_family, SOCK_RAW, pr->icmpproto);
     setuid(getuid()); /* don't need special permissions any more */
-    if (pr->finit)
-        (*pr->finit)();
+    if (pr->finit) (*pr->finit)();
 
     size = 60 * 1024; /* OK if setsockopt fails */
     setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &size, sizeof(size));

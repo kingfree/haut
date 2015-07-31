@@ -1,7 +1,6 @@
 #include "unproute.h"
 
-const char*
-sock_masktop(SA* sa, socklen_t salen)
+const char* sock_masktop(SA* sa, socklen_t salen)
 {
     static char str[INET6_ADDRSTRLEN];
     unsigned char* ptr = &sa->sa_data[2];
@@ -15,10 +14,10 @@ sock_masktop(SA* sa, socklen_t salen)
     else if (sa->sa_len == 7)
         snprintf(str, sizeof(str), "%d.%d.%d.0", *ptr, *(ptr + 1), *(ptr + 2));
     else if (sa->sa_len == 8)
-        snprintf(str, sizeof(str), "%d.%d.%d.%d",
-            *ptr, *(ptr + 1), *(ptr + 2), *(ptr + 3));
+        snprintf(str, sizeof(str), "%d.%d.%d.%d", *ptr, *(ptr + 1), *(ptr + 2),
+                 *(ptr + 3));
     else
         snprintf(str, sizeof(str), "(unknown mask, len = %d, family = %d)",
-            sa->sa_len, sa->sa_family);
+                 sa->sa_len, sa->sa_family);
     return (str);
 }

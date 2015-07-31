@@ -9,16 +9,14 @@ static int rttinit = 0;
 static struct msghdr msgsend, msgrecv; /* assumed init to 0 */
 static struct hdr {
     uint32_t seq; /* sequence # */
-    uint32_t ts; /* timestamp when sent */
+    uint32_t ts;  /* timestamp when sent */
 } sendhdr, recvhdr;
 
 static void sig_alrm(int signo);
 static sigjmp_buf jmpbuf;
 
-ssize_t
-dg_send_recv(int fd, const void* outbuff, size_t outbytes,
-    void* inbuff, size_t inbytes,
-    const SA* destaddr, socklen_t destlen)
+ssize_t dg_send_recv(int fd, const void* outbuff, size_t outbytes, void* inbuff,
+                     size_t inbytes, const SA* destaddr, socklen_t destlen)
 {
     ssize_t n;
     struct iovec iovsend[2], iovrecv[2];
@@ -92,24 +90,16 @@ sendagain:
     return (n - sizeof(struct hdr)); /* return size of received datagram */
 }
 
-static void
-sig_alrm(int signo)
-{
-    siglongjmp(jmpbuf, 1);
-}
+static void sig_alrm(int signo) { siglongjmp(jmpbuf, 1); }
 /* end dgsendrecv2 */
 
-ssize_t
-Dg_send_recv(int fd, const void* outbuff, size_t outbytes,
-    void* inbuff, size_t inbytes,
-    const SA* destaddr, socklen_t destlen)
+ssize_t Dg_send_recv(int fd, const void* outbuff, size_t outbytes, void* inbuff,
+                     size_t inbytes, const SA* destaddr, socklen_t destlen)
 {
     ssize_t n;
 
-    n = dg_send_recv(fd, outbuff, outbytes, inbuff, inbytes,
-        destaddr, destlen);
-    if (n < 0)
-        err_quit("dg_send_recv error");
+    n = dg_send_recv(fd, outbuff, outbytes, inbuff, inbytes, destaddr, destlen);
+    if (n < 0) err_quit("dg_send_recv error");
 
     return (n);
 }

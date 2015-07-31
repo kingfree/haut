@@ -23,8 +23,7 @@ int main(int argc, char** argv)
 
     Signal(SIGINT, sig_int);
 
-    for (;;)
-        pause(); /* everything done by threads */
+    for (;;) pause(); /* everything done by threads */
 }
 /* end serv07 */
 

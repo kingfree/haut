@@ -11,9 +11,8 @@ int main(int argc, char** argv)
     struct ifi_info *ifi, *ifihead;
     struct sockaddr_in *sa, cliaddr, wildaddr;
 
-    for (ifihead = ifi = Get_ifi_info(AF_INET, 1);
-         ifi != NULL; ifi = ifi->ifi_next) {
-
+    for (ifihead = ifi = Get_ifi_info(AF_INET, 1); ifi != NULL;
+         ifi = ifi->ifi_next) {
         /*4bind unicast address */
         sockfd = Socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -41,20 +40,17 @@ int main(int argc, char** argv)
             sa->sin_port = htons(SERV_PORT);
             if (bind(sockfd, (SA*)sa, sizeof(*sa)) < 0) {
                 if (errno == EADDRINUSE) {
-                    printf("EADDRINUSE: %s\n",
-                        Sock_ntop((SA*)sa, sizeof(*sa)));
+                    printf("EADDRINUSE: %s\n", Sock_ntop((SA*)sa, sizeof(*sa)));
                     Close(sockfd);
                     continue;
-                }
-                else
+                } else
                     err_sys("bind error for %s",
-                        Sock_ntop((SA*)sa, sizeof(*sa)));
+                            Sock_ntop((SA*)sa, sizeof(*sa)));
             }
             printf("bound %s\n", Sock_ntop((SA*)sa, sizeof(*sa)));
 
             if ((pid = Fork()) == 0) { /* child */
-                mydg_echo(sockfd, (SA*)&cliaddr, sizeof(cliaddr),
-                    (SA*)sa);
+                mydg_echo(sockfd, (SA*)&cliaddr, sizeof(cliaddr), (SA*)sa);
                 exit(0); /* never executed */
             }
         }
@@ -91,7 +87,7 @@ void mydg_echo(int sockfd, SA* pcliaddr, socklen_t clilen, SA* myaddr)
         len = clilen;
         n = Recvfrom(sockfd, mesg, MAXLINE, 0, pcliaddr, &len);
         printf("child %d, datagram from %s", getpid(),
-            Sock_ntop(pcliaddr, len));
+               Sock_ntop(pcliaddr, len));
         printf(", to %s\n", Sock_ntop(myaddr, clilen));
 
         Sendto(sockfd, mesg, n, 0, pcliaddr, len);

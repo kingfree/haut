@@ -11,14 +11,13 @@ int udp_connect(const char* host, const char* serv)
     hints.ai_socktype = SOCK_DGRAM;
 
     if ((n = getaddrinfo(host, serv, &hints, &res)) != 0)
-        err_quit("udp_connect error for %s, %s: %s",
-            host, serv, gai_strerror(n));
+        err_quit("udp_connect error for %s, %s: %s", host, serv,
+                 gai_strerror(n));
     ressave = res;
 
     do {
         sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-        if (sockfd < 0)
-            continue; /* ignore this one */
+        if (sockfd < 0) continue; /* ignore this one */
 
         if (connect(sockfd, res->ai_addr, res->ai_addrlen) == 0)
             break; /* success */
@@ -40,8 +39,8 @@ int Udp_connect(const char* host, const char* serv)
     int n;
 
     if ((n = udp_connect(host, serv)) < 0) {
-        err_quit("udp_connect error for %s, %s: %s",
-            host, serv, gai_strerror(-n));
+        err_quit("udp_connect error for %s, %s: %s", host, serv,
+                 gai_strerror(-n));
     }
     return (n);
 }

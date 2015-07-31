@@ -18,8 +18,7 @@ void do_child(void);
 
 int main(int argc, char** argv)
 {
-    if (argc != 1)
-        err_quit("usage: qlen");
+    if (argc != 1) err_quit("usage: qlen");
 
     Socketpair(AF_UNIX, SOCK_STREAM, 0, pipefd);
 
@@ -36,10 +35,7 @@ int main(int argc, char** argv)
     exit(0);
 }
 
-void parent_alrm(int signo)
-{
-    return; /* just interrupt blocked connect() */
-}
+void parent_alrm(int signo) { return; /* just interrupt blocked connect() */ }
 
 /* include qlen */
 void do_parent(void)
@@ -53,7 +49,7 @@ void do_parent(void)
     for (qlen = 0; qlen <= 14; qlen++) {
         printf("qlen = %d: ", qlen);
         Write(pfd, &qlen, sizeof(int)); /* tell child value */
-        Read(pfd, &junk, sizeof(int)); /* wait for child */
+        Read(pfd, &junk, sizeof(int));  /* wait for child */
 
         for (j = 0; j <= MAXBACKLOG; j++) {
             fd[j] = T_open(XTI_TCP, O_RDWR, NULL);
@@ -67,17 +63,14 @@ void do_parent(void)
 
             alarm(2);
             if (t_connect(fd[j], &tcall, NULL) < 0) {
-                if (errno != EINTR)
-                    err_xti("t_connect error, j = %d", j);
+                if (errno != EINTR) err_xti("t_connect error, j = %d", j);
                 printf("timeout, %d connections completed\n", j - 1);
-                for (k = 1; k < j; k++)
-                    T_close(fd[k]);
+                for (k = 1; k < j; k++) T_close(fd[k]);
                 break; /* next value of qlen */
             }
             alarm(0);
         }
-        if (j > MAXBACKLOG)
-            printf("%d connections?\n", MAXBACKLOG);
+        if (j > MAXBACKLOG) printf("%d connections?\n", MAXBACKLOG);
     }
     qlen = -1; /* tell child we're all done */
     Write(pfd, &qlen, sizeof(int));
@@ -109,7 +102,7 @@ void do_child(void)
         Write(cfd, &junk, sizeof(int)); /* tell parent */
 
         Read(cfd, &qlen, sizeof(int)); /* just wait for parent */
-        T_close(listenfd); /* closes all queued connections too */
+        T_close(listenfd);             /* closes all queued connections too */
     }
 }
 /* end qlen */

@@ -6,11 +6,9 @@ int main(int argc, char** argv)
     char recvline[MAXLINE + 1];
     struct sockaddr_in servaddr;
 
-    if (argc != 2)
-        err_quit("用法: daytimetcpcli1 <IP地址>");
+    if (argc != 2) err_quit("用法: daytimetcpcli1 <IP地址>");
 
-    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-        err_sys("socket 错误");
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) err_sys("socket 错误");
 
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
@@ -24,11 +22,9 @@ int main(int argc, char** argv)
     while ((n = read(sockfd, recvline, MAXLINE)) > 0) {
         counter++;
         recvline[n] = 0; /* 以空结束 */
-        if (fputs(recvline, stdout) == EOF)
-            err_sys("fputs 错误");
+        if (fputs(recvline, stdout) == EOF) err_sys("fputs 错误");
     }
-    if (n < 0)
-        err_sys("read 错误");
+    if (n < 0) err_sys("read 错误");
 
     printf("counter = %d\n", counter);
     exit(0);

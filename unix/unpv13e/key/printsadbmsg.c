@@ -1,8 +1,7 @@
 #include "unp.h"
 #include <net/pfkeyv2.h>
 
-const char*
-get_sadb_msg_type(int type)
+const char* get_sadb_msg_type(int type)
 {
     static char buf[100];
     switch (type) {
@@ -34,8 +33,7 @@ get_sadb_msg_type(int type)
     }
 }
 
-const char*
-get_sadb_satype(int type)
+const char* get_sadb_satype(int type)
 {
     static char buf[100];
     switch (type) {
@@ -59,8 +57,7 @@ get_sadb_satype(int type)
     }
 }
 
-const char*
-get_auth_alg(int alg)
+const char* get_auth_alg(int alg)
 {
     static char buf[100];
     switch (alg) {
@@ -100,8 +97,7 @@ get_auth_alg(int alg)
     }
 }
 
-const char*
-get_encrypt_alg(int alg)
+const char* get_encrypt_alg(int alg)
 {
     static char buf[100];
     switch (alg) {
@@ -131,8 +127,7 @@ get_encrypt_alg(int alg)
     }
 }
 
-const char*
-get_sa_state(int state)
+const char* get_sa_state(int state)
 {
     static char buf[100];
     switch (state) {
@@ -150,13 +145,11 @@ get_sa_state(int state)
     }
 }
 
-const char*
-get_sadb_alg_type(int alg, int authenc)
+const char* get_sadb_alg_type(int alg, int authenc)
 {
     if (authenc == SADB_EXT_SUPPORTED_AUTH) {
         return get_auth_alg(alg);
-    }
-    else {
+    } else {
         return get_encrypt_alg(alg);
     }
 }
@@ -164,13 +157,11 @@ get_sadb_alg_type(int alg, int authenc)
 void sa_print(struct sadb_ext* ext)
 {
     struct sadb_sa* sa = (struct sadb_sa*)ext;
-    printf(" SA: SPI=%d Replay Window=%d State=%s\n",
-        sa->sadb_sa_spi, sa->sadb_sa_replay,
-        get_sa_state(sa->sadb_sa_state));
-    printf("  Authentication Algorithm: %s\n",
-        get_auth_alg(sa->sadb_sa_auth));
+    printf(" SA: SPI=%d Replay Window=%d State=%s\n", sa->sadb_sa_spi,
+           sa->sadb_sa_replay, get_sa_state(sa->sadb_sa_state));
+    printf("  Authentication Algorithm: %s\n", get_auth_alg(sa->sadb_sa_auth));
     printf("  Encryption Algorithm: %s\n",
-        get_encrypt_alg(sa->sadb_sa_encrypt));
+           get_encrypt_alg(sa->sadb_sa_encrypt));
     if (sa->sadb_sa_flags & SADB_SAFLAGS_PFS)
         printf("  Perfect Forward Secrecy\n");
 }
@@ -182,17 +173,21 @@ void supported_print(struct sadb_ext* ext)
     int len;
 
     printf(" Supported %s algorithms:\n",
-        sup->sadb_supported_exttype == SADB_EXT_SUPPORTED_AUTH ? "authentication" : "encryption");
+           sup->sadb_supported_exttype == SADB_EXT_SUPPORTED_AUTH
+               ? "authentication"
+               : "encryption");
     len = sup->sadb_supported_len * 8;
     len -= sizeof(*sup);
     if (len == 0) {
         printf("  None\n");
         return;
     }
-    for (alg = (struct sadb_alg*)(sup + 1); len > 0; len -= sizeof(*alg), alg++) {
+    for (alg = (struct sadb_alg*)(sup + 1); len > 0;
+         len -= sizeof(*alg), alg++) {
         printf("  %s ivlen %d bits %d-%d\n",
-            get_sadb_alg_type(alg->sadb_alg_id, sup->sadb_supported_exttype),
-            alg->sadb_alg_ivlen, alg->sadb_alg_minbits, alg->sadb_alg_maxbits);
+               get_sadb_alg_type(alg->sadb_alg_id, sup->sadb_supported_exttype),
+               alg->sadb_alg_ivlen, alg->sadb_alg_minbits,
+               alg->sadb_alg_maxbits);
     }
 }
 
@@ -201,9 +196,13 @@ void lifetime_print(struct sadb_ext* ext)
     struct sadb_lifetime* life = (struct sadb_lifetime*)ext;
 
     printf(" %s lifetime:\n",
-        life->sadb_lifetime_exttype == SADB_EXT_LIFETIME_CURRENT ? "Current" : life->sadb_lifetime_exttype == SADB_EXT_LIFETIME_HARD ? "Hard" : "Soft");
+           life->sadb_lifetime_exttype == SADB_EXT_LIFETIME_CURRENT
+               ? "Current"
+               : life->sadb_lifetime_exttype == SADB_EXT_LIFETIME_HARD
+                     ? "Hard"
+                     : "Soft");
     printf("  %d allocations, %d bytes", life->sadb_lifetime_allocations,
-        life->sadb_lifetime_bytes);
+           life->sadb_lifetime_bytes);
     if (life->sadb_lifetime_exttype == SADB_EXT_LIFETIME_CURRENT) {
         time_t t;
         struct tmp* tm;
@@ -216,17 +215,15 @@ void lifetime_print(struct sadb_ext* ext)
         printf("\n  added at %s, ", buf);
         if (life->sadb_lifetime_usetime == 0) {
             printf("never used\n");
-        }
-        else {
+        } else {
             t = life->sadb_lifetime_usetime;
             tm = localtime(&t);
             strftime(buf, sizeof(buf), "%c", tm);
             printf("first used at %s\n", buf);
         }
-    }
-    else {
+    } else {
         printf("%d addtime, %d usetime\n", life->sadb_lifetime_addtime,
-            life->sadb_lifetime_usetime);
+               life->sadb_lifetime_usetime);
     }
 }
 
@@ -236,7 +233,10 @@ void address_print(struct sadb_ext* ext)
     struct sockaddr* sa;
 
     printf(" %s address: ",
-        addr->sadb_address_exttype == SADB_EXT_ADDRESS_SRC ? "Source" : addr->sadb_address_exttype == SADB_EXT_ADDRESS_DST ? "Dest" : "Proxy");
+           addr->sadb_address_exttype == SADB_EXT_ADDRESS_SRC
+               ? "Source"
+               : addr->sadb_address_exttype == SADB_EXT_ADDRESS_DST ? "Dest"
+                                                                    : "Proxy");
     sa = (struct sockaddr*)(addr + 1);
     printf("  %s", sock_ntop(sa, addr->sadb_address_len * 8 - sizeof(*addr)));
     if (addr->sadb_address_prefixlen == 0)
@@ -266,10 +266,11 @@ void key_print(struct sadb_ext* ext)
     unsigned char* p;
 
     printf(" %s key, %d bits: 0x",
-        key->sadb_key_exttype == SADB_EXT_KEY_AUTH ? "Authentication" : "Encryption",
-        key->sadb_key_bits);
-    for (p = (unsigned char*)(key + 1), bits = key->sadb_key_bits;
-         bits > 0; p++, bits -= 8)
+           key->sadb_key_exttype == SADB_EXT_KEY_AUTH ? "Authentication"
+                                                      : "Encryption",
+           key->sadb_key_bits);
+    for (p = (unsigned char*)(key + 1), bits = key->sadb_key_bits; bits > 0;
+         p++, bits -= 8)
         printf("%02x", *p);
     printf("\n");
 }
@@ -280,7 +281,7 @@ void print_sadb_msg(struct sadb_msg* msg, int msglen)
 
     if (msglen != msg->sadb_msg_len * 8) {
         err_msg("SADB Message length (%d) doesn't match msglen (%d)\n",
-            msg->sadb_msg_len * 8, msglen);
+                msg->sadb_msg_len * 8, msglen);
         return;
     }
     if (msg->sadb_msg_version != PF_KEY_V2) {
@@ -288,13 +289,12 @@ void print_sadb_msg(struct sadb_msg* msg, int msglen)
         return;
     }
     printf("SADB Message %s, errno %d, satype %s, seq %d, pid %d\n",
-        get_sadb_msg_type(msg->sadb_msg_type), msg->sadb_msg_errno,
-        get_sadb_satype(msg->sadb_msg_satype), msg->sadb_msg_seq,
-        msg->sadb_msg_pid);
+           get_sadb_msg_type(msg->sadb_msg_type), msg->sadb_msg_errno,
+           get_sadb_satype(msg->sadb_msg_satype), msg->sadb_msg_seq,
+           msg->sadb_msg_pid);
     if (msg->sadb_msg_errno != 0)
         printf(" errno %s\n", strerror(msg->sadb_msg_errno));
-    if (msglen == sizeof(struct sadb_msg))
-        return; /* no extensions */
+    if (msglen == sizeof(struct sadb_msg)) return; /* no extensions */
     msglen -= sizeof(struct sadb_msg);
     ext = (struct sadb_ext*)(msg + 1);
     while (msglen > 0) {

@@ -24,9 +24,9 @@ void sntp_proc(char* buf, ssize_t n, struct timeval* nowptr)
 
     nsec = ntohl(ntp->xmt.int_part) - JAN_1970;
     useci = ntohl(ntp->xmt.fraction); /* 32-bit integer fraction */
-    usecf = useci; /* integer fraction -> double */
-    usecf /= 4294967296.0; /* divide by 2**32 -> [0, 1.0) */
-    useci = usecf * 1000000.0; /* fraction -> parts per million */
+    usecf = useci;                    /* integer fraction -> double */
+    usecf /= 4294967296.0;            /* divide by 2**32 -> [0, 1.0) */
+    useci = usecf * 1000000.0;        /* fraction -> parts per million */
 
     diff.tv_sec = nowptr->tv_sec - nsec;
     if ((diff.tv_usec = nowptr->tv_usec - useci) < 0) {

@@ -10,8 +10,7 @@ int main(int argc, char** argv)
     socklen_t salen;
     struct sockaddr *sasend, *sarecv;
 
-    if (argc != 3)
-        err_quit("usage: sendrecv <IP-multicast-address> <port#>");
+    if (argc != 3) err_quit("usage: sendrecv <IP-multicast-address> <port#>");
 
     sendfd = Udp_client(argv[1], argv[2], (void**)&sasend, &salen);
 
@@ -26,8 +25,7 @@ int main(int argc, char** argv)
     Mcast_join(recvfd, sasend, salen, NULL, 0);
     Mcast_set_loop(sendfd, 0);
 
-    if (Fork() == 0)
-        recv_all(recvfd, salen); /* child -> receives */
+    if (Fork() == 0) recv_all(recvfd, salen); /* child -> receives */
 
     send_all(sendfd, sasend, salen); /* parent -> sends */
 }

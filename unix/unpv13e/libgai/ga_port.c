@@ -40,8 +40,7 @@ int ga_port(struct addrinfo* aihead, int port, int socktype)
                     return (-1); /* memory allocation error */
                 /* ai points to newly cloned entry, which is what we want */
             }
-        }
-        else if (ai->ai_socktype != socktype)
+        } else if (ai->ai_socktype != socktype)
             continue; /* ignore if mismatch on socket type */
 
         ai->ai_socktype = socktype;

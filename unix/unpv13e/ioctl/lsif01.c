@@ -29,7 +29,8 @@ int main(int argc, char** argv)
         case AF_INET:
             sinptr = (struct sockaddr_in*)&ifr->ifr_addr;
             printf("%s\t%s\n", ifr->ifr_name,
-                Inet_ntop(AF_INET, &sinptr->sin_addr, addrstr, sizeof(addrstr)));
+                   Inet_ntop(AF_INET, &sinptr->sin_addr, addrstr,
+                             sizeof(addrstr)));
             break;
 
         default:

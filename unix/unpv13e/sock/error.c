@@ -1,4 +1,4 @@
-#include <errno.h> /* for definition of errno */
+#include <errno.h>  /* for definition of errno */
 #include <stdarg.h> /* ANSI C header file */
 #include "ourhdr.h"
 
@@ -85,16 +85,14 @@ void
 /* Print a message and return to caller.
  * Caller specifies "errnoflag". */
 
-static void
-err_doit(int errnoflag, const char* fmt, va_list ap)
+static void err_doit(int errnoflag, const char* fmt, va_list ap)
 {
     int errno_save;
     char buf[MAXLINE];
 
     errno_save = errno; /* value caller might want printed */
     vsprintf(buf, fmt, ap);
-    if (errnoflag)
-        sprintf(buf + strlen(buf), ": %s", strerror(errno_save));
+    if (errnoflag) sprintf(buf + strlen(buf), ": %s", strerror(errno_save));
     strcat(buf, "\n");
     fflush(stdout); /* in case stdout and stderr are the same */
     fputs(buf, stderr);

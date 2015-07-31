@@ -39,15 +39,14 @@ int readable_conn(int i)
         }
     }
     Write(unixfd, "1", 1); /* tell client all OK */
-    Close(recvfd); /* all done with client's UDP socket */
+    Close(recvfd);         /* all done with client's UDP socket */
     return (--nready);
 
 clienterr:
     Write(unixfd, "0", 1); /* tell client error occurred */
 clientdone:
     Close(unixfd);
-    if (recvfd >= 0)
-        Close(recvfd);
+    if (recvfd >= 0) Close(recvfd);
     FD_CLR(unixfd, &allset);
     client[i].connfd = -1;
     return (--nready);
