@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/queue.h>
 #include <ftw.h>
+#include "stack.h"
 
 #if defined(__APPLE__)
 #define COMMON_DIGEST_FOR_OPENSSL
@@ -65,22 +66,19 @@ void calc_hash(const char *filename)
 #define USE_FDS 15
 #endif
 
-int print_entry(const char *file, const struct stat *st,
-                const int type, struct FTW *path)
+int fn(const char *file, const struct stat *st, const int type, struct FTW *path)
 {
-    if (type == FTW_F) {
-        calc_hash(file);
-    }
+    if (type == FTW_F) calc_hash(file);
 
     return 0;
 }
 
-void do_nftw(const char *const dirpath)
+void do_nftw(const char *dirpath)
 {
-    nftw(dirpath, print_entry, USE_FDS, FTW_PHYS);
+    nftw(dirpath, fn, USE_FDS, FTW_PHYS);
 }
 
-void do_recuerse(const char *const dirpath)
+void do_recuerse(const char *dirpath)
 {
     struct dirent *ent = NULL;
     DIR *dir;
@@ -93,7 +91,8 @@ void do_recuerse(const char *const dirpath)
         if (ent->d_type & DT_REG) {
             calc_hash(path);
         } else if (ent->d_type & DT_DIR) {
-            if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
+            if (strcmp(ent->d_name, ".") != 0 &&
+                strcmp(ent->d_name, "..") != 0) {
                 do_recuerse(path);
             }
         }
@@ -101,52 +100,43 @@ void do_recuerse(const char *const dirpath)
     closedir(dir);
 }
 
-void do_stack(const char *const dirpath)
+void do_stack(const char *dirpath)
 {
     struct dirent *ent = NULL;
     DIR *dir;
     char path[BUFFSIZE];
+    stack *dirs;
+    char *dirname;
 
-    SLIST_HEAD(slisthead, entry) head = SLIST_HEAD_INITIALIZER(head);
-    struct entry {
-        SLIST_ENTRY(entry) entries;
-        char *dirname;
-    } *p;
+    dirs = stack_new(sizeof(char *));
 
-    SLIST_INIT(&head);
+    stack_push(dirs, strdup(dirpath));
 
-    p = malloc(sizeof(struct entry));
-    p->dirname = strdup(dirpath);
-    SLIST_INSERT_HEAD(&head, p, entries);
+    while (!stack_empty(dirs)) {
+        printf("栈大小=%d\n", dirs->len);
+        dirname = stack_pop(dirs);
+        printf("栈大小=%d[%s]\n", dirs->len, dirname);
 
-    while (!SLIST_EMPTY(&head)) {
-        p = SLIST_FIRST(&head);
-        fprintf(stderr, "{%s}\n", p->dirname);
-
-        if ((dir = opendir(p->dirname)) == NULL) {
-            perror("目录打开失败");
-            goto end;
+        if ((dir = opendir(dirname)) == NULL) {
+            snprintf(path, BUFFSIZE, "目录打开失败 '%s'", dirname);
+            perror(path);
+            continue;
         }
 
         while ((ent = readdir(dir)) != NULL) {
-            snprintf(path, BUFFSIZE, "%s/%s", p->dirname, ent->d_name);
-            fprintf(stderr, "[%s]\n", path);
+            snprintf(path, BUFFSIZE, "%s/%s", dirname, ent->d_name);
             if (ent->d_type & DT_REG) {
                 calc_hash(path);
             } else if (ent->d_type & DT_DIR) {
-                if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
-                    p = malloc(sizeof(struct entry));
-                    p->dirname = strdup(path);
-                    SLIST_INSERT_HEAD(&head, p, entries);
+                if (strcmp(ent->d_name, ".") != 0 &&
+                    strcmp(ent->d_name, "..") != 0) {
+                    dirname = strdup(path);
+                    printf("{%s}\n", dirname);
+                    stack_push(dirs, dirname);
                 }
             }
         }
         closedir(dir);
-
-end:
-        free(p->dirname);
-        SLIST_REMOVE(&head, p, entry, entries);
-        free(p);
     }
 }
 
