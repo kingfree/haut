@@ -1,19 +1,23 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <errno.h>
+#include <unistd.h>
+#include <ftw.h>
 
 #if defined(__APPLE__)
-#  define COMMON_DIGEST_FOR_OPENSSL
-#  include <CommonCrypto/CommonDigest.h>
+#define COMMON_DIGEST_FOR_OPENSSL
+#include <CommonCrypto/CommonDigest.h>
 #else
-#  include <openssl/md5.h>
+#include <openssl/md5.h>
 #endif
 
 #define BUFFSIZE 1024
 
-int main(int argc, char *argv[])
+void calc_md5(const char *filename)
 {
     unsigned char c[MD5_DIGEST_LENGTH];
-    char *filename = "md5.c";
-    if (argc > 1) filename = argv[1];
 
     FILE *file = fopen(filename, "rb");
     MD5_CTX md5;
@@ -21,8 +25,8 @@ int main(int argc, char *argv[])
     unsigned char data[BUFFSIZE];
 
     if (file == NULL) {
-        printf("%s can't be opened.\n", filename);
-        return 0;
+        perror("文件打开失败");
+        return;
     }
 
     MD5_Init(&md5);
@@ -35,6 +39,43 @@ int main(int argc, char *argv[])
     printf(" %s\n", filename);
 
     fclose(file);
+}
+
+#ifndef USE_FDS
+#define USE_FDS 15
+#endif
+
+int print_entry(const char *filepath, const struct stat *info,
+        const int typeflag, struct FTW *pathinfo)
+{
+    if (typeflag == FTW_F) {
+        calc_md5(filepath);
+    }
+
+    return 0;
+}
+
+int print_directory_tree(const char *const dirpath)
+{
+    int result;
+
+    if (dirpath == NULL || *dirpath == '\0') return errno = EINVAL;
+
+    result = nftw(dirpath, print_entry, USE_FDS, FTW_PHYS);
+    if (result >= 0) errno = result;
+
+    return errno;
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc < 2) argv[argc++] = ".";
+    for (int i = 1; i < argc; i++) {
+        if (print_directory_tree(argv[i])) {
+            perror("目录打开失败");
+            exit(1);
+        }
+    }
 
     return 0;
 }
