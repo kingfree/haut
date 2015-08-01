@@ -1,12 +1,20 @@
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE
+#endif
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 500
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <ftw.h>
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/queue.h>
-#include <ftw.h>
+#include <sys/types.h>
 #include "stack.h"
 #include "string.h"
 
