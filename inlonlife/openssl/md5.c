@@ -1,16 +1,9 @@
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
-#ifndef _BSD_SOURCE
-#define _BSD_SOURCE
-#endif
-
-#ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE 500
-#endif
-
 #include <errno.h>
 #include <ftw.h>
 #include <dirent.h>
