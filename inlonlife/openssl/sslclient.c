@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -41,17 +43,18 @@ int main(int argc, char **argv)
     SSL *ssl;
     if (argc != 3) {
         printf(
-            "参数格式错误！正确用法如下：\n\t\t%s IP 地址端口\n\t 比如:\t%s "
-            "127.0.0.1 80\n 此程序用来从某个IP "
-            "地址的服务器某个端口接收最多MAXBUF 个字节的消息",
+            "用法: \t%s IP地址 端口\n"
+            "例: \t%s 127.0.0.1 80\n\n"
+            "此程序用来从某个IP地址的服务器某个端口"
+            "接收最多MAXBUF 个字节的消息\n",
             argv[0], argv[0]);
         exit(0);
     }
-    /* SSL 库初始化*/
+    /* SSL 库初始化 */
     SSL_library_init();
-    /* 载入所有SSL 算法*/
+    /* 载入所有SSL 算法 */
     OpenSSL_add_all_algorithms();
-    /* 载入所有SSL 错误消息*/
+    /* 载入所有SSL 错误消息 */
     SSL_load_error_strings();
     /* 以SSL V2 和V3 标准兼容方式产生一个SSL_CTX ，即SSL Content Text */
     ctx = SSL_CTX_new(SSLv23_client_method());
@@ -59,24 +62,24 @@ int main(int argc, char **argv)
         ERR_print_errors_fp(stdout);
         exit(1);
     }
-    /* 创建一个socket 用于tcp 通信*/
+    /* 创建一个socket 用于tcp 通信 */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Socket");
         exit(errno);
     }
     printf("socket created\n");
-    /* 初始化服务器端（对方）的地址和端口信息*/
+    /* 初始化服务器端（对方）的地址和端口信息 */
     bzero(&dest, sizeof(dest));
     dest.sin_family = AF_INET;
-    //设置连接的端口
+    /* 设置连接的端口 */
     dest.sin_port = htons(atoi(argv[2]));
-    //设置连接的IP地址
+    /* 设置连接的IP地址 */
     if (inet_aton(argv[1], (struct in_addr *)&dest.sin_addr.s_addr) == 0) {
         perror(argv[1]);
         exit(errno);
     }
     printf("address created\n");
-    /* 连接服务器*/
+    /* 连接服务器 */
     if (connect(sockfd, (struct sockaddr *)&dest, sizeof(dest)) != 0) {
         perror("Connect ");
         exit(errno);
@@ -86,16 +89,16 @@ int main(int argc, char **argv)
     ssl = SSL_new(ctx);
     /* 将新连接的socket 加入到SSL */
     SSL_set_fd(ssl, sockfd);
-    /* 建立SSL 连接*/
+    /* 建立SSL 连接 */
     if (SSL_connect(ssl) == -1) {
         ERR_print_errors_fp(stderr);
     } else {
         printf("Connected with %s encryption\n", SSL_get_cipher(ssl));
         ShowCerts(ssl);
     }
-    /* 接收对方发过来的消息，最多接收MAXBUF 个字节*/
+    /* 接收对方发过来的消息，最多接收MAXBUF 个字节 */
     bzero(buffer, MAXBUF + 1);
-    /* 接收服务器来的消息*/
+    /* 接收服务器来的消息 */
     len = SSL_read(ssl, buffer, MAXBUF);
     if (len > 0) {
         printf("接收消息成功:'%s'，共%d 个字节的数据\n", buffer, len);
@@ -106,7 +109,7 @@ int main(int argc, char **argv)
     }
     bzero(buffer, MAXBUF + 1);
     strcpy(buffer, "from client->server");
-    /* 发消息给服务器*/
+    /* 发消息给服务器 */
     len = SSL_write(ssl, buffer, strlen(buffer));
     if (len < 0) {
         printf("消息'%s'发送失败！错误代码是%d，错误信息是'%s'\n", buffer,
@@ -115,7 +118,7 @@ int main(int argc, char **argv)
         printf("消息'%s'发送成功，共发送了%d 个字节！\n", buffer, len);
     }
 finish:
-    /* 关闭连接*/
+    /* 关闭连接 */
     SSL_shutdown(ssl);
     SSL_free(ssl);
     close(sockfd);
