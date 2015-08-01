@@ -36,10 +36,7 @@ size_t string_length(string *s)
     return s->len;
 }
 
-int string_empty(string *s)
-{
-    return string_length(s) == 0;
-}
+int string_empty(string *s) { return string_length(s) == 0; }
 
 string *string_ncat(string *s1, const char *s2, size_t n)
 {

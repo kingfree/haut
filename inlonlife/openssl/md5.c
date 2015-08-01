@@ -70,17 +70,15 @@ void calc_hash(const char *filename)
 #define USE_FDS 15
 #endif
 
-int fn(const char *file, const struct stat *st, const int type, struct FTW *path)
+int fn(const char *file, const struct stat *st, const int type,
+       struct FTW *path)
 {
     if (type == FTW_F) calc_hash(file);
 
     return 0;
 }
 
-void do_nftw(const char *dirpath)
-{
-    nftw(dirpath, fn, USE_FDS, FTW_PHYS);
-}
+void do_nftw(const char *dirpath) { nftw(dirpath, fn, USE_FDS, FTW_PHYS); }
 
 void do_recuerse(const char *dirpath)
 {
