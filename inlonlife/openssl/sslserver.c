@@ -1,5 +1,6 @@
 /*
- 1. 程序中用到的包含公钥的服务端证书cacert.pem和服务端私钥文件privkey.pem需要使用如下方式生成：
+ 1.
+ 程序中用到的包含公钥的服务端证书cacert.pem和服务端私钥文件privkey.pem需要使用如下方式生成：
  openssl genrsa -out privkey.pem 2048
  openssl req -new -x509 -key privkey.pem -out cacert.pem -days 1095
  2. 编译程序用下列命令：
@@ -55,7 +56,8 @@ int main(int argc, char **argv)
     SSL_load_error_strings();
     /* 以SSL V2 和V3 标准兼容方式产生一个SSL_CTX ，即SSL Content Text  */
     ctx = SSL_CTX_new(SSLv23_server_method());
-    /* 也可以用SSLv2_server_method() 或SSLv3_server_method() 单独表示V2 或V3标准 */
+    /* 也可以用SSLv2_server_method() 或SSLv3_server_method() 单独表示V2 或V3标准
+     */
     if (ctx == NULL) {
         ERR_print_errors_fp(stdout);
         exit(1);
