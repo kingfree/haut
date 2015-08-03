@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
 #include <string.h>
 #include <openssl/bio.h>
 #include <openssl/err.h>
@@ -10,8 +11,10 @@
 #include <openssl/pem.h>
 #include <ctype.h>
 #include <getopt.h>
+#include <pwd.h>
+#include <unistd.h>
 
-static const char *optString = "i:o:edh?";
+static const char *optString = "c:i:o:edh?";
 
 static const struct option options[] = {
     {"input", required_argument, NULL, 'i'},
@@ -21,36 +24,54 @@ static const struct option options[] = {
     {"help", no_argument, NULL, 'h'},
     {NULL, no_argument, NULL, 0}};
 
+#define default_chipher "rc2-cbc"
+
 void display_usage()
 {
     printf(
         "用法: enc [选项] -i<输入文件> -o<输出文件>\n"
-        "选项: -e 加密\n"
-        "      -d 解密 (默认)\n");
+        "选项: -e       加密\n"
+        "      -d       解密 (默认)\n"
+        "      -c<编码> 加解密算法，默认为 " default_chipher "\n");
     exit(1);
 }
 
+#define BUFFSIZE 1024
+unsigned char inbuf[BUFFSIZE], outbuf[BUFFSIZE + EVP_MAX_BLOCK_LENGTH];
+
 int main(int argc, char *argv[])
 {
-    char *input_filename, *output_filename;
-    int encrypt = 0;
+    int ret = 0;
+    char *infile = NULL, *outfile = NULL;
+    int enc = 1;
+    char *select_cipher = default_chipher;
+    char *str = NULL;
+    int in = -1, out = -1;
+    EVP_CIPHER_CTX ctx;
+    const EVP_CIPHER *cipher = NULL;
+    const EVP_MD *dgst = NULL;
+    unsigned char key[EVP_MAX_KEY_LENGTH], iv[EVP_MAX_IV_LENGTH];
+    int inl, outl;
 
     int opt;
     int index;
 
     while ((opt = getopt_long(argc, argv, optString, options, &index)) != -1) {
         switch (opt) {
+        case 'c':
+            select_cipher = optarg;
+            break;
         case 'i':
-            input_filename = optarg;
+            infile = optarg;
             break;
         case 'o':
-            output_filename = optarg;
+            outfile = optarg;
             break;
         case 'e':
-            encrypt = 1;
+            enc = 1;
             break;
         case 'd':
-            encrypt = 0;
+            enc = 0;
             break;
         case 'h':
         case '?':
@@ -61,8 +82,79 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (!input_filename || !output_filename) {
-        display_usage();
+    cipher = EVP_rc2_cbc(); // EVP_get_cipherbyname(select_cipher);
+    if (!cipher) {
+        fprintf(stderr, "%s 算法无效\n", select_cipher);
+        goto end;
     }
-    return 0;
+
+    if (dgst == NULL)
+        dgst = EVP_md5();
+
+    if (!infile) {
+        fflush(stdin);
+        in = dup(STDIN_FILENO);
+    } else
+        in = open(infile, O_RDONLY);
+    if (in < 0) {
+        fprintf(stderr, "打开输入文件 %s 失败\n", infile);
+        goto end;
+    }
+
+    for (;;) {
+        str = getpass("输入密码: ");
+        if (str) break;
+        fprintf(stderr, "密码输入失败\n");
+    }
+    out = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0664);
+    if (out < 0) {
+        fprintf(stderr, "打开输出文件 %s 失败\n", outfile);
+        goto end;
+    }
+
+    unsigned char *sptr = NULL;
+
+    if (!EVP_BytesToKey(cipher, dgst, sptr, (unsigned char *)str, strlen(str),
+                        1, key, iv)) {
+        fprintf(stderr, "密码转换失败\n");
+        goto end;
+    }
+
+    fprintf(stderr, "LINE: %d\n", __LINE__);
+    EVP_CIPHER_CTX_init(&ctx);
+
+    fprintf(stderr, "LINE: %d\n", __LINE__);
+    if (!EVP_CipherInit_ex(&ctx, cipher, NULL, NULL, NULL, enc)) {
+        fprintf(stderr, "设置加密算法 %s 失败\n", EVP_CIPHER_name(cipher));
+        goto end;
+    }
+    fprintf(stderr, "LINE: %d\n", __LINE__);
+
+    while((inl = read(in, inbuf, BUFFSIZE)) > 0) {
+    fprintf(stderr, "LINE: %d\n", __LINE__);
+        if (inl <= 0) break;
+    fprintf(stderr, "LINE: %d %p %d %p %d\n", __LINE__, outbuf, outl, inbuf, inl);
+        if (!EVP_CipherUpdate(&ctx, outbuf, &outl, inbuf, inl)) {
+    fprintf(stderr, "LINE: %d\n", __LINE__);
+            fprintf(stderr, "%s失败\n", enc ? "加密" : "解密");
+            goto end;
+        }
+    fprintf(stderr, "LINE: %d\n", __LINE__);
+        write(out, outbuf, outl);
+    fprintf(stderr, "LINE: %d\n", __LINE__);
+    }
+    if (!EVP_CipherFinal_ex(&ctx, outbuf, &outl)) {
+    fprintf(stderr, "LINE: %d\n", __LINE__);
+        fprintf(stderr, "%s失败\n", enc ? "加密" : "解密");
+        goto end;
+    }
+    write(out, outbuf, outl);
+    fprintf(stderr, "LINE: %d\n", __LINE__);
+
+end:
+    if (in >= 0) close(in);
+    if (out >= 0) close(out);
+    EVP_CIPHER_CTX_cleanup(&ctx);
+
+    return ret;
 }
