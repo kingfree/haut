@@ -2,17 +2,12 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
-#include <openssl/bio.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
-#include <openssl/rand.h>
-#include <openssl/pem.h>
 #include <ctype.h>
 #include <getopt.h>
 #include <pwd.h>
 #include <unistd.h>
+
+#include <openssl/evp.h>
 
 static const char *optString = "c:i:o:edh?";
 
@@ -24,7 +19,7 @@ static const struct option options[] = {
     {"help", no_argument, NULL, 'h'},
     {NULL, no_argument, NULL, 0}};
 
-#define default_chipher "rc2-cbc"
+#define default_chipher "aes-128-cbc"
 
 void display_usage()
 {
@@ -82,7 +77,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    cipher = EVP_rc2_cbc(); // EVP_get_cipherbyname(select_cipher);
+    cipher = EVP_get_cipherbyname(select_cipher);
     if (!cipher) {
         fprintf(stderr, "%s 算法无效\n", select_cipher);
         goto end;
@@ -120,41 +115,31 @@ int main(int argc, char *argv[])
         goto end;
     }
 
-    fprintf(stderr, "LINE: %d\n", __LINE__);
     EVP_CIPHER_CTX_init(&ctx);
 
-    fprintf(stderr, "LINE: %d\n", __LINE__);
     if (!EVP_CipherInit_ex(&ctx, cipher, NULL, NULL, NULL, enc)) {
         fprintf(stderr, "设置加密算法 %s 失败\n", EVP_CIPHER_name(cipher));
         goto end;
     }
-    fprintf(stderr, "LINE: %d\n", __LINE__);
 
     while((inl = read(in, inbuf, BUFFSIZE)) > 0) {
-    fprintf(stderr, "LINE: %d\n", __LINE__);
         if (inl <= 0) break;
-    fprintf(stderr, "LINE: %d %p %d %p %d\n", __LINE__, outbuf, outl, inbuf, inl);
         if (!EVP_CipherUpdate(&ctx, outbuf, &outl, inbuf, inl)) {
-    fprintf(stderr, "LINE: %d\n", __LINE__);
             fprintf(stderr, "%s失败\n", enc ? "加密" : "解密");
             goto end;
         }
-    fprintf(stderr, "LINE: %d\n", __LINE__);
         write(out, outbuf, outl);
-    fprintf(stderr, "LINE: %d\n", __LINE__);
     }
     if (!EVP_CipherFinal_ex(&ctx, outbuf, &outl)) {
-    fprintf(stderr, "LINE: %d\n", __LINE__);
         fprintf(stderr, "%s失败\n", enc ? "加密" : "解密");
         goto end;
     }
     write(out, outbuf, outl);
-    fprintf(stderr, "LINE: %d\n", __LINE__);
 
 end:
     if (in >= 0) close(in);
     if (out >= 0) close(out);
-    EVP_CIPHER_CTX_cleanup(&ctx);
+    // EVP_CIPHER_CTX_cleanup(&ctx);
 
     return ret;
 }
