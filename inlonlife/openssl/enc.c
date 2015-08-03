@@ -8,6 +8,8 @@
 #include <unistd.h>
 
 #include <openssl/evp.h>
+#include <openssl/objects.h>
+#include <openssl/err.h>
 
 static const char *optString = "c:i:o:edh?";
 
@@ -19,7 +21,7 @@ static const struct option options[] = {
     {"help", no_argument, NULL, 'h'},
     {NULL, no_argument, NULL, 0}};
 
-#define default_chipher "aes-128-cbc"
+#define default_chipher "aes-256-cbc"
 
 void display_usage()
 {
@@ -77,14 +79,14 @@ int main(int argc, char *argv[])
         }
     }
 
+    OpenSSL_add_all_algorithms();
     cipher = EVP_get_cipherbyname(select_cipher);
     if (!cipher) {
         fprintf(stderr, "%s 算法无效\n", select_cipher);
         goto end;
     }
 
-    if (dgst == NULL)
-        dgst = EVP_md5();
+    if (!dgst) dgst = EVP_md5();
 
     if (!infile) {
         fflush(stdin);
@@ -101,6 +103,7 @@ int main(int argc, char *argv[])
         if (str) break;
         fprintf(stderr, "密码输入失败\n");
     }
+
     out = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0664);
     if (out < 0) {
         fprintf(stderr, "打开输出文件 %s 失败\n", outfile);
@@ -117,29 +120,32 @@ int main(int argc, char *argv[])
 
     EVP_CIPHER_CTX_init(&ctx);
 
-    if (!EVP_CipherInit_ex(&ctx, cipher, NULL, NULL, NULL, enc)) {
+    if (!EVP_CipherInit_ex(&ctx, cipher, NULL, key, iv, enc)) {
         fprintf(stderr, "设置加密算法 %s 失败\n", EVP_CIPHER_name(cipher));
+        EVP_CIPHER_CTX_cleanup(&ctx);
         goto end;
     }
 
-    while((inl = read(in, inbuf, BUFFSIZE)) > 0) {
+    while ((inl = read(in, inbuf, BUFFSIZE)) > 0) {
         if (inl <= 0) break;
         if (!EVP_CipherUpdate(&ctx, outbuf, &outl, inbuf, inl)) {
+            ERR_print_errors_fp(stderr);
             fprintf(stderr, "%s失败\n", enc ? "加密" : "解密");
+            EVP_CIPHER_CTX_cleanup(&ctx);
             goto end;
         }
         write(out, outbuf, outl);
     }
     if (!EVP_CipherFinal_ex(&ctx, outbuf, &outl)) {
         fprintf(stderr, "%s失败\n", enc ? "加密" : "解密");
+        EVP_CIPHER_CTX_cleanup(&ctx);
         goto end;
     }
     write(out, outbuf, outl);
 
 end:
-    if (in >= 0) close(in);
-    if (out >= 0) close(out);
-    // EVP_CIPHER_CTX_cleanup(&ctx);
+    if (in > 0) close(in);
+    if (out > 0) close(out);
 
     return ret;
 }
