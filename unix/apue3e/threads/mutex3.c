@@ -5,17 +5,19 @@
 #define HASH(id) (((unsigned long)id) % NHASH)
 
 struct foo *fh[NHASH];
+
 pthread_mutex_t hashlock = PTHREAD_MUTEX_INITIALIZER;
 
 struct foo {
-    int f_count; /* protected by hashlock */
+    int f_count; /* 用 hasklock 保护 */
     pthread_mutex_t f_lock;
     int f_id;
-    struct foo *f_next; /* protected by hashlock */
-                        /* ... more stuff here ... */
+    struct foo *f_next; /* 用 hasklock 保护 */
+    /* ... 其他成员 ... */
 };
 
-struct foo *foo_alloc(int id) /* allocate the object */
+/* 分配对象 */
+struct foo *foo_alloc(int id)
 {
     struct foo *fp;
     int idx;
@@ -33,20 +35,22 @@ struct foo *foo_alloc(int id) /* allocate the object */
         fh[idx] = fp;
         pthread_mutex_lock(&fp->f_lock);
         pthread_mutex_unlock(&hashlock);
-        /* ... continue initialization ... */
+        /* ... 继续初始化 ... */
         pthread_mutex_unlock(&fp->f_lock);
     }
     return (fp);
 }
 
-void foo_hold(struct foo *fp) /* add a reference to the object */
+/* 为对象添加一个引用 */
+void foo_hold(struct foo *fp)
 {
     pthread_mutex_lock(&hashlock);
     fp->f_count++;
     pthread_mutex_unlock(&hashlock);
 }
 
-struct foo *foo_find(int id) /* find an existing object */
+/* 查找一个存在的对象 */
+struct foo *foo_find(int id)
 {
     struct foo *fp;
 
@@ -61,13 +65,14 @@ struct foo *foo_find(int id) /* find an existing object */
     return (fp);
 }
 
-void foo_rele(struct foo *fp) /* release a reference to the object */
+/* 为对象释放一个引用 */
+void foo_rele(struct foo *fp)
 {
     struct foo *tfp;
     int idx;
 
     pthread_mutex_lock(&hashlock);
-    if (--fp->f_count == 0) { /* last reference, remove from list */
+    if (--fp->f_count == 0) { /* 最后一个引用，从列表中移除 */
         idx = HASH(fp->f_id);
         tfp = fh[idx];
         if (tfp == fp) {

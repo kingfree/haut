@@ -5,10 +5,11 @@ struct foo {
     int f_count;
     pthread_mutex_t f_lock;
     int f_id;
-    /* ... more stuff here ... */
+    /* ... 其他成员 ... */
 };
 
-struct foo *foo_alloc(int id) /* allocate the object */
+/* 分配对象 */
+struct foo *foo_alloc(int id)
 {
     struct foo *fp;
 
@@ -19,22 +20,24 @@ struct foo *foo_alloc(int id) /* allocate the object */
             free(fp);
             return (NULL);
         }
-        /* ... continue initialization ... */
+        /* ... 继续初始化 ... */
     }
     return (fp);
 }
 
-void foo_hold(struct foo *fp) /* add a reference to the object */
+/* 为对象添加一个引用 */
+void foo_hold(struct foo *fp)
 {
     pthread_mutex_lock(&fp->f_lock);
     fp->f_count++;
     pthread_mutex_unlock(&fp->f_lock);
 }
 
-void foo_rele(struct foo *fp) /* release a reference to the object */
+/* 为对象释放一个引用 */
+void foo_rele(struct foo *fp)
 {
     pthread_mutex_lock(&fp->f_lock);
-    if (--fp->f_count == 0) { /* last reference */
+    if (--fp->f_count == 0) { /* 最后一个引用 */
         pthread_mutex_unlock(&fp->f_lock);
         pthread_mutex_destroy(&fp->f_lock);
         free(fp);

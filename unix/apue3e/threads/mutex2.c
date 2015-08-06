@@ -12,11 +12,12 @@ struct foo {
     int f_count;
     pthread_mutex_t f_lock;
     int f_id;
-    struct foo *f_next; /* protected by hashlock */
-                        /* ... more stuff here ... */
+    struct foo *f_next; /* 用 hasklock 保护 */
+    /* ... 其他成员 ... */
 };
 
-struct foo *foo_alloc(int id) /* allocate the object */
+/* 分配对象 */
+struct foo *foo_alloc(int id)
 {
     struct foo *fp;
     int idx;
@@ -34,20 +35,22 @@ struct foo *foo_alloc(int id) /* allocate the object */
         fh[idx] = fp;
         pthread_mutex_lock(&fp->f_lock);
         pthread_mutex_unlock(&hashlock);
-        /* ... continue initialization ... */
+        /* ... 继续初始化 ... */
         pthread_mutex_unlock(&fp->f_lock);
     }
     return (fp);
 }
 
-void foo_hold(struct foo *fp) /* add a reference to the object */
+/* 为对象添加一个引用 */
+void foo_hold(struct foo *fp)
 {
     pthread_mutex_lock(&fp->f_lock);
     fp->f_count++;
     pthread_mutex_unlock(&fp->f_lock);
 }
 
-struct foo *foo_find(int id) /* find an existing object */
+/* 查找一个存在的对象 */
+struct foo *foo_find(int id)
 {
     struct foo *fp;
 
@@ -62,24 +65,25 @@ struct foo *foo_find(int id) /* find an existing object */
     return (fp);
 }
 
-void foo_rele(struct foo *fp) /* release a reference to the object */
+/* 为对象释放一个引用 */
+void foo_rele(struct foo *fp)
 {
     struct foo *tfp;
     int idx;
 
     pthread_mutex_lock(&fp->f_lock);
-    if (fp->f_count == 1) { /* last reference */
+    if (fp->f_count == 1) { /* 最后一个引用 */
         pthread_mutex_unlock(&fp->f_lock);
         pthread_mutex_lock(&hashlock);
         pthread_mutex_lock(&fp->f_lock);
-        /* need to recheck the condition */
+        /* 需要重新检查条件 */
         if (fp->f_count != 1) {
             fp->f_count--;
             pthread_mutex_unlock(&fp->f_lock);
             pthread_mutex_unlock(&hashlock);
             return;
         }
-        /* remove from list */
+        /* 从列表中移除 */
         idx = HASH(fp->f_id);
         tfp = fh[idx];
         if (tfp == fp) {
