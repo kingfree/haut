@@ -10,21 +10,21 @@ int main(void)
     pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
     pthread_mutex_lock(&lock);
-    printf("mutex is locked\n");
+    printf("mutex 已锁定\n");
     clock_gettime(CLOCK_REALTIME, &tout);
     tmp = localtime(&tout.tv_sec);
     strftime(buf, sizeof(buf), "%r", tmp);
-    printf("current time is %s\n", buf);
-    tout.tv_sec += 10; /* 10 seconds from now */
-    /* caution: this could lead to deadlock */
+    printf("当前时间 %s\n", buf);
+    tout.tv_sec += 10; /* 从现在开始 10 秒 */
+    /* 注意: 这会导致死锁 */
     err = pthread_mutex_timedlock(&lock, &tout);
     clock_gettime(CLOCK_REALTIME, &tout);
     tmp = localtime(&tout.tv_sec);
     strftime(buf, sizeof(buf), "%r", tmp);
-    printf("the time is now %s\n", buf);
+    printf("现在时间 %s\n", buf);
     if (err == 0)
-        printf("mutex locked again!\n");
+        printf("mutex 再次锁定!\n");
     else
-        printf("can't lock mutex again: %s\n", strerror(err));
+        printf("无法再次锁定 mutex: %s\n", strerror(err));
     exit(0);
 }

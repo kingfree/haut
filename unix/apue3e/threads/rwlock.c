@@ -4,8 +4,8 @@
 struct job {
     struct job *j_next;
     struct job *j_prev;
-    pthread_t j_id; /* tells which thread handles this job */
-                    /* ... more stuff here ... */
+    pthread_t j_id; /* 表明哪个线程拥有该任务 */
+    /* ... 其他成员 ... */
 };
 
 struct queue {
@@ -15,7 +15,7 @@ struct queue {
 };
 
 /*
- * Initialize a queue.
+ * 初始化队列
  */
 int queue_init(struct queue *qp)
 {
@@ -25,12 +25,12 @@ int queue_init(struct queue *qp)
     qp->q_tail = NULL;
     err = pthread_rwlock_init(&qp->q_lock, NULL);
     if (err != 0) return (err);
-    /* ... continue initialization ... */
+    /* ... 继续初始化 ... */
     return (0);
 }
 
 /*
- * Insert a job at the head of the queue.
+ * 将任务插入队首
  */
 void job_insert(struct queue *qp, struct job *jp)
 {
@@ -40,13 +40,13 @@ void job_insert(struct queue *qp, struct job *jp)
     if (qp->q_head != NULL)
         qp->q_head->j_prev = jp;
     else
-        qp->q_tail = jp; /* list was empty */
+        qp->q_tail = jp; /* 队列空 */
     qp->q_head = jp;
     pthread_rwlock_unlock(&qp->q_lock);
 }
 
 /*
- * Append a job on the tail of the queue.
+ * 将任务插入队尾
  */
 void job_append(struct queue *qp, struct job *jp)
 {
@@ -56,13 +56,13 @@ void job_append(struct queue *qp, struct job *jp)
     if (qp->q_tail != NULL)
         qp->q_tail->j_next = jp;
     else
-        qp->q_head = jp; /* list was empty */
+        qp->q_head = jp; /* 队列空 */
     qp->q_tail = jp;
     pthread_rwlock_unlock(&qp->q_lock);
 }
 
 /*
- * Remove the given job from a queue.
+ * 从队列中删除指定任务
  */
 void job_remove(struct queue *qp, struct job *jp)
 {
@@ -84,7 +84,7 @@ void job_remove(struct queue *qp, struct job *jp)
 }
 
 /*
- * Find a job for the given thread ID.
+ * 找出给定线程对应的任务
  */
 struct job *job_find(struct queue *qp, pthread_t id)
 {
