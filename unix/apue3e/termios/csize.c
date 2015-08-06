@@ -5,8 +5,7 @@ int main(void)
 {
     struct termios term;
 
-    if (tcgetattr(STDIN_FILENO, &term) < 0)
-        err_sys("tcgetattr error");
+    if (tcgetattr(STDIN_FILENO, &term) < 0) err_sys("tcgetattr error");
 
     switch (term.c_cflag & CSIZE) {
     case CS5:
@@ -26,9 +25,8 @@ int main(void)
     }
 
     term.c_cflag &= ~CSIZE; /* zero out the bits */
-    term.c_cflag |= CS8; /* set 8 bits/byte */
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &term) < 0)
-        err_sys("tcsetattr error");
+    term.c_cflag |= CS8;    /* set 8 bits/byte */
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &term) < 0) err_sys("tcsetattr error");
 
     exit(0);
 }

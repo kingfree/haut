@@ -4,21 +4,20 @@
 #define NHASH 29
 #define HASH(id) (((unsigned long)id) % NHASH)
 
-struct foo* fh[NHASH];
+struct foo *fh[NHASH];
 pthread_mutex_t hashlock = PTHREAD_MUTEX_INITIALIZER;
 
 struct foo {
     int f_count; /* protected by hashlock */
     pthread_mutex_t f_lock;
     int f_id;
-    struct foo* f_next; /* protected by hashlock */
-    /* ... more stuff here ... */
+    struct foo *f_next; /* protected by hashlock */
+                        /* ... more stuff here ... */
 };
 
-struct foo*
-foo_alloc(int id) /* allocate the object */
+struct foo *foo_alloc(int id) /* allocate the object */
 {
-    struct foo* fp;
+    struct foo *fp;
     int idx;
 
     if ((fp = malloc(sizeof(struct foo))) != NULL) {
@@ -40,17 +39,16 @@ foo_alloc(int id) /* allocate the object */
     return (fp);
 }
 
-void foo_hold(struct foo* fp) /* add a reference to the object */
+void foo_hold(struct foo *fp) /* add a reference to the object */
 {
     pthread_mutex_lock(&hashlock);
     fp->f_count++;
     pthread_mutex_unlock(&hashlock);
 }
 
-struct foo*
-foo_find(int id) /* find an existing object */
+struct foo *foo_find(int id) /* find an existing object */
 {
-    struct foo* fp;
+    struct foo *fp;
 
     pthread_mutex_lock(&hashlock);
     for (fp = fh[HASH(id)]; fp != NULL; fp = fp->f_next) {
@@ -63,9 +61,9 @@ foo_find(int id) /* find an existing object */
     return (fp);
 }
 
-void foo_rele(struct foo* fp) /* release a reference to the object */
+void foo_rele(struct foo *fp) /* release a reference to the object */
 {
-    struct foo* tfp;
+    struct foo *tfp;
     int idx;
 
     pthread_mutex_lock(&hashlock);
@@ -74,17 +72,14 @@ void foo_rele(struct foo* fp) /* release a reference to the object */
         tfp = fh[idx];
         if (tfp == fp) {
             fh[idx] = fp->f_next;
-        }
-        else {
-            while (tfp->f_next != fp)
-                tfp = tfp->f_next;
+        } else {
+            while (tfp->f_next != fp) tfp = tfp->f_next;
             tfp->f_next = fp->f_next;
         }
         pthread_mutex_unlock(&hashlock);
         pthread_mutex_destroy(&fp->f_lock);
         free(fp);
-    }
-    else {
+    } else {
         pthread_mutex_unlock(&hashlock);
     }
 }

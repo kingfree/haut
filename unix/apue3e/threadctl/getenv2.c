@@ -3,14 +3,13 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-extern char** environ;
+extern char **environ;
 
 pthread_mutex_t env_mutex;
 
 static pthread_once_t init_done = PTHREAD_ONCE_INIT;
 
-static void
-thread_init(void)
+static void thread_init(void)
 {
     pthread_mutexattr_t attr;
 
@@ -20,7 +19,7 @@ thread_init(void)
     pthread_mutexattr_destroy(&attr);
 }
 
-int getenv_r(const char* name, char* buf, int buflen)
+int getenv_r(const char *name, char *buf, int buflen)
 {
     int i, len, olen;
 

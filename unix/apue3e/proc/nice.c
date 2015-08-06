@@ -13,7 +13,7 @@
 unsigned long long count;
 struct timeval end;
 
-void checktime(char* str)
+void checktime(char *str)
 {
     struct timeval tv;
 
@@ -24,10 +24,10 @@ void checktime(char* str)
     }
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     pid_t pid;
-    char* s;
+    char *s;
     int nzero, ret;
     int adj = 0;
 
@@ -40,30 +40,26 @@ int main(int argc, char* argv[])
 #error NZERO undefined
 #endif
     printf("NZERO = %d\n", nzero);
-    if (argc == 2)
-        adj = strtol(argv[1], NULL, 10);
+    if (argc == 2) adj = strtol(argv[1], NULL, 10);
     gettimeofday(&end, NULL);
     end.tv_sec += 10; /* run for 10 seconds */
 
     if ((pid = fork()) < 0) {
         err_sys("fork failed");
-    }
-    else if (pid == 0) { /* child */
+    } else if (pid == 0) { /* child */
         s = "child";
         printf("current nice value in child is %d, adjusting by %d\n",
-            nice(0) + nzero, adj);
+               nice(0) + nzero, adj);
         errno = 0;
         if ((ret = nice(adj)) == -1 && errno != 0)
             err_sys("child set scheduling priority");
         printf("now child nice value is %d\n", ret + nzero);
-    }
-    else { /* parent */
+    } else { /* parent */
         s = "parent";
         printf("current nice value in parent is %d\n", nice(0) + nzero);
     }
     for (;;) {
-        if (++count == 0)
-            err_quit("%s counter wrap", s);
+        if (++count == 0) err_quit("%s counter wrap", s);
         checktime(s);
     }
 }

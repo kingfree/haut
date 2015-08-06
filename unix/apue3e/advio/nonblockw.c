@@ -7,7 +7,7 @@ char buf[500000];
 int main(void)
 {
     int ntowrite, nwrite;
-    char* ptr;
+    char *ptr;
 
     ntowrite = read(STDIN_FILENO, buf, sizeof(buf));
     fprintf(stderr, "read %d bytes\n", ntowrite);

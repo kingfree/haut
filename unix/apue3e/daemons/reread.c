@@ -6,12 +6,9 @@ sigset_t mask;
 
 extern int already_running(void);
 
-void reread(void)
-{
-    /* ... */
-}
+void reread(void) { /* ... */}
 
-void* thr_fn(void* arg)
+void *thr_fn(void *arg)
 {
     int err, signo;
 
@@ -39,11 +36,11 @@ void* thr_fn(void* arg)
     return (0);
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     int err;
     pthread_t tid;
-    char* cmd;
+    char *cmd;
     struct sigaction sa;
 
     if ((cmd = strrchr(argv[0], '/')) == NULL)
@@ -52,21 +49,21 @@ int main(int argc, char* argv[])
         cmd++;
 
     /*
-	 * Become a daemon.
-	 */
+         * Become a daemon.
+         */
     daemonize(cmd);
 
     /*
-	 * Make sure only one copy of the daemon is running.
-	 */
+         * Make sure only one copy of the daemon is running.
+         */
     if (already_running()) {
         syslog(LOG_ERR, "daemon already running");
         exit(1);
     }
 
     /*
-	 * Restore SIGHUP default and block all signals.
-	 */
+         * Restore SIGHUP default and block all signals.
+         */
     sa.sa_handler = SIG_DFL;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
@@ -77,15 +74,14 @@ int main(int argc, char* argv[])
         err_exit(err, "SIG_BLOCK error");
 
     /*
-	 * Create a thread to handle SIGHUP and SIGTERM.
-	 */
+         * Create a thread to handle SIGHUP and SIGTERM.
+         */
     err = pthread_create(&tid, NULL, thr_fn, 0);
-    if (err != 0)
-        err_exit(err, "can't create thread");
+    if (err != 0) err_exit(err, "can't create thread");
 
     /*
-	 * Proceed with the rest of the daemon.
-	 */
+         * Proceed with the rest of the daemon.
+         */
     /* ... */
     exit(0);
 }

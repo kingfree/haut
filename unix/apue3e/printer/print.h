@@ -37,33 +37,30 @@
 #define IPP_PORT 631
 #define QLEN 10
 
-#define IBUFSZ 512 /* IPP header buffer size */
-#define HBUFSZ 512 /* HTTP header buffer size */
+#define IBUFSZ 512   /* IPP header buffer size */
+#define HBUFSZ 512   /* HTTP header buffer size */
 #define IOBUFSZ 8192 /* data buffer size */
 
 #ifndef ETIME
 #define ETIME ETIMEDOUT
 #endif
 
-extern int getaddrlist(const char*, const char*,
-    struct addrinfo**);
-extern char* get_printserver(void);
-extern struct addrinfo* get_printaddr(void);
-extern ssize_t tread(int, void*, size_t, unsigned int);
-extern ssize_t treadn(int, void*, size_t, unsigned int);
-extern int connect_retry(int, int, int, const struct sockaddr*,
-    socklen_t);
-extern int initserver(int, const struct sockaddr*, socklen_t,
-    int);
+extern int getaddrlist(const char *, const char *, struct addrinfo **);
+extern char *get_printserver(void);
+extern struct addrinfo *get_printaddr(void);
+extern ssize_t tread(int, void *, size_t, unsigned int);
+extern ssize_t treadn(int, void *, size_t, unsigned int);
+extern int connect_retry(int, int, int, const struct sockaddr *, socklen_t);
+extern int initserver(int, const struct sockaddr *, socklen_t, int);
 
 /*
  * Structure describing a print request.
  */
 struct printreq {
-    uint32_t size; /* size in bytes */
-    uint32_t flags; /* see below */
+    uint32_t size;           /* size in bytes */
+    uint32_t flags;          /* see below */
     char usernm[USERNM_MAX]; /* user's name */
-    char jobnm[JOBNM_MAX]; /* job's name */
+    char jobnm[JOBNM_MAX];   /* job's name */
 };
 
 /*
@@ -75,8 +72,8 @@ struct printreq {
  * The response from the spooling daemon to the print command.
  */
 struct printresp {
-    uint32_t retcode; /* 0=success, !0=error code */
-    uint32_t jobid; /* job ID */
+    uint32_t retcode;     /* 0=success, !0=error code */
+    uint32_t jobid;       /* job ID */
     char msg[MSGLEN_MAX]; /* error message */
 };
 

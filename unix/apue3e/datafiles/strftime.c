@@ -5,7 +5,7 @@
 int main(void)
 {
     time_t t;
-    struct tm* tmp;
+    struct tm *tmp;
     char buf1[16];
     char buf2[64];
 

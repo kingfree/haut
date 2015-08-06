@@ -5,10 +5,7 @@
 extern int lockfile(int);
 extern int already_running(void);
 
-void reread(void)
-{
-    /* ... */
-}
+void reread(void) { /* ... */}
 
 void sigterm(int signo)
 {
@@ -22,9 +19,9 @@ void sighup(int signo)
     reread();
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    char* cmd;
+    char *cmd;
     struct sigaction sa;
 
     if ((cmd = strrchr(argv[0], '/')) == NULL)
@@ -33,21 +30,21 @@ int main(int argc, char* argv[])
         cmd++;
 
     /*
-	 * Become a daemon.
-	 */
+         * Become a daemon.
+         */
     daemonize(cmd);
 
     /*
-	 * Make sure only one copy of the daemon is running.
-	 */
+         * Make sure only one copy of the daemon is running.
+         */
     if (already_running()) {
         syslog(LOG_ERR, "daemon already running");
         exit(1);
     }
 
     /*
-	 * Handle signals of interest.
-	 */
+         * Handle signals of interest.
+         */
     sa.sa_handler = sigterm;
     sigemptyset(&sa.sa_mask);
     sigaddset(&sa.sa_mask, SIGHUP);
@@ -66,8 +63,8 @@ int main(int argc, char* argv[])
     }
 
     /*
-	 * Proceed with the rest of the daemon.
-	 */
+         * Proceed with the rest of the daemon.
+         */
     /* ... */
     exit(0);
 }

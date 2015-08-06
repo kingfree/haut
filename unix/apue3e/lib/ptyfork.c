@@ -1,9 +1,9 @@
 #include "apue.h"
 #include <termios.h>
 
-pid_t pty_fork(int* ptrfdm, char* slave_name, int slave_namesz,
-    const struct termios* slave_termios,
-    const struct winsize* slave_winsize)
+pid_t pty_fork(int *ptrfdm, char *slave_name, int slave_namesz,
+               const struct termios *slave_termios,
+               const struct winsize *slave_winsize)
 {
     int fdm, fds;
     pid_t pid;
@@ -14,37 +14,33 @@ pid_t pty_fork(int* ptrfdm, char* slave_name, int slave_namesz,
 
     if (slave_name != NULL) {
         /*
-		 * Return name of slave.  Null terminate to handle case
-		 * where strlen(pts_name) > slave_namesz.
-		 */
+                 * Return name of slave.  Null terminate to handle case
+                 * where strlen(pts_name) > slave_namesz.
+                 */
         strncpy(slave_name, pts_name, slave_namesz);
         slave_name[slave_namesz - 1] = '\0';
     }
 
     if ((pid = fork()) < 0) {
         return (-1);
-    }
-    else if (pid == 0) { /* child */
-        if (setsid() < 0)
-            err_sys("setsid error");
+    } else if (pid == 0) { /* child */
+        if (setsid() < 0) err_sys("setsid error");
 
         /*
-		 * System V acquires controlling terminal on open().
-		 */
-        if ((fds = ptys_open(pts_name)) < 0)
-            err_sys("can't open slave pty");
+                 * System V acquires controlling terminal on open().
+                 */
+        if ((fds = ptys_open(pts_name)) < 0) err_sys("can't open slave pty");
         close(fdm); /* all done with master in child */
 
 #if defined(BSD)
         /*
-		 * TIOCSCTTY is the BSD way to acquire a controlling terminal.
-		 */
-        if (ioctl(fds, TIOCSCTTY, (char*)0) < 0)
-            err_sys("TIOCSCTTY error");
+                 * TIOCSCTTY is the BSD way to acquire a controlling terminal.
+                 */
+        if (ioctl(fds, TIOCSCTTY, (char *)0) < 0) err_sys("TIOCSCTTY error");
 #endif
         /*
-		 * Set slave's termios and window size.
-		 */
+                 * Set slave's termios and window size.
+                 */
         if (slave_termios != NULL) {
             if (tcsetattr(fds, TCSANOW, slave_termios) < 0)
                 err_sys("tcsetattr error on slave pty");
@@ -55,8 +51,8 @@ pid_t pty_fork(int* ptrfdm, char* slave_name, int slave_namesz,
         }
 
         /*
-		 * Slave becomes stdin/stdout/stderr of child.
-		 */
+                 * Slave becomes stdin/stdout/stderr of child.
+                 */
         if (dup2(fds, STDIN_FILENO) != STDIN_FILENO)
             err_sys("dup2 error to stdin");
         if (dup2(fds, STDOUT_FILENO) != STDOUT_FILENO)
@@ -65,10 +61,9 @@ pid_t pty_fork(int* ptrfdm, char* slave_name, int slave_namesz,
             err_sys("dup2 error to stderr");
         if (fds != STDIN_FILENO && fds != STDOUT_FILENO && fds != STDERR_FILENO)
             close(fds);
-        return (0); /* child returns 0 just like fork() */
-    }
-    else { /* parent */
+        return (0);    /* child returns 0 just like fork() */
+    } else {           /* parent */
         *ptrfdm = fdm; /* return fd of master */
-        return (pid); /* parent returns pid of child */
+        return (pid);  /* parent returns pid of child */
     }
 }

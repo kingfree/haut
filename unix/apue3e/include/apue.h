@@ -19,7 +19,7 @@
 #include <sys/ioctl.h>
 #endif
 
-#include <stdio.h> /* for convenience */
+#include <stdio.h>  /* for convenience */
 #include <stdlib.h> /* for convenience */
 #include <stddef.h> /* for offsetof */
 #include <string.h> /* for convenience */
@@ -46,8 +46,8 @@ typedef void Sigfunc(int); /* for signal handlers */
 /*
  * Prototypes for our own functions.
  */
-char* path_alloc(size_t*); /* {Prog pathalloc} */
-long open_max(void); /* {Prog openmax} */
+char *path_alloc(size_t *); /* {Prog pathalloc} */
+long open_max(void);        /* {Prog openmax} */
 
 int set_cloexec(int); /* {Prog setfd} */
 void clr_fl(int, int);
@@ -55,38 +55,36 @@ void set_fl(int, int); /* {Prog setfl} */
 
 void pr_exit(int); /* {Prog prexit} */
 
-void pr_mask(const char*); /* {Prog prmask} */
-Sigfunc* signal_intr(int, Sigfunc*); /* {Prog signal_intr_function} */
+void pr_mask(const char *);           /* {Prog prmask} */
+Sigfunc *signal_intr(int, Sigfunc *); /* {Prog signal_intr_function} */
 
-void daemonize(const char*); /* {Prog daemoninit} */
+void daemonize(const char *); /* {Prog daemoninit} */
 
-void sleep_us(unsigned int); /* {Ex sleepus} */
-ssize_t readn(int, void*, size_t); /* {Prog readn_writen} */
-ssize_t writen(int, const void*, size_t); /* {Prog readn_writen} */
+void sleep_us(unsigned int);               /* {Ex sleepus} */
+ssize_t readn(int, void *, size_t);        /* {Prog readn_writen} */
+ssize_t writen(int, const void *, size_t); /* {Prog readn_writen} */
 
-int fd_pipe(int*); /* {Prog sock_fdpipe} */
-int recv_fd(int, ssize_t (*func)(int,
-                     const void*, size_t)); /* {Prog recvfd_sockets} */
-int send_fd(int, int); /* {Prog sendfd_sockets} */
-int send_err(int, int,
-    const char*); /* {Prog senderr} */
-int serv_listen(const char*); /* {Prog servlisten_sockets} */
-int serv_accept(int, uid_t*); /* {Prog servaccept_sockets} */
-int cli_conn(const char*); /* {Prog cliconn_sockets} */
-int buf_args(char*, int (*func)(int,
-                        char**)); /* {Prog bufargs} */
+int fd_pipe(int *); /* {Prog sock_fdpipe} */
+int recv_fd(int, ssize_t (*func)(int, const void *,
+                                 size_t));       /* {Prog recvfd_sockets} */
+int send_fd(int, int);                           /* {Prog sendfd_sockets} */
+int send_err(int, int, const char *);            /* {Prog senderr} */
+int serv_listen(const char *);                   /* {Prog servlisten_sockets} */
+int serv_accept(int, uid_t *);                   /* {Prog servaccept_sockets} */
+int cli_conn(const char *);                      /* {Prog cliconn_sockets} */
+int buf_args(char *, int (*func)(int, char **)); /* {Prog bufargs} */
 
-int tty_cbreak(int); /* {Prog raw} */
-int tty_raw(int); /* {Prog raw} */
-int tty_reset(int); /* {Prog raw} */
-void tty_atexit(void); /* {Prog raw} */
-struct termios* tty_termios(void); /* {Prog raw} */
+int tty_cbreak(int);               /* {Prog raw} */
+int tty_raw(int);                  /* {Prog raw} */
+int tty_reset(int);                /* {Prog raw} */
+void tty_atexit(void);             /* {Prog raw} */
+struct termios *tty_termios(void); /* {Prog raw} */
 
-int ptym_open(char*, int); /* {Prog ptyopen} */
-int ptys_open(char*); /* {Prog ptyopen} */
+int ptym_open(char *, int); /* {Prog ptyopen} */
+int ptys_open(char *);      /* {Prog ptyopen} */
 #ifdef TIOCGWINSZ
-pid_t pty_fork(int*, char*, int, const struct termios*,
-    const struct winsize*); /* {Prog ptyfork} */
+pid_t pty_fork(int *, char *, int, const struct termios *,
+               const struct winsize *); /* {Prog ptyfork} */
 #endif
 
 int lock_reg(int, int, int, off_t, int, off_t); /* {Prog lockreg} */
@@ -109,20 +107,20 @@ pid_t lock_test(int, int, off_t, int, off_t); /* {Prog locktest} */
 #define is_write_lockable(fd, offset, whence, len) \
     (lock_test((fd), F_WRLCK, (offset), (whence), (len)) == 0)
 
-void err_msg(const char*, ...); /* {App misc_source} */
-void err_dump(const char*, ...) __attribute__((noreturn));
-void err_quit(const char*, ...) __attribute__((noreturn));
-void err_cont(int, const char*, ...);
-void err_exit(int, const char*, ...) __attribute__((noreturn));
-void err_ret(const char*, ...);
-void err_sys(const char*, ...) __attribute__((noreturn));
+void err_msg(const char *, ...); /* {App misc_source} */
+void err_dump(const char *, ...) __attribute__((noreturn));
+void err_quit(const char *, ...) __attribute__((noreturn));
+void err_cont(int, const char *, ...);
+void err_exit(int, const char *, ...) __attribute__((noreturn));
+void err_ret(const char *, ...);
+void err_sys(const char *, ...) __attribute__((noreturn));
 
-void log_msg(const char*, ...); /* {App misc_source} */
-void log_open(const char*, int, int);
-void log_quit(const char*, ...) __attribute__((noreturn));
-void log_ret(const char*, ...);
-void log_sys(const char*, ...) __attribute__((noreturn));
-void log_exit(int, const char*, ...) __attribute__((noreturn));
+void log_msg(const char *, ...); /* {App misc_source} */
+void log_open(const char *, int, int);
+void log_quit(const char *, ...) __attribute__((noreturn));
+void log_ret(const char *, ...);
+void log_sys(const char *, ...) __attribute__((noreturn));
+void log_exit(int, const char *, ...) __attribute__((noreturn));
 
 void TELL_WAIT(void); /* parent/child from {Sec race_conditions} */
 void TELL_PARENT(pid_t);

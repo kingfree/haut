@@ -2,8 +2,8 @@
 
 int main(void)
 {
-    FILE* fp;
-    char* p;
+    FILE *fp;
+    char *p;
 
     daemonize("getlog");
     p = getlogin();

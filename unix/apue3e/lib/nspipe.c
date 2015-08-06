@@ -5,7 +5,7 @@
 #include <sys/un.h>
 
 int /* returns 0 if all OK, -1 if error (with errno set) */
-    ns_pipe(const char* name, int fd[2])
+    ns_pipe(const char *name, int fd[2])
 {
     int len;
     struct sockaddr_un unix_addr;
@@ -20,6 +20,6 @@ int /* returns 0 if all OK, -1 if error (with errno set) */
     strcpy(unix_addr.sun_path, name);
     len = strlen(unix_addr.sun_path) + sizeof(unix_addr.sun_family);
 
-    return (bind(fd[0], (struct sockaddr*)&unix_addr, len));
+    return (bind(fd[0], (struct sockaddr *)&unix_addr, len));
     /* fd[0] has the name bound to it */
 }

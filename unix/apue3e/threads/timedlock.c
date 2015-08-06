@@ -5,7 +5,7 @@ int main(void)
 {
     int err;
     struct timespec tout;
-    struct tm* tmp;
+    struct tm *tmp;
     char buf[64];
     pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 

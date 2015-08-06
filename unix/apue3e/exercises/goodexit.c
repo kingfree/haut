@@ -5,7 +5,7 @@ struct foo {
     int a, b, c, d;
 };
 
-void printfoo(const char* s, const struct foo* fp)
+void printfoo(const char *s, const struct foo *fp)
 {
     fputs(s, stdout);
     printf("  structure at 0x%lx\n", (unsigned long)fp);
@@ -15,9 +15,9 @@ void printfoo(const char* s, const struct foo* fp)
     printf("  foo.d = %d\n", fp->d);
 }
 
-void* thr_fn1(void* arg)
+void *thr_fn1(void *arg)
 {
-    struct foo* fp;
+    struct foo *fp;
 
     if ((fp = malloc(sizeof(struct foo))) == NULL)
         err_sys("can't allocate memory");
@@ -26,21 +26,19 @@ void* thr_fn1(void* arg)
     fp->c = 3;
     fp->d = 4;
     printfoo("thread:\n", fp);
-    return ((void*)fp);
+    return ((void *)fp);
 }
 
 int main(void)
 {
     int err;
     pthread_t tid1;
-    struct foo* fp;
+    struct foo *fp;
 
     err = pthread_create(&tid1, NULL, thr_fn1, NULL);
-    if (err != 0)
-        err_exit(err, "can't create thread 1");
-    err = pthread_join(tid1, (void*)&fp);
-    if (err != 0)
-        err_exit(err, "can't join with thread 1");
+    if (err != 0) err_exit(err, "can't create thread 1");
+    err = pthread_join(tid1, (void *)&fp);
+    if (err != 0) err_exit(err, "can't join with thread 1");
     printfoo("parent:\n", fp);
     exit(0);
 }

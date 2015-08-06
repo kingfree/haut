@@ -9,7 +9,7 @@
  * Create a server endpoint of a connection.
  * Returns fd if all OK, <0 on error.
  */
-int serv_listen(const char* name)
+int serv_listen(const char *name)
 {
     int fd, len, err, rval;
     struct sockaddr_un un;
@@ -20,8 +20,7 @@ int serv_listen(const char* name)
     }
 
     /* create a UNIX domain stream socket */
-    if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
-        return (-2);
+    if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) return (-2);
 
     unlink(name); /* in case it already exists */
 
@@ -32,7 +31,7 @@ int serv_listen(const char* name)
     len = offsetof(struct sockaddr_un, sun_path) + strlen(name);
 
     /* bind the name to the descriptor */
-    if (bind(fd, (struct sockaddr*)&un, len) < 0) {
+    if (bind(fd, (struct sockaddr *)&un, len) < 0) {
         rval = -3;
         goto errout;
     }

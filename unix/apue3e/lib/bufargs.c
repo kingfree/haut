@@ -1,6 +1,6 @@
 #include "apue.h"
 
-#define MAXARGC 50 /* max number of arguments in buf */
+#define MAXARGC 50    /* max number of arguments in buf */
 #define WHITE " \t\n" /* white space for tokenizing arguments */
 
 /*
@@ -10,7 +10,7 @@
  * else we return whatever optfunc() returns.  Note that user's buf[]
  * array is modified (nulls placed after each token).
  */
-int buf_args(char* buf, int (*optfunc)(int, char**))
+int buf_args(char *buf, int (*optfunc)(int, char **))
 {
     char *ptr, *argv[MAXARGC];
     int argc;
@@ -26,9 +26,9 @@ int buf_args(char* buf, int (*optfunc)(int, char**))
     argv[++argc] = NULL;
 
     /*
-	 * Since argv[] pointers point into the user's buf[],
-	 * user's function can just copy the pointers, even
-	 * though argv[] array will disappear on return.
-	 */
+         * Since argv[] pointers point into the user's buf[],
+         * user's function can just copy the pointers, even
+         * though argv[] array will disappear on return.
+         */
     return ((*optfunc)(argc, argv));
 }

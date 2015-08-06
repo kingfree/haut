@@ -8,14 +8,14 @@
 #endif
 
 static void set_noecho(int); /* at the end of this file */
-void do_driver(char*); /* in the file driver.c */
-void loop(int, int); /* in the file loop.c */
+void do_driver(char *);      /* in the file driver.c */
+void loop(int, int);         /* in the file loop.c */
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     int fdm, c, ignoreeof, interactive, noecho, verbose;
     pid_t pid;
-    char* driver;
+    char *driver;
     char slave_name[20];
     struct termios orig_termios;
     struct winsize size;
@@ -59,22 +59,18 @@ int main(int argc, char* argv[])
     if (interactive) { /* fetch current termios and window size */
         if (tcgetattr(STDIN_FILENO, &orig_termios) < 0)
             err_sys("tcgetattr error on stdin");
-        if (ioctl(STDIN_FILENO, TIOCGWINSZ, (char*)&size) < 0)
+        if (ioctl(STDIN_FILENO, TIOCGWINSZ, (char *)&size) < 0)
             err_sys("TIOCGWINSZ error");
-        pid = pty_fork(&fdm, slave_name, sizeof(slave_name),
-            &orig_termios, &size);
-    }
-    else {
-        pid = pty_fork(&fdm, slave_name, sizeof(slave_name),
-            NULL, NULL);
+        pid = pty_fork(&fdm, slave_name, sizeof(slave_name), &orig_termios,
+                       &size);
+    } else {
+        pid = pty_fork(&fdm, slave_name, sizeof(slave_name), NULL, NULL);
     }
 
     if (pid < 0) {
         err_sys("fork error");
-    }
-    else if (pid == 0) { /* child */
-        if (noecho)
-            set_noecho(STDIN_FILENO); /* stdin is slave pty */
+    } else if (pid == 0) {                    /* child */
+        if (noecho) set_noecho(STDIN_FILENO); /* stdin is slave pty */
 
         if (execvp(argv[optind], &argv[optind]) < 0)
             err_sys("can't execute: %s", argv[optind]);
@@ -82,8 +78,7 @@ int main(int argc, char* argv[])
 
     if (verbose) {
         fprintf(stderr, "slave name = %s\n", slave_name);
-        if (driver != NULL)
-            fprintf(stderr, "driver = %s\n", driver);
+        if (driver != NULL) fprintf(stderr, "driver = %s\n", driver);
     }
 
     if (interactive && driver == NULL) {
@@ -93,29 +88,25 @@ int main(int argc, char* argv[])
             err_sys("atexit error");
     }
 
-    if (driver)
-        do_driver(driver); /* changes our stdin/stdout */
+    if (driver) do_driver(driver); /* changes our stdin/stdout */
 
     loop(fdm, ignoreeof); /* copies stdin -> ptym, ptym -> stdout */
 
     exit(0);
 }
 
-static void
-set_noecho(int fd) /* turn off echo (for slave pty) */
+static void set_noecho(int fd) /* turn off echo (for slave pty) */
 {
     struct termios stermios;
 
-    if (tcgetattr(fd, &stermios) < 0)
-        err_sys("tcgetattr error");
+    if (tcgetattr(fd, &stermios) < 0) err_sys("tcgetattr error");
 
     stermios.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
 
     /*
-	 * Also turn off NL to CR/NL mapping on output.
-	 */
+         * Also turn off NL to CR/NL mapping on output.
+         */
     stermios.c_oflag &= ~(ONLCR);
 
-    if (tcsetattr(fd, TCSANOW, &stermios) < 0)
-        err_sys("tcsetattr error");
+    if (tcsetattr(fd, TCSANOW, &stermios) < 0) err_sys("tcsetattr error");
 }

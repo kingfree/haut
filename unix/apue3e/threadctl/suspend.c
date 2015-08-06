@@ -7,14 +7,13 @@ sigset_t mask;
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t waitloc = PTHREAD_COND_INITIALIZER;
 
-void* thr_fn(void* arg)
+void *thr_fn(void *arg)
 {
     int err, signo;
 
     for (;;) {
         err = sigwait(&mask, &signo);
-        if (err != 0)
-            err_exit(err, "sigwait failed");
+        if (err != 0) err_exit(err, "sigwait failed");
         switch (signo) {
         case SIGINT:
             printf("\ninterrupt\n");
@@ -47,12 +46,10 @@ int main(void)
         err_exit(err, "SIG_BLOCK error");
 
     err = pthread_create(&tid, NULL, thr_fn, 0);
-    if (err != 0)
-        err_exit(err, "can't create thread");
+    if (err != 0) err_exit(err, "can't create thread");
 
     pthread_mutex_lock(&lock);
-    while (quitflag == 0)
-        pthread_cond_wait(&waitloc, &lock);
+    while (quitflag == 0) pthread_cond_wait(&waitloc, &lock);
     pthread_mutex_unlock(&lock);
 
     /* SIGQUIT has been caught and is now blocked; do whatever */

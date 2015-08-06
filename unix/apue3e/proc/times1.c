@@ -1,10 +1,10 @@
 #include "apue.h"
 #include <sys/times.h>
 
-static void pr_times(clock_t, struct tms*, struct tms*);
-static void do_cmd(char*);
+static void pr_times(clock_t, struct tms *, struct tms *);
+static void do_cmd(char *);
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     int i;
 
@@ -14,8 +14,7 @@ int main(int argc, char* argv[])
     exit(0);
 }
 
-static void
-do_cmd(char* cmd) /* execute and time the "cmd" */
+static void do_cmd(char *cmd) /* execute and time the "cmd" */
 {
     struct tms tmsstart, tmsend;
     clock_t start, end;
@@ -36,22 +35,20 @@ do_cmd(char* cmd) /* execute and time the "cmd" */
     pr_exit(status);
 }
 
-static void
-pr_times(clock_t real, struct tms* tmsstart, struct tms* tmsend)
+static void pr_times(clock_t real, struct tms *tmsstart, struct tms *tmsend)
 {
     static long clktck = 0;
 
     if (clktck == 0) /* fetch clock ticks per second first time */
-        if ((clktck = sysconf(_SC_CLK_TCK)) < 0)
-            err_sys("sysconf error");
+        if ((clktck = sysconf(_SC_CLK_TCK)) < 0) err_sys("sysconf error");
 
     printf("  real:  %7.2f\n", real / (double)clktck);
     printf("  user:  %7.2f\n",
-        (tmsend->tms_utime - tmsstart->tms_utime) / (double)clktck);
+           (tmsend->tms_utime - tmsstart->tms_utime) / (double)clktck);
     printf("  sys:   %7.2f\n",
-        (tmsend->tms_stime - tmsstart->tms_stime) / (double)clktck);
+           (tmsend->tms_stime - tmsstart->tms_stime) / (double)clktck);
     printf("  child user:  %7.2f\n",
-        (tmsend->tms_cutime - tmsstart->tms_cutime) / (double)clktck);
+           (tmsend->tms_cutime - tmsstart->tms_cutime) / (double)clktck);
     printf("  child sys:   %7.2f\n",
-        (tmsend->tms_cstime - tmsstart->tms_cstime) / (double)clktck);
+           (tmsend->tms_cstime - tmsstart->tms_cstime) / (double)clktck);
 }

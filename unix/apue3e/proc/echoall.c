@@ -1,10 +1,10 @@
 #include "apue.h"
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     int i;
-    char** ptr;
-    extern char** environ;
+    char **ptr;
+    extern char **environ;
 
     for (i = 0; i < argc; i++) /* echo all command-line args */
         printf("argv[%d]: %s\n", i, argv[i]);

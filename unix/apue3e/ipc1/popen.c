@@ -6,19 +6,19 @@
 /*
  * Pointer to array allocated at run-time.
  */
-static pid_t* childpid = NULL;
+static pid_t *childpid = NULL;
 
 /*
  * From our open_max(), {Prog openmax}.
  */
 static int maxfd;
 
-FILE* popen(const char* cmdstring, const char* type)
+FILE *popen(const char *cmdstring, const char *type)
 {
     int i;
     int pfd[2];
     pid_t pid;
-    FILE* fp;
+    FILE *fp;
 
     /* only allow "r" or "w" */
     if ((type[0] != 'r' && type[0] != 'w') || type[1] != 0) {
@@ -29,12 +29,10 @@ FILE* popen(const char* cmdstring, const char* type)
     if (childpid == NULL) { /* first time through */
         /* allocate zeroed out array for child pids */
         maxfd = open_max();
-        if ((childpid = calloc(maxfd, sizeof(pid_t))) == NULL)
-            return (NULL);
+        if ((childpid = calloc(maxfd, sizeof(pid_t))) == NULL) return (NULL);
     }
 
-    if (pipe(pfd) < 0)
-        return (NULL); /* errno set by pipe() */
+    if (pipe(pfd) < 0) return (NULL); /* errno set by pipe() */
     if (pfd[0] >= maxfd || pfd[1] >= maxfd) {
         close(pfd[0]);
         close(pfd[1]);
@@ -43,17 +41,15 @@ FILE* popen(const char* cmdstring, const char* type)
     }
 
     if ((pid = fork()) < 0) {
-        return (NULL); /* errno set by fork() */
-    }
-    else if (pid == 0) { /* child */
+        return (NULL);     /* errno set by fork() */
+    } else if (pid == 0) { /* child */
         if (*type == 'r') {
             close(pfd[0]);
             if (pfd[1] != STDOUT_FILENO) {
                 dup2(pfd[1], STDOUT_FILENO);
                 close(pfd[1]);
             }
-        }
-        else {
+        } else {
             close(pfd[1]);
             if (pfd[0] != STDIN_FILENO) {
                 dup2(pfd[0], STDIN_FILENO);
@@ -63,30 +59,26 @@ FILE* popen(const char* cmdstring, const char* type)
 
         /* close all descriptors in childpid[] */
         for (i = 0; i < maxfd; i++)
-            if (childpid[i] > 0)
-                close(i);
+            if (childpid[i] > 0) close(i);
 
-        execl("/bin/sh", "sh", "-c", cmdstring, (char*)0);
+        execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
         _exit(127);
     }
 
     /* parent continues... */
     if (*type == 'r') {
         close(pfd[1]);
-        if ((fp = fdopen(pfd[0], type)) == NULL)
-            return (NULL);
-    }
-    else {
+        if ((fp = fdopen(pfd[0], type)) == NULL) return (NULL);
+    } else {
         close(pfd[0]);
-        if ((fp = fdopen(pfd[1], type)) == NULL)
-            return (NULL);
+        if ((fp = fdopen(pfd[1], type)) == NULL) return (NULL);
     }
 
     childpid[fileno(fp)] = pid; /* remember child pid for this fd */
     return (fp);
 }
 
-int pclose(FILE* fp)
+int pclose(FILE *fp)
 {
     int fd, stat;
     pid_t pid;
@@ -107,8 +99,7 @@ int pclose(FILE* fp)
     }
 
     childpid[fd] = 0;
-    if (fclose(fp) == EOF)
-        return (-1);
+    if (fclose(fp) == EOF) return (-1);
 
     while (waitpid(pid, &stat, 0) < 0)
         if (errno != EINTR)

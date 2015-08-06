@@ -11,15 +11,13 @@ int main(void)
     printf("before vfork\n"); /* we don't flush stdio */
     if ((pid = vfork()) < 0) {
         err_sys("vfork error");
-    }
-    else if (pid == 0) { /* child */
-        globvar++; /* modify parent's variables */
+    } else if (pid == 0) { /* child */
+        globvar++;         /* modify parent's variables */
         var++;
         _exit(0); /* child terminates */
     }
 
     /* parent continues here */
-    printf("pid = %ld, glob = %d, var = %d\n", (long)getpid(), globvar,
-        var);
+    printf("pid = %ld, glob = %d, var = %d\n", (long)getpid(), globvar, var);
     exit(0);
 }

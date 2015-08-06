@@ -15,8 +15,8 @@
  *
  * LOCKING: none.
  */
-int getaddrlist(const char* host, const char* service,
-    struct addrinfo** ailistpp)
+int getaddrlist(const char *host, const char *service,
+                struct addrinfo **ailistpp)
 {
     int err;
     struct addrinfo hint;
@@ -39,11 +39,10 @@ int getaddrlist(const char* host, const char* service,
  *
  * LOCKING: none.
  */
-static char*
-scan_configfile(char* keyword)
+static char *scan_configfile(char *keyword)
 {
     int n, match;
-    FILE* fp;
+    FILE *fp;
     char keybuf[MAXKWLEN], pattern[MAXFMTLEN];
     char line[MAXCFGLINE];
     static char valbuf[MAXCFGLINE];
@@ -71,22 +70,18 @@ scan_configfile(char* keyword)
  *
  * LOCKING: none.
  */
-char* get_printserver(void)
-{
-    return (scan_configfile("printserver"));
-}
+char *get_printserver(void) { return (scan_configfile("printserver")); }
 
 /*
  * Return the address of the network printer or NULL on error.
  *
  * LOCKING: none.
  */
-struct addrinfo*
-get_printaddr(void)
+struct addrinfo *get_printaddr(void)
 {
     int err;
-    char* p;
-    struct addrinfo* ailist;
+    char *p;
+    struct addrinfo *ailist;
 
     if ((p = scan_configfile("printer")) != NULL) {
         if ((err = getaddrlist(p, "ipp", &ailist)) != 0) {
@@ -106,8 +101,7 @@ get_printaddr(void)
  *
  * LOCKING: none.
  */
-ssize_t
-tread(int fd, void* buf, size_t nbytes, unsigned int timout)
+ssize_t tread(int fd, void *buf, size_t nbytes, unsigned int timout)
 {
     int nfds;
     fd_set readfds;
@@ -119,8 +113,7 @@ tread(int fd, void* buf, size_t nbytes, unsigned int timout)
     FD_SET(fd, &readfds);
     nfds = select(fd + 1, &readfds, NULL, NULL, &tv);
     if (nfds <= 0) {
-        if (nfds == 0)
-            errno = ETIME;
+        if (nfds == 0) errno = ETIME;
         return (-1);
     }
     return (read(fd, buf, nbytes));
@@ -133,8 +126,7 @@ tread(int fd, void* buf, size_t nbytes, unsigned int timout)
  *
  * LOCKING: none.
  */
-ssize_t
-treadn(int fd, void* buf, size_t nbytes, unsigned int timout)
+ssize_t treadn(int fd, void *buf, size_t nbytes, unsigned int timout)
 {
     size_t nleft;
     ssize_t nread;
@@ -146,8 +138,7 @@ treadn(int fd, void* buf, size_t nbytes, unsigned int timout)
                 return (-1); /* error, return -1 */
             else
                 break; /* error, return amount read so far */
-        }
-        else if (nread == 0) {
+        } else if (nread == 0) {
             break; /* EOF */
         }
         nleft -= nread;

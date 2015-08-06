@@ -18,7 +18,7 @@ int main(void)
     if ((pid = fork()) < 0)
         err_sys("fork error");
     else if (pid == 0) /* child */
-        abort(); /* generates SIGABRT */
+        abort();       /* generates SIGABRT */
 
     if (wait(&status) != pid) /* wait for child */
         err_sys("wait error");
@@ -27,7 +27,7 @@ int main(void)
     if ((pid = fork()) < 0)
         err_sys("fork error");
     else if (pid == 0) /* child */
-        status /= 0; /* divide by 0 generates SIGFPE */
+        status /= 0;   /* divide by 0 generates SIGFPE */
 
     if (wait(&status) != pid) /* wait for child */
         err_sys("wait error");

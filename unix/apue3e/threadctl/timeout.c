@@ -3,11 +3,11 @@
 #include <time.h>
 #include <sys/time.h>
 
-extern int makethread(void* (*)(void*), void*);
+extern int makethread(void *(*)(void *), void *);
 
 struct to_info {
-    void (*to_fn)(void*); /* function */
-    void* to_arg; /* argument */
+    void (*to_fn)(void *);   /* function */
+    void *to_arg;            /* argument */
     struct timespec to_wait; /* time to wait */
 };
 
@@ -21,7 +21,7 @@ struct to_info {
 #define CLOCK_REALTIME 0
 #define USECTONSEC 1000 /* microseconds to nanoseconds */
 
-void clock_gettime(int id, struct timespec* tsp)
+void clock_gettime(int id, struct timespec *tsp)
 {
     struct timeval tv;
 
@@ -31,25 +31,26 @@ void clock_gettime(int id, struct timespec* tsp)
 }
 #endif
 
-void* timeout_helper(void* arg)
+void *timeout_helper(void *arg)
 {
-    struct to_info* tip;
+    struct to_info *tip;
 
-    tip = (struct to_info*)arg;
+    tip = (struct to_info *)arg;
     clock_nanosleep(CLOCK_REALTIME, 0, &tip->to_wait, NULL);
     (*tip->to_fn)(tip->to_arg);
     free(arg);
     return (0);
 }
 
-void timeout(const struct timespec* when, void (*func)(void*), void* arg)
+void timeout(const struct timespec *when, void (*func)(void *), void *arg)
 {
     struct timespec now;
-    struct to_info* tip;
+    struct to_info *tip;
     int err;
 
     clock_gettime(CLOCK_REALTIME, &now);
-    if ((when->tv_sec > now.tv_sec) || (when->tv_sec == now.tv_sec && when->tv_nsec > now.tv_nsec)) {
+    if ((when->tv_sec > now.tv_sec) ||
+        (when->tv_sec == now.tv_sec && when->tv_nsec > now.tv_nsec)) {
         tip = malloc(sizeof(struct to_info));
         if (tip != NULL) {
             tip->to_fn = func;
@@ -57,12 +58,11 @@ void timeout(const struct timespec* when, void (*func)(void*), void* arg)
             tip->to_wait.tv_sec = when->tv_sec - now.tv_sec;
             if (when->tv_nsec >= now.tv_nsec) {
                 tip->to_wait.tv_nsec = when->tv_nsec - now.tv_nsec;
-            }
-            else {
+            } else {
                 tip->to_wait.tv_sec--;
                 tip->to_wait.tv_nsec = SECTONSEC - now.tv_nsec + when->tv_nsec;
             }
-            err = makethread(timeout_helper, (void*)tip);
+            err = makethread(timeout_helper, (void *)tip);
             if (err == 0)
                 return;
             else
@@ -71,16 +71,16 @@ void timeout(const struct timespec* when, void (*func)(void*), void* arg)
     }
 
     /*
-	 * We get here if (a) when <= now, or (b) malloc fails, or
-	 * (c) we can't make a thread, so we just call the function now.
-	 */
+         * We get here if (a) when <= now, or (b) malloc fails, or
+         * (c) we can't make a thread, so we just call the function now.
+         */
     (*func)(arg);
 }
 
 pthread_mutexattr_t attr;
 pthread_mutex_t mutex;
 
-void retry(void* arg)
+void retry(void *arg)
 {
     pthread_mutex_lock(&mutex);
 
@@ -96,8 +96,7 @@ int main(void)
 
     if ((err = pthread_mutexattr_init(&attr)) != 0)
         err_exit(err, "pthread_mutexattr_init failed");
-    if ((err = pthread_mutexattr_settype(&attr,
-             PTHREAD_MUTEX_RECURSIVE)) != 0)
+    if ((err = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0)
         err_exit(err, "can't set recursive type");
     if ((err = pthread_mutex_init(&mutex, &attr)) != 0)
         err_exit(err, "can't create recursive mutex");
@@ -107,16 +106,16 @@ int main(void)
     pthread_mutex_lock(&mutex);
 
     /*
-	 * Check the condition under the protection of a lock to
-	 * make the check and the call to timeout atomic.
-	 */
+         * Check the condition under the protection of a lock to
+         * make the check and the call to timeout atomic.
+         */
     if (condition) {
         /*
-		 * Calculate the absolute time when we want to retry.
-		 */
+                 * Calculate the absolute time when we want to retry.
+                 */
         clock_gettime(CLOCK_REALTIME, &when);
         when.tv_sec += 10; /* 10 seconds from now */
-        timeout(&when, retry, (void*)((unsigned long)arg));
+        timeout(&when, retry, (void *)((unsigned long)arg));
     }
     pthread_mutex_unlock(&mutex);
 

@@ -4,9 +4,9 @@
 #include <sys/msg.h>
 #include <sys/socket.h>
 
-#define NQ 3 /* number of queues */
+#define NQ 3       /* number of queues */
 #define MAXMSZ 512 /* maximum message size */
-#define KEY 0x123 /* key for first message queue */
+#define KEY 0x123  /* key for first message queue */
 
 struct threadinfo {
     int qid;
@@ -18,18 +18,17 @@ struct mymesg {
     char mtext[MAXMSZ];
 };
 
-void* helper(void* arg)
+void *helper(void *arg)
 {
     int n;
     struct mymesg m;
-    struct threadinfo* tip = arg;
+    struct threadinfo *tip = arg;
 
     for (;;) {
         memset(&m, 0, sizeof(m));
         if ((n = msgrcv(tip->qid, &m, MAXMSZ, 0, MSG_NOERROR)) < 0)
             err_sys("msgrcv error");
-        if (write(tip->fd, m.mtext, n) < 0)
-            err_sys("write error");
+        if (write(tip->fd, m.mtext, n) < 0) err_sys("write error");
     }
 }
 
@@ -60,8 +59,7 @@ int main()
     }
 
     for (;;) {
-        if (poll(pfd, NQ, -1) < 0)
-            err_sys("poll error");
+        if (poll(pfd, NQ, -1) < 0) err_sys("poll error");
         for (i = 0; i < NQ; i++) {
             if (pfd[i].revents & POLLIN) {
                 if ((n = read(pfd[i].fd, buf, sizeof(buf))) < 0)

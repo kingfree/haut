@@ -9,10 +9,8 @@ int main(void)
 {
     char line[MAXLINE];
 
-    if (setjmp(jmpbuffer) != 0)
-        printf("error");
-    while (fgets(line, MAXLINE, stdin) != NULL)
-        do_line(line);
+    if (setjmp(jmpbuffer) != 0) printf("error");
+    while (fgets(line, MAXLINE, stdin) != NULL) do_line(line);
     exit(0);
 }
 

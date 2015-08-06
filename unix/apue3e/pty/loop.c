@@ -13,8 +13,7 @@ void loop(int ptym, int ignoreeof)
 
     if ((child = fork()) < 0) {
         err_sys("fork error");
-    }
-    else if (child == 0) { /* child copies stdin to ptym */
+    } else if (child == 0) { /* child copies stdin to ptym */
         for (;;) {
             if ((nread = read(STDIN_FILENO, buf, BUFFSIZE)) < 0)
                 err_sys("read error from stdin");
@@ -25,17 +24,16 @@ void loop(int ptym, int ignoreeof)
         }
 
         /*
-		 * We always terminate when we encounter an EOF on stdin,
-		 * but we notify the parent only if ignoreeof is 0.
-		 */
-        if (ignoreeof == 0)
-            kill(getppid(), SIGTERM); /* notify parent */
+                 * We always terminate when we encounter an EOF on stdin,
+                 * but we notify the parent only if ignoreeof is 0.
+                 */
+        if (ignoreeof == 0) kill(getppid(), SIGTERM); /* notify parent */
         exit(0); /* and terminate; child can't return */
     }
 
     /*
-	 * Parent copies ptym to stdout.
-	 */
+         * Parent copies ptym to stdout.
+         */
     if (signal_intr(SIGTERM, sig_term) == SIG_ERR)
         err_sys("signal_intr error for SIGTERM");
 
@@ -47,24 +45,23 @@ void loop(int ptym, int ignoreeof)
     }
 
     /*
-	 * There are three ways to get here: sig_term() below caught the
-	 * SIGTERM from the child, we read an EOF on the pty master (which
-	 * means we have to signal the child to stop), or an error.
-	 */
+         * There are three ways to get here: sig_term() below caught the
+         * SIGTERM from the child, we read an EOF on the pty master (which
+         * means we have to signal the child to stop), or an error.
+         */
     if (sigcaught == 0) /* tell child if it didn't send us the signal */
         kill(child, SIGTERM);
 
     /*
-	 * Parent returns to caller.
-	 */
+         * Parent returns to caller.
+         */
 }
 
 /*
  * The child sends us SIGTERM when it gets EOF on the pty slave or
  * when read() fails.  We probably interrupted the read() of ptym.
  */
-static void
-sig_term(int signo)
+static void sig_term(int signo)
 {
     sigcaught = 1; /* just set flag and return */
 }

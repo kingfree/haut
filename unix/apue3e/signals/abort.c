@@ -26,8 +26,8 @@ void abort(void) /* POSIX-style abort() function */
     /* If we're here, process caught SIGABRT and returned */
     fflush(NULL); /* flush all open stdio streams */
     action.sa_handler = SIG_DFL;
-    sigaction(SIGABRT, &action, NULL); /* reset to default */
+    sigaction(SIGABRT, &action, NULL);     /* reset to default */
     sigprocmask(SIG_SETMASK, &mask, NULL); /* just in case ... */
-    kill(getpid(), SIGABRT); /* and one more time */
+    kill(getpid(), SIGABRT);               /* and one more time */
     exit(1); /* this should never be executed ... */
 }

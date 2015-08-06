@@ -16,7 +16,7 @@
 #define CREDSLEN CMSG_LEN(sizeof(struct CREDSTRUCT))
 #define CONTROLLEN (RIGHTSLEN + CREDSLEN)
 
-static struct cmsghdr* cmptr = NULL; /* malloc'ed first time */
+static struct cmsghdr *cmptr = NULL; /* malloc'ed first time */
 
 /*
  * Pass a file descriptor to another process.
@@ -24,8 +24,8 @@ static struct cmsghdr* cmptr = NULL; /* malloc'ed first time */
  */
 int send_fd(int fd, int fd_to_send)
 {
-    struct CREDSTRUCT* credp;
-    struct cmsghdr* cmp;
+    struct CREDSTRUCT *credp;
+    struct cmsghdr *cmp;
     struct iovec iov[1];
     struct msghdr msg;
     char buf[2]; /* send_fd/recv_ufd 2-byte protocol */
@@ -40,25 +40,22 @@ int send_fd(int fd, int fd_to_send)
     if (fd_to_send < 0) {
         msg.msg_control = NULL;
         msg.msg_controllen = 0;
-        buf[1] = -fd_to_send; /* nonzero status means error */
-        if (buf[1] == 0)
-            buf[1] = 1; /* -256, etc. would screw up protocol */
-    }
-    else {
-        if (cmptr == NULL && (cmptr = malloc(CONTROLLEN)) == NULL)
-            return (-1);
+        buf[1] = -fd_to_send;        /* nonzero status means error */
+        if (buf[1] == 0) buf[1] = 1; /* -256, etc. would screw up protocol */
+    } else {
+        if (cmptr == NULL && (cmptr = malloc(CONTROLLEN)) == NULL) return (-1);
         msg.msg_control = cmptr;
         msg.msg_controllen = CONTROLLEN;
         cmp = cmptr;
         cmp->cmsg_level = SOL_SOCKET;
         cmp->cmsg_type = SCM_RIGHTS;
         cmp->cmsg_len = RIGHTSLEN;
-        *(int*)CMSG_DATA(cmp) = fd_to_send; /* the fd to pass */
+        *(int *)CMSG_DATA(cmp) = fd_to_send; /* the fd to pass */
         cmp = CMSG_NXTHDR(&msg, cmp);
         cmp->cmsg_level = SOL_SOCKET;
         cmp->cmsg_type = SCM_CREDTYPE;
         cmp->cmsg_len = CREDSLEN;
-        credp = (struct CREDSTRUCT*)CMSG_DATA(cmp);
+        credp = (struct CREDSTRUCT *)CMSG_DATA(cmp);
 #if defined(SCM_CREDENTIALS)
         credp->uid = geteuid();
         credp->gid = getegid();
@@ -67,7 +64,6 @@ int send_fd(int fd, int fd_to_send)
         buf[1] = 0; /* zero status means OK */
     }
     buf[0] = 0; /* null byte flag to recv_ufd() */
-    if (sendmsg(fd, &msg, 0) != 2)
-        return (-1);
+    if (sendmsg(fd, &msg, 0) != 2) return (-1);
     return (0);
 }

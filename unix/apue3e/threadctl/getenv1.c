@@ -5,9 +5,9 @@
 
 static char envbuf[MAXSTRINGSZ];
 
-extern char** environ;
+extern char **environ;
 
-char* getenv(const char* name)
+char *getenv(const char *name)
 {
     int i, len;
 

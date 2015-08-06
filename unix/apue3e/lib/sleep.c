@@ -1,13 +1,11 @@
 #include "apue.h"
 
-static void
-sig_alrm(int signo)
+static void sig_alrm(int signo)
 {
     /* nothing to do, just returning wakes up sigsuspend() */
 }
 
-unsigned int
-sleep(unsigned int seconds)
+unsigned int sleep(unsigned int seconds)
 {
     struct sigaction newact, oldact;
     sigset_t newmask, oldmask, suspmask;

@@ -1,7 +1,7 @@
 #include "apue.h"
 #include <fcntl.h>
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     int i, fd;
     struct stat statbuf;

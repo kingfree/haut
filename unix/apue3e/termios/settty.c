@@ -16,7 +16,7 @@ int main(void)
         err_sys("tcgetattr error");
 
     term.c_cc[VINTR] = vdisable; /* disable INTR character */
-    term.c_cc[VEOF] = 2; /* EOF is Control-B */
+    term.c_cc[VEOF] = 2;         /* EOF is Control-B */
 
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &term) < 0)
         err_sys("tcsetattr error");

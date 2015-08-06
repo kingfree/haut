@@ -15,16 +15,13 @@ int main(void)
 
     if ((pid = fork()) < 0) {
         err_sys("fork error");
-    }
-    else if (pid == 0) { /* child */
-        globvar++; /* modify variables */
+    } else if (pid == 0) { /* child */
+        globvar++;         /* modify variables */
         var++;
-    }
-    else {
+    } else {
         sleep(2); /* parent */
     }
 
-    printf("pid = %ld, glob = %d, var = %d\n", (long)getpid(), globvar,
-        var);
+    printf("pid = %ld, glob = %d, var = %d\n", (long)getpid(), globvar, var);
     exit(0);
 }

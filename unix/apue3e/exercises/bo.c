@@ -5,7 +5,7 @@
 int main(void)
 {
     uint32_t i = 0x04030201;
-    unsigned char* cp = (unsigned char*)&i;
+    unsigned char *cp = (unsigned char *)&i;
 
     if (*cp == 1)
         printf("little-endian\n");

@@ -6,8 +6,7 @@ int main(void)
     int i, n;
     int fd[2];
 
-    if (pipe(fd) < 0)
-        err_sys("pipe error");
+    if (pipe(fd) < 0) err_sys("pipe error");
     set_fl(fd[1], O_NONBLOCK);
 
     /* write 1 byte at a time until pipe is full */

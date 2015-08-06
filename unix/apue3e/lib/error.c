@@ -1,14 +1,14 @@
 #include "apue.h"
-#include <errno.h> /* for definition of errno */
+#include <errno.h>  /* for definition of errno */
 #include <stdarg.h> /* ISO C variable aruments */
 
-static void err_doit(int, int, const char*, va_list);
+static void err_doit(int, int, const char *, va_list);
 
 /*
  * Nonfatal error related to a system call.
  * Print a message and return.
  */
-void err_ret(const char* fmt, ...)
+void err_ret(const char *fmt, ...)
 {
     va_list ap;
 
@@ -21,7 +21,7 @@ void err_ret(const char* fmt, ...)
  * Fatal error related to a system call.
  * Print a message and terminate.
  */
-void err_sys(const char* fmt, ...)
+void err_sys(const char *fmt, ...)
 {
     va_list ap;
 
@@ -36,7 +36,7 @@ void err_sys(const char* fmt, ...)
  * Error code passed as explict parameter.
  * Print a message and return.
  */
-void err_cont(int error, const char* fmt, ...)
+void err_cont(int error, const char *fmt, ...)
 {
     va_list ap;
 
@@ -50,7 +50,7 @@ void err_cont(int error, const char* fmt, ...)
  * Error code passed as explict parameter.
  * Print a message and terminate.
  */
-void err_exit(int error, const char* fmt, ...)
+void err_exit(int error, const char *fmt, ...)
 {
     va_list ap;
 
@@ -64,7 +64,7 @@ void err_exit(int error, const char* fmt, ...)
  * Fatal error related to a system call.
  * Print a message, dump core, and terminate.
  */
-void err_dump(const char* fmt, ...)
+void err_dump(const char *fmt, ...)
 {
     va_list ap;
 
@@ -79,7 +79,7 @@ void err_dump(const char* fmt, ...)
  * Nonfatal error unrelated to a system call.
  * Print a message and return.
  */
-void err_msg(const char* fmt, ...)
+void err_msg(const char *fmt, ...)
 {
     va_list ap;
 
@@ -92,7 +92,7 @@ void err_msg(const char* fmt, ...)
  * Fatal error unrelated to a system call.
  * Print a message and terminate.
  */
-void err_quit(const char* fmt, ...)
+void err_quit(const char *fmt, ...)
 {
     va_list ap;
 
@@ -106,15 +106,14 @@ void err_quit(const char* fmt, ...)
  * Print a message and return to caller.
  * Caller specifies "errnoflag".
  */
-static void
-err_doit(int errnoflag, int error, const char* fmt, va_list ap)
+static void err_doit(int errnoflag, int error, const char *fmt, va_list ap)
 {
     char buf[MAXLINE];
 
     vsnprintf(buf, MAXLINE - 1, fmt, ap);
     if (errnoflag)
         snprintf(buf + strlen(buf), MAXLINE - strlen(buf) - 1, ": %s",
-            strerror(error));
+                 strerror(error));
     strcat(buf, "\n");
     fflush(stdout); /* in case stdout and stderr are the same */
     fputs(buf, stderr);

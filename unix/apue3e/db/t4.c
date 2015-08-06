@@ -6,8 +6,7 @@ int main(void)
 {
     DBHANDLE db;
 
-    if ((db = db_open("db4", O_RDWR | O_CREAT | O_TRUNC,
-             FILE_MODE)) == NULL)
+    if ((db = db_open("db4", O_RDWR | O_CREAT | O_TRUNC, FILE_MODE)) == NULL)
         err_sys("db_open error");
 
     if (db_store(db, "Alpha", "data1", DB_INSERT) != 0)

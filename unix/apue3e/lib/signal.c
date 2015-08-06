@@ -1,8 +1,7 @@
 #include "apue.h"
 
 /* Reliable version of signal(), using POSIX sigaction().  */
-Sigfunc*
-signal(int signo, Sigfunc* func)
+Sigfunc *signal(int signo, Sigfunc *func)
 {
     struct sigaction act, oact;
 
@@ -13,11 +12,9 @@ signal(int signo, Sigfunc* func)
 #ifdef SA_INTERRUPT
         act.sa_flags |= SA_INTERRUPT;
 #endif
-    }
-    else {
+    } else {
         act.sa_flags |= SA_RESTART;
     }
-    if (sigaction(signo, &act, &oact) < 0)
-        return (SIG_ERR);
+    if (sigaction(signo, &act, &oact) < 0) return (SIG_ERR);
     return (oact.sa_handler);
 }

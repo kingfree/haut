@@ -10,7 +10,7 @@
  * Create a client endpoint and connect to a server.
  * Returns fd if all OK, <0 on error.
  */
-int cli_conn(const char* name)
+int cli_conn(const char *name)
 {
     int fd, len, err, rval;
     struct sockaddr_un un, sun;
@@ -22,8 +22,7 @@ int cli_conn(const char* name)
     }
 
     /* create a UNIX domain stream socket */
-    if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
-        return (-1);
+    if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) return (-1);
 
     /* fill socket address structure with our address */
     memset(&un, 0, sizeof(un));
@@ -33,7 +32,7 @@ int cli_conn(const char* name)
     len = offsetof(struct sockaddr_un, sun_path) + strlen(un.sun_path);
 
     unlink(un.sun_path); /* in case it already exists */
-    if (bind(fd, (struct sockaddr*)&un, len) < 0) {
+    if (bind(fd, (struct sockaddr *)&un, len) < 0) {
         rval = -2;
         goto errout;
     }
@@ -48,7 +47,7 @@ int cli_conn(const char* name)
     sun.sun_family = AF_UNIX;
     strcpy(sun.sun_path, name);
     len = offsetof(struct sockaddr_un, sun_path) + strlen(name);
-    if (connect(fd, (struct sockaddr*)&sun, len) < 0) {
+    if (connect(fd, (struct sockaddr *)&sun, len) < 0) {
         rval = -4;
         do_unlink = 1;
         goto errout;
@@ -58,8 +57,7 @@ int cli_conn(const char* name)
 errout:
     err = errno;
     close(fd);
-    if (do_unlink)
-        unlink(un.sun_path);
+    if (do_unlink) unlink(un.sun_path);
     errno = err;
     return (rval);
 }
