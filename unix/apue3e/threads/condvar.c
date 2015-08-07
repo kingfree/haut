@@ -2,7 +2,7 @@
 
 struct msg {
     struct msg *m_next;
-    /* ... more stuff here ... */
+    /* ... 其他成员 ... */
 };
 
 struct msg *workq;
@@ -21,7 +21,7 @@ void process_msg(void)
         mp = workq;
         workq = mp->m_next;
         pthread_mutex_unlock(&qlock);
-        /* now process the message mp */
+        /* 现在处理消息 mp */
     }
 }
 
