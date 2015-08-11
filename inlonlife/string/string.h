@@ -9,6 +9,7 @@
 typedef struct string string;
 
 string *string_new();
+string *string_build(const char *fmt, ...);
 string *string_init(string *s);
 
 void string_free(string *s);
@@ -23,6 +24,7 @@ long string_empty(string *s);
 string *string_ncat(string *s, size_t n, const char *fmt, ...);
 string *string_cat(string *s, const char *fmt, ...);
 
+bool string_equals(string *s1, const char *s2);
 long string_compare(string *s1, string *s2);
 
 string *string_tolower(string *s);
